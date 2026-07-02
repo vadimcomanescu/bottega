@@ -1,6 +1,7 @@
 // argv -> library -> stdout/stderr/exit code. Run as a side effect of import
 // so bin/bottega.js can stay a thin shim.
 import {
+  CorruptLockError,
   NoFeatureFilesError,
   UnsignedError,
   sign,
@@ -35,6 +36,10 @@ function runVerify(cwd: string): number {
     if (err instanceof UnsignedError) {
       process.stderr.write(`${err.message}\n`);
       return 2;
+    }
+    if (err instanceof CorruptLockError) {
+      process.stderr.write(`corrupt lock: ${err.message}\n`);
+      return 3;
     }
     throw err;
   }

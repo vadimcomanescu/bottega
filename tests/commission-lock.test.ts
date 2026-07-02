@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   mkdirSync,
@@ -8,8 +9,10 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+  CorruptLockError,
   NoFeatureFilesError,
   UnsignedError,
   lockPath,
@@ -90,6 +93,15 @@ describe("sign", () => {
 
     expect(second).toBe(first);
   });
+
+  it("ignores a directory whose name ends in .feature", () => {
+    writeFeature("features/login.feature", "Feature: Login\n");
+    mkdirSync(join(dir, "features", "oops.feature"));
+
+    const lock = sign(dir);
+
+    expect(lock.files.map((f) => f.path)).toEqual(["features/login.feature"]);
+  });
 });
 
 describe("verify", () => {
@@ -127,5 +139,99 @@ describe("verify", () => {
     writeFeature("features/extra.feature", "Feature: Extra\n");
 
     expect(verify(dir)).toEqual([{ status: "added", path: "features/extra.feature" }]);
+  });
+});
+
+describe("verify with a corrupt lock", () => {
+  const BIN = fileURLToPath(new URL("../bin/bottega.js", import.meta.url));
+  const VALID_SHA = "a".repeat(64);
+
+  function writeLock(content: string): void {
+    mkdirSync(join(dir, ".bottega"), { recursive: true });
+    writeFileSync(join(dir, ".bottega", "commission.lock"), content);
+  }
+
+  function lockWithEntries(entries: unknown): string {
+    return JSON.stringify({ version: 1, files: entries });
+  }
+
+  function runVerify(): { stdout: string; stderr: string; exitCode: number } {
+    try {
+      const stdout = execFileSync(process.execPath, [BIN, "verify"], {
+        cwd: dir,
+        encoding: "utf-8",
+      });
+      return { stdout, stderr: "", exitCode: 0 };
+    } catch (err) {
+      const e = err as { status?: number | null; stdout?: string; stderr?: string };
+      return { stdout: e.stdout ?? "", stderr: e.stderr ?? "", exitCode: e.status ?? -1 };
+    }
+  }
+
+  function expectCorrupt(result: { stdout: string; stderr: string; exitCode: number }): void {
+    expect(result.exitCode).toBe(3);
+    expect(result.stderr).toMatch(/^corrupt lock: /);
+    expect(result.stdout).toBe("");
+  }
+
+  beforeEach(() => {
+    writeFeature("features/login.feature", "Feature: Login\n");
+  });
+
+  it("exits 3 on invalid JSON instead of leaking a stacktrace", () => {
+    writeLock("{nope");
+    expectCorrupt(runVerify());
+  });
+
+  it("exits 3 on an unsupported version", () => {
+    writeLock(JSON.stringify({ version: 2, files: [] }));
+    expectCorrupt(runVerify());
+  });
+
+  it("exits 3 when files is not an array", () => {
+    writeLock(JSON.stringify({ version: 1, files: "x" }));
+    expectCorrupt(runVerify());
+  });
+
+  it("exits 3 when an entry lacks a string path or sha256", () => {
+    writeLock(lockWithEntries([{ path: "features/login.feature", sha256: 42 }]));
+    expectCorrupt(runVerify());
+  });
+
+  it("exits 3 when a sha256 is not 64 lowercase hex chars", () => {
+    writeLock(lockWithEntries([{ path: "features/login.feature", sha256: "ABC123" }]));
+    expectCorrupt(runVerify());
+  });
+
+  it("exits 3 on a traversal path outside features/", () => {
+    writeLock(lockWithEntries([{ path: "../outside.feature", sha256: VALID_SHA }]));
+    expectCorrupt(runVerify());
+  });
+
+  it("exits 3 on a dot-dot segment inside a features/ path", () => {
+    writeLock(
+      lockWithEntries([{ path: "features/../../etc/x.feature", sha256: VALID_SHA }]),
+    );
+    expectCorrupt(runVerify());
+  });
+
+  it("exits 3 on an absolute path", () => {
+    writeLock(lockWithEntries([{ path: "/etc/x.feature", sha256: VALID_SHA }]));
+    expectCorrupt(runVerify());
+  });
+
+  it("exits 3 on duplicate paths instead of printing duplicate drift lines", () => {
+    writeLock(
+      lockWithEntries([
+        { path: "features/login.feature", sha256: VALID_SHA },
+        { path: "features/login.feature", sha256: VALID_SHA },
+      ]),
+    );
+    expectCorrupt(runVerify());
+  });
+
+  it("throws CorruptLockError at the library interface", () => {
+    writeLock("{nope");
+    expect(() => verify(dir)).toThrow(CorruptLockError);
   });
 });
