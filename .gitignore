@@ -4,3 +4,4 @@ node_modules/
 .bottega/tmp/
 build-artifacts/
 *.tsbuildinfo
+build/acceptance-mutation/
