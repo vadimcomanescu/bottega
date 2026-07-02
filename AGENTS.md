@@ -6,8 +6,9 @@ An autonomous long-running agent system built for Fable to orchestrate. Read `RE
 
 | Path | What it is |
 | --- | --- |
-| `skills/bottega/SKILL.md` | Maestro doctrine — the entry point and the gates |
-| `agents/` | Actor doctrine: builder, adversary, simplifier, examiner |
+| `skills/bottega/SKILL.md` | Maestro doctrine — the entry point, gates, architecture authority, routing |
+| `skills/implementing`, `skills/reviewing`, `skills/examining` | Self-contained actor methodology (nothing loaded from any host pack) |
+| `agents/` | Actor identity: builder, reviewer, examiner — each points at its skill; no model pins |
 | `features/` | Signed commissions (Gherkin). **Locked after sign-off — never edit** |
 | `docs/commissions/` | Commission contracts (intent, non-goals, decisions log) |
 | `src/`, `tests/` | The `bottega` CLI (`sign`, `verify`) and its unit tests |

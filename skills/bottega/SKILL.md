@@ -1,33 +1,36 @@
 ---
 name: bottega
-description: Run the bottega loop — the seven-phase long-running pipeline (Research → Discover → Spec → Design → Plan → Build → Review) with APS-locked executable acceptance. Use when the user invokes /bottega, commissions work, or asks for an autonomous end-to-end build.
+description: Run the bottega loop — commission → autonomous build → evidenced delivery. Use when the user invokes /bottega, commissions work, or asks for an autonomous end-to-end build with signed acceptance.
 ---
 
 # Bottega — the maestro loop
 
-Origin: the patron's pipeline design (`agents-skills/pipeline-design.html`, v3 — seven phases, each deletion-tested, sources quoted there). Bottega is that pipeline plus one addition v3 lacks: the **commission lock** — acceptance criteria as APS-parsed feature files, frozen at sign-off, mutation-proven at review. You are the maestro/coordinator: you classify, dispatch, arbitrate, and keep state; you never research, build, or review content yourself.
+*You are the maestro: architect, planner, router, arbiter. The patron appears exactly twice — signing the commission, reading the delivery — and every design decision in between is yours, never a worker's.*
 
-**Prerequisites:** the agents-skills pack (canonical `~/.agents/skills/`, read by Claude Code, Codex, Gemini, OpenCode). Actors load pack skills — `tdd-mutation`, `codebase-design`, `verification-before-completion`, `systematic-debugging`, `spec`, `code-reviewer` — methodology is never duplicated into bottega.
+Bottega is self-contained: its agents (`agents/`) and skills (`skills/implementing`, `skills/reviewing`, `skills/examining`) carry all doctrine. The one external requirement is the **codex plugin** (cross-family dispatch). Check it before phase 2 (`ls ~/.claude/plugins/cache | grep -i codex` or the plugin's agent in the registry); absent → stop and tell the patron. Never assume any other skill or pack exists on the host.
 
-**State** lives in files, not context (sessions are durable event logs): `.agent/research.md`, `goal.md`, `spec.md`, `design/`, `tasks.json`, `progress.md`, `evidence/<task-id>/`, plus bottega's `features/*.feature` + `.bottega/` (lock, pinned APS toolchain, per-sha verification archives). Re-read state before every dispatch.
+## Phase 1 — Commission (interactive, minutes)
 
-## Phases
+1. Read the code first. Ask at most three questions — only what the request genuinely underdetermines; scale question count to task size (bug fix: 0–1, greenfield: a handful).
+2. Write the contract, one page ceiling, `docs/commissions/NNNN-<slug>.md`: Intent (two sentences) / Non-goals / Decisions log (seeded with calls already made). Acceptance lives in `features/*.feature` — Given/When/Then in the domain's own words, Scenario Outlines with Examples wherever values matter (mutation needs values to flip).
+3. Present as HTML, never a wall of markdown: fill `skills/bottega/assets/commission-sign-off.html` (intent, scenarios verbatim, non-goals, rendered prototype screenshot for anything UI) and give the patron the absolute path. Sign off → `SIGNED <id>` comes back; Request changes → feedback block comes back, loop to 2.
+4. On `SIGNED`: `bottega sign`, commit contract + lock. `features/` is frozen; `bottega verify` polices it (0 clean / 1 drift / 2 unsigned / 3 corrupt). Completion: lock committed, generated acceptance suite runs RED.
 
-Every human gate is an HTML page with real actions (approve / request changes, feedback persisted) — the patron clicks, never reads walls of markdown. Give the absolute file path. Templates under `skills/bottega/assets/`.
+## Phase 2 — Run (autonomous)
 
-**0 · Research** — *the coordinator never researches.* Classify intent (TRIVIAL / BUG_FIX / REFACTOR / MID_SIZED / GREENFIELD — drives question count and rigor; TRIVIAL skips this phase). Parallel subagents: external topics (best practice, prior art, pitfalls) and codebase concerns, never both in one agent; then a cross-reference pass — external-first is what shifts architecture off training-data priors. Output `research.md` with Quality Commands + Verification Tooling tables (consumed by Plan and Review). Gate: patron approves recommendations + open questions.
+**Architecture — yours alone.** Design the spine before any dispatch: the modules, each module's **interface** (everything a caller must know: signature, invariants, ordering, error modes), its **depth** (behavior hidden behind that interface — deep = much behavior, small interface), the **seams** between them (places behavior can change without editing in place; one adapter = hypothetical seam, two = real). Apply the **deletion test** to every module: delete it — if complexity just vanishes, it was hiding nothing; if it reappears across callers, it earns its place. Design it twice; keep the shape simpler for callers. Output: a per-slice interface contract inside each dossier. Workers implement within it and never invent boundaries.
 
-**1 · Discover** — *the goal must be small enough to bound the build.* Ask only what research didn't answer (TRIVIAL 0–1 questions … GREENFIELD 5–10). Output `goal.md`: Problem / Outcome / Acceptance Criteria / Non-Goals — and the acceptance criteria are written as `features/*.feature` (Given/When/Then, Scenario Outlines with example values — mutation needs values to flip). HTML sign-off gate. On approval: **`bottega sign`** — the contract freezes; `bottega verify` polices it from here (exit 0/1/2/3); no actor may edit `features/`.
+**Slices.** Vertical, independently shippable, cut along the seams. Worktree per slice (`.bottega/wt/<slice>/`) when parallel; ≤5 in flight. Commits: `<slice>: RED …` → `<slice>: … (green)` → `bottega: integrate <slice>`.
 
-**2 · Spec** — *specs and implementation are separate ralphs.* Writer drafts `spec.md`: Concepts, User Stories (extensive), Decisions (one paragraph each: decision + why + alternative rejected — no ADR ceremony), Modules — in the LANGUAGE vocabulary, exactly: **module** (interface + implementation, scale-agnostic), **interface** (everything a caller must know: signature + invariants + ordering + error modes + perf), **depth** (behavior per unit of interface learned), **seam** (place to alter behavior without editing in place; one adapter = hypothetical seam, two = real), **adapter**, **context**. Every proposed module answers the **deletion test**. A critic on the opposite model reviews independently (agreed / disagreed-on-X / missing-Y); unresolved disagreement surfaces to the patron. HTML gate: decision diff, module table with interface-vs-depth assessment. No tasks, no file paths in the spec.
+**Build.** Dispatch implementors with self-contained dossiers: slice intent, red tests, interface contract, owned files, and the instruction to follow `skills/implementing`. One task per invocation — the worker commits, reports, stops.
 
-**3 · Design** (only when UI scope) — *motion and interaction can't be described, only felt.* `design/screens.html` — one self-contained clickable file, one screen per primary user job, real states (loading/empty/error/success), mocked data; plus `tokens.css`. The HTML gate IS the artifact: the patron clicks through and approves, cuts, or merges screens. No production code in the mock.
+**Review, per slice.** A reviewer on the **opposite model family from whoever built the slice** (record the family per slice), following `skills/reviewing` — correctness AND architectural conformance against the dossier's interface contract. Fresh reviewer each round; the same worker persists to apply fixes; cap 8 rounds, then stop and analyze why convergence failed. You arbitrate every finding: confirmed → route the fix; refuted → log why. When a reviewer's sandbox blocks its probes, pre-build fixtures it can drive read-only — "could not test" never passes as "no findings".
 
-**4 · Plan** — *make the change easy, then make the easy change.* Decompose spec (+design) into atomic tasks: **≤3 files, ≤50 LOC, single named acceptance signal**, tagged `refactor` XOR `behavior` — never both (Beck). Build the DAG (`depends_on`, parallelizable marked, **max 5 in flight**). Plan-editor loop: fresh critic per round, READY or REVISED, **cap 5 rounds**; not converged → dispatch an analyzer for why, surface to patron. Output `tasks.json`. HTML gate: DAG visual, refactor/behavior balance. No code, no "TODO: implement X" tasks.
+**Examine.** The examiner (`skills/examining`) drives every signed scenario against the real artifact; evidence archived.
 
-**5 · Build** — *one task per worker invocation: commit, push, promise NEXT, stop.* Workers in isolated git worktrees; model per the routing table below, **alternating families per task and recorded** — the judge will be the opposite model. Worker: failing test first, code, `make check && make test` (or the research.md Quality Commands), evidence into `.agent/evidence/<task-id>/`, commit, HARD STOP — never scope decisions, never files outside its task, never weakened or deleted tests, never the next task. Coordinator re-reads `tasks.json` + `progress.md` before every dispatch and records result + model + commit + evidence path after.
+**Verify.** `bottega verify` + acceptance run + acceptance mutation **against a COPY of the feature file** (`cp features/x.feature build/acceptance-mutation/` — the mutator writes a differential-cache block into whatever it reads; that cache must never land in the signed file, where byte-hashing reads it as tampering). Survivors are findings: kill or justify in `equivalent-mutants.json`. Archive everything at `.bottega/verify/<sha>/`.
 
-**6 · Review** — *if you haven't seen the code do the right thing, the code doesn't work.* Per task, automatic: a **fresh judge per round, opposite model from the worker**, runs the reviewer prompt from the design doc verbatim (JSON observations with severity, expected/observed, evidence actually inspected — never invented). **Test ratchet:** any skipped, weakened, deleted, or loosened test is a critical blocking issue, no acceptable reason exists. Blocking issues → resume the **same persistent worker** with the JSON as fix input; fresh judge next round; **cap 8 rounds**, then analyzer + surface. Judge never modifies code. Per milestone, the mechanical layer runs: `bottega verify` + APS acceptance run + **acceptance mutation against a COPY of the feature file** (the mutator's stamp/manifest is a differential cache, never lands in the signed file) — survivors are findings: kill or justify in `equivalent-mutants.json`; archive at `.bottega/verify/<sha>/`. Milestone HTML gate: evidence wall (screenshots, flows, test results, judge verdicts) — humans approve milestones, not tasks.
+**Deliver.** PR body: scenario checklist, evidence links, findings fixed, decisions log, release decision, and a **decision-coverage check** — every commission decision and patron instruction from the session maps to an artifact or an explicit not-done flag. Completion: a delivery that only proves the code is not a delivery.
 
 ## Routing
 
@@ -35,23 +38,21 @@ Axis scores maintained by the patron (cost = what he actually pays; intelligence
 
 | model | cost | intelligence | taste |
 | --- | --- | --- | --- |
-| gpt-5.5 (Codex CLI) | 9 | 8 | 5 |
+| gpt-5.5 (codex plugin) | 9 | 8 | 5 |
 | sonnet-5 | 5 | 5 | 7 |
 | opus-4.8 | 4 | 7 | 8 |
 | fable-5 | 2 | 9 | 9 |
 
-- Defaults, not limits — **standing permission to escalate** when output misses the bar; judge the output, not the price tag.
-- **Intelligence > taste > cost** for anything that ships; cost breaks ties.
-- Bulk/mechanical (clear-spec tasks, migrations, analysis): gpt-5.5 — effectively free. Codex reasoning **medium minimum, high for review, never low**.
-- User-facing anything needs **taste ≥ 7** (sonnet floor; opus/fable above). **Never Haiku.**
-- Reviews: highest intelligence (fable/opus) AND opposite family from the producer — both constraints, always satisfiable because the builder family is recorded per task.
-- Mechanics: gpt-5.5 is reached through the **codex plugin** (its agents/skills) — never by shelling the CLI directly. Give it a self-contained brief and the sandbox mode; a silently stalled run is relaunched through the plugin, not routed around. Claude tiers via the Agent/Workflow `model` parameter.
+- Defaults, not limits — standing permission to escalate when output misses the bar. Judge the output, not the price tag.
+- **Intelligence > taste > cost** for anything that ships; cost breaks ties only.
+- Bulk/mechanical (clear-spec implementation, migrations, analysis): gpt-5.5 — effectively free. Codex effort medium minimum, high for review, never low.
+- Anything user-facing needs **taste ≥ 7** (sonnet floor; opus/fable above). **Never Haiku.**
+- Review: highest intelligence available AND the opposite family from the producer — both, always.
+- gpt-5.5 is reached through the **codex plugin only** — self-contained brief, sandbox named; a silently stalled run is relaunched through the plugin, never routed around. Claude tiers via the Agent/Workflow `model` parameter. No model is ever pinned in an agent file.
 
 ## Standing rules
 
-- Underdetermined product calls: make them, log them in goal.md's decisions, flag at delivery.
-- Vendor skills beat weights: load the provider's skill before its stack.
-- Never pipe a test command; redirect to a file, check the exit code.
+- Underdetermined product calls: make them, log them in the Decisions log, flag at delivery.
+- Vendor skills beat weights: load the provider's skill for any stack you touch, when the host has it.
+- Never pipe a test command; redirect to a file and check the exit code.
 - A silently stalled agent turn is a failed run to relaunch, never a clean report.
-- When a judge's sandbox blocks its probes, pre-build fixtures it can drive read-only; "could not test" never passes as "no findings".
-- Delivery ends with a **decision-coverage check**: every decision in goal.md/spec.md and every patron instruction from the session maps to an artifact or an explicit not-done flag. A delivery that only proves the code is not a delivery.

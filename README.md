@@ -15,24 +15,27 @@ Unsupervised runs fail by satisfying a proxy for the goal, so every gate that ca
 
 ## The cast
 
-| Actor | Doctrine | Runs on |
+Agents say who; skills say how. Both ship in this repo — bottega assumes nothing about the host except the codex plugin (checked before any run; absent → fail loudly).
+
+| Actor | Identity | Methodology |
 | --- | --- | --- |
-| **Maestro** | [`skills/bottega/SKILL.md`](skills/bottega/SKILL.md) — commission, decompose, route, arbitrate, deliver | Fable |
-| **Builder** | [`agents/bottega-builder.md`](agents/bottega-builder.md) — one slice to green; red first; simplest code that could work; deep modules | sonnet, or codex at medium+ |
-| **Adversary** | [`agents/bottega-adversary.md`](agents/bottega-adversary.md) — cold diff, concrete failure scenarios, confirmed breakages only | the family that did NOT build the slice |
-| **Simplifier** | [`agents/bottega-simplifier.md`](agents/bottega-simplifier.md) — shrink interfaces, delete speculative structure, never capability | strong |
-| **Examiner** | [`agents/bottega-examiner.md`](agents/bottega-examiner.md) — drives the artifact as a user; evidence or it didn't happen | any + agent-browser |
+| **Maestro** (Fable) | architect, planner, router, arbiter — all design authority | [`skills/bottega/SKILL.md`](skills/bottega/SKILL.md) |
+| **Implementor** | one dossier to green, deliberately simple | [`agents/bottega-builder.md`](agents/bottega-builder.md) → [`skills/implementing/SKILL.md`](skills/implementing/SKILL.md) — test-first loop, the ladder, the fences |
+| **Reviewer** | the sophisticated one; opposite family from the builder, fresh per round | [`agents/bottega-reviewer.md`](agents/bottega-reviewer.md) → [`skills/reviewing/SKILL.md`](skills/reviewing/SKILL.md) — break it, test ratchet, architectural conformance |
+| **Examiner** | drives the artifact as a user; evidence or it didn't happen | [`agents/bottega-examiner.md`](agents/bottega-examiner.md) → [`skills/examining/SKILL.md`](skills/examining/SKILL.md) |
 
-Doctrine is saved; control flow within a phase is authored fresh per run. The phase sequence is the patron's pipeline design (`agents-skills/pipeline-design.html` v3 — seven phases, each deletion-tested, sources quoted there); bottega adds the layer v3 lacks: acceptance criteria as APS-locked feature files, frozen at sign-off, mutation-proven at review.
+Models are never pinned in agent files — the maestro routes per dispatch from the axis table in its skill (intelligence > taste > cost; bulk to codex, never below medium; user-facing needs taste ≥ 7; review always the opposite family; never Haiku; standing permission to escalate).
+
+Doctrine is saved; control flow is authored fresh per run — a stored pipeline is a plan document wearing a costume. The invariant gates:
 
 ```
-0 Research ─▶ 1 Discover (goal + features signed: bottega sign) ─▶ 2 Spec (writer + opposite-model critic)
-  ─▶ 3 Design (screens.html, UI only) ─▶ 4 Plan (atomic tasks, DAG, editor loop ×5)
-  ─▶ 5 Build (workers, worktrees, HARD STOP, alternating families)
-  ─▶ 6 Review (fresh opposite-model judge ×8, test ratchet; verify + acceptance mutation; evidence wall)
+commission signed (HTML gate → bottega sign) ─▶ acceptance RED
+  ─▶ maestro designs the architecture ─▶ slices built in worktrees (one task per invocation)
+  ─▶ reviewer rounds: fresh opposite-family reviewer ×≤8, persistent worker, maestro arbitrates
+  ─▶ examiner drives it ─▶ verify: lock + acceptance + mutation, evidence archived ─▶ delivery PR
 ```
 
-Every human gate is a clickable HTML page (approve / request changes), never a wall of markdown.
+Human gates are clickable HTML pages (approve / request changes), never walls of markdown.
 
 ## The two artifacts a human ever reads
 
@@ -61,11 +64,11 @@ Requires Node ≥ 22.18 (the bin shim runs TypeScript through native type stripp
 
 ## Install into a host repo
 
-1. Copy `agents/*.md` into the host's `.claude/agents/`, `skills/bottega/` into its skills directory.
+1. Copy `agents/*.md` into the host's `.claude/agents/` and all of `skills/` into its skills directory — bottega is self-contained; the only assumed capability is the codex plugin (the run fails loudly without it).
 2. `install.sh --version v0.1.0 --bin-dir .bottega/bin` from the [acceptance-pipeline-kit](https://github.com/vadimcomanescu/acceptance-pipeline-kit), plus its `@aps-kit/typescript` package; pin hashes in `.bottega/aps.lock`.
 3. Wire `bottega verify` into the host's delivery gate.
 4. Commission work with `/bottega`.
 
 ## Provenance
 
-Primary origin: the patron's own [pipeline design v3](https://github.com/vadimcomanescu/agents-skills/blob/main/pipeline-design.html) and [agents-skills](https://github.com/vadimcomanescu/agents-skills) pack (methodology loaded, never duplicated). Enforcement layer: [Acceptance Pipeline Specification](https://github.com/unclebob/Acceptance-Pipeline-Specification) (Robert C. Martin) via its [multi-language kit](https://github.com/vadimcomanescu/acceptance-pipeline-kit). Vocabulary: Pocock's LANGUAGE.md (module / interface / depth / seam / deletion test). Builder discipline: [ponytail](https://github.com/DietrichGebert/ponytail)'s seven-rung ladder — lazy, not negligent. Run mechanics validated in the June 2026 bottega playgrounds (worktrees, pinned toolchains, per-sha evidence archives).
+The doctrine in `skills/` is extracted and owned — read from the sources once, then self-contained; bottega never loads methodology from a host. Credits: the [Acceptance Pipeline Specification](https://github.com/unclebob/Acceptance-Pipeline-Specification) (Robert C. Martin) via its [multi-language kit](https://github.com/vadimcomanescu/acceptance-pipeline-kit) for the executable-acceptance layer · Pocock's LANGUAGE vocabulary (module / interface / depth / seam / deletion test) and skill-writing craft · [ponytail](https://github.com/DietrichGebert/ponytail)'s ladder — lazy, not negligent · Osmani's long-running-agents learnings (separate generation from evaluation; the test ratchet) · Ousterhout's deep modules · run mechanics validated in the June 2026 bottega playgrounds (worktrees, pinned toolchains, per-sha evidence archives).
