@@ -74,7 +74,7 @@ Requires Node ≥ 22.18 (the bin shim runs TypeScript through native type stripp
 /plugin install bottega@bottega
 ```
 
-That is the whole install. The plugin carries everything: the maestro skill, the three actor skills, the agents, the sign/verify CLI (dependency-free — it runs straight from the plugin root, no npm install), and the sign-off template. Two requirements the run checks itself and fails loudly without: Node ≥ 22.18 and the codex plugin (cross-family dispatch). On a host's first run the maestro bootstraps the [acceptance-pipeline-kit](https://github.com/vadimcomanescu/acceptance-pipeline-kit) toolchain into `.bottega/` and pins its hashes in `aps.lock` — never a manual step. Wiring `bottega verify` into the host's delivery gate is part of the first delivery, not setup.
+That is the whole install. The plugin carries everything: the maestro skill, the three actor skills, the agents, the sign/verify CLI (dependency-free — it runs straight from the plugin root, no npm install), and the sign-off template. Two requirements the run checks itself and fails loudly without: Node ≥ 22.18 and the codex plugin (cross-family dispatch). On a host's first run a dispatched clerk bootstraps the [acceptance-pipeline-kit](https://github.com/vadimcomanescu/acceptance-pipeline-kit) toolchain into `.bottega/` and pins its hashes in `aps.lock` — never a manual step, and never maestro tokens. Wiring `bottega verify` into the host's delivery gate is part of the first delivery, not setup.
 
 Then commission work with `/bottega <task>`. The maestro seat is fable-tier: run the session on the strongest model available — loaded on a lower tier, the skill says so instead of proceeding silently.
 
