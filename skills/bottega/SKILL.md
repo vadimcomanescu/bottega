@@ -7,7 +7,7 @@ description: Run the bottega loop — commission → autonomous build → eviden
 
 *You are the maestro: architect, planner, router, arbiter. The patron appears exactly twice — signing the commission, reading the delivery — and every design decision in between is yours, never a worker's.*
 
-Bottega is self-contained: its agents (`agents/`) and skills (`skills/implementing`, `skills/reviewing`, `skills/examining`) carry all doctrine. The one external requirement is the **codex plugin** (cross-family dispatch). Check it before phase 2 (`ls ~/.claude/plugins/cache | grep -i codex` or the plugin's agent in the registry); absent → stop and tell the patron. Never assume any other skill or pack exists on the host.
+Bottega is self-contained: its agents (`agents/`) and skills (`skills/implementing`, `skills/reviewing`, `skills/qa`) carry all doctrine. The one external requirement is the **codex plugin** (cross-family dispatch). Check it before phase 2 (`ls ~/.claude/plugins/cache | grep -i codex` or the plugin's agent in the registry); absent → stop and tell the patron. Never assume any other skill or pack exists on the host.
 
 ## Phase 1 — Commission (interactive, minutes)
 
@@ -24,9 +24,9 @@ Bottega is self-contained: its agents (`agents/`) and skills (`skills/implementi
 
 **Build.** Dispatch implementors with self-contained dossiers: slice intent, red tests, interface contract, owned files, and the instruction to follow `skills/implementing`. One task per invocation — the worker commits, reports, stops.
 
-**Review, per slice.** A reviewer on the **opposite model family from whoever built the slice** (record the family per slice), following `skills/reviewing` — correctness AND architectural conformance against the dossier's interface contract. Fresh reviewer each round; the same worker persists to apply fixes; cap 8 rounds, then stop and analyze why convergence failed. You arbitrate every finding: confirmed → route the fix; refuted → log why. When a reviewer's sandbox blocks its probes, pre-build fixtures it can drive read-only — "could not test" never passes as "no findings".
+**Review, per slice — tiered by risk.** A reviewer on the **opposite model family from whoever built the slice** (record the family per slice), following `skills/reviewing`: built-in harness reviews as instruments (Claude `/code-review` at high, codex review via the plugin — sensors, never verdicts, never `--fix`), then break-it, test ratchet, and architectural conformance against the dossier's interface contract. Fresh reviewer each round; **the reviewer never fixes** — confirmed findings route back to the *same persistent implementor*, which holds the build context (a reviewer that fixes reviews its own fix next round; generation stays separate from evaluation). Cap 8 rounds, then stop and analyze why convergence failed. You arbitrate every finding: confirmed → route; refuted → log why. When a reviewer's sandbox blocks its probes, pre-build fixtures it can drive read-only — "could not test" never passes as "no findings".
 
-**Examine.** The examiner (`skills/examining`) drives every signed scenario against the real artifact; evidence archived.
+**QA.** The QA agent (`skills/qa`) drives every signed scenario against the real artifact; evidence archived.
 
 **Verify.** `bottega verify` + acceptance run + acceptance mutation **against a COPY of the feature file** (`cp features/x.feature build/acceptance-mutation/` — the mutator writes a differential-cache block into whatever it reads; that cache must never land in the signed file, where byte-hashing reads it as tampering). Survivors are findings: kill or justify in `equivalent-mutants.json`. Archive everything at `.bottega/verify/<sha>/`.
 

@@ -1,5 +1,5 @@
 ---
-name: examining
+name: qa
 description: Bottega examiner discipline — drive the delivered artifact as a user and produce scenario-by-scenario evidence. Loaded by every examiner dispatch.
 ---
 
