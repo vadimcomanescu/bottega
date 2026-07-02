@@ -11,15 +11,15 @@ Unsupervised runs fail by satisfying a proxy for the goal, so every gate that ca
 - **The contract is executable.** Commissions are Gherkin feature files. The [Acceptance Pipeline](https://github.com/vadimcomanescu/acceptance-pipeline-kit) parses them to JSON IR and *generates* the test entrypoints — no hand translation between what the patron signed and what runs.
 - **The contract is out of reach.** `bottega sign` freezes the feature files into `.bottega/commission.lock`; `bottega verify` fails the delivery gate on any drift (exit 0 clean, 1 drift, 2 unsigned). Builders that edit the spec commit forgery, and forgery is detected, not trusted away.
 - **The wiring is proven, not assumed.** Acceptance mutation flips example values in the IR and requires the suite to fail. A surviving mutation means a handler ignores a signed value — that is a finding, killed or justified in `equivalent-mutants.json`. Source mutation covers the unit layer on core domain logic.
-- **Fresh eyes are different weights.** The adversary reviews every diff cold through a different model family. Same-family review inherits the generator's blind spots.
+- **Fresh eyes are different weights.** Every diff is reviewed cold by the *complement* of whoever built it — a Claude-built slice gets a non-Claude adversary, a Codex-built slice a non-Codex one, never its own family. Same-family review inherits the generator's blind spots and looks like verification without being it.
 
 ## The cast
 
 | Actor | Doctrine | Runs on |
 | --- | --- | --- |
 | **Maestro** | [`skills/bottega/SKILL.md`](skills/bottega/SKILL.md) — commission, decompose, route, arbitrate, deliver | Fable |
-| **Builder** | [`agents/bottega-builder.md`](agents/bottega-builder.md) — one slice to green; red first; simplest code that could work; deep modules | cheap (sonnet / codex-low) |
-| **Adversary** | [`agents/bottega-adversary.md`](agents/bottega-adversary.md) — cold diff, concrete failure scenarios, confirmed breakages only | Codex (cross-family) |
+| **Builder** | [`agents/bottega-builder.md`](agents/bottega-builder.md) — one slice to green; red first; simplest code that could work; deep modules | sonnet, or codex at medium+ |
+| **Adversary** | [`agents/bottega-adversary.md`](agents/bottega-adversary.md) — cold diff, concrete failure scenarios, confirmed breakages only | the family that did NOT build the slice |
 | **Simplifier** | [`agents/bottega-simplifier.md`](agents/bottega-simplifier.md) — shrink interfaces, delete speculative structure, never capability | strong |
 | **Examiner** | [`agents/bottega-examiner.md`](agents/bottega-examiner.md) — drives the artifact as a user; evidence or it didn't happen | any + agent-browser |
 

@@ -1,6 +1,5 @@
 status elapsed=0s total=14 completed=0 running=0 killed=0 survived=0 errors=0
-status elapsed=30.001s total=14 completed=12 running=1 killed=12 survived=0 errors=0
-status elapsed=33.843s total=14 completed=14 running=0 killed=14 survived=0 errors=0
+status elapsed=15.049s total=14 completed=14 running=0 killed=14 survived=0 errors=0
 total=14 killed=14 survived=0 errors=0
 killed   $.scenarios[0].examples[0].count: 2 -> 1
 killed   $.scenarios[1].examples[0].exit: 0 -> -5
