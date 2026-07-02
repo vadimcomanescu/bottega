@@ -102,7 +102,7 @@ describe("verify", () => {
     writeFeature("features/login.feature", "Feature: Login\n");
     sign(dir);
 
-    expect(verify(dir)).toEqual({ status: "clean", drift: [] });
+    expect(verify(dir)).toEqual([]);
   });
 
   it("reports modified when a locked file's content changes", () => {
@@ -110,10 +110,7 @@ describe("verify", () => {
     sign(dir);
     writeFeature("features/login.feature", "Feature: Login\nScenario: changed\n");
 
-    const result = verify(dir);
-
-    expect(result.status).toBe("drift");
-    expect(result.drift).toEqual([{ status: "modified", path: "features/login.feature" }]);
+    expect(verify(dir)).toEqual([{ status: "modified", path: "features/login.feature" }]);
   });
 
   it("reports removed when a locked file is deleted", () => {
@@ -121,10 +118,7 @@ describe("verify", () => {
     sign(dir);
     rmSync(join(dir, "features/login.feature"));
 
-    const result = verify(dir);
-
-    expect(result.status).toBe("drift");
-    expect(result.drift).toEqual([{ status: "removed", path: "features/login.feature" }]);
+    expect(verify(dir)).toEqual([{ status: "removed", path: "features/login.feature" }]);
   });
 
   it("reports added when a new feature file appears after sign-off", () => {
@@ -132,9 +126,6 @@ describe("verify", () => {
     sign(dir);
     writeFeature("features/extra.feature", "Feature: Extra\n");
 
-    const result = verify(dir);
-
-    expect(result.status).toBe("drift");
-    expect(result.drift).toEqual([{ status: "added", path: "features/extra.feature" }]);
+    expect(verify(dir)).toEqual([{ status: "added", path: "features/extra.feature" }]);
   });
 });

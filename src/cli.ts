@@ -22,12 +22,12 @@ function runSign(cwd: string): number {
 
 function runVerify(cwd: string): number {
   try {
-    const result = verify(cwd);
-    if (result.status === "clean") {
+    const drift = verify(cwd);
+    if (drift.length === 0) {
       process.stdout.write("clean\n");
       return 0;
     }
-    for (const entry of result.drift) {
+    for (const entry of drift) {
       process.stdout.write(`${entry.status} ${entry.path}\n`);
     }
     return 1;

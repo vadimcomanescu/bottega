@@ -8,7 +8,7 @@ import {
   readFileSync,
   writeFileSync,
 } from "node:fs";
-import { join, relative, sep } from "node:path";
+import { join, sep } from "node:path";
 
 export interface LockEntry {
   path: string;
@@ -20,18 +20,9 @@ export interface Lock {
   files: LockEntry[];
 }
 
-export type DriftStatus = "modified" | "removed" | "added";
-
 export interface DriftEntry {
-  status: DriftStatus;
+  status: "modified" | "removed" | "added";
   path: string;
-}
-
-export type VerifyStatus = "clean" | "drift";
-
-export interface VerifyResult {
-  status: VerifyStatus;
-  drift: DriftEntry[];
 }
 
 export class NoFeatureFilesError extends Error {
@@ -60,30 +51,19 @@ function toPosix(path: string): string {
   return path.split(sep).join("/");
 }
 
-function walkFeatureFiles(dir: string): string[] {
-  let entries;
+function collectFeatureFiles(cwd: string): string[] {
+  let entries: string[];
   try {
-    entries = readdirSync(dir, { withFileTypes: true });
+    entries = readdirSync(join(cwd, FEATURES_DIR), {
+      recursive: true,
+      encoding: "utf-8",
+    });
   } catch {
     return [];
   }
-  const out: string[] = [];
-  for (const entry of entries) {
-    const full = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      out.push(...walkFeatureFiles(full));
-    } else if (entry.isFile() && entry.name.endsWith(".feature")) {
-      out.push(full);
-    }
-  }
-  return out;
-}
-
-function collectFeatureFiles(cwd: string): string[] {
-  const featuresDir = join(cwd, FEATURES_DIR);
-  const files = walkFeatureFiles(featuresDir).map((absPath) =>
-    toPosix(relative(cwd, absPath)),
-  );
+  const files = entries
+    .filter((entry) => entry.endsWith(".feature"))
+    .map((entry) => toPosix(join(FEATURES_DIR, entry)));
   files.sort();
   return files;
 }
@@ -101,15 +81,12 @@ export function sign(cwd: string): Lock {
     version: 1,
     files: paths.map((path) => ({ path, sha256: hashFile(join(cwd, path)) })),
   };
-  const lockDir = join(cwd, LOCK_DIR);
-  if (!existsSync(lockDir)) {
-    mkdirSync(lockDir, { recursive: true });
-  }
+  mkdirSync(join(cwd, LOCK_DIR), { recursive: true });
   writeFileSync(lockPath(cwd), `${JSON.stringify(lock, null, 2)}\n`);
   return lock;
 }
 
-export function verify(cwd: string): VerifyResult {
+export function verify(cwd: string): DriftEntry[] {
   const path = lockPath(cwd);
   if (!existsSync(path)) {
     throw new UnsignedError();
@@ -135,6 +112,5 @@ export function verify(cwd: string): VerifyResult {
     }
   }
   drift.sort((a, b) => a.path.localeCompare(b.path));
-
-  return { status: drift.length === 0 ? "clean" : "drift", drift };
+  return drift;
 }
