@@ -35,11 +35,11 @@ commission signed (HTML gate → bottega sign) ─▶ acceptance RED
   ─▶ QA drives it ─▶ verify: lock + acceptance + mutation, evidence archived ─▶ delivery PR
 ```
 
-Human gates are clickable HTML pages (approve / request changes), never walls of markdown. The entire run is isolated: branch `bottega/<commission-id>` in its own worktree, every commit lands there, and the PR is the only path to trunk — the patron's merge click is the only act that lands it. After delivery, the commission is rewritten into a closed, durable record pointing at code and evidence.
+Human gates are clickable HTML pages (approve / request changes), never walls of markdown. The entire run is isolated: branch `bottega/<spec-id>` in its own worktree, every commit lands there, and the PR is the only path to trunk — the patron's merge click is the only act that lands it. After delivery, the spec is rewritten into a closed, durable record pointing at code and evidence.
 
 ## The two artifacts a human ever reads
 
-**In:** the commission (`docs/commissions/NNNN-*.md` + `features/*.feature`) — intent in two sentences, non-goals, Given/When/Then with example values, a rendered prototype screenshot for UI work. One page, signed in minutes.
+**In:** the commission (`docs/specs/NNNN-*.md` + `features/*.feature`) — intent in two sentences, non-goals, Given/When/Then with example values, a rendered prototype screenshot for UI work. One page, signed in minutes.
 
 **Out:** the delivery PR — scenario checklist, evidence from `.bottega/verify/<sha>/`, findings fixed, and the decisions log: every call the commission underdetermined, made and flagged, because decisions in an unsupervised run are reviewed after, not asked before.
 

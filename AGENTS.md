@@ -10,7 +10,7 @@ An autonomous long-running agent system built for Fable to orchestrate. Read `RE
 | `skills/implementing`, `skills/reviewing`, `skills/qa` | Self-contained actor methodology (nothing loaded from any host pack) |
 | `agents/` | Actor identity: builder, reviewer, qa — each points at its skill; no model pins |
 | `features/` | Signed commissions (Gherkin). **Locked after sign-off — never edit** |
-| `docs/commissions/` | Commission contracts (intent, non-goals, decisions log) |
+| `docs/specs/` | Spec contracts (intent, non-goals, decisions log) |
 | `src/`, `tests/` | The `bottega` CLI (`sign`, `verify`) and its unit tests |
 | `handlers/` | APS step handlers wiring feature steps to the CLI |
 | `build/`, `acceptance/generated/` | Derived: JSON IR and generated entrypoints. Regenerate, never hand-edit |
