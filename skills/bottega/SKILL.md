@@ -14,7 +14,7 @@ Bottega is self-contained: its agents (`agents/`) and skills (`skills/implementi
 1. Read the code first. Ask at most three questions — only what the request genuinely underdetermines; scale question count to task size (bug fix: 0–1, greenfield: a handful).
 2. Write the contract, one page ceiling, `docs/specs/NNNN-<slug>.md`: Intent (two sentences) / Non-goals / Decisions log (seeded with calls already made). Acceptance lives in `features/*.feature` — Given/When/Then in the domain's own words, Scenario Outlines with Examples wherever values matter (mutation needs values to flip).
 3. Present as HTML, never a wall of markdown: fill `skills/bottega/assets/spec-sign-off.html` (intent, scenarios verbatim, non-goals, rendered prototype screenshot for anything UI) and give the patron the absolute path. Sign off → `SIGNED <id>` comes back; Request changes → feedback block comes back, loop to 2.
-4. On `SIGNED`: `bottega sign`, commit contract + lock. `features/` is frozen; `bottega verify` polices it (0 clean / 1 drift / 2 unsigned / 3 corrupt). Completion: lock committed, generated acceptance suite runs RED.
+4. On `SIGNED`: `bottega sign`, commit contract + lock. `features/` is frozen; `bottega verify` polices it (0 clean / 1 drift / 2 unsigned / 3 corrupt). Completion: lock committed, generated acceptance suite runs RED. The lock is per-file (path + sha256) and committed, so parallel specs work: each run branch signs its own feature files; a lock merge conflict between two run PRs is resolved by re-running `bottega sign` on the merged tree and checking every pre-existing entry's hash is byte-identical to what was signed — per-file hashing means neither spec can smuggle changes into the other's signed files.
 
 ## Phase 2 — Run (autonomous)
 
