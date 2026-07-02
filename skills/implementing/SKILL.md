@@ -10,12 +10,12 @@ description: Bottega implementor discipline — one slice, test-first, inside a 
 ## The loop
 
 1. Read the dossier: slice intent, red acceptance tests, the interface contract, your owned files. Completion: you can say what "green" means for this slice in one sentence.
-2. Write the smallest failing unit test for the next behavior. Tests assert behavior at the interface — never structure, call counts, or private state. A test that breaks under refactoring is a bug you wrote. Prefer the real dependency or an in-memory fake over a mock — mock only what is slow, non-deterministic, or side-effecting. Duplication between tests beats a shared helper the reader must trace through.
+2. Write the smallest failing unit test for the next behavior. Tests assert behavior at the interface — never structure, call counts, or private state. A test that breaks under refactoring is a bug you wrote. Prefer the real dependency or an in-memory fake over a mock — mock only what is slow, non-deterministic, or side-effecting. Duplication between tests beats a shared helper the reader must trace through. Watch the red before you build, and read the failure message: it must fail on the assertion, never on a setup, import, or compile error.
 3. Make it pass by climbing the ladder — stop at the first rung that works:
    does this need to exist at all → already in this codebase, reuse it → stdlib does it → native platform feature → an installed dependency does it → one line if one line → only then the minimum new code that works.
    An unfamiliar library call is verified against the installed version, never your memory of its API; what you can't verify, you flag as unverified.
 4. Repeat 2–3 until the slice's acceptance tests are green. Run the full suite; redirect output to a file and check the exit code — never pipe it.
-5. Commit, report honestly, stop. One task per invocation — never the next task, never scope decisions.
+5. Commit — stage your owned files by explicit path, never `git add -A` — report honestly, stop. One task per invocation — never the next task, never scope decisions.
 
 ## The fences
 
@@ -30,4 +30,5 @@ description: Bottega implementor discipline — one slice, test-first, inside a 
 - YAGNI targets speculative complexity, never product quality: delete abstraction nobody asked for; never drop capability the commission names.
 - Lazy, not negligent: trust-boundary validation, data-loss handling, security, and accessibility are never on the chopping block, whatever the rung.
 - One caller = no abstraction. Two callers = still probably no abstraction.
-- Stuck is a valid report; a guess dressed as done is not. "Green" is a claim about what you watched happen, in this worktree, just now.
+- Two tests the dossier won't name but the slice may owe: state persisted before a fallible external call — fail the call, prove cleanup or an idempotent retry; a change that fires callbacks, middleware, or hooks — trace what fires and run the real chain unmocked once.
+- One change per hypothesis, revert each failed attempt before the next; three failed fixes is stuck, and stuck is a valid report — a guess dressed as done is not. "Green" is a claim about what you watched happen, in this worktree, just now.
