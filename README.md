@@ -13,7 +13,7 @@ Unsupervised runs fail by satisfying a proxy for the goal, so every gate that ca
 - **The wiring is proven, not assumed.** Acceptance mutation flips example values in the IR and requires the suite to fail. A surviving mutation means a handler ignores a signed value — that is a finding, killed or justified in `equivalent-mutants.json`. Source mutation covers the unit layer on core domain logic. Honest ceiling: mutation proves the tests read the signed values, not that the scenarios cover intent — that judgment stays human, made once, at sign-off.
 - **Fresh eyes are different weights.** Every diff is reviewed cold by the *complement* of whoever built it — a Claude-built slice gets a non-Claude adversary, a Codex-built slice a non-Codex one, never its own family. Same-family review inherits the generator's blind spots and looks like verification without being it.
 
-The standing objection: the maestro is smart — why not let it simply read the work and judge it? Because it is both orchestrator and arbiter; its reading as ground truth would be the same mind approving its own decisions. And better builders make the gates more load-bearing, not less — a weak builder games a test vacuously and gets caught in review; a strong builder under gate pressure writes tests that survive review while checking nothing, which only execution catches (flip a signed value; the suite must fail). The gates are the substitute for ceremony, not an addition to it: three mechanical checks carry what judge panels, checklists, and a watching human would otherwise have to — which is what lets the doctrine stay thin and the patron actually leave. Trust here is structural, not reputational.
+The standing objection: the maestro is smart — why not let it simply read the work and judge it? Because it is both orchestrator and arbiter; its reading as ground truth would be the same mind approving its own decisions. And better builders make the gates more load-bearing, not less — a weak builder games a test vacuously and gets caught in review; a strong builder under gate pressure writes tests that survive review while checking nothing, which only execution catches (flip a signed value; the suite must fail). The gates are the substitute for ceremony, not an addition to it: three mechanical checks carry what judge panels, checklists, and a watching human would otherwise have to — which is what lets the doctrine stay thin and the patron actually leave. Trust here is structural, not reputational. The one place the maestro's own weights do judge — the final cold read before the PR — strips what actually biases self-judgment: not the weights but the authorship. A fresh fable instance reads commission against artifact with none of the run's context, and an overruled cold-read finding lands in the PR for the patron to see.
 
 ## The cast
 
@@ -26,7 +26,7 @@ Agents say who; skills say how. Both ship in this repo — bottega assumes nothi
 | **Reviewer** | the sophisticated one; opposite family from the builder, fresh per round | [`agents/bottega-reviewer.md`](agents/bottega-reviewer.md) → [`skills/reviewing/SKILL.md`](skills/reviewing/SKILL.md) — break it, test ratchet, architectural conformance |
 |  **QA** | drives the artifact as a user; evidence or it didn't happen | [`agents/bottega-qa.md`](agents/bottega-qa.md) → [`skills/qa/SKILL.md`](skills/qa/SKILL.md) |
 
-Models are never pinned in agent files — the maestro routes per dispatch from the axis table in its skill (intelligence > taste > cost; bulk to codex, never below medium; user-facing needs taste ≥ 7; review always the opposite family; never Haiku; standing permission to escalate).
+Models are never pinned in agent files — the maestro routes per dispatch from the axis table in its skill (intelligence > taste > cost; implementation defaults to codex at xhigh; the Claude worker seat is opus-4.8 at high; user-facing needs taste ≥ 7; review always the opposite family; never Haiku; standing permission to escalate).
 
 One vocabulary spans the dispatch seam: [`skills/designing`](skills/designing/SKILL.md) — module, interface, depth, seam, deletion test. The maestro designs in it, the dossier carries it, the reviewer judges conformance by it. Defined once, so the two sides of the seam cannot drift apart. That is also the constraint budget made visible: workers get fences and ratchets to follow to the letter; the maestro gets gates, decisions, and this vocabulary — inside the gates, its judgment is deliberately unconstrained.
 
@@ -36,7 +36,8 @@ Doctrine is saved; control flow is authored fresh per run — a stored pipeline 
 commission signed (HTML gate → bottega sign) ─▶ acceptance RED
   ─▶ maestro designs the architecture ─▶ slices built in worktrees (one task per invocation)
   ─▶ reviewer rounds: fresh opposite-family reviewer ×≤8, persistent worker, maestro arbitrates
-  ─▶ QA drives it ─▶ verify: lock + acceptance + mutation, evidence archived ─▶ delivery PR
+  ─▶ QA drives it ─▶ verify: lock + acceptance + mutation, evidence archived
+  ─▶ cold read: fresh fable judge, commission-only context ─▶ delivery PR
 ```
 
 Human gates are clickable HTML pages (approve / request changes), never walls of markdown. The entire run is isolated: branch `bottega/<spec-id>` in its own worktree, every commit lands there, and the PR is the only path to trunk — the patron's merge click is the only act that lands it. After delivery, the spec is rewritten into a closed, durable record pointing at code and evidence.
