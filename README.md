@@ -28,7 +28,9 @@ Agents say who; skills say how. Both ship in this repo — bottega assumes nothi
 
 Models are never pinned in agent files — the maestro routes per dispatch from the axis table in its skill (intelligence > taste > cost; bulk to codex, never below medium; user-facing needs taste ≥ 7; review always the opposite family; never Haiku; standing permission to escalate).
 
-Doctrine is saved; control flow is authored fresh per run — a stored pipeline is a plan document wearing a costume. The invariant gates:
+One vocabulary spans the dispatch seam: [`skills/designing`](skills/designing/SKILL.md) — module, interface, depth, seam, deletion test. The maestro designs in it, the dossier carries it, the reviewer judges conformance by it. Defined once, so the two sides of the seam cannot drift apart. That is also the constraint budget made visible: workers get fences and ratchets to follow to the letter; the maestro gets gates, decisions, and this vocabulary — inside the gates, its judgment is deliberately unconstrained.
+
+Doctrine is saved; control flow is authored fresh per run — a stored pipeline is a plan document wearing a costume. The maestro orchestrates each run as a workflow it writes on the spot, dispatching the fleet through the gates below. That workflow is disposable: its resume cache is scoped to the maestro's own session and dies with it. A run outlives any session, so the durable state is never the workflow — it is the run branch itself, always re-derivable from the last commit's grammar (`RED` → `green` → `integrate`), the lock, and the per-sha evidence dir. Re-entering a dropped run means reading that state and authoring fresh control flow, never replaying a dead workflow. The invariant gates:
 
 ```
 commission signed (HTML gate → bottega sign) ─▶ acceptance RED

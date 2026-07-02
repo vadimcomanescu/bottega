@@ -1,20 +1,21 @@
 ---
 name: bottega
-description: Run the bottega loop — commission → autonomous build → evidenced delivery. Use when the user invokes /bottega, commissions work, or asks for an autonomous end-to-end build with signed acceptance.
+description: Run the bottega loop — commission → autonomous build → evidenced delivery. Entry point of the whole system; user-invoked via /bottega, never auto-triggered — a run costs hours of autonomous fleet work and starts with a sign-off ceremony.
+disable-model-invocation: true
 ---
 
 # Bottega — the maestro loop
 
 *You are the maestro: architect, planner, router, arbiter. The patron appears exactly twice — signing the commission, reading the delivery — and every design decision in between is yours, never a worker's.*
 
-Bottega is self-contained: its agents (`agents/`) and skills (`skills/implementing`, `skills/reviewing`, `skills/qa`) carry all doctrine. Everything resolves from one install root — `$CLAUDE_PLUGIN_ROOT` when running as the installed plugin, the bottega repo itself when working inside it; call it `$BOTTEGA_ROOT` below. The CLI is dependency-free: `node "$BOTTEGA_ROOT/bin/bottega.js" sign|verify`, run from the host repo's root, no npm install (Node ≥ 22.18 — the shim relies on native type stripping). The one external requirement is the **codex plugin** (cross-family dispatch). Check it before phase 2 (`ls ~/.claude/plugins/cache | grep -i codex` or the plugin's agent in the registry); absent → stop and tell the patron. Never assume any other skill or pack exists on the host.
+Bottega is self-contained: its agents (`agents/`) and skills (`skills/implementing`, `skills/reviewing`, `skills/qa`, and the shared design vocabulary `skills/designing`) carry all doctrine. Everything resolves from one install root — `$CLAUDE_PLUGIN_ROOT` when running as the installed plugin, the bottega repo itself when working inside it; call it `$BOTTEGA_ROOT` below. The CLI is dependency-free: `node "$BOTTEGA_ROOT/bin/bottega.js" sign|verify`, run from the host repo's root, no npm install (Node ≥ 22.18 — the shim relies on native type stripping). The one external requirement is the **codex plugin** (cross-family dispatch). Check it before phase 2 (`ls ~/.claude/plugins/cache | grep -i codex` or the plugin's agent in the registry); absent → stop and tell the patron. Never assume any other skill or pack exists on the host.
 
 ## Phase 1 — Commission (interactive, minutes)
 
 1. Read the code first. Ask at most three questions — only what the request genuinely underdetermines; scale question count to task size (bug fix: 0–1, greenfield: a handful).
 2. Write the contract, one page ceiling, `docs/specs/NNNN-<slug>.md`: Intent (two sentences) / Non-goals / Decisions log (seeded with calls already made). Acceptance lives in `features/*.feature` — Given/When/Then in the domain's own words, Scenario Outlines with Examples wherever values matter (mutation needs values to flip).
 3. Present as HTML, never a wall of markdown: fill `$BOTTEGA_ROOT/skills/bottega/assets/spec-sign-off.html` (intent, scenarios verbatim, non-goals, rendered prototype screenshot for anything UI), write the filled copy into the host repo, and give the patron the absolute path. Sign off → `SIGNED <id>` comes back; Request changes → feedback block comes back, loop to 2.
-4. On `SIGNED`: `bottega sign`, commit contract + lock. `features/` is frozen; `bottega verify` polices it (0 clean / 1 drift / 2 unsigned / 3 corrupt). Completion: lock committed, generated acceptance suite runs RED. The lock is per-file (path + sha256) and committed, so parallel specs work: each run branch signs its own feature files; a lock merge conflict between two run PRs is resolved by re-running `bottega sign` on the merged tree and checking every pre-existing entry's hash is byte-identical to what was signed — per-file hashing means neither spec can smuggle changes into the other's signed files.
+4. On `SIGNED`: `bottega sign`, commit contract + lock. `features/` is frozen; `bottega verify` polices it (0 clean / 1 drift / 2 unsigned / 3 corrupt). Completion: lock committed, generated acceptance suite runs RED. The lock is per-file (path + sha256), so parallel specs coexist; a lock merge conflict between run PRs is resolved by re-signing the merged tree — every pre-existing entry must come out byte-identical, so neither spec can smuggle changes into the other's signed files.
 
 ## Phase 2 — Run (autonomous)
 
@@ -22,7 +23,7 @@ Bottega is self-contained: its agents (`agents/`) and skills (`skills/implementi
 
 **Toolchain — yours to bootstrap, never the patron's.** If the host has no `.bottega/aps.lock`, install the acceptance-pipeline-kit yourself on the run branch: its `install.sh --version <release> --bin-dir .bottega/bin` plus the `@aps-kit/typescript` package, hashes pinned into `.bottega/aps.lock`, lock committed. The patron never runs an installer.
 
-**Architecture — yours alone.** Design the spine before any dispatch: the modules, each module's **interface** (everything a caller must know: signature, invariants, ordering, error modes), its **depth** (behavior hidden behind that interface — deep = much behavior, small interface), the **seams** between them (places behavior can change without editing in place; one adapter = hypothetical seam, two = real). Apply the **deletion test** to every module: delete it — if complexity just vanishes, it was hiding nothing; if it reappears across callers, it earns its place. Design it twice; keep the shape simpler for callers. Output: a per-slice interface contract inside each dossier. Workers implement within it and never invent boundaries.
+**Architecture — yours alone.** Design the spine before any dispatch, in the vocabulary of `skills/designing`: modules, interfaces, depth, seams — deletion-test every module, design it twice, keep the shape simpler for callers. Output: a per-slice interface contract inside each dossier, written in that vocabulary. Workers implement within it and never invent boundaries.
 
 **Slices.** Vertical, independently shippable, cut along the seams — and each ends in a **playable checkpoint**: something QA can drive (a runnable command, route, or state), not just green tests. Worktree per slice (`.bottega/wt/<slice>/`) when parallel; ≤5 in flight. Commits: `<slice>: RED …` → `<slice>: … (green)` → `bottega: integrate <slice>`.
 
@@ -32,11 +33,13 @@ Bottega is self-contained: its agents (`agents/`) and skills (`skills/implementi
 
 **QA.** The QA agent (`skills/qa`) drives every signed scenario against the real artifact; evidence archived.
 
-**Verify.** `bottega verify` + acceptance run + acceptance mutation **against a COPY of the feature file** (`cp features/x.feature build/acceptance-mutation/` — the mutator writes a differential-cache block into whatever it reads; that cache must never land in the signed file, where byte-hashing reads it as tampering). Survivors are findings: kill or justify in `equivalent-mutants.json`. Archive everything at `.bottega/verify/<sha>/`.
+**Verify.** `bottega verify` + acceptance run + acceptance mutation — run the mutation against a copy of the feature file, never the signed one: the mutator writes a differential-cache block into whatever it reads, and byte-hashing reads that as tampering. Survivors are findings: kill or justify in `equivalent-mutants.json`. Archive everything at `.bottega/verify/<sha>/`.
 
 **Deliver.** PR body: scenario checklist, evidence links, findings fixed, decisions log, release decision, and a **decision-coverage check** — every spec decision and patron instruction from the session maps to an artifact or an explicit not-done flag. Completion: a delivery that only proves the code is not a delivery.
 
 **Close.** After delivery, rewrite the spec from a build plan into a durable record: outcome, what shipped where (pointers at code and `.bottega/verify/<sha>/`), and the decisions as rationale — the parts that stay true after the code moves on. Mark it closed; it is history now, not operational truth.
+
+**Resume.** A run outlives any session, so the run branch is the only durable state — and it is always re-derivable: the last commit's grammar names the phase, `.bottega/verify/<sha>/` names what's proven, the lock names what's signed. Re-entering a run, re-derive from there and author fresh control flow; workflow runs and their resume caches are session-scoped orchestration, never state. Never re-open a signed commission.
 
 ## Routing
 

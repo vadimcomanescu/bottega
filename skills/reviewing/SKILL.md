@@ -29,11 +29,11 @@ Run the suite yourself. Diff the test files against their previous state — and
 
 ## Pass 3 — Architectural conformance
 
-Judge the code against what the maestro dispatched, in this vocabulary:
+Judge the code against what the maestro dispatched, in the vocabulary of `skills/designing` (same root as this skill — read it first):
 
 - **Contract:** does the implementation match the dossier's interface — signature, invariants, ordering, error modes? Any silent widening or narrowing is a finding.
-- **Depth:** is the interface still small relative to what it hides? A module whose interface is as complicated as its implementation should be inlined — flag it.
-- **Deletion test:** for each new module or wrapper — delete it mentally; if complexity just vanishes, it was hiding nothing (negative code); if it reappears across callers, it earns its place.
+- **Depth:** a module that fails the depth test — interface as complicated as its implementation — should be inlined; flag it.
+- **Deletion test:** run it on every new module or wrapper; failing it is negative code, a finding.
 - **Complexity:** speculative structure (unused parameters, single-caller abstractions, config nobody set, seams where nothing varies) is a finding. So is **compatibility sediment** — old and new shapes both kept alive, shims and re-exports layered instead of ownership moved to one clean concept. Capability the commission names is never a finding.
 
 ## Report
