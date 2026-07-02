@@ -46,6 +46,14 @@ export class CorruptLockError extends Error {
   }
 }
 
+// Message is the symlink's posix path relative to cwd; callers add context.
+export class FeatureSymlinkError extends Error {
+  constructor(relPath: string) {
+    super(relPath);
+    this.name = "FeatureSymlinkError";
+  }
+}
+
 const FEATURES_DIR = "features";
 const LOCK_DIR = ".bottega";
 const LOCK_FILE = "commission.lock";
@@ -67,6 +75,18 @@ function collectFeatureFiles(cwd: string): string[] {
     });
   } catch {
     return [];
+  }
+  // Fail closed on symlinks. The recursive readdir descends through
+  // symlinked directories, but it also lists every symlink as its own
+  // dirent (isSymbolicLink(), not file/dir) — verified on Node 22.22 —
+  // so throwing on the dirent catches both file and directory symlinks
+  // before anything reached through them matters.
+  for (const entry of entries) {
+    if (entry.isSymbolicLink()) {
+      throw new FeatureSymlinkError(
+        toPosix(relative(cwd, join(entry.parentPath, entry.name))),
+      );
+    }
   }
   const files = entries
     .filter((entry) => entry.isFile() && entry.name.endsWith(".feature"))

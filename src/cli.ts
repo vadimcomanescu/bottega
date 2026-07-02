@@ -2,6 +2,7 @@
 // so bin/bottega.js can stay a thin shim.
 import {
   CorruptLockError,
+  FeatureSymlinkError,
   NoFeatureFilesError,
   UnsignedError,
   sign,
@@ -15,6 +16,10 @@ function runSign(cwd: string): number {
   } catch (err) {
     if (err instanceof NoFeatureFilesError) {
       process.stderr.write(`${err.message}\n`);
+      return 1;
+    }
+    if (err instanceof FeatureSymlinkError) {
+      process.stderr.write(`symlink in features/ is not signable: ${err.message}\n`);
       return 1;
     }
     throw err;
@@ -39,6 +44,10 @@ function runVerify(cwd: string): number {
     }
     if (err instanceof CorruptLockError) {
       process.stderr.write(`corrupt lock: ${err.message}\n`);
+      return 3;
+    }
+    if (err instanceof FeatureSymlinkError) {
+      process.stderr.write(`corrupt features tree: symlink at ${err.message}\n`);
       return 3;
     }
     throw err;

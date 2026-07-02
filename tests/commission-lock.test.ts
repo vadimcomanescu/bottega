@@ -5,6 +5,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -21,6 +22,27 @@ import {
 } from "../src/commission-lock.ts";
 
 let dir: string;
+
+const BIN = fileURLToPath(new URL("../bin/bottega.js", import.meta.url));
+
+interface CliResult {
+  stdout: string;
+  stderr: string;
+  exitCode: number;
+}
+
+function runCli(args: string[]): CliResult {
+  try {
+    const stdout = execFileSync(process.execPath, [BIN, ...args], {
+      cwd: dir,
+      encoding: "utf-8",
+    });
+    return { stdout, stderr: "", exitCode: 0 };
+  } catch (err) {
+    const e = err as { status?: number | null; stdout?: string; stderr?: string };
+    return { stdout: e.stdout ?? "", stderr: e.stderr ?? "", exitCode: e.status ?? -1 };
+  }
+}
 
 function writeFeature(relPath: string, content: string): void {
   const absPath = join(dir, relPath);
@@ -143,7 +165,6 @@ describe("verify", () => {
 });
 
 describe("verify with a corrupt lock", () => {
-  const BIN = fileURLToPath(new URL("../bin/bottega.js", import.meta.url));
   const VALID_SHA = "a".repeat(64);
 
   function writeLock(content: string): void {
@@ -155,20 +176,11 @@ describe("verify with a corrupt lock", () => {
     return JSON.stringify({ version: 1, files: entries });
   }
 
-  function runVerify(): { stdout: string; stderr: string; exitCode: number } {
-    try {
-      const stdout = execFileSync(process.execPath, [BIN, "verify"], {
-        cwd: dir,
-        encoding: "utf-8",
-      });
-      return { stdout, stderr: "", exitCode: 0 };
-    } catch (err) {
-      const e = err as { status?: number | null; stdout?: string; stderr?: string };
-      return { stdout: e.stdout ?? "", stderr: e.stderr ?? "", exitCode: e.status ?? -1 };
-    }
+  function runVerify(): CliResult {
+    return runCli(["verify"]);
   }
 
-  function expectCorrupt(result: { stdout: string; stderr: string; exitCode: number }): void {
+  function expectCorrupt(result: CliResult): void {
     expect(result.exitCode).toBe(3);
     expect(result.stderr).toMatch(/^corrupt lock: /);
     expect(result.stdout).toBe("");
@@ -233,5 +245,56 @@ describe("verify with a corrupt lock", () => {
   it("throws CorruptLockError at the library interface", () => {
     writeLock("{nope");
     expect(() => verify(dir)).toThrow(CorruptLockError);
+  });
+});
+
+describe("symlinks under features/ fail closed", () => {
+  it("sign exits 1 on a symlinked feature file", () => {
+    writeFeature("outside/target.feature", "Feature: Target\n");
+    mkdirSync(join(dir, "features"), { recursive: true });
+    symlinkSync(
+      join(dir, "outside", "target.feature"),
+      join(dir, "features", "linked.feature"),
+    );
+
+    const result = runCli(["sign"]);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toBe(
+      "symlink in features/ is not signable: features/linked.feature\n",
+    );
+    expect(result.stdout).toBe("");
+  });
+
+  it("sign exits 1 on a symlinked directory even among real feature files", () => {
+    writeFeature("features/login.feature", "Feature: Login\n");
+    writeFeature("outside/dirtarget/inner.feature", "Feature: Inner\n");
+    symlinkSync(join(dir, "outside", "dirtarget"), join(dir, "features", "loop"));
+
+    const result = runCli(["sign"]);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toBe(
+      "symlink in features/ is not signable: features/loop\n",
+    );
+    expect(result.stdout).toBe("");
+  });
+
+  it("verify exits 3 when a symlink appears in a signed features tree", () => {
+    writeFeature("features/login.feature", "Feature: Login\n");
+    sign(dir);
+    writeFeature("outside/target.feature", "Feature: Target\n");
+    symlinkSync(
+      join(dir, "outside", "target.feature"),
+      join(dir, "features", "linked.feature"),
+    );
+
+    const result = runCli(["verify"]);
+
+    expect(result.exitCode).toBe(3);
+    expect(result.stderr).toBe(
+      "corrupt features tree: symlink at features/linked.feature\n",
+    );
+    expect(result.stdout).toBe("");
   });
 });
