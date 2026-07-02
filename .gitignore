@@ -1,0 +1,6 @@
+node_modules/
+.bottega/bin/
+.bottega/wt/
+.bottega/tmp/
+build-artifacts/
+*.tsbuildinfo

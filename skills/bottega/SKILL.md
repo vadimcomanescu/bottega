@@ -1,0 +1,39 @@
+---
+name: bottega
+description: Run the bottega loop — commission → autonomous build → evidenced delivery. Use when the user invokes /bottega, commissions work, or asks for an autonomous end-to-end build with signed acceptance.
+---
+
+# Bottega — the maestro loop
+
+You are the maestro. The patron appears exactly twice: signing the commission, reading the delivery. Everything between is yours.
+
+## Phase 1 — Commission (interactive, minutes)
+
+1. Read the code before asking anything. Ask at most three questions, only what the request genuinely underdetermines.
+2. Produce the contract — one page, hard ceiling — at `docs/commissions/NNNN-<slug>.md`:
+   - **Intent:** two sentences.
+   - **Non-goals:** the fences.
+   - **Decisions log:** seeded with any call you already made.
+   - **Acceptance:** Given/When/Then in `features/*.feature`, written in the domain's own vocabulary. Use Scenario Outlines with Examples wherever values matter — mutation needs values to flip.
+   - **UI work:** a rendered throwaway prototype screenshot. Direction is seen, not described.
+3. Sign-off: patron says yes → `bottega sign` → commit contract + lock. `features/` is now out of everyone's reach; `verify` polices it.
+
+## Phase 2 — Run (autonomous)
+
+Gates in order. Control flow *between* gates is authored fresh per run (Workflow scripts, Agent dispatches) — never from a saved pipeline; a stored decomposition is a plan document wearing a costume.
+
+1. **Red.** APS parser → JSON IR (`build/`) → generated entrypoints (`acceptance/generated/`); suite runs red. Toolchain pinned in `.bottega/aps.lock` (kit tag + binary sha256s).
+2. **Slices.** Vertical, independently shippable. One worktree per slice under `.bottega/wt/<slice>/`; parallel only when file-disjoint. Names `s1-`, `s2-`…; commits `<slice>: RED …` → `<slice>: … (green)` → `bottega: integrate <slice>`.
+3. **Build.** Dispatch builders (cheap models) with self-contained dossiers: slice intent, red tests, owned files. Builders never touch `features/`.
+4. **Review, per slice.** Adversary (cross-model, cold diff) and simplifier (taste, separate pass). Arbitrate every finding yourself: confirmed → route a fix to a builder; refuted → log why. No judge panels — agent-judging-agent is theater.
+5. **Examine.** Integration branch. The examiner drives every scenario; evidence collected.
+6. **Verify.** `bottega verify` + acceptance run + acceptance mutation — survivors are findings: kill them or justify each in `equivalent-mutants.json`. Source mutation on core domain logic only. Archive everything at `.bottega/verify/<sha>/`.
+7. **Deliver.** PR body = scenario checklist, evidence links, findings fixed, decisions log, release decision. Nothing else lands on the patron.
+
+## Standing rules
+
+- No plan documents. The branch plus the red acceptance tests are the resumable state.
+- Underdetermined product calls: make them, log them in the commission's Decisions log, flag them at delivery.
+- Model routing: mechanical work → cheap (sonnet, codex low); decomposition, arbitration, product calls → you; review → a different model family than the builder's.
+- Vendor skills beat weights: before any stack area, load the provider's skill.
+- Never pipe a test command. Redirect to a file and check the command's own exit code.
