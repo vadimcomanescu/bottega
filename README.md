@@ -9,11 +9,11 @@ A bottega is the Renaissance workshop: a maestro runs the shop, apprentices exec
 Unsupervised runs fail by satisfying a proxy for the goal, so every gate that can be mechanical is mechanical:
 
 - **The contract is executable.** Commissions are Gherkin feature files. The [Acceptance Pipeline](https://github.com/vadimcomanescu/acceptance-pipeline-kit) parses them to JSON IR and *generates* the test entrypoints — no hand translation between what the patron signed and what runs.
-- **The contract is out of reach.** `bottega sign` freezes the feature files into `.bottega/commission.lock` (the lock keeps the older "commission" name deliberately — it names the signed thing); `bottega verify` fails the delivery gate on any drift (exit 0 clean, 1 drift, 2 unsigned). Builders that edit the spec commit forgery, and forgery is detected, not trusted away.
+- **The contract is out of reach.** `bottega sign` freezes the feature files into `.bottega/commission.lock` (the lock keeps the older "commission" name deliberately — it names the signed thing); `bottega verify` fails the delivery gate on any drift (exit 0 clean, 1 drift, 2 unsigned, 3 corrupt). Builders that edit the spec commit forgery, and forgery is detected, not trusted away.
 - **The wiring is proven, not assumed.** Acceptance mutation flips example values in the IR and requires the suite to fail. A surviving mutation means a handler ignores a signed value — that is a finding, killed or justified in `equivalent-mutants.json`. Source mutation covers the unit layer on core domain logic. Honest ceiling: mutation proves the tests read the signed values, not that the scenarios cover intent — that judgment stays human, made once, at sign-off.
 - **Fresh eyes are different weights.** Every diff is reviewed cold by the *complement* of whoever built it — a Claude-built slice gets a non-Claude adversary, a Codex-built slice a non-Codex one, never its own family. Same-family review inherits the generator's blind spots and looks like verification without being it.
 
-None of this gets less necessary as models get smarter — the opposite. With generation nearly free, the system's throughput is bounded by verification you can trust *without reading*; the maestro is both orchestrator and arbiter, so its own reading of the code would be circular ground truth; and a stronger builder under gate pressure fails subtler — tests that survive review while checking nothing. Mechanical gates are what let the patron actually leave: trust here is structural, not reputational — the maestro's authority is bounded by what it cannot touch (the signed acceptance) and checked by what does not share its weights.
+The standing objection: the maestro is smart — why not let it simply read the work and judge it? Because it is both orchestrator and arbiter; its reading as ground truth would be the same mind approving its own decisions. And better builders make the gates more load-bearing, not less — a weak builder games a test vacuously and gets caught in review; a strong builder under gate pressure writes tests that survive review while checking nothing, which only execution catches (flip a signed value; the suite must fail). The gates are the substitute for ceremony, not an addition to it: three mechanical checks carry what judge panels, checklists, and a watching human would otherwise have to — which is what lets the doctrine stay thin and the patron actually leave. Trust here is structural, not reputational.
 
 ## The cast
 
@@ -51,7 +51,7 @@ Bottega built through its own loop (commission 0001): the `bottega` CLI.
 
 ```
 bottega sign      # hash features/**/*.feature into .bottega/commission.lock
-bottega verify    # clean → 0 · drift (modified/removed/added) → 1 · unsigned → 2
+bottega verify    # clean → 0 · drift (modified/removed/added) → 1 · unsigned → 2 · corrupt → 3
 ```
 
 Layout: `src/` + `bin/` the CLI · `tests/` unit · `features/` signed commission · `build/` IR · `acceptance/generated/` generated entrypoints · `handlers/` step handlers · `.bottega/` runtime (pinned toolchain in `aps.lock`, evidence in `verify/<sha>/`, worktrees in `wt/`).
