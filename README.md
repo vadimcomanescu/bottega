@@ -9,9 +9,11 @@ A bottega is the Renaissance workshop: a maestro runs the shop, apprentices exec
 Unsupervised runs fail by satisfying a proxy for the goal, so every gate that can be mechanical is mechanical:
 
 - **The contract is executable.** Commissions are Gherkin feature files. The [Acceptance Pipeline](https://github.com/vadimcomanescu/acceptance-pipeline-kit) parses them to JSON IR and *generates* the test entrypoints — no hand translation between what the patron signed and what runs.
-- **The contract is out of reach.** `bottega sign` freezes the feature files into `.bottega/commission.lock`; `bottega verify` fails the delivery gate on any drift (exit 0 clean, 1 drift, 2 unsigned). Builders that edit the spec commit forgery, and forgery is detected, not trusted away.
-- **The wiring is proven, not assumed.** Acceptance mutation flips example values in the IR and requires the suite to fail. A surviving mutation means a handler ignores a signed value — that is a finding, killed or justified in `equivalent-mutants.json`. Source mutation covers the unit layer on core domain logic.
+- **The contract is out of reach.** `bottega sign` freezes the feature files into `.bottega/commission.lock` (the lock keeps the older "commission" name deliberately — it names the signed thing); `bottega verify` fails the delivery gate on any drift (exit 0 clean, 1 drift, 2 unsigned). Builders that edit the spec commit forgery, and forgery is detected, not trusted away.
+- **The wiring is proven, not assumed.** Acceptance mutation flips example values in the IR and requires the suite to fail. A surviving mutation means a handler ignores a signed value — that is a finding, killed or justified in `equivalent-mutants.json`. Source mutation covers the unit layer on core domain logic. Honest ceiling: mutation proves the tests read the signed values, not that the scenarios cover intent — that judgment stays human, made once, at sign-off.
 - **Fresh eyes are different weights.** Every diff is reviewed cold by the *complement* of whoever built it — a Claude-built slice gets a non-Claude adversary, a Codex-built slice a non-Codex one, never its own family. Same-family review inherits the generator's blind spots and looks like verification without being it.
+
+None of this gets less necessary as models get smarter — the opposite. With generation nearly free, the system's throughput is bounded by verification you can trust *without reading*; the maestro is both orchestrator and arbiter, so its own reading of the code would be circular ground truth; and a stronger builder under gate pressure fails subtler — tests that survive review while checking nothing. Mechanical gates are what let the patron actually leave: trust here is structural, not reputational — the maestro's authority is bounded by what it cannot touch (the signed acceptance) and checked by what does not share its weights.
 
 ## The cast
 
@@ -62,13 +64,17 @@ node bin/bottega.js verify                 # this repo verifies its own commissi
 
 Requires Node ≥ 22.18 (the bin shim runs TypeScript through native type stripping).
 
-## Install into a host repo
+## Install
 
-1. Copy `agents/*.md` into the host's `.claude/agents/` and all of `skills/` into its skills directory — bottega is self-contained; the only assumed capability is the codex plugin (the run fails loudly without it).
-2. `install.sh --version v0.1.0 --bin-dir .bottega/bin` from the [acceptance-pipeline-kit](https://github.com/vadimcomanescu/acceptance-pipeline-kit), plus its `@aps-kit/typescript` package; pin hashes in `.bottega/aps.lock`.
-3. Wire `bottega verify` into the host's delivery gate.
-4. Commission work with `/bottega`.
+```
+/plugin marketplace add vadimcomanescu/bottega
+/plugin install bottega@bottega
+```
+
+That is the whole install. The plugin carries everything: the maestro skill, the three actor skills, the agents, the sign/verify CLI (dependency-free — it runs straight from the plugin root, no npm install), and the sign-off template. Two requirements the run checks itself and fails loudly without: Node ≥ 22.18 and the codex plugin (cross-family dispatch). On a host's first run the maestro bootstraps the [acceptance-pipeline-kit](https://github.com/vadimcomanescu/acceptance-pipeline-kit) toolchain into `.bottega/` and pins its hashes in `aps.lock` — never a manual step. Wiring `bottega verify` into the host's delivery gate is part of the first delivery, not setup.
+
+Then commission work with `/bottega <task>`. The maestro seat is fable-tier: run the session on the strongest model available — loaded on a lower tier, the skill says so instead of proceeding silently.
 
 ## Provenance
 
-The doctrine in `skills/` is extracted and owned — read from the sources once, then self-contained; bottega never loads methodology from a host. Credits: the [Acceptance Pipeline Specification](https://github.com/unclebob/Acceptance-Pipeline-Specification) (Robert C. Martin) via its [multi-language kit](https://github.com/vadimcomanescu/acceptance-pipeline-kit) for the executable-acceptance layer · Pocock's LANGUAGE vocabulary (module / interface / depth / seam / deletion test) and skill-writing craft · [ponytail](https://github.com/DietrichGebert/ponytail)'s ladder — lazy, not negligent · Osmani's long-running-agents learnings (separate generation from evaluation; the test ratchet) · Ousterhout's deep modules · run mechanics validated in the June 2026 bottega playgrounds (worktrees, pinned toolchains, per-sha evidence archives).
+The doctrine in `skills/` is extracted and owned, not pointed at — a doctrine file that says "follow X" is a reference an agent must dereference every run and can never be held accountable to; owned sentences are a contract. Read from the sources once, then self-contained; bottega never loads methodology from a host. Credits: the [Acceptance Pipeline Specification](https://github.com/unclebob/Acceptance-Pipeline-Specification) (Robert C. Martin) via its [multi-language kit](https://github.com/vadimcomanescu/acceptance-pipeline-kit) for the executable-acceptance layer · Pocock's LANGUAGE vocabulary (module / interface / depth / seam / deletion test) and skill-writing craft · [ponytail](https://github.com/DietrichGebert/ponytail)'s ladder — lazy, not negligent · Osmani's long-running-agents learnings (separate generation from evaluation; the test ratchet) · Ousterhout's deep modules · run mechanics validated in the June 2026 bottega playgrounds (worktrees, pinned toolchains, per-sha evidence archives).

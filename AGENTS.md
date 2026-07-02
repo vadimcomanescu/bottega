@@ -6,6 +6,7 @@ An autonomous long-running agent system built for Fable to orchestrate. Read `RE
 
 | Path | What it is |
 | --- | --- |
+| `.claude-plugin/` | Plugin + marketplace manifests — one-command install (`/plugin marketplace add vadimcomanescu/bottega`) |
 | `skills/bottega/SKILL.md` | Maestro doctrine — the entry point, gates, architecture authority, routing |
 | `skills/implementing`, `skills/reviewing`, `skills/qa` | Self-contained actor methodology (nothing loaded from any host pack) |
 | `agents/` | Actor identity: builder, reviewer, qa — each points at its skill; no model pins |
@@ -21,4 +22,5 @@ An autonomous long-running agent system built for Fable to orchestrate. Read `RE
 - `features/` after sign-off, `build/`, `acceptance/generated/`, `.bottega/commission.lock`: read-only for every actor. Drift fails `bottega verify`.
 - Verification gate: `npm test` (unit + generated acceptance) and, at delivery, the acceptance mutation run with survivors killed or justified in `.bottega/verify/<sha>/equivalent-mutants.json`.
 - Never pipe test output inside a `&&` chain; redirect to a file and check the exit code.
+- Editing doctrine (`skills/*`, `agents/*`), the test for every line: could the actor derive it from the repo or from competence? Cut it. Is it a decision they would otherwise have to guess? Keep it.
 - Keep `CLAUDE.md` symlinked to this file.

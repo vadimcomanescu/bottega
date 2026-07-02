@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "bottega",
+  "displayName": "Bottega",
+  "version": "0.2.0",
+  "description": "Autonomous commission -> build -> evidenced delivery. /bottega runs the maestro loop: signed Gherkin acceptance, cross-family review, mutation-proofed delivery PR.",
+  "author": {
+    "name": "Vadim Comanescu"
+  },
+  "repository": "https://github.com/vadimcomanescu/bottega",
+  "license": "MIT",
+  "keywords": ["autonomous", "agents", "acceptance", "gherkin", "mutation-testing", "orchestration"]
+}
