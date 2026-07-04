@@ -35,6 +35,7 @@ Judge the code against what the maestro dispatched, by the house discipline of `
 - **Depth:** a module that fails the depth test — interface as complicated as its implementation — should be inlined; flag it.
 - **Deletion test:** run it on every new module or wrapper; failing it is negative code, a finding.
 - **Complexity:** speculative structure (unused parameters, single-caller abstractions, config nobody set, seams where nothing varies) is a finding. So is **compatibility sediment** — old and new shapes both kept alive, shims and re-exports layered instead of ownership moved to one clean concept. Capability the commission names is never a finding. The inverse binds you too: never demand structure for a hypothetical future — a finding that asks for an abstraction needs a present consumer as its evidence.
+- **Surplus behavior:** the diff is judged on doing *only* what was dispatched. Behavior neither the dossier nor the commission asked for — an extra endpoint, flag, fallback, side feature — is a finding even when well-built: unrequested function is scope creep at best and a backdoor at worst.
 
 ## Report
 
