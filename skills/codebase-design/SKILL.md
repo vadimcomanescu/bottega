@@ -23,7 +23,9 @@ Use these terms exactly — never "component", "service", "API", or "boundary".
 - **Depth is a property of the interface, not the implementation.** A deep module may be built of small swappable parts inside; they just aren't part of the interface.
 - **The deletion test.** Delete the module mentally: complexity just vanishes → it was hiding nothing, negative code; complexity reappears across callers → it earns its place. Run it on every new module or wrapper.
 - **One adapter is a hypothetical seam; two is a real one.** Never cut a seam where nothing varies.
-- **The interface is the test surface.** Callers and tests cross the same seam; wanting to test past it means the module is the wrong shape. Modules accept dependencies rather than creating them, and return results rather than producing side effects.
+- **The interface is the test surface.** Callers and tests cross the same seam; wanting to test past it means the module is the wrong shape. Modules accept dependencies rather than creating them, and return results rather than producing side effects. Tests describe behavior and survive internal refactors — a test that must change when the implementation does was testing past the seam. Deepening replaces tests, never layers them: the old shallow modules' suites are deleted and the behavior asserted once, at the new interface.
+- **The dependency picks the test strategy.** Pure computation: no seam — test it directly. A dependency with a local stand-in (embedded database, in-memory filesystem): the stand-in runs in the suite; no port appears at the interface. Your own service across a network: a port at the seam — in-memory adapter in tests, transport adapter in production. A third party you don't control: an injected port, mocked in tests. Never cut a port where a stand-in exists.
+- **Validate at system edges only** — user input, external responses, configuration. Inside a seam, modules trust their callers' contracts; internal re-validation is speculative structure.
 - **Design it twice.** Before committing to an interface, sketch a second, radically different one; keep whichever is simpler for callers, whatever it costs the implementation.
 
 ## Smells
@@ -37,6 +39,7 @@ Named so they get swept for, not merely known — latent knowledge fires when a 
 - **Feature envy** — a method reaching into another module's data more than its own. → move it onto the data it envies.
 - **Message chains** — `a.b().c().d()` navigation the caller shouldn't depend on. → hide the walk behind one method on the first module.
 - **Shotgun surgery / divergent change** — one logical change forcing scattered edits, or one module edited for unrelated reasons: the seam is misplaced. Seams are the maestro's — report it as evidence for a re-cut, never as the builder's defect.
+- **Extraction for testability** — pure fragments split out so units are easy to test while the bugs live in how they're called; the composition itself has no test. → deepen instead: assert the behavior through the module's interface.
 
 ## Domain model
 
