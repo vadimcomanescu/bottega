@@ -17,7 +17,7 @@ The standing objection: the maestro is smart — why not let it simply read the 
 
 ## The cast
 
-Agents say who; skills say how. Both ship in this repo — bottega assumes nothing about the host except the codex plugin (checked before any run; absent → fail loudly).
+Agents say who; skills say how. Both ship in this repo — bottega assumes nothing about the host except the codex CLI (checked before any run; absent → fail loudly).
 
 | Actor | Identity | Methodology |
 | --- | --- | --- |
@@ -74,7 +74,7 @@ Requires Node ≥ 22.18 (the bin shim runs TypeScript through native type stripp
 /plugin install bottega@bottega
 ```
 
-That is the whole install. The plugin carries everything: the maestro skill, the three actor skills, the agents, the sign/verify CLI (dependency-free — it runs straight from the plugin root, no npm install), and the sign-off template. Two requirements the run checks itself and fails loudly without: Node ≥ 22.18 and the codex plugin (cross-family dispatch). On a host's first run a dispatched clerk bootstraps the [acceptance-pipeline-kit](https://github.com/vadimcomanescu/acceptance-pipeline-kit) toolchain into `.bottega/` and pins its hashes in `aps.lock` — never a manual step, and never maestro tokens. Wiring `bottega verify` into the host's delivery gate is part of the first delivery, not setup.
+That is the whole install. The plugin carries everything: the maestro skill, the three actor skills, the agents, the sign/verify CLI (dependency-free — it runs straight from the plugin root, no npm install), and the sign-off template. Two requirements the run checks itself and fails loudly without: Node ≥ 22.18 and the codex CLI (cross-family dispatch). On a host's first run a dispatched clerk bootstraps the [acceptance-pipeline-kit](https://github.com/vadimcomanescu/acceptance-pipeline-kit) toolchain into `.bottega/` and pins its hashes in `aps.lock` — never a manual step, and never maestro tokens. Wiring `bottega verify` into the host's delivery gate is part of the first delivery, not setup.
 
 Then commission work with `/bottega <task>`. The maestro seat is fable-tier: run the session on the strongest model available — loaded on a lower tier, the skill says so instead of proceeding silently.
 
