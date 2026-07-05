@@ -1,0 +1,158 @@
+// The guards are processes: feed each one a synthetic hook event on stdin
+// and assert on what it writes back. A deny is a JSON permissionDecision;
+// an allow (or any malformed input) is silence.
+import { spawnSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { afterEach, describe, expect, it } from "vitest";
+
+const ROUTE_GUARD = join(import.meta.dirname, "..", "hooks", "route-guard.js");
+const ENTRY_GUARD = join(import.meta.dirname, "..", "hooks", "entry-guard.js");
+
+function run(script: string, event: unknown): string {
+  const result = spawnSync("node", [script], {
+    input: typeof event === "string" ? event : JSON.stringify(event),
+    encoding: "utf-8",
+  });
+  expect(result.status).toBe(0);
+  return result.stdout;
+}
+
+function denialOf(stdout: string): string {
+  const parsed = JSON.parse(stdout);
+  expect(parsed.hookSpecificOutput.permissionDecision).toBe("deny");
+  return parsed.hookSpecificOutput.permissionDecisionReason;
+}
+
+const cleanups: string[] = [];
+afterEach(() => {
+  while (cleanups.length > 0) rmSync(cleanups.pop()!, { recursive: true, force: true });
+});
+
+function workshopDir(withLock: boolean): string {
+  const dir = mkdtempSync(join(tmpdir(), "bottega-guard-"));
+  cleanups.push(dir);
+  if (withLock) {
+    mkdirSync(join(dir, ".bottega"), { recursive: true });
+    writeFileSync(join(dir, ".bottega", "commission.lock"), "{}");
+  }
+  return dir;
+}
+
+describe("route-guard: bottega worker seats (always fenced)", () => {
+  it("denies an unrouted worker dispatch", () => {
+    const out = run(ROUTE_GUARD, {
+      cwd: workshopDir(false),
+      tool_input: { subagent_type: "bottega:bottega-builder", prompt: "build slice A" },
+    });
+    expect(denialOf(out)).toMatch(/names no model/);
+  });
+
+  it("denies a fable-routed worker dispatch even when the text names the cold read", () => {
+    const out = run(ROUTE_GUARD, {
+      cwd: workshopDir(true),
+      tool_input: {
+        subagent_type: "bottega:bottega-reviewer",
+        model: "fable",
+        prompt: "cold read of the run",
+      },
+    });
+    expect(denialOf(out)).toMatch(/never rides a builder\/reviewer\/qa seat/);
+  });
+
+  it("allows a routed non-fable worker dispatch", () => {
+    const out = run(ROUTE_GUARD, {
+      cwd: workshopDir(true),
+      tool_input: { subagent_type: "bottega-qa", model: "opus", prompt: "drive scenarios" },
+    });
+    expect(out).toBe("");
+  });
+});
+
+describe("route-guard: all other seats, gated on commission.lock", () => {
+  it("stays silent outside a run, whatever the dispatch", () => {
+    const cwd = workshopDir(false);
+    for (const tool_input of [
+      { subagent_type: "general-purpose", model: "fable", prompt: "anything" },
+      { subagent_type: "general-purpose", prompt: "unrouted" },
+    ]) {
+      expect(run(ROUTE_GUARD, { cwd, tool_input })).toBe("");
+    }
+  });
+
+  it("denies an unrouted general-purpose dispatch during a run", () => {
+    const out = run(ROUTE_GUARD, {
+      cwd: workshopDir(true),
+      tool_input: { subagent_type: "general-purpose", prompt: "clerk mechanics" },
+    });
+    expect(denialOf(out)).toMatch(/commission is in flight/);
+  });
+
+  it("denies a fable-routed general-purpose dispatch during a run", () => {
+    const out = run(ROUTE_GUARD, {
+      cwd: workshopDir(true),
+      tool_input: { subagent_type: "Explore", model: "claude-fable-5", prompt: "map territory" },
+    });
+    expect(denialOf(out)).toMatch(/routes fable/);
+  });
+
+  it("allows the cold read to route fable during a run", () => {
+    const out = run(ROUTE_GUARD, {
+      cwd: workshopDir(true),
+      tool_input: {
+        subagent_type: "general-purpose",
+        model: "fable",
+        description: "Cold read (fable, fresh)",
+        prompt: "You are the independent cold reader …",
+      },
+    });
+    expect(out).toBe("");
+  });
+
+  it("denies fable when 'cold read' is only mentioned, not the description's opening", () => {
+    const cwd = workshopDir(true);
+    for (const tool_input of [
+      {
+        subagent_type: "general-purpose",
+        model: "fable",
+        description: "Fix cycle for cold-read findings",
+        prompt: "fix the cold-read findings",
+      },
+      {
+        subagent_type: "general-purpose",
+        model: "fable",
+        description: "Review of the fix",
+        prompt: "cold read style verification",
+      },
+    ]) {
+      expect(denialOf(run(ROUTE_GUARD, { cwd, tool_input }))).toMatch(/routes fable/);
+    }
+  });
+
+  it("never breaks on malformed input", () => {
+    expect(run(ROUTE_GUARD, "not json")).toBe("");
+    expect(run(ROUTE_GUARD, { tool_input: null })).toBe("");
+  });
+});
+
+describe("entry-guard", () => {
+  it("reminds on run-intent prose in a workshop", () => {
+    const out = run(ENTRY_GUARD, {
+      cwd: workshopDir(true),
+      prompt: "run bottega, the commission is signed",
+    });
+    const parsed = JSON.parse(out);
+    expect(parsed.hookSpecificOutput.additionalContext).toMatch(/\/bottega:bottega/);
+  });
+
+  it("stays silent on slash commands, non-workshop dirs, and unrelated prompts", () => {
+    const workshop = workshopDir(true);
+    const bare = mkdtempSync(join(tmpdir(), "bottega-guard-bare-"));
+    cleanups.push(bare);
+    expect(run(ENTRY_GUARD, { cwd: workshop, prompt: "/bottega:bottega run it" })).toBe("");
+    expect(run(ENTRY_GUARD, { cwd: bare, prompt: "run bottega now" })).toBe("");
+    expect(run(ENTRY_GUARD, { cwd: workshop, prompt: "fix the flaky test" })).toBe("");
+    expect(run(ENTRY_GUARD, "not json")).toBe("");
+  });
+});
