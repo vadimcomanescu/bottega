@@ -108,7 +108,7 @@ ul.decisions li { background:var(--canvas-soft); border-radius:4px; padding:8px 
 ul.domain li { background:var(--canvas-soft); border-radius:4px; padding:8px 12px; font:400 14px/20px var(--sans); color:var(--body); }
 ul.domain li b { font:500 12px/16px var(--mono); color:var(--link-deep); text-transform:uppercase; letter-spacing:.03em; display:block; margin-bottom:2px; }
 
-/* ── threads: patron comments + maestro replies, in place ──────────── */
+/* ── threads: user comments + maestro replies, in place ──────────── */
 .annot { position:relative; }
 .comment-add { position:absolute; top:0; right:0; z-index:2; cursor:pointer; background:var(--canvas); color:var(--muted); border:1px solid var(--line); border-radius:4px; height:26px; padding:0 8px; font:500 12px/16px var(--mono); opacity:.6; transition:opacity .12s ease-out; }
 .annot:hover > .comment-add, .annot:focus-within > .comment-add { opacity:1; color:var(--link); }
@@ -120,7 +120,7 @@ figure.frame > .comment-add { top:8px; right:8px; }
 .thread { margin-top:12px; border-left:3px solid var(--state-review); border-radius:4px; background:var(--canvas-soft); padding:10px 12px; }
 .thread.resolved { border-left-color:var(--state-complete); opacity:.75; }
 .thread .meta { font:500 12px/16px var(--mono); color:var(--muted); display:flex; gap:8px; align-items:center; }
-.thread .meta .who-patron { color:var(--warning-deep); }
+.thread .meta .who-user { color:var(--warning-deep); }
 .thread .meta .who-maestro { color:var(--link-deep); }
 .thread .meta .resolved-tag { color:var(--link-deep); }
 .thread .meta .del { margin-left:auto; cursor:pointer; background:none; border:0; color:var(--muted); font:500 12px/16px var(--mono); }
@@ -403,7 +403,7 @@ figure.frame > .comment-add { top:8px; right:8px; }
     $(".save", c).addEventListener("click", async () => {
       const text = ta.value.trim(); if (!text) return;
       const cm = { id: uid(), anchor: sec.dataset.anchor, label: sec.dataset.label, text,
-                   at: new Date().toISOString(), revision: REVISION, by: "patron" };
+                   at: new Date().toISOString(), revision: REVISION, by: "user" };
       c.remove();
       if (served) { thread.push({ ...cm, replies: [] }); render(); post("gate/comment", cm); }
       else { local.push(cm); persist(); render(); }
@@ -430,7 +430,7 @@ figure.frame > .comment-add { top:8px; right:8px; }
     const t = document.createElement("div");
     t.className = "thread" + (cm.resolved ? " resolved" : "");
     const meta = document.createElement("div"); meta.className = "meta";
-    meta.innerHTML = `<span class="who-patron">YOU</span>` + (cm.resolved ? `<span class="resolved-tag">✓ RESOLVED</span>` : "");
+    meta.innerHTML = `<span class="who-user">YOU</span>` + (cm.resolved ? `<span class="resolved-tag">✓ RESOLVED</span>` : "");
     if (!served && !cm.baked) {
       const del = document.createElement("button"); del.className = "del"; del.type = "button"; del.textContent = "DELETE";
       del.addEventListener("click", () => { local = local.filter(x => x.id !== cm.id); persist(); render(); });
@@ -440,7 +440,7 @@ figure.frame > .comment-add { top:8px; right:8px; }
     t.append(meta, text);
     (cm.replies || []).forEach(rp => {
       const r = document.createElement("div"); r.className = "reply" + (rp.justArrived ? " confirm" : "");
-      const who = rp.by === "patron" ? `<span class="who-patron">YOU</span>` : `<span class="who-maestro">MAESTRO</span>`;
+      const who = rp.by === "user" ? `<span class="who-user">YOU</span>` : `<span class="who-maestro">MAESTRO</span>`;
       r.innerHTML = `<div class="meta">${who}</div>`;
       const rt = document.createElement("div"); rt.className = "text"; rt.textContent = rp.text;
       r.appendChild(rt); t.appendChild(r);
@@ -456,7 +456,7 @@ figure.frame > .comment-add { top:8px; right:8px; }
         const ta = $("textarea", box); ta.focus();
         $(".btn", box).addEventListener("click", () => {
           const text = ta.value.trim(); if (!text) return;
-          const rp = { id: uid(), replyTo: cm.id, text, at: new Date().toISOString(), by: "patron" };
+          const rp = { id: uid(), replyTo: cm.id, text, at: new Date().toISOString(), by: "user" };
           (cm.replies = cm.replies || []).push(rp); box.remove(); render();
           post("gate/comment", rp);
         });
@@ -549,7 +549,7 @@ figure.frame > .comment-add { top:8px; right:8px; }
     });
     if (Array.isArray(s.thread)) {
       const seen = new Set(thread.flatMap(c => [c.id, ...(c.replies || []).map(r => r.id)]));
-      s.thread.forEach(c => { (c.replies || []).forEach(r => { r.justArrived = !seen.has(r.id) && r.by !== "patron"; }); });
+      s.thread.forEach(c => { (c.replies || []).forEach(r => { r.justArrived = !seen.has(r.id) && r.by !== "user"; }); });
       thread = s.thread; render();
     }
     if (s.decision === "signed") showSigned();

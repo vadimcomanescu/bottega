@@ -10,7 +10,7 @@ An autonomous long-running agent system built for Fable to orchestrate. Read `RE
 | `skills/bottega/SKILL.md` | Maestro doctrine — the entry point, gates, architecture authority, routing |
 | `skills/implementing`, `skills/reviewing`, `skills/qa` | Self-contained actor methodology (nothing loaded from any host pack) |
 | `skills/codebase-design` | House design discipline — vocabulary, deep-module principles, `CONCEPTS.md` domain glossary; defined once, used on both sides of the dispatch seam: maestro designs by it, dossiers carry it, reviewers judge against it |
-| `skills/signoff` | Patron gate — the collaborative spec doc (storyboards inline, comment loop, `SIGNED` as a comment); branded local canvas kept in `assets/` for at-the-machine sessions |
+| `skills/signoff` | User gate — the collaborative spec doc (storyboards inline, comment loop, `SIGNED` as a comment); branded local canvas kept in `assets/` for at-the-machine sessions |
 | `agents/` | Actor identity: builder, reviewer, qa — each points at its skill; no model pins |
 | `hooks/` | Route guard (PreToolUse) — while a commission is in flight, rejects **any** dispatch that omits `model` or names fable (cold read passes by naming itself); entry guard (UserPromptSubmit) points run-intent prose at `/bottega`. The fable fence, harness-enforced |
 | `features/` | Signed commissions (Gherkin). **Locked after sign-off — never edit** |

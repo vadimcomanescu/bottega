@@ -44,7 +44,7 @@ const DENY_FABLE =
   "cold read never rides a builder/reviewer/qa seat; re-issue from the routing " +
   "table in skills/bottega/SKILL.md (Claude worker seat: opus — builder/qa at " +
   "high, reviewer at xhigh), and if you believe this slice genuinely needs " +
-  "fable-tier judgment, stop and put the escalation to the patron — his " +
+  "fable-tier judgment, stop and put the escalation to the user — their " +
   "budget, never a self-serve seat.";
 
 const DENY_UNROUTED_RUN =
@@ -59,7 +59,7 @@ const DENY_FABLE_RUN =
   "routes fable — fable runs exactly twice per run, the maestro seat and the " +
   "cold read; a cold-read dispatch's description begins with 'cold read', and " +
   "anything else re-issues from the routing table in " +
-  "skills/bottega/SKILL.md or goes to the patron as an escalation.";
+  "skills/bottega/SKILL.md or goes to the user as an escalation.";
 
 function readStdin() {
   return new Promise((resolve) => {

@@ -2,18 +2,18 @@
 
 An autonomous long-running agent system built for Fable to orchestrate.
 
-A bottega is the Renaissance workshop: a maestro runs the shop, apprentices execute, and the patron appears twice — commissioning the work and receiving it. That is the whole operating model. The patron signs a one-page commission; a fleet of agents builds, reviews, and examines the work autonomously; the delivery is a PR with evidence. Nobody watches the workshop.
+The operating model: the user signs a one-page commission, a fleet of agents builds, reviews, and examines the work autonomously, and the delivery is a PR with evidence. The maestro (Fable) holds all design and routing authority; worker agents execute. The user interacts exactly twice — signing the commission and receiving the delivery — and the run is otherwise unsupervised.
 
 ## Why it holds without supervision
 
 Unsupervised runs fail by satisfying a proxy for the goal, so every gate that can be mechanical is mechanical:
 
-- **The contract is executable.** Commissions are Gherkin feature files. The [Acceptance Pipeline](https://github.com/vadimcomanescu/acceptance-pipeline-kit) parses them to JSON IR and *generates* the test entrypoints — no hand translation between what the patron signed and what runs.
+- **The contract is executable.** Commissions are Gherkin feature files. The [Acceptance Pipeline](https://github.com/vadimcomanescu/acceptance-pipeline-kit) parses them to JSON IR and *generates* the test entrypoints — no hand translation between what the user signed and what runs.
 - **The contract is out of reach.** `bottega sign` freezes the feature files into `.bottega/commission.lock` (the lock keeps the older "commission" name deliberately — it names the signed thing); `bottega verify` fails the delivery gate on any drift (exit 0 clean, 1 drift, 2 unsigned, 3 corrupt). Builders that edit the spec commit forgery, and forgery is detected, not trusted away.
 - **The wiring is proven, not assumed.** Acceptance mutation flips example values in the IR and requires the suite to fail. A surviving mutation means a handler ignores a signed value — that is a finding, killed or justified in `equivalent-mutants.json`. Source mutation covers the unit layer on core domain logic. Honest ceiling: mutation proves the tests read the signed values, not that the scenarios cover intent — that judgment stays human, made once, at sign-off.
 - **Fresh eyes are different weights.** Every diff is reviewed cold by the *complement* of whoever built it — a Claude-built slice gets a non-Claude adversary, a Codex-built slice a non-Codex one, never its own family. Same-family review inherits the generator's blind spots and looks like verification without being it.
 
-The standing objection: the maestro is smart — why not let it simply read the work and judge it? Because it is both orchestrator and arbiter; its reading as ground truth would be the same mind approving its own decisions. And better builders make the gates more load-bearing, not less — a weak builder games a test vacuously and gets caught in review; a strong builder under gate pressure writes tests that survive review while checking nothing, which only execution catches (flip a signed value; the suite must fail). The gates are the substitute for ceremony, not an addition to it: three mechanical checks carry what judge panels, checklists, and a watching human would otherwise have to — which is what lets the doctrine stay thin and the patron actually leave. Trust here is structural, not reputational. The one place the maestro's own weights do judge — the final cold read before the PR — strips what actually biases self-judgment: not the weights but the authorship. A fresh fable instance reads commission against artifact with none of the run's context, and an overruled cold-read finding lands in the PR for the patron to see.
+The standing objection: the maestro is smart — why not let it simply read the work and judge it? Because it is both orchestrator and arbiter; its reading as ground truth would be the same mind approving its own decisions. And better builders make the gates more load-bearing, not less — a weak builder games a test vacuously and gets caught in review; a strong builder under gate pressure writes tests that survive review while checking nothing, which only execution catches (flip a signed value; the suite must fail). The gates are the substitute for ceremony, not an addition to it: three mechanical checks carry what judge panels, checklists, and a watching human would otherwise have to — which is what lets the doctrine stay thin and the user actually leave. Trust here is structural, not reputational. The one place the maestro's own weights do judge — the final cold read before the PR — strips what actually biases self-judgment: not the weights but the authorship. A fresh fable instance reads commission against artifact with none of the run's context, and an overruled cold-read finding lands in the PR for the user to see.
 
 ## The cast
 
@@ -40,7 +40,7 @@ commission signed (HTML gate → bottega sign) ─▶ acceptance RED
   ─▶ cold read: fresh fable judge, commission-only context ─▶ delivery PR
 ```
 
-Human gates are clickable HTML pages (approve / request changes), never walls of markdown. The entire run is isolated: branch `bottega/<spec-id>` in its own worktree, every commit lands there, and the PR is the only path to trunk — the patron's merge click is the only act that lands it. After delivery, the spec is rewritten into a closed, durable record pointing at code and evidence.
+Human gates are clickable HTML pages (approve / request changes), never walls of markdown. The entire run is isolated: branch `bottega/<spec-id>` in its own worktree, every commit lands there, and the PR is the only path to trunk — the user's merge click is the only act that lands it. After delivery, the spec is rewritten into a closed, durable record pointing at code and evidence.
 
 ## The two artifacts a human ever reads
 
