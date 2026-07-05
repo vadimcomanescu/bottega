@@ -1,6 +1,6 @@
 # Codex dispatch grammar
 
-Every codex seat is one `codex exec` invocation, fully specified so it runs identically on any host: `--ignore-user-config` always (the machine's config, model, and notify hooks are ignored — auth still resolves from `CODEX_HOME`); model and effort verbatim from the routing table; the `--json` event stream (stdout — redirect it) and the `-o` final message both captured as evidence. The run blocks to completion: launch it as a background shell, collect both files. A failed invocation is reported with its stderr, never worked around.
+Every codex seat is one `codex exec` invocation, fully specified so it runs identically on any host: `--ignore-user-config` always (the machine's config, model, and notify hooks are ignored — auth still resolves from `CODEX_HOME`); model and effort verbatim from the routing table; the `--json` event stream (stdout — redirect it) and the `-o` final message both captured as evidence. The run blocks to completion: launch it as a background shell, collect both files. Launch liveness: `thread.started` must appear in the events file within a few minutes of launch; absent, kill and relaunch — a wedged exec sits alive at 0% CPU forever, and a seat deadline sized for the work is too slow a detector for a startup hang. A failed invocation is reported with its stderr, never worked around. Directory trust never gates these runs — probed 2026-07-05: a fresh, never-trusted worktree under `--ignore-user-config` executes normally; the trust prompt is an interactive-TUI concern, so no `trust_level` entry is ever needed and none would survive `--ignore-user-config` anyway.
 
 One-turn seats (review, clerk mechanics):
 
@@ -8,13 +8,19 @@ One-turn seats (review, clerk mechanics):
 codex exec --ignore-user-config -m <model> -c model_reasoning_effort=<effort> -s <sandbox> -C <worktree> --json -o <msg> < brief.md > <events>
 ```
 
-Builders take `-s workspace-write`; read-only seats take `-s read-only`.
+Builders take `-s workspace-write`; consultation and clerk reads take `-s read-only`. A codex **reviewer** takes `-s workspace-write` too — in a disposable copy of the slice worktree the clerk sweeps after the round: read-only starves the suites and probes reviewing demands, and disposability, not the sandbox, is what keeps the reviewer's hands off the product tree. A **QA** seat takes `-s workspace-write -C` the run worktree — evidence lands under `.bottega/verify/<sha>/` and fixtures in the temp dir, both inside that sandbox.
+
+## What every brief carries
+
+- Skills and files by absolute path. `$CLAUDE_PLUGIN_ROOT`, slash commands, and subagents do not exist for a codex seat — a brief naming any of them stalls the seat. Bulk work a Claude seat would fan out to subagents, a codex brief chunks inline.
+- The gate commands verbatim, split into seat-run and clerk-run. The sandbox blocks localhost binds as well as gitdir writes, so any binding gate — dev server, browser, integration suite — is the clerk's by name, or the seat burns its turn on `listen EPERM` and ships code it never saw run.
+- An output contract ending in a fenced JSON block — verdict, files touched, evidence paths, anomalies — so the `-o` message is parsed like every other seat's report, never hand-read prose.
 
 ## The two-brief builder ceremony
 
 Codex sandboxes deny writes under a shared gitdir, so a codex builder in a slice worktree cannot commit — verified, never solved with `danger-full-access`. Builder briefs contain no git commands; the dispatching clerk owns the ceremony: pre-creates worktree and branch, then splits the build into two turns on one thread so the commit grammar survives. Authorship stays with the builder; the clerk never writes implementation code. Both turns run from inside the slice worktree.
 
-**RED — failing tests.** Plain `exec`:
+**RED — failing tests.** The brief says tests only — no production code, stop at red: a RED turn that runs on to green leaves the clerk nothing true to commit, and the ceremony's checkpoint is a lie. Plain `exec`:
 
 ```
 codex exec --ignore-user-config -m <model> -c model_reasoning_effort=<effort> -s workspace-write -C <worktree> --json -o red-msg.txt < brief-red.md > red-events.jsonl

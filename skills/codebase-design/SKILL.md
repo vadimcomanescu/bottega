@@ -27,12 +27,15 @@ Use these terms exactly — never "component", "service", "API", or "boundary".
 - **The dependency picks the test strategy.** Pure computation: no seam — test it directly. A dependency with a local stand-in (embedded database, in-memory filesystem): the stand-in runs in the suite; no port appears at the interface. Your own service across a network: a port at the seam — in-memory adapter in tests, transport adapter in production. A third party you don't control: an injected port, mocked in tests. Never cut a port where a stand-in exists.
 - **Validate at system edges only** — user input, external responses, configuration. Inside a seam, modules trust their callers' contracts; internal re-validation is speculative structure.
 - **Design it twice.** Before committing to an interface, sketch a second, radically different one; keep whichever is simpler for callers, whatever it costs the implementation.
+- **Sunk cost is not a design argument.** "It already exists and works" keeps no shape; size a refactor by the quality of the end state, not the volume of code it replaces.
+- **A bridge that must remain is tiny, named as compatibility, and carries a removal condition.** Anything less is the compatibility sediment reviewers flag — there is no third kind.
 
 ## Smells
 
 Named so they get swept for, not merely known — latent knowledge fires when a diff happens to surface it; a named list is owed a verdict every pass. Each is a judgment call, never a hard violation; the dossier's contract overrides; skip anything tooling already enforces. Smells the principles above already trigger — a delegating wrapper (deletion test), speculative abstraction (hypothetical seam), an off-glossary name (synonym rule) — are judged under those names, never twice.
 
 - **Duplicated code** — the same logic shape in more than one place. → extract the shared shape, call it from both.
+- **Re-derived oracle** — a test or second consumer recomputes a value the code already owns; the two drift on ordering or rounding differences invisible on paper, and the check fires false verdicts. → export the owner's computed value, have the check consume that.
 - **Data clumps** — the same few fields or params traveling together: a type wanting to be born. → bundle them into one type, pass that.
 - **Primitive obsession** — a primitive standing in for a domain concept. → give the concept its own small type, named from `CONCEPTS.md`.
 - **Repeated switches** — the same `switch`/`if`-cascade on the same type recurring. → polymorphism, or one map both sites share.
