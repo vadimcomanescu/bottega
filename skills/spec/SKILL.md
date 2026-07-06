@@ -1,6 +1,6 @@
 ---
 name: spec
-description: Write the commission — the interview, the contract, the storyboards, the gate. Entered via /bottega:run phase 1, or /bottega:spec to commission without running.
+description: Write the commission — the interview, the contract, the storyboards, the gate. Entered via /bottega:run (which continues into skills/execute), or /bottega:spec to commission without running.
 disable-model-invocation: true
 ---
 
@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 *The user signs product, never execution. Everything here is written for a reader who leaves.*
 
-Maestro-seat skill: it needs the top intelligence row of the routing table — loaded on a lower model, say so before drafting, same rule as `skills/run`. Its dispatches route from that skill's table, model and effort named on every call; a render seat produces user-facing pixels — taste ≥ 7, never a clerk. Judgment stays here: the interview, every scenario and the Direction, the shot list, arbitration, every reply in the gate's comment loop. Dispatched: frame production (`skills/storyboarding`), gate assembly, the SIGNED cascade, the `CONCEPTS.md` write-out, and — on a large host — read-only sweeps whose findings are leads you verify against the load-bearing files you read yourself: a spec grounded on a scout's summary inherits the scout's blindness.
+Maestro-seat skill: it needs the top intelligence row of the routing table — loaded on a lower model, say so before drafting, same rule as `skills/execute`. Its dispatches route from that skill's table, model and effort named on every call; a render seat produces user-facing pixels — taste ≥ 7, never a clerk. Judgment stays here: the interview, every scenario and the Direction, the shot list, arbitration, every reply in the gate's comment loop. Dispatched: frame production (`skills/storyboarding`), gate assembly, the SIGNED cascade, the `CONCEPTS.md` write-out, and — on a large host — read-only sweeps whose findings are leads you verify against the load-bearing files you read yourself: a spec grounded on a scout's summary inherits the scout's blindness.
 
 ## Read, then maybe ask
 
@@ -29,6 +29,6 @@ Maestro-seat skill: it needs the top intelligence row of the routing table — l
 ## Gate
 
 11. **Cross-read** before the gate opens: dispatch codex (xhigh, read-only) with the draft, the feature files, and the repo. Its hunt list is what the author and a skimming user systematically miss: a Then no actor can observe, a Given QA cannot build, Examples without mutation-bearing values, HOW leaked past the altitude guard, a non-goal contradicting a scenario, a logged decision no scenario carries, names off the glossary. Findings are sensor data — arbitrate each; an overruled finding lands in the Decisions log. Re-run only after a substantive rewrite, never per comment.
-12. Hand to `skills/signoff` — one collaborative doc, comments answered where made, `SIGNED <feature-slug>` as the go signal. **Invoked standalone, the gate is the finish line:** on SIGNED the cascade runs and the signed commission — spec doc, `features/`, lock, gate record — is the deliverable; say "run it with `/bottega:run` when you choose" and stop. The phase's durable state is entirely on disk (the spec doc, `features/`, `.bottega/gates/<feature-slug>/` with doc credentials, frames, prototype sources, thread mirror), so any later session on any machine picks up cold: signed → run start; unsigned → resume the same hosted doc from the gate record. No session memory is ever part of the handoff.
+12. Hand to `skills/signoff` — one collaborative doc, comments answered where made, `SIGNED <feature-slug>` as the go signal. **Invoked standalone, the gate is the finish line:** on SIGNED the cascade runs and the signed commission — spec doc, `features/`, lock, gate record — is the deliverable; say "execute it with `/bottega:execute` when you choose" and stop. The phase's durable state is entirely on disk (the spec doc, `features/`, `.bottega/gates/<feature-slug>/` with doc credentials, frames, prototype sources, thread mirror), so any later session on any machine picks up cold: signed → `/bottega:execute`; unsigned → resume the same hosted doc from the gate record. No session memory is ever part of the handoff.
 
 **Done when** the feature files run as acceptance without a follow-up question, and a non-engineer reading the gate doc could say what will change for them.

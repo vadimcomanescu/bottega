@@ -62,14 +62,14 @@ const DENY_UNROUTED =
   "the dispatch was rejected because it names no model — an omitted model " +
   "inherits the dispatching seat's own model, which from the maestro seat " +
   "silently escalates the worker to fable; re-issue the same dispatch with an " +
-  "explicit model from the routing table in skills/run/SKILL.md (Claude " +
+  "explicit model from the routing table in skills/execute/SKILL.md (Claude " +
   "worker seat: opus — builder/qa at high, reviewer at xhigh).";
 
 const DENY_FABLE =
   "the dispatch was rejected because it routes a worker seat to fable — fable " +
   "runs exactly twice per run, the maestro seat and the cold read, and the " +
   "cold read never rides a builder/reviewer/qa seat; re-issue from the routing " +
-  "table in skills/run/SKILL.md (Claude worker seat: opus — builder/qa at " +
+  "table in skills/execute/SKILL.md (Claude worker seat: opus — builder/qa at " +
   "high, reviewer at xhigh), and if you believe this slice genuinely needs " +
   "fable-tier judgment, stop and put the escalation to the user — their " +
   "budget, never a self-serve seat.";
@@ -79,14 +79,14 @@ const DENY_UNROUTED_RUN =
   "present) and this dispatch names no model — an omitted model inherits the dispatching seat's own " +
   "model, which from the maestro seat silently escalates the seat to fable; " +
   "re-issue with an explicit model from the routing table in " +
-  "skills/run/SKILL.md.";
+  "skills/execute/SKILL.md.";
 
 const DENY_FABLE_RUN =
   "a commission is in flight or forming (lock, gate record, or spec draft " +
   "present) and this dispatch routes fable — fable runs exactly twice per run, the maestro seat and the " +
   "cold read; a cold-read dispatch's description begins with 'cold read', and " +
   "anything else re-issues from the routing table in " +
-  "skills/run/SKILL.md or goes to the user as an escalation.";
+  "skills/execute/SKILL.md or goes to the user as an escalation.";
 
 function readStdin() {
   return new Promise((resolve) => {

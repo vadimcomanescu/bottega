@@ -38,4 +38,4 @@ Rules the template can't show:
 - Scenario sections appear in feature-file order — files sorted by name, scenarios in file order — so the doc, the gate doc, and `gate-diff` all read the same sequence.
 - Examples tables carry mutation-bearing values — a value that can flip and fail the suite. A table of placeholders signs nothing.
 - Strip slots hold placeholders only until the render brief returns; the doc never reaches the gate with a placeholder in it.
-- Mid-run: Decisions log appends (flagged), Direction supersedes with notice on the status block, scenarios never move. At Close the doc is rewritten into the durable record per `skills/run`.
+- Mid-run: Decisions log appends (flagged), Direction supersedes with notice on the status block, scenarios never move. At Close the doc is rewritten into the durable record per `skills/execute`.

@@ -21,7 +21,7 @@ Agents say who; skills say how. Both ship in this repo — bottega assumes nothi
 
 | Actor | Identity | Methodology |
 | --- | --- | --- |
-| **Maestro** (Fable) | architect, planner, router, arbiter — all design authority | [`skills/run/SKILL.md`](skills/run/SKILL.md) |
+| **Maestro** (Fable) | architect, planner, router, arbiter — all design authority | [`skills/spec/SKILL.md`](skills/spec/SKILL.md) + [`skills/execute/SKILL.md`](skills/execute/SKILL.md), sequenced by [`skills/run/SKILL.md`](skills/run/SKILL.md) |
 | **Implementor** | one dossier to green, deliberately simple | [`agents/bottega-builder.md`](agents/bottega-builder.md) → [`skills/implementing/SKILL.md`](skills/implementing/SKILL.md) — test-first loop, the ladder, the fences |
 | **Reviewer** | the sophisticated one; opposite family from the builder, fresh per round | [`agents/bottega-reviewer.md`](agents/bottega-reviewer.md) → [`skills/reviewing/SKILL.md`](skills/reviewing/SKILL.md) — break it, test ratchet, architectural conformance |
 |  **QA** | drives the artifact as a user; evidence or it didn't happen | [`agents/bottega-qa.md`](agents/bottega-qa.md) → [`skills/qa/SKILL.md`](skills/qa/SKILL.md) |
@@ -78,7 +78,7 @@ Requires Node ≥ 22.18 (the bin shim runs TypeScript through native type stripp
 
 That is the whole install. The plugin carries everything: the maestro skill, the three actor skills, the agents, the sign/verify CLI (dependency-free — it runs straight from the plugin root, no npm install), and the sign-off template. Two requirements the run checks itself and fails loudly without: Node ≥ 22.18 and the codex CLI (cross-family dispatch). On a host's first run a dispatched clerk bootstraps the [acceptance-pipeline-kit](https://github.com/vadimcomanescu/acceptance-pipeline-kit) toolchain into `.bottega/` and pins its hashes in `aps.lock` — never a manual step, and never maestro tokens. Wiring `bottega verify` into the host's delivery gate is part of the first delivery, not setup.
 
-Then commission work with `/bottega:run <task>` — or `/bottega:spec <task>` to sign a commission without running it. The maestro seat is fable-tier: run the session on the strongest model available — loaded on a lower tier, the skill says so instead of proceeding silently.
+Then commission work with `/bottega:run <task>` — the whole loop in one sitting — or split it: `/bottega:spec <task>` signs a commission without running it, and `/bottega:execute <feature-slug>` later runs a signed one (it refuses anything unsigned or already run). The maestro seat is fable-tier: run the session on the strongest model available — loaded on a lower tier, the skill says so instead of proceeding silently.
 
 ## Provenance
 
