@@ -25,6 +25,7 @@ Agents say who; skills say how. Both ship in this repo — bottega assumes nothi
 | **Implementor** | one dossier to green, deliberately simple | [`agents/bottega-builder.md`](agents/bottega-builder.md) → [`skills/implementing/SKILL.md`](skills/implementing/SKILL.md) — test-first loop, the ladder, the fences |
 | **Reviewer** | the sophisticated one; opposite family from the builder, fresh per round | [`agents/bottega-reviewer.md`](agents/bottega-reviewer.md) → [`skills/reviewing/SKILL.md`](skills/reviewing/SKILL.md) — break it, test ratchet, architectural conformance |
 |  **QA** | drives the artifact as a user; evidence or it didn't happen | [`agents/bottega-qa.md`](agents/bottega-qa.md) → [`skills/qa/SKILL.md`](skills/qa/SKILL.md) |
+| **Documenter** | one dispatch after the last integrate; makes the host's agent-facing docs true of what shipped | [`agents/bottega-documenter.md`](agents/bottega-documenter.md) → [`skills/documenting/SKILL.md`](skills/documenting/SKILL.md) — diff-warranted edits only, docs match code, reviewed like code |
 
 Models are never pinned in agent files — the maestro routes per dispatch from the axis table in its skill (intelligence > taste > cost; implementation defaults to codex at xhigh; the Claude worker seat is opus-4.8 at high; user-facing needs taste ≥ 7; review always the opposite family — opus-4.8 or codex at xhigh, while fable is dispatched exactly twice a run: the maestro seat and the cold read; never Haiku; standing permission to escalate).
 
@@ -36,7 +37,8 @@ Doctrine is saved; control flow is authored fresh per run — a stored pipeline 
 commission signed (HTML gate → bottega sign) ─▶ acceptance RED
   ─▶ maestro designs the architecture ─▶ slices built in worktrees (one task per invocation)
   ─▶ reviewer rounds: fresh opposite-family reviewer ×≤8, persistent worker, maestro arbitrates
-  ─▶ QA drives it ─▶ verify: lock + acceptance + mutation, evidence archived
+  ─▶ host docs synced to what shipped (reviewed like code) ─▶ QA drives it
+  ─▶ verify: lock + acceptance + mutation, evidence archived
   ─▶ cold read: fresh fable judge, commission-only context ─▶ delivery PR
 ```
 
