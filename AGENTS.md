@@ -13,7 +13,7 @@ An autonomous long-running agent system built for Fable to orchestrate. Read `RE
 | `skills/codebase-design` | House design discipline — vocabulary, deep-module principles, `CONCEPTS.md` domain glossary; defined once, used on both sides of the dispatch seam: maestro designs by it, dossiers carry it, reviewers judge against it |
 | `skills/signoff` | User gate — the collaborative spec doc (storyboards inline, comment loop, `SIGNED` as a comment); `assets/` holds the local canvas for at-the-machine sessions and `gate-diff.mjs`, the sign-blocking check that the hosted doc carries the feature files verbatim |
 | `agents/` | Actor identity: builder, reviewer, qa — each points at its skill; no model pins |
-| `hooks/` | Route guard (PreToolUse) — while a commission is in flight, rejects **any** dispatch that omits `model` or names fable (cold read passes by naming itself); entry guard (UserPromptSubmit) points run-intent prose at `/bottega:run`. The fable fence, harness-enforced |
+| `hooks/` | Route guard (PreToolUse) — while a commission is forming or in flight, rejects **any** dispatch that omits `model` or names fable (cold read passes by naming itself); entry guard (UserPromptSubmit) points run-intent prose at `/bottega:run`. The fable fence, harness-enforced |
 | `features/` | Signed commissions (Gherkin). **Locked after sign-off — never edit** |
 | `docs/specs/` | Spec contracts (intent, non-goals, decisions log) |
 | `src/`, `tests/` | The `bottega` CLI (`sign`, `verify`) and its unit tests |
