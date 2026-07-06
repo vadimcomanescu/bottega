@@ -47,4 +47,4 @@ Named so they get swept for, not merely known — latent knowledge fires when a 
 ## Domain model
 
 - Interface names come from the domain's language — the same words the signed scenarios use. A synonym invented in code ("purchase" where the commission says "order") is a conformance finding.
-- The glossary lives in `CONCEPTS.md` at the host repo root: one entry per domain term, definitions only, no implementation details. The maestro creates it at spine design when absent and updates it the moment a term crystallizes or sharpens during the run; reviewers judge names against it.
+- The glossary lives in `CONCEPTS.md` at the host repo root: one entry per domain term, definitions only, no implementation details. It is born at the commission — the spec's Direction drafts the vocabulary delta and it lands in `CONCEPTS.md` at sign (`skills/spec`), so the user co-signs the words the code will use — and updated the moment a term crystallizes or sharpens during the run; reviewers judge names against it.

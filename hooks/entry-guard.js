@@ -19,10 +19,10 @@ const INTENT = /(?<![./])\bbottega\b|\bcommission\b(?![-.]lock)/i;
 
 const REMINDER =
   "This repo is a bottega workshop and the prompt reads like run intent. If " +
-  "this is bottega work, invoke /bottega:bottega before acting — the skill " +
-  "is user-invoked only and cannot be self-loaded; acting without it " +
-  "freelances phase-1 discovery on the maestro seat and re-derives what the " +
-  "skill already carries.";
+  "this is bottega work, invoke /bottega:run before acting — or " +
+  "/bottega:spec to commission without running. The skills are user-invoked " +
+  "only and cannot be self-loaded; acting without them freelances phase-1 " +
+  "discovery on the maestro seat and re-derives what the skills already carry.";
 
 function readStdin() {
   return new Promise((resolve) => {

@@ -136,6 +136,52 @@ describe("route-guard: all other seats, gated on commission.lock", () => {
   });
 });
 
+describe("route-guard: forming commission (pre-sign, no lock)", () => {
+  function formingDir(kind: "gates" | "draft" | "signed"): string {
+    const dir = mkdtempSync(join(tmpdir(), "bottega-guard-"));
+    cleanups.push(dir);
+    if (kind === "gates") {
+      mkdirSync(join(dir, ".bottega", "gates"), { recursive: true });
+    } else {
+      mkdirSync(join(dir, "docs", "specs"), { recursive: true });
+      writeFileSync(
+        join(dir, "docs", "specs", "2026-07-06-saved-searches.md"),
+        `# Saved searches\n\n**Status:** ${kind} · **Acceptance:** \`features/saved-searches.feature\`\n`,
+      );
+    }
+    return dir;
+  }
+
+  it("denies an unrouted dispatch while a spec doc is in draft", () => {
+    const out = run(ROUTE_GUARD, {
+      cwd: formingDir("draft"),
+      tool_input: { subagent_type: "general-purpose", prompt: "render variants" },
+    });
+    expect(denialOf(out)).toMatch(/forming/);
+  });
+
+  it("denies a fable-routed dispatch once a gate record exists", () => {
+    const out = run(ROUTE_GUARD, {
+      cwd: formingDir("gates"),
+      tool_input: {
+        subagent_type: "general-purpose",
+        model: "fable",
+        description: "Assemble the gate doc",
+        prompt: "assemble",
+      },
+    });
+    expect(denialOf(out)).toMatch(/routes fable/);
+  });
+
+  it("stays silent when every spec is signed and no lock or gate record exists", () => {
+    const out = run(ROUTE_GUARD, {
+      cwd: formingDir("signed"),
+      tool_input: { subagent_type: "general-purpose", prompt: "anything" },
+    });
+    expect(out).toBe("");
+  });
+});
+
 describe("entry-guard", () => {
   it("reminds on run-intent prose in a workshop", () => {
     const out = run(ENTRY_GUARD, {
@@ -143,14 +189,14 @@ describe("entry-guard", () => {
       prompt: "run bottega, the commission is signed",
     });
     const parsed = JSON.parse(out);
-    expect(parsed.hookSpecificOutput.additionalContext).toMatch(/\/bottega:bottega/);
+    expect(parsed.hookSpecificOutput.additionalContext).toMatch(/\/bottega:run/);
   });
 
   it("stays silent on slash commands, non-workshop dirs, and unrelated prompts", () => {
     const workshop = workshopDir(true);
     const bare = mkdtempSync(join(tmpdir(), "bottega-guard-bare-"));
     cleanups.push(bare);
-    expect(run(ENTRY_GUARD, { cwd: workshop, prompt: "/bottega:bottega run it" })).toBe("");
+    expect(run(ENTRY_GUARD, { cwd: workshop, prompt: "/bottega:run it" })).toBe("");
     expect(run(ENTRY_GUARD, { cwd: bare, prompt: "run bottega now" })).toBe("");
     expect(run(ENTRY_GUARD, { cwd: workshop, prompt: "fix the flaky test" })).toBe("");
     expect(run(ENTRY_GUARD, "not json")).toBe("");

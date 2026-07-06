@@ -21,7 +21,7 @@ Agents say who; skills say how. Both ship in this repo — bottega assumes nothi
 
 | Actor | Identity | Methodology |
 | --- | --- | --- |
-| **Maestro** (Fable) | architect, planner, router, arbiter — all design authority | [`skills/bottega/SKILL.md`](skills/bottega/SKILL.md) |
+| **Maestro** (Fable) | architect, planner, router, arbiter — all design authority | [`skills/run/SKILL.md`](skills/run/SKILL.md) |
 | **Implementor** | one dossier to green, deliberately simple | [`agents/bottega-builder.md`](agents/bottega-builder.md) → [`skills/implementing/SKILL.md`](skills/implementing/SKILL.md) — test-first loop, the ladder, the fences |
 | **Reviewer** | the sophisticated one; opposite family from the builder, fresh per round | [`agents/bottega-reviewer.md`](agents/bottega-reviewer.md) → [`skills/reviewing/SKILL.md`](skills/reviewing/SKILL.md) — break it, test ratchet, architectural conformance |
 |  **QA** | drives the artifact as a user; evidence or it didn't happen | [`agents/bottega-qa.md`](agents/bottega-qa.md) → [`skills/qa/SKILL.md`](skills/qa/SKILL.md) |
@@ -40,11 +40,11 @@ commission signed (HTML gate → bottega sign) ─▶ acceptance RED
   ─▶ cold read: fresh fable judge, commission-only context ─▶ delivery PR
 ```
 
-Human gates are clickable HTML pages (approve / request changes), never walls of markdown. The entire run is isolated: branch `bottega/<spec-id>` in its own worktree, every commit lands there, and the PR is the only path to trunk — the user's merge click is the only act that lands it. After delivery, the spec is rewritten into a closed, durable record pointing at code and evidence.
+Human gates are clickable HTML pages (approve / request changes), never walls of markdown. The entire run is isolated: branch `bottega/<feature-slug>` in its own worktree, every commit lands there, and the PR is the only path to trunk — the user's merge click is the only act that lands it. After delivery, the spec is rewritten into a closed, durable record pointing at code and evidence.
 
 ## The two artifacts a human ever reads
 
-**In:** the commission (`docs/specs/NNNN-*.md` + `features/*.feature`) — intent in two sentences, non-goals, Given/When/Then with example values, a storyboard of rendered screens per signed flow for UI work. One page, signed in minutes.
+**In:** the commission — `docs/specs/<YYYY-MM-DD>-<feature-slug>.md` plus the `features/*.feature` files it points at: intent in two sentences, non-goals, a Direction (the domain-model delta and the hard-to-reverse calls, in plain words), Given/When/Then with example values, and a storyboard of rendered screens per signed flow for UI work. One page of contract prose, signed in minutes.
 
 **Out:** the delivery PR — scenario checklist, evidence from `.bottega/verify/<sha>/`, findings fixed, and the decisions log: every call the commission underdetermined, made and flagged, because decisions in an unsupervised run are reviewed after, not asked before.
 
@@ -76,7 +76,7 @@ Requires Node ≥ 22.18 (the bin shim runs TypeScript through native type stripp
 
 That is the whole install. The plugin carries everything: the maestro skill, the three actor skills, the agents, the sign/verify CLI (dependency-free — it runs straight from the plugin root, no npm install), and the sign-off template. Two requirements the run checks itself and fails loudly without: Node ≥ 22.18 and the codex CLI (cross-family dispatch). On a host's first run a dispatched clerk bootstraps the [acceptance-pipeline-kit](https://github.com/vadimcomanescu/acceptance-pipeline-kit) toolchain into `.bottega/` and pins its hashes in `aps.lock` — never a manual step, and never maestro tokens. Wiring `bottega verify` into the host's delivery gate is part of the first delivery, not setup.
 
-Then commission work with `/bottega <task>`. The maestro seat is fable-tier: run the session on the strongest model available — loaded on a lower tier, the skill says so instead of proceeding silently.
+Then commission work with `/bottega:run <task>` — or `/bottega:spec <task>` to sign a commission without running it. The maestro seat is fable-tier: run the session on the strongest model available — loaded on a lower tier, the skill says so instead of proceeding silently.
 
 ## Provenance
 

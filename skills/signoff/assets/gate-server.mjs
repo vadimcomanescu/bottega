@@ -3,7 +3,7 @@
 // comments and decision, and assembles the live thread. Zero dependencies,
 // binds loopback only.
 //
-//   node gate-server.mjs --dir .bottega/gates/<spec-id> [--port 4747]
+//   node gate-server.mjs --dir .bottega/gates/<feature-slug> [--port 4747]
 //
 // Serves:  GET  /                -> gate.html
 //          GET  /assets/*        -> storyboard images etc. (inside --dir only)
