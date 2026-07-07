@@ -9,7 +9,7 @@ The operating model: the user signs a one-page commission, a fleet of agents bui
 Unsupervised runs fail by satisfying a proxy for the goal, so every gate that can be mechanical is mechanical:
 
 - **The contract is executable.** Commissions are Gherkin feature files. The [Acceptance Pipeline](https://github.com/vadimcomanescu/acceptance-pipeline-kit) parses them to JSON IR and *generates* the test entrypoints — no hand translation between what the user signed and what runs.
-- **The contract is in plain sight.** The `SIGNED` cascade lands the spec doc and the feature files in one sign commit — the contract's last legitimate write — after `gate-diff` proves the page the user signed carries those files verbatim. From there the delivery PR's diff is the drift detector: any later touch of a signed feature file shows up as a contract change beside the code, where the user reviews it. A dedicated lock file once held this guarantee, but the lock was itself a committed file an actor could edit, so it never held more than git and PR review already hold — it was ceremony, and it's gone.
+- **The contract is in plain sight.** The `SIGNED` cascade lands the spec doc and the feature files in one sign commit — the contract's last legitimate write — after `gate-diff` proves the page the user signed is `gate-render`'s reading of those files, block for block — the user reads plain-English walkthroughs, the repo keeps the Gherkin, and a shipped deterministic renderer is the only thing between them, so nothing hand-translated can drift. From there the delivery PR's diff is the drift detector: any later touch of a signed feature file shows up as a contract change beside the code, where the user reviews it. A dedicated lock file once held this guarantee, but the lock was itself a committed file an actor could edit, so it never held more than git and PR review already hold — it was ceremony, and it's gone.
 - **The wiring is proven, not assumed.** Acceptance mutation flips example values in the IR and requires the suite to fail. A surviving mutation means a handler ignores a signed value — that is a finding, killed or justified in the delivery PR where the user can veto the justification. Honest ceiling: mutation proves the tests read the signed values, not that the scenarios cover intent — that judgment stays human, made once, at sign-off.
 - **Fresh eyes are different weights.** Every diff is reviewed cold by the *complement* of whoever built it — a Claude-built slice gets a non-Claude adversary, a Codex-built slice a non-Codex one, never its own family. Same-family review inherits the generator's blind spots and looks like verification without being it.
 
@@ -46,17 +46,17 @@ Human gates are clickable HTML pages (approve / request changes), never walls of
 
 ## The two artifacts a human ever reads
 
-**In:** the commission — `docs/specs/<YYYY-MM-DD>-<feature-slug>.md` plus the `features/*.feature` files it points at: intent in two sentences, non-goals, a Direction (the domain-model delta and the hard-to-reverse calls, in plain words), Given/When/Then with example values, and a storyboard of rendered screens per signed flow for UI work. One page of contract prose, signed in minutes.
+**In:** the commission — `docs/specs/<YYYY-MM-DD>-<feature-slug>.md` plus the `features/*.feature` files it points at: intent in two sentences, non-goals, a Direction (the domain-model delta and the hard-to-reverse calls, in plain words), each scenario as a plain numbered walkthrough carrying its example values (the Gherkin itself stays in the repo; a shipped renderer proves the two identical at sign), and a storyboard of rendered screens per signed flow for UI work. One page of contract prose, signed in minutes.
 
 **Out:** the delivery PR — scenario checklist, the evidence in the PR body, per-slice provenance (who built, who reviewed, families and models), findings fixed, and the decisions log: every call the commission underdetermined, made and flagged, because decisions in an unsupervised run are reviewed after, not asked before.
 
 ## This repo
 
-Prompts, two guards, one check — no engine. Layout: `skills/` the doctrine · `agents/` actor identity · `hooks/` the route and entry guards · `skills/signoff/assets/gate-diff.mjs` the sign-blocking verbatim check · `tests/` unit tests for the guards and the check · `docs/specs/` closed records of delivered commissions.
+Prompts, two guards, one renderer, one check — no engine. Layout: `skills/` the doctrine · `agents/` actor identity · `hooks/` the route and entry guards · `skills/signoff/assets/gate-render.mjs` the feature-file→walkthrough renderer · `skills/signoff/assets/gate-diff.mjs` the sign-blocking check that the signed page carries its output verbatim · `tests/` unit tests for the guards, the renderer, and the check · `docs/specs/` closed records of delivered commissions.
 
 ```bash
 npm install
-npm test          # guard + gate-diff unit tests
+npm test          # guard + gate-render + gate-diff unit tests
 ```
 
 ## Install
