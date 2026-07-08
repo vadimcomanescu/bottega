@@ -30,7 +30,7 @@
 - <check — e.g. "appears on a second signed-in device within 30 seconds of saving">
 
 ## Testing strategy
-- **Automated:** <which scenarios run as generated acceptance tests; what unit tests the run adds and where>
+- **Automated:** <which scenarios run as generated acceptance tests>
 - **Load-bearing values:** <the Examples values whose flip must fail the suite — and why these are the ones that matter>
 - **Edges to probe:** <the failure shapes this feature actually has, each named — empty, duplicate, boundary, casing, concurrent — never the generic list>
 - **Manual (QA):** <what to attack beyond the scripted scenarios — surfaces, devices, the weird paths worth an hour; QA reads this as its starting hunt list>
