@@ -8,7 +8,7 @@ One-turn seats (review, clerk mechanics):
 codex exec --ignore-user-config -m <model> -c model_reasoning_effort=<effort> -s <sandbox> -C <worktree> --json -o <msg> < brief.md > <events>
 ```
 
-Builders take `-s workspace-write`; consultation and clerk reads take `-s read-only`. A codex **reviewer** takes `-s workspace-write` too — in a disposable copy of the slice worktree the clerk sweeps after the round: read-only starves the suites and probes reviewing demands, and disposability, not the sandbox, is what keeps the reviewer's hands off the product tree. A **QA** seat takes `-s workspace-write -C` the run worktree — evidence lands under `.bottega/verify/<sha>/` and fixtures in the temp dir, both inside that sandbox.
+Builders take `-s workspace-write`; consultation and clerk reads take `-s read-only`. A codex **reviewer** takes `-s workspace-write` too — in a disposable copy of the slice worktree the clerk sweeps after the round: read-only starves the suites and probes reviewing demands, and disposability, not the sandbox, is what keeps the reviewer's hands off the product tree. A **QA** seat takes `-s workspace-write -C` the run worktree — evidence lands under `.bottega/verify/<feature-slug>/` and fixtures in the temp dir, both inside that sandbox.
 
 ## What every brief carries
 

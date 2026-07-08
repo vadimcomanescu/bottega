@@ -18,7 +18,7 @@ An autonomous long-running agent system built for Fable to orchestrate. Read `RE
 | `docs/specs/` | Spec contracts (intent, non-goals, decisions log) — closed records of delivered commissions |
 | `tests/` | Unit tests for the hooks and the gate-diff check |
 
-In host repos, a run's working state (toolchain, evidence, worktrees, gate records) lives under `.bottega/`, gitignored; the committed artifacts are the spec doc, `features/*.feature`, and the step handlers in the host's test tree. Evidence the user sees lives in the delivery PR, never in committed archives.
+In host repos, a run's working state (toolchain, evidence, worktrees, gate records) lives under `.bottega/`, gitignored; the committed artifacts are the spec doc, `features/*.feature`, and the step handlers in the host's test tree. Evidence the user sees lives in the delivery PR, never in committed archives — the one licensed exception is the never-merged proof-reel evidence branch (`bottega/evidence-<feature-slug>`), reaped at Close.
 
 ## Rules
 
