@@ -12,7 +12,7 @@ Builders take `-s workspace-write`; consultation and clerk reads take `-s read-o
 
 ## What every brief carries
 
-- The external-effects worker form (`skills/execute`, Standing rules), verbatim.
+- The worker rail (`skills/execute`, Standing rules), verbatim.
 - Skills and files by absolute path. `$CLAUDE_PLUGIN_ROOT`, slash commands, and subagents do not exist for a codex seat — a brief naming any of them stalls the seat. Bulk work a Claude seat would fan out to subagents, a codex brief chunks inline.
 - The gate commands verbatim, split into seat-run and clerk-run. The sandbox blocks localhost binds as well as gitdir writes, so any binding gate — dev server, browser, integration suite — is the clerk's by name, or the seat burns its turn on `listen EPERM` and ships code it never saw run.
 - An output contract ending in a fenced JSON block — verdict, files touched, evidence paths, anomalies — so the `-o` message is parsed like every other seat's report, never hand-read prose.
