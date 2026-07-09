@@ -1,6 +1,6 @@
 # The hosted gate document
 
-Section presence and scenario order follow the canonical rules in [the spec template](../../spec/references/template.md); the hosted order below is fixed.
+Section presence and scenario order follow the canonical rules in [the spec template](../../spec/references/template.md); the hosted order below is fixed. The standing header's "you'll only hear from the run" sentence renders the external-effects rule (`skills/execute`, Standing rules); a change to either lands in both files in one commit.
 
 ````markdown
 # {{FEATURE_NAME}}
