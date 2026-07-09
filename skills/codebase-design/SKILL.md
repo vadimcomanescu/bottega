@@ -32,7 +32,7 @@ Use these terms exactly — never "component", "service", "API", or "boundary".
 
 ## Smells
 
-Named so they get swept for, not merely known — latent knowledge fires when a diff happens to surface it; a named list is owed a verdict every pass. Each is a judgment call, never a hard violation; the dossier's contract overrides; skip anything tooling already enforces. Smells the principles above already trigger — a delegating wrapper (deletion test), speculative abstraction (hypothetical seam), an off-glossary name (synonym rule) — are judged under those names, never twice.
+Sweep for each, every pass. Each is a judgment call, never a hard violation; the dossier's contract overrides; skip anything tooling already enforces. Smells the principles above already trigger — a delegating wrapper (deletion test), speculative abstraction (hypothetical seam), an off-glossary name (synonym rule) — are judged under those names, never twice.
 
 - **Duplicated code** — the same logic shape in more than one place. → extract the shared shape, call it from both.
 - **Re-derived oracle** — a test or second consumer recomputes a value the code already owns; the two drift on ordering or rounding differences invisible on paper, and the check fires false verdicts. → export the owner's computed value, have the check consume that.
