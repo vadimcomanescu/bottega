@@ -26,9 +26,11 @@ The brief, in order:
 4. **Wire acceptance.** Generate the test entrypoints from `features/*.feature`,
    wire the suite, run it, and confirm it fails RED (the features are unimplemented;
    a passing or erroring-for-tooling-reasons suite is a defect to report, not RED).
-5. **Baseline.** Prove the pre-existing-failure baseline once: run the full host
-   suite, record failures to `.bottega/run/baseline.json` (test id + one-line
-   failure). Dossiers point at it; no slice seat ever re-proves it.
+5. **Baseline.** Start `.bottega/run/` empty — anything already there (a dead
+   run's baseline or conventions file that Close never reaped) is debris to
+   delete, never inherited. Then prove the pre-existing-failure baseline once:
+   run the full host suite, record failures to `.bottega/run/baseline.json`
+   (test id + one-line failure). Dossiers point at it; no slice seat ever re-proves it.
 6. **Commit the contract.** Commit the generated acceptance wiring on the run
    branch, following the commit grammar.
 7. **Report.** Exit codes for every step, the RED evidence path, the baseline path.

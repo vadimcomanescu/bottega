@@ -22,7 +22,7 @@ Agents say who; skills say how. Both ship in this repo — bottega assumes nothi
 | Actor | Identity | Methodology |
 | --- | --- | --- |
 | **Maestro** (Fable) | architect, planner, router, arbiter — all design authority | [`skills/spec/SKILL.md`](skills/spec/SKILL.md) + [`skills/execute/SKILL.md`](skills/execute/SKILL.md), sequenced by [`skills/run/SKILL.md`](skills/run/SKILL.md) |
-| **Implementor** | one dossier to green, deliberately simple | [`agents/bottega-builder.md`](agents/bottega-builder.md) → [`skills/implementing/SKILL.md`](skills/implementing/SKILL.md) — test-first loop, the ladder, the fences |
+| **Builder** | one dossier to green, deliberately simple | [`agents/bottega-builder.md`](agents/bottega-builder.md) → [`skills/implementing/SKILL.md`](skills/implementing/SKILL.md) — test-first loop, the ladder, the fences |
 | **Reviewer** | the sophisticated one; opposite family from the builder, fresh per round | [`agents/bottega-reviewer.md`](agents/bottega-reviewer.md) → [`skills/reviewing/SKILL.md`](skills/reviewing/SKILL.md) — break it, test ratchet, architectural conformance |
 |  **QA** | drives the artifact as a user; evidence or it didn't happen | [`agents/bottega-qa.md`](agents/bottega-qa.md) → [`skills/qa/SKILL.md`](skills/qa/SKILL.md) |
 | **Documenter** | one dispatch after the last integrate; makes the host's agent-facing docs true of what shipped | [`agents/bottega-documenter.md`](agents/bottega-documenter.md) → [`skills/documenting/SKILL.md`](skills/documenting/SKILL.md) — diff-warranted edits only, docs match code, reviewed like code |
@@ -35,7 +35,7 @@ Doctrine is saved; control flow is authored fresh per run — a stored pipeline 
 
 ```
 commission signed (hosted gate → sign commit) ─▶ acceptance RED
-  ─▶ maestro designs the architecture ─▶ slices built in worktrees (one task per invocation)
+  ─▶ maestro designs the architecture ─▶ slices built in worktrees (pilot slice first; one task per invocation)
   ─▶ reviewer rounds: fresh opposite-family reviewer ×≤8, persistent worker, maestro arbitrates
   ─▶ host docs synced to what shipped (reviewed like code) ─▶ QA drives it
   ─▶ verify: acceptance + mutation, evidence archived
