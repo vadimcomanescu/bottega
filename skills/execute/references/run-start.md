@@ -8,8 +8,8 @@ carries the worker rail (`skills/execute`, Standing rules), verbatim.
 
 The brief, in order:
 
-1. **Worktree and branch.** Create the run worktree at `.bottega/wt/run/` on a new
-   branch `bottega/<feature-slug>` off trunk. Check the target isn't already inside
+1. **Worktree and branch.** Create the run worktree at `.bottega/wt/<feature-slug>/run/`
+   on a new branch `bottega/<feature-slug>` off trunk. Check the target isn't already inside
    a worktree; never nest.
 2. **Toolchain.** If the host has no `.bottega/aps.lock`, install the
    acceptance-pipeline-kit: `install.sh --version <release> --bin-dir .bottega/bin`
@@ -31,10 +31,13 @@ The brief, in order:
 4. **Wire acceptance.** Generate the test entrypoints from `features/*.feature`,
    wire the suite, run it, and confirm it fails RED (the features are unimplemented;
    a passing or erroring-for-tooling-reasons suite is a defect to report, not RED).
-5. **Baseline.** Start `.bottega/run/` empty — anything already there (a dead
+5. **Baseline.** Start `.bottega/run/<feature-slug>/` empty but for `owner` —
+   the maestro's session binding, written before this brief and never the
+   mechanic's to touch; anything else already there under this slug (a dead
    run's baseline or conventions file that Close never reaped) is debris to
-   delete, never inherited. Then prove the pre-existing-failure baseline once:
-   run the full host suite, record failures to `.bottega/run/baseline.json`
+   delete, never inherited — and another slug's directory is another run's,
+   never touched. Then prove the pre-existing-failure baseline once: run the
+   full host suite, record failures to `.bottega/run/<feature-slug>/baseline.json`
    (test id + one-line failure). Dossiers point at it; no slice seat ever re-proves it.
 6. **Commit the contract.** Commit the generated acceptance wiring on the run
    branch, following the commit grammar.

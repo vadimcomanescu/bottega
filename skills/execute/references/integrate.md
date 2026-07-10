@@ -8,7 +8,7 @@ maestro, never a judgment the mechanic makes.
    dossiers' owned-files lists. An overlap without a written ordering blocks those
    dispatches.
 2. **Provision.** Create each parallel slice worktree at
-   `.bottega/wt/<slice>/` from the run branch and duplicate the run worktree's
+   `.bottega/wt/<feature-slug>/<slice>/` from the run branch and duplicate the run worktree's
    installed dependencies cheaply. Never install them from scratch.
 3. **Check the diff.** Before integration, diff the slice from its branch point
    and compare every changed path with its owned-files list. Any out-of-list path
@@ -18,7 +18,7 @@ maestro, never a judgment the mechanic makes.
    gate 4 even when Git could fast-forward. A conflict goes back to the maestro;
    the mechanic never resolves it by editing product code.
 5. **Prove the integration.** Run the full host suite on the run branch, compare
-   its failures with `.bottega/run/baseline.json`, and report the exit code plus
+   its failures with `.bottega/run/<feature-slug>/baseline.json`, and report the exit code plus
    every failure beyond that baseline.
 6. **Sweep.** Once the integration report is verified, remove the slice worktree
-   and its duplicated dependencies. Leave no `.bottega/wt/<slice>/` entry behind.
+   and its duplicated dependencies. Leave no `.bottega/wt/<feature-slug>/<slice>/` entry behind.

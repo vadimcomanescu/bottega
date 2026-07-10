@@ -30,12 +30,24 @@ afterEach(() => {
   while (cleanups.length > 0) rmSync(cleanups.pop()!, { recursive: true, force: true });
 });
 
-// A live run is a .bottega/wt/ worktree entry — the one signal Close reaps.
-function workshopDir(live: boolean): string {
+// Runs are keyed by feature slug and coexist in one repo. A run is live when
+// its worktree entry .bottega/wt/<slug>/ is non-empty (the one signal Close
+// reaps), and it fences only the session recorded in .bottega/run/<slug>/owner.
+const MAESTRO = "maestro-session";
+
+function workshopDir(live: boolean, owner?: string, slug = "saved-searches"): string {
   const dir = mkdtempSync(join(tmpdir(), "bottega-guard-"));
   cleanups.push(dir);
-  if (live) mkdirSync(join(dir, ".bottega", "wt", "s1"), { recursive: true });
+  addRun(dir, slug, live, owner);
   return dir;
+}
+
+function addRun(dir: string, slug: string, live: boolean, owner?: string): void {
+  if (live) mkdirSync(join(dir, ".bottega", "wt", slug, "run"), { recursive: true });
+  if (owner) {
+    mkdirSync(join(dir, ".bottega", "run", slug), { recursive: true });
+    writeFileSync(join(dir, ".bottega", "run", slug, "owner"), owner + "\n");
+  }
 }
 
 function git(dir: string, ...args: string[]): void {
@@ -124,12 +136,13 @@ describe("route-guard: all other seats, gated on a live run", () => {
     }
   });
 
-  it("denies an unrouted general-purpose dispatch while a worktree entry exists", () => {
+  it("denies the owning session's unrouted general-purpose dispatch while a worktree entry exists", () => {
     const out = run(ROUTE_GUARD, {
-      cwd: workshopDir(true),
+      cwd: workshopDir(true, MAESTRO),
+      session_id: MAESTRO,
       tool_input: { subagent_type: "general-purpose", prompt: "clerk mechanics" },
     });
-    expect(denialOf(out)).toMatch(/run is live/);
+    expect(denialOf(out)).toMatch(/live bottega run/);
   });
 
   it("stays silent on a leftover bottega/* branch — a delivered run's local ref must never arm the guard", () => {
@@ -147,7 +160,8 @@ describe("route-guard: all other seats, gated on a live run", () => {
 
   it("denies a fable-routed general-purpose dispatch during a run", () => {
     const out = run(ROUTE_GUARD, {
-      cwd: workshopDir(true),
+      cwd: workshopDir(true, MAESTRO),
+      session_id: MAESTRO,
       tool_input: { subagent_type: "Explore", model: "claude-fable-5", prompt: "map territory" },
     });
     expect(denialOf(out)).toMatch(/routes fable/);
@@ -155,7 +169,8 @@ describe("route-guard: all other seats, gated on a live run", () => {
 
   it("allows the cold read to route fable during a run", () => {
     const out = run(ROUTE_GUARD, {
-      cwd: workshopDir(true),
+      cwd: workshopDir(true, MAESTRO),
+      session_id: MAESTRO,
       tool_input: {
         subagent_type: "general-purpose",
         model: "fable",
@@ -167,7 +182,7 @@ describe("route-guard: all other seats, gated on a live run", () => {
   });
 
   it("denies fable when 'cold read' is only mentioned, not the description's opening", () => {
-    const cwd = workshopDir(true);
+    const cwd = workshopDir(true, MAESTRO);
     for (const tool_input of [
       {
         subagent_type: "general-purpose",
@@ -182,7 +197,9 @@ describe("route-guard: all other seats, gated on a live run", () => {
         prompt: "cold read style verification",
       },
     ]) {
-      expect(denialOf(run(ROUTE_GUARD, { cwd, tool_input }))).toMatch(/routes fable/);
+      expect(denialOf(run(ROUTE_GUARD, { cwd, session_id: MAESTRO, tool_input }))).toMatch(
+        /routes fable/,
+      );
     }
   });
 
@@ -232,22 +249,97 @@ describe("route-guard: a patch job arms the same run fence", () => {
   it("fences unrouted and fable dispatches while a patch worktree exists", () => {
     const dir = mkdtempSync(join(tmpdir(), "bottega-guard-patch-"));
     cleanups.push(dir);
-    mkdirSync(join(dir, ".bottega", "wt", "patch", "fix-pagination"), { recursive: true });
+    addRun(dir, "patch-fix-pagination", true, MAESTRO);
     const unrouted = run(ROUTE_GUARD, {
       cwd: dir,
+      session_id: MAESTRO,
       tool_input: { subagent_type: "general-purpose", prompt: "sweep the diff" },
     });
     expect(denialOf(unrouted)).toMatch(/names no model/);
     const fabled = run(ROUTE_GUARD, {
       cwd: dir,
+      session_id: MAESTRO,
       tool_input: { subagent_type: "general-purpose", model: "fable", prompt: "review" },
     });
     expect(denialOf(fabled)).toMatch(/routes fable/);
     const routed = run(ROUTE_GUARD, {
       cwd: dir,
+      session_id: MAESTRO,
       tool_input: { subagent_type: "bottega-reviewer", model: "opus", prompt: "review the diff" },
     });
     expect(routed).toBe("");
+  });
+});
+
+describe("route-guard: the run fence binds to each run's owning session", () => {
+  // .bottega/wt/ is repo-global; the per-run owner file is what keeps a live
+  // run from fencing every concurrent session in the same repo.
+  it("stays silent on a bystander session's dispatch while another session's run is live", () => {
+    // The observed failure: a codex-plugin dispatch in a session not running
+    // bottega, denied because a run was live elsewhere. The codex agent's
+    // work rides the codex CLI's own model; `model` here routes nothing.
+    const cwd = workshopDir(true, MAESTRO);
+    for (const tool_input of [
+      { subagent_type: "codex", description: "Codex review slice A", prompt: "review slice A" },
+      { subagent_type: "general-purpose", prompt: "unrouted, unrelated work" },
+      { subagent_type: "general-purpose", model: "fable", prompt: "unrelated work" },
+    ]) {
+      expect(run(ROUTE_GUARD, { cwd, session_id: "bystander-session", tool_input })).toBe("");
+    }
+  });
+
+  it("fences two concurrent runs' sessions independently", () => {
+    const dir = workshopDir(true, "maestro-a", "feature-a");
+    addRun(dir, "feature-b", true, "maestro-b");
+    for (const session_id of ["maestro-a", "maestro-b"]) {
+      const out = run(ROUTE_GUARD, {
+        cwd: dir,
+        session_id,
+        tool_input: { subagent_type: "general-purpose", prompt: "unrouted" },
+      });
+      expect(denialOf(out)).toMatch(/live bottega run/);
+    }
+    const bystander = run(ROUTE_GUARD, {
+      cwd: dir,
+      session_id: "bystander-session",
+      tool_input: { subagent_type: "general-purpose", prompt: "unrouted" },
+    });
+    expect(bystander).toBe("");
+  });
+
+  it("stays silent when no owner is recorded, even from a live-run repo", () => {
+    const out = run(ROUTE_GUARD, {
+      cwd: workshopDir(true),
+      session_id: MAESTRO,
+      tool_input: { subagent_type: "general-purpose", prompt: "unrouted" },
+    });
+    expect(out).toBe("");
+  });
+
+  it("stays silent on owner-file debris whose worktree Close already reaped", () => {
+    const out = run(ROUTE_GUARD, {
+      cwd: workshopDir(false, MAESTRO),
+      session_id: MAESTRO,
+      tool_input: { subagent_type: "general-purpose", prompt: "unrouted" },
+    });
+    expect(out).toBe("");
+  });
+
+  it("stays silent when the event carries no session_id", () => {
+    const out = run(ROUTE_GUARD, {
+      cwd: workshopDir(true, MAESTRO),
+      tool_input: { subagent_type: "general-purpose", prompt: "unrouted" },
+    });
+    expect(out).toBe("");
+  });
+
+  it("still fences named worker seats from any session (scope 1 is unconditional)", () => {
+    const out = run(ROUTE_GUARD, {
+      cwd: workshopDir(true, MAESTRO),
+      session_id: "bystander-session",
+      tool_input: { subagent_type: "bottega:bottega-builder", prompt: "build" },
+    });
+    expect(denialOf(out)).toMatch(/names no model/);
   });
 });
 

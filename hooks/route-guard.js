@@ -15,29 +15,51 @@
 //      table. The cold read is not an exception here — it never rides a
 //      worker seat by doctrine.
 //
-//   2. Every other dispatch, but only while a run is live — a .bottega/wt/
-//      worktree entry exists. That is the one signal with a real teardown:
-//      the run worktree exists from run start until the Close step reaps it.
-//      Never contract state (locks, gate records, spec-doc status strings)
-//      and never branch refs — nothing retires those (a PR merge deletes only
-//      the remote ref), so either would arm the guard forever after a
-//      delivered run and fence unrelated work in every later session. Same
-//      two fences, with one whitelist — a dispatch whose description begins
-//      "cold read" may route fable, because the cold read is one of the two
-//      sanctioned fable seats. Outside all of that the guard stays silent so
-//      the plugin never breaks unrelated sessions.
+//   2. Every other dispatch, but only from a session that owns a live run
+//      here. Runs are keyed by feature slug and coexist in one repo, each
+//      driven from its own session; a run is live when its worktree entry
+//      .bottega/wt/<slug>/ is non-empty (the one liveness signal with a real
+//      teardown — Close reaps it; never contract state or branch refs,
+//      nothing retires those), and its owning session is recorded in
+//      .bottega/run/<slug>/owner, written by the maestro at Isolation and
+//      rewritten on Resume. The fence fires only when the event's session_id
+//      matches a live run's owner. Anything else — a bystander session in
+//      the same repo (the observed failure: a codex-plugin dispatch denied
+//      with a maestro-premised message whose remedy, a Claude model from the
+//      routing table, routes nothing on a codex seat), a missing owner file,
+//      no session_id — is silence: fail open is this guard's own creed, and
+//      scope 1 (which caught the nadia run) never relaxes. Same two fences,
+//      with one whitelist — a dispatch whose description begins "cold read"
+//      may route fable, because the cold read is one of the two sanctioned
+//      fable seats. Outside all of that the guard stays silent so the plugin
+//      never breaks unrelated sessions, concurrent or later.
 //
 // Fences are mechanical, not trusted to memory.
 
-import { readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-function runLive(cwd) {
+// The sessions owning live runs here: .bottega/run/<slug>/owner, counted only
+// while the same slug's worktree entry .bottega/wt/<slug>/ is non-empty. Any
+// failure to read is a slug that doesn't fence — a guard must never break
+// unrelated dispatches.
+function liveOwners(cwd) {
+  const owners = new Set();
+  let slugs = [];
   try {
-    return readdirSync(join(cwd, ".bottega", "wt")).length > 0;
+    slugs = readdirSync(join(cwd, ".bottega", "run"));
   } catch {
-    return false; // a guard must never break unrelated dispatches
+    return owners;
   }
+  for (const slug of slugs) {
+    try {
+      const owner = readFileSync(join(cwd, ".bottega", "run", slug, "owner"), "utf8").trim();
+      if (owner && readdirSync(join(cwd, ".bottega", "wt", slug)).length > 0) owners.add(owner);
+    } catch {
+      // not a run-state dir, no owner recorded, or no live worktree — silence
+    }
+  }
+  return owners;
 }
 
 const WORKER_SEAT = /(^|:)bottega-(builder|reviewer|qa|documenter|storyboarder|mechanic)$/;
@@ -91,17 +113,17 @@ function denyMisrouted(role, model) {
 }
 
 const DENY_UNROUTED_RUN =
-  "a bottega run is live (worktree present under .bottega/wt/) and this dispatch " +
-  "names no model — an omitted model inherits the dispatching seat's own " +
-  "model, which from the maestro seat silently escalates the seat to fable; " +
-  "re-issue with an explicit model from the routing table in " +
+  "this session owns a live bottega run (its id is in .bottega/run/<slug>/owner) " +
+  "and this dispatch names no model — an omitted model inherits the dispatching " +
+  "seat's own model, which from the maestro seat silently escalates the seat to " +
+  "fable; re-issue with an explicit model from the routing table in " +
   "skills/execute/SKILL.md.";
 
 const DENY_FABLE_RUN =
-  "a bottega run is live (worktree present under .bottega/wt/) and this dispatch " +
-  "routes fable — fable runs exactly twice per run, the maestro seat and the " +
-  "cold read; a cold-read dispatch's description begins with 'cold read', and " +
-  "anything else re-issues from the routing table in " +
+  "this session owns a live bottega run (its id is in .bottega/run/<slug>/owner) " +
+  "and this dispatch routes fable — fable runs exactly twice per run, the " +
+  "maestro seat and the cold read; a cold-read dispatch's description begins " +
+  "with 'cold read', and anything else re-issues from the routing table in " +
   "skills/execute/SKILL.md or goes to the user as an escalation.";
 
 function readStdin() {
@@ -153,10 +175,11 @@ if (seatMatch) {
   process.exit(0);
 }
 
-// Scope 2 — everything else, while a run is live.
+// Scope 2 — everything else, only from a session that owns a live run here.
 const cwd =
   typeof event.cwd === "string" && event.cwd.length > 0 ? event.cwd : process.cwd();
-if (!runLive(cwd)) process.exit(0);
+const session = typeof event.session_id === "string" ? event.session_id : "";
+if (!session || !liveOwners(cwd).has(session)) process.exit(0); // not a run's session
 
 if (!routed) deny(DENY_UNROUTED_RUN);
 if (FABLE.test(model)) {

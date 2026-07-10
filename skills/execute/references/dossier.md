@@ -10,7 +10,7 @@ Before every builder dispatch, write a self-contained dossier carrying:
 - the worker rail from [SKILL.md](../SKILL.md#standing-rules), verbatim;
 - the territory's existing owners — the files, modules, and local conventions
   that repo spelunking would otherwise have had to discover;
-- the pointer to `.bottega/run/baseline.json`;
+- the pointer to `.bottega/run/<feature-slug>/baseline.json`;
 - the applicable lines from `docs/specs/dead-ends.md`;
-- `.bottega/run/conventions.md` once it exists; and
+- `.bottega/run/<feature-slug>/conventions.md` once it exists; and
 - the instruction to follow `skills/implementing`.
