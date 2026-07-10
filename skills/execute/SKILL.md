@@ -81,7 +81,7 @@ Every dispatch names model and effort; the route guard (`hooks/route-guard.js`) 
 | --- | --- | --- |
 | maestro; cold read | fable-5 | xhigh |
 | spine read | gpt-5.6-sol (codex) | ultra |
-| builder | gpt-5.6-sol (codex) | xhigh |
+| builder | gpt-5.6-sol (codex) | medium |
 | user-facing builder; storyboarder | opus-4.8 | high |
 | reviewer of Claude-built code | gpt-5.6-sol (codex) | xhigh |
 | reviewer of codex-built code | opus-4.8 | xhigh |
@@ -89,7 +89,7 @@ Every dispatch names model and effort; the route guard (`hooks/route-guard.js`) 
 | mechanic | sonnet-5 | low |
 
 - Defaults, not limits: standing permission to escalate when output misses the bar (fable excepted; that fence stands). Judge the output, not the price tag.
-- A trivial, fully specified slice may drop sol to high; never below high for code that ships.
+- Medium is the builder floor; a risky or under-specified slice raises sol to high or xhigh, judged by the slice's risk, not its size.
 - User-facing means rendered UI, interaction, or product copy is the slice's main risk; storyboards are the signed visual target and take the same route.
 - Review is always the opposite family from the producer. Fable is dispatched exactly twice per run: the maestro seat and the cold read (which passes the guard by naming itself). A slice you believe needs fable-tier judgment is an escalation you put to the user with its reason.
 - QA dispatches only after its capture channel is verified present in the seat; no channel means stop and report, never substituted evidence.
