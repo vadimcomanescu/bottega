@@ -46,6 +46,6 @@ Rules the template can't show:
 
 - Scenario sections appear in feature-file order (files sorted by name, scenarios in file order), so the doc and the gate doc read the same sequence.
 - A testing line names its how. "Will be tested" says nothing; "open /search signed in, save 'red sneakers', screenshot Saved searches showing it" is a plan.
-- Examples tables carry mutation-bearing values: a value that can flip and fail the suite. A table of placeholders signs nothing.
+- Examples tables carry values that can flip and fail the suite. A table of placeholders signs nothing.
 - Strip slots hold placeholders only until the render brief returns; the doc never reaches the gate with a placeholder in it.
 - Mid-run: Decisions log appends (flagged), Direction supersedes with notice on the status block, scenarios never move. After delivery the doc is rewritten into the durable record per `skills/run`, Deliver.

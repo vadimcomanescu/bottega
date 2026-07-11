@@ -19,7 +19,7 @@ The user signs product behavior, never implementation detail. Everything here is
 
 ## Gate
 
-7. **Cross-read**, only for a spec drafted in your own turns (a panel-drafted one already crossed independent minds). Dispatch codex (xhigh, read-only) with the draft, the feature files, and the repo. Its hunt: a Then no actor can observe, a Given QA cannot build, Examples without mutation-bearing values, HOW past the altitude guard, a non-goal contradicting a scenario, an our-call one question would have retired, a zero, a many, or a failure no scenario visits. Findings are unverified input: arbitrate each; overrules land in the Decisions log.
+7. **Cross-read**, only for a spec drafted in your own turns (a panel-drafted one already crossed independent minds). Dispatch codex (xhigh, read-only) with the draft, the feature files, and the repo. Its hunt: a Then no actor can observe, a Given QA cannot build, Examples whose values can't flip and fail the suite, HOW past the altitude guard, a non-goal contradicting a scenario, an our-call one question would have retired, a zero, a many, or a failure no scenario visits. Findings are unverified input: arbitrate each; overrules land in the Decisions log.
 8. Hand to `skills/signoff`: one collaborative doc, comments answered where made, `SIGNED <feature-slug>` as the go signal. The sign commit lands the status flip and `features/` together. The phase's durable state is entirely on disk (`docs/specs/`, `features/`, `.bottega/gates/<feature-slug>/`); any later session picks up cold.
 
 ## Run start: the acceptance toolchain

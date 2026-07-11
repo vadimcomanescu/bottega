@@ -24,6 +24,7 @@ In host repos, a run's working state lives under `.bottega/`, gitignored; the co
 
 - Write plain engineering English. Standard engineering terms only: no metaphors, no invented vocabulary, no theatrical naming. This binds every file in the repo, including code comments, UI strings, and hook messages.
 - No em dashes, anywhere. Use periods, commas, colons, or parentheses.
+- Banned tic-words, no exceptions: "bearing" (e.g. "judgment-bearing"), "ledger". Say the plain thing: "makes judgment calls", "the log".
 - Orchestration is the harness: tracked dispatches, tracked background Bash, workflows. Never a polling loop, a hand-rolled scheduler, or a liveness apparatus in prose. An instruction line that restates or replaces a harness capability is a defect.
 - The plan is the orchestrator's decision, stated to the user before building: every run gets isolation, a build, host gates green, cross-family review, and a PR; anything more exists for a stated reason, named in the PR. Cross-family review is the one thing never dropped.
 - Approval on a spec run lands the spec doc's status flip and `features/` in one sign commit. After the sign, `features/` is frozen: builders never edit it and reviewers block any change to it.

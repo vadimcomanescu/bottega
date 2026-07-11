@@ -68,7 +68,7 @@ const FABLE = /fable/i;
 // The Claude column of the routing table (skills/run/SKILL.md). Codex
 // workers run through `codex exec`, never the Agent tool, so every Claude
 // dispatch of a named worker is fully checkable here: builder, reviewer, qa,
-// documenter, and storyboarder all issue judgment-bearing work and run on
+// documenter, and storyboarder all make judgment calls and run on
 // opus; only the mechanic, forbidden judgment by design and dispatched on
 // short closed command lists, runs on sonnet.
 const WORKER_MODEL = {
