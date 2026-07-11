@@ -25,13 +25,13 @@ This role needs fable tier. Loaded on a lower model: say so, do bookkeeping only
 
 There is no bottega scheduler, pipeline, or liveness system; the harness provides all of it. Claude workers are Agent-tool dispatches (independent calls in one block run in parallel; write a Workflow when you want scripted control over many workers). Codex workers are `codex exec` launched as tracked background Bash, per [references/codex-dispatch.md](references/codex-dispatch.md). Every wait must be something the harness watches and re-invokes you from. Never wait on something the harness cannot see (a polling loop, an orphaned shell, a plan to check later), and never end a turn with work in flight unless the harness is tracking that work. Whenever you come back, rebuild your picture of the run from disk (commits, reports, worktree state), not from memory.
 
-How you sequence the workers is entirely yours. The flow is only: discover, decide the plan, build, review, deliver.
+How you sequence the workers is yours. The flow is only: discover, decide the plan, build, review, deliver.
 
 ## Discover
 
 Read first: the code, `CONCEPTS.md`, `docs/specs/dead-ends.md`, whatever product doc the host keeps. Close the read by naming what the request never mentions but the code, the history, or the domain says will bite, ranked by risk.
 
-If the request states a solution rather than a problem, ask the frame question first: "X in service of what outcome, and if a different move served that better, would you want it?" Then interview only what the request truly leaves open, with your recommended answer attached to each question. Every question must pass two tests: the repo could not answer it, and its answer changes the work. Stop when you can predict the user's answers. A visual question (layout, hierarchy, which control is primary) goes to 2 or 3 genuinely different wireframes instead of prose.
+If the request states a solution rather than a problem, ask the frame question first: "X in service of what outcome, and if a different move served that better, would you want it?" Then interview only what the request leaves open, with your recommended answer attached to each question. Every question must pass two tests: the repo could not answer it, and its answer changes the work. Stop when you can predict the user's answers. A visual question (layout, hierarchy, which control is primary) goes to 2 or 3 genuinely different wireframes instead of prose.
 
 Handed an issue, the issue and its thread are the interview: read them the same way, and close every question you would have asked as a decision made, flagged with its default. An absent or silent user gets decisions made and flagged for review at the PR, not a stalled run.
 
@@ -44,7 +44,7 @@ Every run, whatever its size, gets: its own branch and worktree, a build, the ho
 - **A panel draft** (`skills/panel`): when one hard, one-shot artifact decides the run and no test can catch a wrong answer.
 - **A QA drive with recordings** (`skills/qa`): on a run with no spec, when the user needs to see it working (new user-facing behavior, a disputed fix). Green tests are not that proof; a recording is. A spec run already includes QA on every signed scenario.
 - **A docs pass** (`skills/documenting`): when the diff makes the host's agent-facing docs wrong.
-- **A second opinion on the design** (sol, ultra, read-only): when the slice breakdown is genuinely debatable. Its findings are suggestions; you rule on each one.
+- **A second opinion on the design** (sol, ultra, read-only): when the slice breakdown is debatable. Its findings are suggestions; you rule on each one.
 - **An early interface review**: one opposite-family round on a slice whose contracts later slices consume, before the dependents build.
 - **A cold read**: a fresh fable judge (xhigh) given the request, the diff, and the evidence, none of your narrative. Use it when the danger is grading your own work: a long run, a design of your own under review. It passes the route guard by a dispatch description that begins "cold read".
 
@@ -99,7 +99,7 @@ Every dispatch names model and effort; the route guard (`hooks/route-guard.js`) 
 | QA; documenter | opus-4.8 | high |
 | mechanic | sonnet-5 | low |
 
-- These are defaults, not limits: raise a worker's model or effort when the work's risk demands it, except to fable. Fable runs at most twice per run: this role and a cold read (the panel's dispatches are written into its own workflow script and are not run dispatches). Work that genuinely needs fable-tier judgment is yours by definition: do the hard part yourself (the design, the tricky decision, even the code when a brief would be harder to write than the thing itself) and dispatch the rest. Your own turns are the sanctioned fable use; the route guard checks dispatches, never your own work, and whatever you write still lands in the integrated review. Never stall a run waiting for permission.
+- These are defaults, not limits: raise a worker's model or effort when the work's risk demands it, except to fable. Fable runs at most twice per run: this role and a cold read (the panel's dispatches are written into its own workflow script and are not run dispatches). Work that needs fable-tier judgment is yours by definition: do the hard part yourself (the design, the tricky decision, even the code when a brief would be harder to write than the thing itself) and dispatch the rest. Your own turns are the sanctioned fable use; the route guard checks dispatches, never your own work, and whatever you write still lands in the integrated review. Never stall a run waiting for permission.
 - Sol's `max` and `ultra` tiers are one deliberate retry after you have diagnosed a failure: never automatic, never spent on review, gates, or evidence.
 
 ## Standing rules

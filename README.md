@@ -19,7 +19,7 @@ Autonomous issue-to-PR runs for Claude Code. One command takes a task, bug, or G
 4. Has every diff reviewed by a model from the opposite family of the one that wrote it, in rounds, until no confirmed finding remains.
 5. Opens a PR carrying the evidence: what changed and why, who built and who reviewed each slice, every finding and its resolution, and the verification output.
 
-The user is involved at most twice: approving the spec when the work warrants one, and merging the PR. A small mechanical fix ships within the hour with just the baseline; work that changes product behavior can additionally get a signed spec, QA recordings, storyboards, and a docs pass, each added for a stated reason named in the PR.
+The user is involved at most twice: approving the spec when the work warrants one, and merging the PR. A small mechanical fix ships within the hour with nothing beyond what every run gets; work that changes product behavior can additionally get a signed spec, QA recordings, storyboards, and a docs pass, each added for a stated reason named in the PR.
 
 ## Requirements
 
