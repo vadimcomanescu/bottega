@@ -26,6 +26,16 @@ The user signs product, never execution. Everything here is written for a reader
 
 After the sign and before the first dossier, never earlier: read [references/run-start.md](references/run-start.md) and dispatch it as one mechanic brief (or run it in your own turns on a small run) — toolchain pinned into `.bottega/aps.lock`, entrypoints generated from `features/*.feature`, suite proven RED, wiring committed. A host outside the kit's languages (TypeScript, Python, Go, Rust) cannot make the contract executable — say so before the gate, never at run start.
 
+## Proving the contract
+
+The pipeline the contract brings, run whole at the end of the build — nothing on it is optional once the contract was priced:
+
+1. The acceptance suite runs green against the integrated artifact.
+2. QA drives every signed scenario with recordings (`skills/qa`).
+3. The feature file is mutation-tested: run on a copy, never the signed file (the tool writes into the file it reads), with the kit's `aps-adapter <test-command>` worker as the runner. Exit 1 means surviving mutants to judge, not a broken tool; each survivor is killed or justified in the PR, where the user can veto the justification.
+
+Archive the runs under `.bottega/verify/<feature-slug>/`, gitignored.
+
 ## Unattended — the sign delegated
 
 Only on the user's explicit word, usually an issue handed over; never inferred. The delegation covers the interview and the gate, nothing else — with no user reading the contract, the panel and the cross-read are the only independent eyes it gets. The interview already closed in discovery (`skills/run`, Discover: the issue is the interview); every question it would have asked lands as an our-call with its default written into the scenarios. No gate: make the sign commit yourself — the spec doc's status flips to signed and lands in one commit with `features/*.feature` — and open the Decisions log with the delegation, quoted and linked. From sign onward the issue thread does the gate doc's duties — status, escalations — and the delivery PR discloses the unattended sign in its first line. What delegation never buys: the real-users rail, the fable fence, and the `features/` freeze all stand.

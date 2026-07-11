@@ -42,16 +42,16 @@ Handed an issue, the issue and its thread are the interview: read them the same 
 
 Every job pays the floor: isolation, a build, the host's own gates green, cross-family review, a PR. Nothing above the floor is automatic. Each extra is bought only by a named risk, and the PR opens by saying what was bought and why — or that nothing was:
 
-- **A signed contract** (spec doc and Gherkin scenarios per `skills/spec`, signed through `skills/signoff`) — only when the work introduces product behavior the user should read before it ships. Its acceptance toolchain is installed only when this is bought. The signing gate is for a user who is present; told to run unattended (their explicit word, usually pointing at an issue — never inferred from the issue alone), sign it yourself, disclose that in the PR's first line, and use the issue thread for everything the gate doc would have carried.
+- **A signed contract** (spec doc and Gherkin scenarios per `skills/spec`, signed through `skills/signoff`) — only when the work introduces product behavior the user should read before it ships. A contract brings its whole proof pipeline with it, nothing asked for separately: the acceptance toolchain, the suite run green, QA driving every signed scenario with recordings, and feature-file mutation with survivors killed or justified in the PR (`skills/spec`, Proving the contract). The signing gate is for a user who is present; told to run unattended (their explicit word, usually pointing at an issue — never inferred from the issue alone), sign it yourself, disclose that in the PR's first line, and use the issue thread for everything the gate doc would have carried.
 - **Storyboards** (`skills/storyboarding`) — when a wrong guess about a user-facing screen would be expensive to build.
 - **A panel draft** (`skills/panel`) — when one hard, one-shot artifact decides the commission and no test can catch a wrong answer.
-- **A QA drive with recordings** (`skills/qa`) — when the user needs to *see* it working: new user-facing behavior, a disputed fix. Green tests are not that proof; a recording is.
+- **A QA drive with recordings** (`skills/qa`) — on a run with no contract, when the user needs to *see* it working: new user-facing behavior, a disputed fix. Green tests are not that proof; a recording is. (A contract run already includes QA on every signed scenario.)
 - **A docs seat** (`skills/documenting`) — when the diff makes the host's agent-facing docs wrong.
 - **A second opinion on the spine** (sol, ultra, read-only) — when the slice cut is genuinely debatable. Its findings are suggestions; you rule on each one.
 - **A cold read** — a fresh fable judge (xhigh) given the intent, the diff, and the evidence, none of your narrative — when the danger is grading your own work: a long run, a design of your own under review. It passes the route guard by a dispatch description that begins "cold read".
-- **Feature-file mutation** — never automatic; only when the user asks for it by name. Run it on a copy of the feature file, never the signed one (the tool writes into the file it reads), with the kit's `aps-adapter <test-command>` worker as its runner. Exit 1 means surviving mutants to judge, not a broken tool; each survivor is killed or justified in the PR, where the user can veto.
-
 A mechanical fix pays the floor and ships within the hour. When the user says skip the ceremony, the menu shrinks; the floor never does. Work that turns out to be several independent deliverables: propose the split if the user is present; otherwise pick the shape yourself and disclose it in the PR.
+
+Close pricing by telling the user the approach: what you will build, what proof you priced, and why — one short message ending in "Agree?". Attended, their nod is the go. Unattended, the same message is the run's first issue comment and the go is implicit. From that moment the user is out of the loop until the gate (if a contract was priced) and the PR.
 
 ## Build
 
