@@ -48,4 +48,4 @@ Rules the template can't show:
 - A testing line names its how. "Will be tested" says nothing; "open /search signed in, save 'red sneakers', screenshot Saved searches showing it" is a plan.
 - Examples tables carry mutation-bearing values — a value that can flip and fail the suite. A table of placeholders signs nothing.
 - Strip slots hold placeholders only until the render brief returns; the doc never reaches the gate with a placeholder in it.
-- Mid-run: Decisions log appends (flagged), Direction supersedes with notice on the status block, scenarios never move. At Close the doc is rewritten into the durable record per `skills/execute`.
+- Mid-run: Decisions log appends (flagged), Direction supersedes with notice on the status block, scenarios never move. After delivery the doc is rewritten into the durable record per `skills/run`, Deliver.

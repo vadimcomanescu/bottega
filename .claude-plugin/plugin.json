@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "bottega",
   "displayName": "Bottega",
-  "version": "0.31.0",
-  "description": "Autonomous commission -> build -> evidenced delivery. /bottega:run is the whole loop, /bottega:spec the commission alone, /bottega:execute a signed commission, /bottega:patch the small job without one: signed Gherkin acceptance, cross-family review, mutation-proofed delivery PR; unattended runs auto-sign from an issue.",
+  "version": "0.32.0",
+  "description": "Autonomous issue-to-PR runs orchestrated by Fable. One command, /bottega:run: discovery, proof priced to the risk, cross-family review always, delivery as an evidenced PR. Signed Gherkin contracts only when the work earns them; unattended runs auto-sign from an issue.",
   "author": {
     "name": "Vadim Comanescu"
   },

@@ -344,14 +344,13 @@ describe("route-guard: the run fence binds to each run's owning session", () => 
 });
 
 describe("entry-guard", () => {
-  it("reminds on run-intent prose in a workshop, naming every entry command", () => {
+  it("reminds on run-intent prose in a workshop, naming the one entry command", () => {
     const out = run(ENTRY_GUARD, {
       cwd: workshopDir(true),
       prompt: "run bottega, the commission is signed",
     });
     const parsed = JSON.parse(out);
     expect(parsed.hookSpecificOutput.additionalContext).toMatch(/\/bottega:run/);
-    expect(parsed.hookSpecificOutput.additionalContext).toMatch(/\/bottega:patch/);
   });
 
   it("stays silent on slash commands, non-workshop dirs, and unrelated prompts", () => {

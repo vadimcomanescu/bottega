@@ -1,6 +1,7 @@
 ---
 name: codebase-design
-description: Bottega's house design discipline — deep modules behind small interfaces, seams cut where things vary, names drawn from a maintained CONCEPTS.md domain glossary. Loaded by the maestro when designing a spine and by every reviewer judging architectural conformance; dossier interface contracts are written in its vocabulary.
+description: Bottega's house design discipline — deep modules behind small interfaces, seams cut where things vary, names from CONCEPTS.md. Loaded by the maestro designing a spine and every reviewer judging conformance.
+disable-model-invocation: true
 ---
 
 # Codebase design

@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Panel
 
-A drafting instrument for one-shot artifacts where coverage and framing decide quality and no checker can catch a wrong answer — the spec contract is its default use (`skills/spec`, step 5). Work a checker verifies and long-horizon execution ride the run instead, and a decided question stays decided.
+A drafting instrument for one-shot artifacts where coverage and framing decide quality and no checker can catch a wrong answer — the spec contract is its default use (`skills/spec`, step 2). Work a checker verifies and long-horizon execution ride the run instead, and a decided question stays decided.
 
 Why a panel, technically: two independently trained models have decorrelated errors — on the same task they fail in different places. Two independent drafts therefore cover more of the task than either alone, and where they disagree is exactly where the task is underdetermined or one of them is wrong. A compare-only judge turns that disagreement into an inspectable object; merging or voting would average it away, and a single model re-reading its own draft cannot produce it at all. Divergence is also the only detector that needs no aiming — it finds the assumptions nobody knew to question — which is why the prompt's level decides what the panel can catch.
 

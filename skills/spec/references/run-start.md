@@ -1,10 +1,11 @@
-# Run start — the mechanic brief
+# Run start — the acceptance toolchain brief
 
 Everything between SIGNED and the first dossier is fully specifiable, so it is one
-self-contained mechanic brief, sandboxed to the run worktree. The maestro verifies the
-report (contract committed, suite RED, exit codes), never re-performs the steps.
-The user never runs an installer. Like every command-running brief, this one
-carries the worker rail (`skills/execute`, Standing rules), verbatim.
+self-contained brief — a mechanic's on a multi-slice run, the maestro's own turns on a
+small one. The maestro verifies the report (contract committed, suite RED, exit codes),
+never re-performs the steps. The user never runs an installer. Like every
+command-running brief, this one carries the worker rail (`skills/run`, Standing rules),
+verbatim.
 
 The brief, in order:
 
@@ -31,14 +32,13 @@ The brief, in order:
 4. **Wire acceptance.** Generate the test entrypoints from `features/*.feature`,
    wire the suite, run it, and confirm it fails RED (the features are unimplemented;
    a passing or erroring-for-tooling-reasons suite is a defect to report, not RED).
-5. **Baseline.** Start `.bottega/run/<feature-slug>/` empty but for `owner` —
-   the maestro's session binding, written before this brief and never the
-   mechanic's to touch; anything else already there under this slug (a dead
-   run's baseline or conventions file that Close never reaped) is debris to
-   delete, never inherited — and another slug's directory is another run's,
-   never touched. Then prove the pre-existing-failure baseline once: run the
-   full host suite, record failures to `.bottega/run/<feature-slug>/baseline.json`
-   (test id + one-line failure). Dossiers point at it; no slice seat ever re-proves it.
+5. **Baseline.** `.bottega/run/<feature-slug>/` starts empty but for `owner` — the
+   maestro's session binding, written before this brief and never the brief's to
+   touch; anything else already there under this slug is a dead run's debris to
+   delete, and another slug's directory is another run's, never touched. Prove the
+   pre-existing-failure baseline once: run the full host suite, record failures to
+   `.bottega/run/<feature-slug>/baseline.json` (test id + one-line failure).
+   Dossiers point at it; no slice seat ever re-proves it.
 6. **Commit the contract.** Commit the generated acceptance wiring on the run
    branch, following the commit grammar.
 7. **Report.** Exit codes for every step, the RED evidence path, the baseline path.

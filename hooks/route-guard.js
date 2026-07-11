@@ -19,7 +19,7 @@
 //      here. Runs are keyed by feature slug and coexist in one repo, each
 //      driven from its own session; a run is live when its worktree entry
 //      .bottega/wt/<slug>/ is non-empty (the one liveness signal with a real
-//      teardown — Close reaps it; never contract state or branch refs,
+//      teardown — the run close-out reaps it; never contract state or branch refs,
 //      nothing retires those), and its owning session is recorded in
 //      .bottega/run/<slug>/owner, written by the maestro at Isolation and
 //      rewritten on Resume. The fence fires only when the event's session_id
@@ -64,7 +64,7 @@ function liveOwners(cwd) {
 
 const WORKER_SEAT = /(^|:)bottega-(builder|reviewer|qa|documenter|storyboarder|mechanic)$/;
 const FABLE = /fable/i;
-// The Claude column of the routing table (skills/execute/SKILL.md). Codex
+// The Claude column of the routing table (skills/run/SKILL.md). Codex
 // seats (gpt-5.6-sol) ride `codex exec`, never the Agent tool, so every
 // Claude dispatch of a named seat is fully checkable here: a Claude builder
 // is the user-facing slice (opus), a Claude reviewer reviews codex-built
@@ -88,7 +88,7 @@ const DENY_UNROUTED =
   "the dispatch was rejected because it names no model — an omitted model " +
   "inherits the dispatching seat's own model, which from the maestro seat " +
   "silently escalates the worker to fable; re-issue the same dispatch with an " +
-  "explicit model from the routing table in skills/execute/SKILL.md (Claude " +
+  "explicit model from the routing table in skills/run/SKILL.md (Claude " +
   "seats: builder/reviewer/storyboarder ride opus, qa/documenter/mechanic " +
   "ride sonnet).";
 
@@ -96,7 +96,7 @@ const DENY_FABLE =
   "the dispatch was rejected because it routes a worker seat to fable — fable " +
   "runs exactly twice per run, the maestro seat and the cold read, and the " +
   "cold read never rides a worker seat; re-issue from the routing table in " +
-  "skills/execute/SKILL.md (Claude seats: builder/reviewer/storyboarder ride " +
+  "skills/run/SKILL.md (Claude seats: builder/reviewer/storyboarder ride " +
   "opus, qa/documenter/mechanic ride sonnet), and if you believe this slice " +
   "genuinely needs fable-tier judgment, stop and put the escalation to the " +
   "user — their budget, never a self-serve seat.";
@@ -104,7 +104,7 @@ const DENY_FABLE =
 function denyMisrouted(role, model) {
   return (
     "the dispatch was rejected because it routes the " + role + " seat to '" +
-    model + "' — the routing table in skills/execute/SKILL.md gives each " +
+    model + "' — the routing table in skills/run/SKILL.md gives each " +
     "named Claude seat exactly one model (builder/reviewer/storyboarder: " +
     "opus; qa/documenter/mechanic: sonnet); re-issue with the table's model, " +
     "and treat wanting a different one as a doctrine change to propose, " +
@@ -117,14 +117,14 @@ const DENY_UNROUTED_RUN =
   "and this dispatch names no model — an omitted model inherits the dispatching " +
   "seat's own model, which from the maestro seat silently escalates the seat to " +
   "fable; re-issue with an explicit model from the routing table in " +
-  "skills/execute/SKILL.md.";
+  "skills/run/SKILL.md.";
 
 const DENY_FABLE_RUN =
   "this session owns a live bottega run (its id is in .bottega/run/<slug>/owner) " +
   "and this dispatch routes fable — fable runs exactly twice per run, the " +
   "maestro seat and the cold read; a cold-read dispatch's description begins " +
   "with 'cold read', and anything else re-issues from the routing table in " +
-  "skills/execute/SKILL.md or goes to the user as an escalation.";
+  "skills/run/SKILL.md or goes to the user as an escalation.";
 
 function readStdin() {
   return new Promise((resolve) => {

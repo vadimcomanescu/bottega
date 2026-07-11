@@ -1,6 +1,7 @@
 ---
 name: documenting
-description: Bottega doc-sync discipline — one dispatch after the last integrate that makes the host's agent-facing docs true of what the run shipped. Loaded by every documenter dispatch; the diff it produces is reviewed like code.
+description: Bottega doc-sync discipline — one dispatch that makes the host's agent-facing docs true of what the run shipped. Loaded by every documenter dispatch.
+disable-model-invocation: true
 ---
 
 # Documenting
@@ -9,7 +10,7 @@ description: Bottega doc-sync discipline — one dispatch after the last integra
 
 ## The loop
 
-1. Read the dossier: the signed spec, the slice list with interface contracts, the integrated diff, the doc surfaces you own. Completion: you can list every doc claim the run falsified before you edit anything.
+1. Read the dossier: the signed spec (when one exists), the slice list with interface contracts, the integrated diff, the doc surfaces you own. Completion: you can list every doc claim the run falsified before you edit anything.
 2. Sweep the agent-facing surfaces against the diff:
    - Root instruction files (`AGENTS.md` / `CLAUDE.md`) — find the substantive one first: one is often a shim including the other, and the shim is never the edit target.
    - `README` and any doc page describing architecture, structure, commands, or flows the diff touched.

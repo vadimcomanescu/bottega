@@ -7,9 +7,7 @@ Section presence and scenario order follow the canonical rules in [the spec temp
 
 To change anything, comment on it. To approve, comment `SIGNED {{FEATURE_SLUG}}`.
 
-Done means every scenario on this page works in the finished product. A tester performs each one on the finished build, and the delivery shows you the recording of that session — the same screens you see here, moving, one checked scenario at a time.
-
-Every check can fail: we flip the exact values you sign here and the tests must break — proof the tests really read this contract. The checks listed beneath a scenario have no generated test; the tester verifies each one on the finished product.
+Done means every scenario on this page works in the finished product, and the delivery reads them back to you as a checklist with the evidence for each. Where the commission includes recorded QA drives, that evidence is a recording of a tester performing the scenario on the finished build — the same screens you see here, moving. Where it includes mutation testing, we flip the exact values you sign here and the tests must break — proof the tests really read this contract. The checks listed beneath a scenario have no generated test; the tester verifies each one on the finished product.
 
 Anything we decided without you sits under Our calls — veto it with a comment; signing accepts it.
 

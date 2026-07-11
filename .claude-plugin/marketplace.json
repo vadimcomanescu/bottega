@@ -11,7 +11,7 @@
     {
       "name": "bottega",
       "source": "./",
-      "description": "Four entry points — /bottega:run (spec then execute), /bottega:spec (sign without running), /bottega:execute (run a signed spec), /bottega:patch (the small job, no spec): the maestro signs a spec with the user — or auto-signs from an issue with --unattended — then runs build -> review -> QA -> verify autonomously and delivers a PR with evidence.",
+      "description": "One entry point, /bottega:run: the maestro discovers the intent, prices the proof to the risk, builds with a cross-family-reviewed fleet, and delivers an evidenced PR. Signed Gherkin contracts only when the work earns them; handed an issue unattended, it auto-signs and the PR is the only human touchpoint.",
       "author": {
         "name": "Vadim Comanescu"
       },

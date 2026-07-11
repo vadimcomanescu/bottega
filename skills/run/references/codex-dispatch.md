@@ -1,6 +1,6 @@
 # Codex dispatch grammar
 
-Every codex seat is one `codex exec` invocation, fully specified so it runs identically on any host: `--ignore-user-config` always (the machine's config, model, and notify hooks are ignored — auth still resolves from `CODEX_HOME`); model and effort verbatim from the routing table; the `--json` event stream (stdout — redirect it) and the `-o` final message both captured as evidence. The run blocks to completion: launch it as a background shell, collect both files. Launch liveness: `thread.started` must appear in the events file within a few minutes of launch; absent, kill and relaunch — a wedged exec sits alive at 0% CPU forever, and a seat deadline sized for the work is too slow a detector for a startup hang. A failed invocation is reported with its stderr, never worked around. Directory trust never gates these runs — probed 2026-07-05: a fresh, never-trusted worktree under `--ignore-user-config` executes normally; the trust prompt is an interactive-TUI concern, so no `trust_level` entry is ever needed and none would survive `--ignore-user-config` anyway.
+Every codex seat is one `codex exec` invocation, fully specified so it runs identically on any host: `--ignore-user-config` always (the machine's config, model, and notify hooks are ignored — auth still resolves from `CODEX_HOME`); model and effort verbatim from the routing table; the `--json` event stream (stdout — redirect it) and the `-o` final message both captured as evidence. Launch it as **tracked background Bash** — the harness re-invokes you when it exits; never a polling loop, never an untracked shell. One bounded check completes the dispatch: confirm `thread.started` appears in the events file shortly after launch (a single `timeout`-bounded grep) — absent, kill and relaunch, because a wedged exec sits alive at 0% CPU forever and never exits into the harness's notification. A failed invocation is reported with its stderr, never worked around. Directory trust never gates these runs — probed 2026-07-05: a fresh, never-trusted worktree under `--ignore-user-config` executes normally; no `trust_level` entry is ever needed and none would survive `--ignore-user-config` anyway.
 
 One-turn seats (review, consultation):
 
@@ -12,20 +12,21 @@ Builders and reviewers take `-s danger-full-access`; consultation reads take `-s
 
 ## What every brief carries
 
-- The worker rail (`skills/execute`, Standing rules), verbatim.
+- The worker rail (`skills/run`, Standing rules), verbatim.
 - Skills and files by absolute path. `$CLAUDE_PLUGIN_ROOT`, slash commands, and subagents do not exist for a codex seat — a brief naming any of them stalls the seat. Bulk work a Claude seat would fan out to subagents, a codex brief chunks inline.
 - The gate commands verbatim. The seat runs its own gate — including anything that binds (dev server, integration suite) — and watches it pass; green stays something the seat saw itself.
 - An output contract ending in a fenced JSON block — verdict, files touched, evidence paths, anomalies — so the `-o` message is parsed like every other seat's report, never hand-read prose.
 
 ## Codex reviewer preparation
 
-Before every codex reviewer dispatch, a mechanic creates a disposable copy of the
-slice worktree at the reviewed green tip. The mechanic pre-runs every instrument
-named by `skills/reviewing` that the codex seat's harness lacks and puts the
-resulting findings files in the dossier. Run the reviewer from the disposable
-copy with `-s danger-full-access`: read-only starves the suites and probes reviewing
-demands, and disposability, not the sandbox, keeps the reviewer's hands off the
-product tree. Sweep the copy after the round.
+Before every codex reviewer dispatch, have a disposable copy of the slice worktree
+created at the reviewed green tip (a mechanic brief, or your own turns on a small
+run). Instruments named by `skills/reviewing` that a codex seat cannot run — the
+Claude harness's `/code-review` — are pre-run on the dispatcher's side and land in
+the dossier as findings files. Run the reviewer from the disposable copy with
+`-s danger-full-access`: read-only starves the suites and probes reviewing demands,
+and disposability, not the sandbox, keeps the reviewer's hands off the product
+tree. Sweep the copy after the round.
 
 ## The builder brief
 
