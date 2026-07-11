@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Panel
 
-A drafting tool for the two documents no test or reviewer can grade: the run's approach, when the repo doesn't settle the architecture (`skills/run`, The plan), and the spec (`skills/spec`, step 2). Independently trained models fail in different places, so two blind drafts of the same problem disagree exactly where it is underdetermined or one of them is wrong. The judge only compares, never merges, so that disagreement survives to be read; it is the product. Anything a test can verify stays in the run, and a decided question stays decided.
+Independent frontier panelists draft the same document blind; a judge compares; you synthesize. Independently trained models fail in different places, so the drafts disagree exactly where the problem is underdetermined or one draft is wrong, and the judge never merges, so the disagreement survives to be read. The disagreement is the product. A decided question stays decided.
 
 Run it as the bundled workflow. The judge's comparison comes back schema-valid or not at all, and blinding is enforced by code, not discipline:
 
