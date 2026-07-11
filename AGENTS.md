@@ -7,8 +7,8 @@ An autonomous agent system built for Fable to orchestrate: one command takes a t
 | Path | What it is |
 | --- | --- |
 | `.claude-plugin/` | Plugin + marketplace manifests — one-command install (`/plugin marketplace add vadimcomanescu/bottega`) |
-| `skills/run/SKILL.md` | The single entry (`/bottega:run`) and the whole maestro doctrine: discovery (the unknowns), the priced proof, harness-native orchestration, the routing table, the review loop, delivery, resume. `references/` carry the codex dispatch grammar and the parallel-slice mechanic protocol |
-| `skills/spec` | The contract instrument — spec doc (`docs/specs/<YYYY-MM-DD>-<feature-slug>.md`), scenarios authored directly in `features/`, the acceptance toolchain installed at run start, the gate handoff, the unattended sign. Bought in the priced proof when the work introduces product behavior worth signing; never standing. Template in `references/` |
+| `skills/run/SKILL.md` | The single entry (`/bottega:run`) and the whole maestro doctrine: discovery (the unknowns), the execution path, harness-native orchestration, the routing table, the review loop, delivery, resume. `references/` carry the codex dispatch grammar and the parallel-slice mechanic protocol |
+| `skills/spec` | The contract instrument — spec doc (`docs/specs/<YYYY-MM-DD>-<feature-slug>.md`), scenarios authored directly in `features/`, the acceptance toolchain installed at run start, the gate handoff, the unattended sign. Part of the execution path only when the work introduces product behavior worth signing; never automatic. Template in `references/` |
 | `skills/signoff` | The gate — one collaborative spec doc, comment loop, `SIGNED` cascade; the standing header in `references/`, the local canvas in `assets/` |
 | `skills/panel` | Drafting instrument for hard one-shot artifacts — independent frontier panelists, blinded; a compare-only judge; the maestro synthesizes. Seats authored in its bundled workflow script |
 | `skills/implementing`, `skills/reviewing`, `skills/qa`, `skills/documenting`, `skills/storyboarding` | Self-contained actor methodology, loaded by dispatched seats by path — nothing loaded from any host pack |
@@ -23,7 +23,7 @@ In host repos, a run's working state lives under `.bottega/`, gitignored; the co
 ## Rules
 
 - Orchestration is the harness: tracked dispatches, tracked background Bash, workflows — never a polling loop, a hand-rolled scheduler, or a liveness apparatus in prose. A doctrine line that restates or replaces a harness capability is a defect.
-- Proof is priced, never standing: the floor is isolation, build, host gates green, cross-family review, PR. Everything above it is bought by a named risk and disclosed in the PR. Cross-family review is the one invariant no lane prices away.
+- The execution path is the maestro's decision, stated to the user before building: every run gets isolation, a build, host gates green, cross-family review, and a PR; anything more exists for a stated reason, named in the PR. Cross-family review is the one thing never dropped.
 - Approval on a contract run lands the spec doc's status flip and `features/` in one sign commit; the delivery PR prints the `features/` diff since that commit, and the user reading it is the whole mechanism.
 - Verification gate: `npm test` (hook unit tests). Never pipe test output inside a `&&` chain; redirect to a file and check the exit code.
 - Editing doctrine (`skills/*`, `agents/*`), two tests per line: could the actor derive it from the repo or from competence — and would plain Fable already do it better with no instruction? Either way, cut it. Then read every worker fence as the weakest-equipped seat that will receive it — a codex seat has no slash commands, no subagents, no plugin root.

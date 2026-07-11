@@ -26,7 +26,7 @@ This seat needs fable tier. Loaded on a lower model: say so, do bookkeeping only
 
 There is no bottega scheduler, pipeline, or liveness system; the harness is all of it. Claude seats are Agent-tool dispatches (independent calls in one block run in parallel; write a Workflow when you want scripted control over many seats). Codex seats are `codex exec` launched as tracked background Bash, per [references/codex-dispatch.md](references/codex-dispatch.md). Every wait must be something the harness watches and re-invokes you from. Never wait on something the harness cannot see — a polling loop, an orphaned shell, a plan to check later — and never end a turn with work in flight unless the harness is tracking that work. Whenever you come back, rebuild your picture of the run from disk (commits, reports, worktree state), never from memory.
 
-How you sequence the fleet is entirely yours. The flow is only: discover → price the proof → build → cross-review → deliver.
+How you sequence the fleet is entirely yours. The flow is only: discover → decide the execution path → build → cross-review → deliver.
 
 ## Discover
 
@@ -38,9 +38,9 @@ Before the first question, classify the request: is it a problem statement or a 
 
 Handed an issue, the issue and its thread are the interview: read them the same way, and close every question you would have asked as a decision made, flagged with its default. An absent or silent user gets decisions made and flagged for review at the PR — never a stalled run.
 
-## Price the proof
+## The execution path
 
-Every job pays the floor: isolation, a build, the host's own gates green, cross-family review, a PR. Nothing above the floor is automatic. Each extra is bought only by a named risk, and the PR opens by saying what was bought and why — or that nothing was:
+Every run, whatever its size, gets: its own branch and worktree, a build, the host's own gates green, cross-family review, and a PR. Anything more is your decision, made after discovery for a stated reason, and the PR opens by naming what you decided and why — or that nothing more was needed:
 
 - **A signed contract** (spec doc and Gherkin scenarios per `skills/spec`, signed through `skills/signoff`) — only when the work introduces product behavior the user should read before it ships. A contract brings its whole proof pipeline with it, nothing asked for separately: the acceptance toolchain, the suite run green, QA driving every signed scenario with recordings, and feature-file mutation with survivors killed or justified in the PR (`skills/spec`, Proving the contract). The signing gate is for a user who is present; told to run unattended (their explicit word, usually pointing at an issue — never inferred from the issue alone), sign it yourself, disclose that in the PR's first line, and use the issue thread for everything the gate doc would have carried.
 - **Storyboards** (`skills/storyboarding`) — when a wrong guess about a user-facing screen would be expensive to build.
@@ -49,9 +49,9 @@ Every job pays the floor: isolation, a build, the host's own gates green, cross-
 - **A docs seat** (`skills/documenting`) — when the diff makes the host's agent-facing docs wrong.
 - **A second opinion on the spine** (sol, ultra, read-only) — when the slice cut is genuinely debatable. Its findings are suggestions; you rule on each one.
 - **A cold read** — a fresh fable judge (xhigh) given the intent, the diff, and the evidence, none of your narrative — when the danger is grading your own work: a long run, a design of your own under review. It passes the route guard by a dispatch description that begins "cold read".
-A mechanical fix pays the floor and ships within the hour. When the user says skip the ceremony, the menu shrinks; the floor never does. Work that turns out to be several independent deliverables: propose the split if the user is present; otherwise pick the shape yourself and disclose it in the PR.
+A mechanical fix needs none of the extras and ships within the hour. When the user says skip the ceremony, the extras shrink; what every run gets never does. Work that turns out to be several independent deliverables: propose the split if the user is present; otherwise pick the shape yourself and disclose it in the PR.
 
-Close pricing by telling the user the approach: what you will build, what proof you priced, and why — one short message ending in "Agree?". Attended, their nod is the go. Unattended, the same message is the run's first issue comment and the go is implicit. From that moment the user is out of the loop until the gate (if a contract was priced) and the PR.
+Close discovery by telling the user the execution path: what you will build, how it will be proven, and why — one short message ending in "Agree?". Attended, their nod is the go. Unattended, the same message is the run's first issue comment and the go is implicit. From that moment the user is out of the loop until the gate (if there is a contract) and the PR.
 
 ## Build
 
@@ -69,7 +69,7 @@ Every diff gets a fresh reviewer from the opposite model family of whoever built
 
 ## Deliver
 
-The PR says: what changed and why; what proof was bought and why (or "floor only"); who built and who reviewed each slice (family, model, rounds, findings and verdicts); every decision the ask left open, made and flagged; and the evidence for whatever proof was bought. A contract run also prints the diff of `features/` since the sign commit, even when it is empty — the user's tamper check, put in front of them. Recordings, when bought, publish from a separate never-merged branch `bottega/evidence-<feature-slug>`, linked by commit-pinned URLs and rendered inline. On issue-born runs, close the loop: the PR names and closes the issue, and a status comment lands on the thread at every phase boundary — priced, built, integrated, PR open. A thread that goes dark is a communication defect, whatever the run is doing.
+The PR says: what changed and why; the execution path and its reasons (including when it was just the basics); who built and who reviewed each slice (family, model, rounds, findings and verdicts); every decision the ask left open, made and flagged; and the evidence for whatever proof the path included. A contract run also prints the diff of `features/` since the sign commit, even when it is empty — the user's tamper check, put in front of them. Recordings, when made, publish from a separate never-merged branch `bottega/evidence-<feature-slug>`, linked by commit-pinned URLs and rendered inline. On issue-born runs, close the loop: the PR names and closes the issue, and a status comment lands on the thread at every phase boundary — path chosen, built, integrated, PR open. A thread that goes dark is a communication defect, whatever the run is doing.
 
 After the PR is up: delete `.bottega/wt/<feature-slug>/` and `.bottega/run/<feature-slug>/` (this run's entries only — a concurrent run's state is never yours). After the merge, delete the local run branch and the evidence branch, local and remote. A contract run then rewrites its spec doc into a closed record — what shipped, pointers at code and PR, where it diverged from the signed plan — and appends the run's dead ends to `docs/specs/dead-ends.md`, one line each.
 

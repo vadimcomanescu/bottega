@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // UserPromptSubmit entry guard. A natural-language "run bottega" prompt can
-// leave the session freelancing discovery on the priced maestro seat instead
+// leave the session freelancing discovery on the expensive maestro seat instead
 // of loading the skill — the nadia-0001 run burned ~20 fable tool calls that
 // way before the user interrupted and invoked the skill by hand. When a
 // prompt in a bottega workshop reads like run intent and isn't already a
@@ -19,7 +19,7 @@ const INTENT = /(?<![./])\bbottega\b|\bcommission\b(?![-.]lock)/i;
 const REMINDER =
   "This repo is a bottega workshop and the prompt reads like run intent. If " +
   "this is bottega work, invoke /bottega:run before acting — triage, " +
-  "discovery, and the priced proof all live inside it. Acting without it " +
+  "discovery, and the execution path all live inside it. Acting without it " +
   "freelances discovery on the maestro seat and re-derives what the skill " +
   "already carries.";
 

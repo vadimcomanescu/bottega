@@ -2,15 +2,15 @@
 
 An autonomous agent system built for Fable to orchestrate: one command takes a task, bug, or GitHub issue to a delivered PR, unassisted.
 
-The operating model: the maestro (Fable) discovers the intent and its unknowns, prices the proof to the risk, dispatches a fleet to build, has every diff reviewed by the opposite model family, and delivers a PR with the evidence. The user appears at most twice — signing a contract when the work earns one, and merging the PR. A mechanical fix ships within the hour at the floor; genuinely new product behavior buys the full contract machinery. Nothing in between pays for what it doesn't need.
+The operating model: the maestro (Fable) discovers the intent and its unknowns, decides the execution path, dispatches a fleet to build, has every diff reviewed by the opposite model family, and delivers a PR with the evidence. The user appears at most twice — signing a contract when the work earns one, and merging the PR. A mechanical fix ships within the hour with just the basics; genuinely new product behavior gets the full contract machinery. Nothing in between carries what it doesn't need.
 
 ## The three rules
 
 **Orchestration is the harness.** There is no bottega scheduler, pipeline, or liveness apparatus. Claude seats are tracked Agent dispatches (or a workflow the maestro authors fresh), codex seats are tracked background shells, and every wait is a call the harness re-invokes the maestro from. A doctrine line that restates or replaces a harness capability is treated as a defect — the maestro orchestrates the way Fable naturally does, and the doctrine stays out of its way.
 
-**Proof is priced.** Every job pays the floor: isolation on its own branch and worktree, a build, the host's own gates green, cross-family review, a PR. Above the floor, the maestro judges: a signed Gherkin contract when the work introduces product behavior worth signing — and a contract brings its whole proof pipeline by default (executable acceptance, QA recordings of every signed scenario, feature-file mutation) — plus storyboards, a docs seat, or a cold read when the risk warrants them. The maestro states its chosen approach and reasoning to the user before building; after that nod, the next human act is the merge. An artifact that protects bottega's narrative rather than the product doesn't ship.
+**The execution path is a decision, stated out loud.** Every run gets: its own branch and worktree, a build, the host's own gates green, cross-family review, and a PR. Beyond that the maestro decides what the work needs: a signed Gherkin contract when the work introduces product behavior worth signing — and a contract brings its whole proof pipeline with it (executable acceptance, QA recordings of every signed scenario, feature-file mutation) — plus storyboards, a docs seat, or a cold read when the risk warrants them. Before building, the maestro tells the user the chosen path and the reasons; after that nod, the next human act is the merge. An artifact that protects bottega's narrative rather than the product doesn't ship.
 
-**Cross-family review is the invariant.** Every diff is reviewed cold by the complement of whoever built it — a Claude-built slice gets a non-Claude adversary, a codex-built slice a non-codex one, fresh each round. Same-family review inherits the generator's blind spots and looks like verification without being it. This is the one thing no lane prices away, because it is what lets the user not read the diff.
+**Cross-family review is the invariant.** Every diff is reviewed cold by the complement of whoever built it — a Claude-built slice gets a non-Claude adversary, a codex-built slice a non-codex one, fresh each round. Same-family review inherits the generator's blind spots and looks like verification without being it. This is the one thing never dropped, because it is what lets the user not read the diff.
 
 ## The cast
 
@@ -28,7 +28,7 @@ Models are never pinned in agent files — the maestro routes per dispatch from 
 
 One design discipline spans the dispatch seam: [`skills/codebase-design`](skills/codebase-design/SKILL.md) — a shared vocabulary (module, interface, depth, seam), deep-module principles, and a `CONCEPTS.md` domain glossary in the host repo. The maestro designs by it, the dossier carries it, the reviewer judges conformance against it.
 
-## The contract, when bought
+## The contract, when the path includes one
 
 Commissions that introduce product behavior worth signing get a one-page spec doc plus Gherkin feature files — executable acceptance via the [Acceptance Pipeline kit](https://github.com/vadimcomanescu/acceptance-pipeline-kit), which generates the test entrypoints from the signed scenarios; no hand translation between what the user signed and what runs. The gate is one hosted collaborative doc: comment to change anything, comment `SIGNED` to approve. Handed an issue and told to run unattended, the issue is the interview, the contract auto-signs (disclosed in the PR's first line), and the issue thread carries status comments at every phase boundary. The delivery PR prints the `features/` diff since the sign commit — the user's tamper check, put in front of them.
 
@@ -48,7 +48,7 @@ npm test          # guard unit tests
 /plugin install bottega@bottega
 ```
 
-Then hand it work: `/bottega:run <task, or issue URL>`. That is the whole surface — triage, discovery, the priced proof, and unattended handling all live inside the one command. The maestro seat is fable-tier: run the session on the strongest model available; loaded on a lower tier, the skill says so instead of proceeding silently.
+Then hand it work: `/bottega:run <task, or issue URL>`. That is the whole surface — triage, discovery, the execution path, and unattended handling all live inside the one command. The maestro seat is fable-tier: run the session on the strongest model available; loaded on a lower tier, the skill says so instead of proceeding silently.
 
 ## Provenance
 
