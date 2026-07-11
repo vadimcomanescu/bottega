@@ -18,8 +18,7 @@ orchestrator, never a judgment the mechanic makes.
    its RED and green commits intact and create the `bottega: integrate <slice>`
    commit even when Git could fast-forward. A conflict goes back to the orchestrator;
    the mechanic never resolves it by editing product code.
-5. **Verify the integration.** Run the full host suite on the run branch, compare
-   its failures with `.bottega/run/<feature-slug>/baseline.json`, and report the exit code plus
-   every failure beyond that baseline.
+5. **Verify the integration.** Run the full host suite on the run branch and
+   report the exit code plus every failure.
 6. **Clean up.** Once the integration report is verified, remove the slice worktree
    and its duplicated dependencies. Leave no `.bottega/wt/<feature-slug>/<slice>/` entry behind.
