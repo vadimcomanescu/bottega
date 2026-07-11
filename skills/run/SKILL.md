@@ -44,6 +44,7 @@ Every run, whatever its size, gets: its own branch and worktree, a build, the ho
 - **A panel draft** (`skills/panel`): when one hard, one-shot artifact decides the run and no test can catch a wrong answer.
 - **A QA drive with recordings** (`skills/qa`): on a run with no spec, when the user needs to see it working (new user-facing behavior, a disputed fix). Green tests are not that proof; a recording is. A spec run already includes QA on every signed scenario.
 - **A docs pass** (`skills/documenting`): when the diff makes the host's agent-facing docs wrong.
+- **A code mutation pass**: language-level mutation of the changed source files to kill weak unit tests, when the test suite is itself a deliverable or a silent test gap would be expensive. Run it differentially on the changed files only; each surviving mutant is killed or justified in the PR.
 - **A second opinion on the design** (sol, ultra, read-only): when the slice breakdown is genuinely debatable. Its findings are suggestions; you rule on each one.
 - **A cold read**: a fresh fable judge (xhigh) given the request, the diff, and the evidence, none of your narrative. Use it when the danger is grading your own work: a long run, a design of your own under review. It passes the route guard by a dispatch description that begins "cold read".
 
