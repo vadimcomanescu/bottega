@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Panel
 
-A drafting tool for one-shot artifacts where coverage and framing decide quality and no checker can catch a wrong answer; its standing uses are the run's approach, when the repo doesn't settle the architecture (`skills/run`, The plan), and the spec (`skills/spec`, step 2). Work a checker verifies and long-horizon execution belong in the run instead, and a decided question stays decided. Independently trained models fail in different places, and the judge compares instead of merging, so the disagreement between drafts stays inspectable; that disagreement is the product.
+A drafting tool for the two documents no test or reviewer can grade: the run's approach, when the repo doesn't settle the architecture (`skills/run`, The plan), and the spec (`skills/spec`, step 2). Independently trained models fail in different places, so two blind drafts of the same problem disagree exactly where it is underdetermined or one of them is wrong. The judge only compares, never merges, so that disagreement survives to be read; it is the product. Anything a test can verify stays in the run, and a decided question stays decided.
 
 Run it as the bundled workflow. The judge's comparison comes back schema-valid or not at all, and blinding is enforced by code, not discipline:
 
