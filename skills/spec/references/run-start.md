@@ -34,13 +34,10 @@ The brief, in order:
 4. **Wire acceptance.** Generate the test entrypoints from `features/*.feature`,
    wire the suite, run it, and confirm it fails RED (the features are unimplemented;
    a passing or erroring-for-tooling-reasons suite is a defect to report, not RED).
-5. **Baseline.** `.bottega/run/<feature-slug>/` starts empty but for `owner`, the
+5. **Run directory.** `.bottega/run/<feature-slug>/` starts empty but for `owner`, the
    orchestrator's session binding, written before this brief and never the brief's to
    touch; anything else already there under this slug is a dead run's debris to
-   delete, and another slug's directory is another run's, never touched. Record the
-   pre-existing-failure baseline once: run the full host suite, write failures to
-   `.bottega/run/<feature-slug>/baseline.json` (test id + one-line failure).
-   Briefs point at it; no slice worker ever re-derives it.
+   delete, and another slug's directory is another run's, never touched.
 6. **Commit the wiring.** Commit the generated acceptance wiring on the run
    branch, following the commit message format.
-7. **Report.** Exit codes for every step, the RED evidence path, the baseline path.
+7. **Report.** Exit codes for every step and the RED evidence path.
