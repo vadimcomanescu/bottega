@@ -13,8 +13,10 @@ The brief, in order:
    on a new branch `bottega/<feature-slug>` off trunk. Check the target isn't already inside
    a worktree; never nest.
 2. **Toolchain.** If the host has no `.bottega/aps.lock`, install the
-   acceptance-pipeline-kit: `install.sh --version <release> --bin-dir .bottega/bin`
-   (the shared parser/mutator binaries, language-agnostic), plus the kit package
+   acceptance-pipeline-kit from github.com/vadimcomanescu/acceptance-pipeline-kit —
+   its `install.sh --version <release> --bin-dir .bottega/bin` (the shared
+   parser/mutator binaries, language-agnostic; `<release>` is the kit's latest
+   published release, pinned in the lock from then on), plus the kit package
    matching the host language:
    - TypeScript: `@aps-kit/typescript`
    - Python: `aps-kit` (pip git-subdirectory)
