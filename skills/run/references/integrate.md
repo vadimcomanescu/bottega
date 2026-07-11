@@ -1,7 +1,7 @@
-# Slice integration — the mechanic protocol
+# Slice integration: the mechanic protocol
 
-The slice lifecycle's mechanics are mechanic work. Apply each at its named moment;
-an ownership breach, merge conflict, or new suite failure is a report to the
+The slice lifecycle's mechanics are mechanic work. Apply each at its named moment.
+An ownership breach, merge conflict, or new suite failure is a report to the
 orchestrator, never a judgment the mechanic makes.
 
 1. **Cross-check ownership.** Before parallel builder dispatches, compare the
@@ -9,7 +9,8 @@ orchestrator, never a judgment the mechanic makes.
    dispatches.
 2. **Provision.** Create each parallel slice worktree at
    `.bottega/wt/<feature-slug>/<slice>/` from the run branch and duplicate the run worktree's
-   installed dependencies cheaply. Never install them from scratch.
+   installed dependencies rather than installing from scratch; a duplication that
+   fails falls back to a fresh install, noted in the report.
 3. **Check the diff.** Before integration, diff the slice from its branch point
    and compare every changed path with its owned-files list. Any out-of-list path
    is a finding; stop before the merge and report it.
@@ -20,5 +21,5 @@ orchestrator, never a judgment the mechanic makes.
 5. **Verify the integration.** Run the full host suite on the run branch, compare
    its failures with `.bottega/run/<feature-slug>/baseline.json`, and report the exit code plus
    every failure beyond that baseline.
-6. **Sweep.** Once the integration report is verified, remove the slice worktree
+6. **Clean up.** Once the integration report is verified, remove the slice worktree
    and its duplicated dependencies. Leave no `.bottega/wt/<feature-slug>/<slice>/` entry behind.

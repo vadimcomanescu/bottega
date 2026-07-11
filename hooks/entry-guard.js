@@ -2,7 +2,7 @@
 
 // UserPromptSubmit entry guard. A natural-language "run bottega" prompt can
 // leave the session improvising discovery on the expensive orchestrator model
-// instead of loading the skill — the nadia-0001 run burned ~20 fable tool
+// instead of loading the skill; the nadia-0001 run burned ~20 fable tool
 // calls that way before the user interrupted and invoked the skill by hand.
 // When a prompt in a repo with bottega state reads like run intent and isn't
 // already a slash command, inject the reminder; otherwise stay silent.
@@ -18,7 +18,7 @@ const INTENT = /(?<![./])\bbottega\b|\bcommission\b(?![-.]lock)/i;
 
 const REMINDER =
   "This repo has bottega run state and the prompt reads like run intent. If " +
-  "this is bottega work, invoke /bottega:run before acting — triage, " +
+  "this is bottega work, invoke /bottega:run before acting: triage, " +
   "discovery, and the plan all live inside it. Acting without it improvises " +
   "discovery on the expensive orchestrator model and re-derives what the " +
   "skill already carries.";

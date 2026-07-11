@@ -7,9 +7,9 @@ Section presence and scenario order follow the canonical rules in [the spec temp
 
 To change anything, comment on it. To approve, comment `SIGNED {{FEATURE_SLUG}}`.
 
-Done means every scenario on this page works in the finished product, and the delivery reads them back to you as a checklist with the evidence for each. Where the work includes recorded QA drives, that evidence is a recording of a tester performing the scenario on the finished build — the same screens you see here, moving. Where it includes mutation testing, we flip the exact values you sign here and the tests must break — proof the tests really read this spec. The checks listed beneath a scenario have no generated test; the tester verifies each one on the finished product.
+Done means every scenario on this page works in the finished product, and the delivery reads them back to you as a checklist with the evidence for each. Where the work includes recorded QA drives, that evidence is a recording of a tester performing the scenario on the finished build: the same screens you see here, moving. Where it includes mutation testing, we flip the exact values you sign here and the tests must break, proof that the tests really read this spec. The checks listed beneath a scenario have no generated test; the tester verifies each one on the finished product.
 
-Anything we decided without you sits under Our calls — veto it with a comment; signing accepts it.
+Anything we decided without you sits under Our calls: veto it with a comment; signing accepts it.
 
 Approving starts the build: {{RUN_ESTIMATE}} of autonomous work, on a machine that stays awake for it.
 
@@ -22,7 +22,7 @@ You'll only hear from the run if a discovery changes the Direction, the work tur
 ## Direction
 {{DIRECTION}}
 
-## Scenario — {{SCENARIO_NAME}}
+## Scenario: {{SCENARIO_NAME}}
 ```gherkin
 {{SCENARIO_GHERKIN}}
 ```
@@ -44,6 +44,6 @@ You'll only hear from the run if a discovery changes the Direction, the work tur
 **You said**
 {{USER_DECISIONS}}
 
-**Our calls — veto by comment**
+**Our calls: veto by comment**
 {{OUR_CALLS}}
 ````

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// bottega gate server — serves one gate directory, receives the user's
+// bottega gate server: serves one gate directory, receives the user's
 // comments and decision, and assembles the live thread. Zero dependencies,
 // binds loopback only.
 //
@@ -18,7 +18,7 @@
 //   state.json      bottega -> page     {revision,status:"review"|"reading"|"revising",changed:[anchors]}
 //   decision.json   user -> bottega   durable observable; watch it like any dispatch
 // To publish a revision: rewrite gate.html, bump state.json revision, status
-// "review" — every open page reloads itself and badges the changed anchors.
+// "review": every open page reloads itself and badges the changed anchors.
 
 import { createServer } from "node:http";
 import { readFile, writeFile, appendFile } from "node:fs/promises";
@@ -29,7 +29,7 @@ import { parseArgs } from "node:util";
 const { values: args } = parseArgs({ options: {
   dir:   { type: "string" },
   port:  { type: "string", default: "4747" },
-  token: { type: "string" },   // when set, every route lives under /<token>/ — pair with a tunnel for remote users
+  token: { type: "string" },   // when set, every route lives under /<token>/; pair with a tunnel for remote users
 }});
 if (!args.dir) { console.error("usage: gate-server.mjs --dir <gate-dir> [--port N] [--token SECRET]"); process.exit(2); }
 const DIR = resolve(args.dir);

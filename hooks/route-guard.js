@@ -1,36 +1,36 @@
 #!/usr/bin/env node
 
-// PreToolUse route guard — enforces model routing on Agent/Task dispatches.
+// PreToolUse route guard: enforces model routing on Agent/Task dispatches.
 //
 // Two scopes, because the narrow one alone proved insufficient (in the
 // nadia-0001 run, 103 of 132 dispatches went through general-purpose agents
 // the old guard never saw):
 //
 //   1. Named bottega worker agents (builder, reviewer, qa, documenter,
-//      storyboarder, mechanic) — always checked, run or no run: a dispatch
+//      storyboarder, mechanic), always checked, run or no run: a dispatch
 //      that omits `model` inherits the dispatching session's model (from the
 //      orchestrator that is a silent escalation to fable), fable never runs
 //      a worker agent, and each named worker has exactly one Claude model in
-//      the routing table — a mismatch is a misroute, denied. Effort is not a
+//      the routing table; a mismatch is a misroute, denied. Effort is not a
 //      dispatch parameter this hook can see; it comes from the agent
 //      frontmatter defaults and the table. The cold read is not an exception
-//      here — by rule it never runs on a worker agent.
+//      here: by rule it never runs on a worker agent.
 //
 //   2. Every other dispatch, but only from a session that owns a live run
 //      here. Runs are keyed by feature slug and coexist in one repo, each
 //      driven from its own session; a run is live when its worktree entry
 //      .bottega/wt/<slug>/ is non-empty (the one liveness signal with a real
-//      teardown — run close-out removes it; never spec state or branch refs,
+//      teardown: run close-out removes it; never spec state or branch refs,
 //      nothing retires those), and its owning session is recorded in
 //      .bottega/run/<slug>/owner, written by the orchestrator at Isolation
 //      and rewritten on Resume. The check fires only when the event's
-//      session_id matches a live run's owner. Anything else — a bystander
-//      session in the same repo (the observed failure: a codex-plugin
-//      dispatch denied with a message whose remedy, a Claude model from the
-//      routing table, routes nothing on a codex dispatch), a missing owner
-//      file, no session_id — is silence: this guard fails open, and scope 1
+//      session_id matches a live run's owner. Anything else is silence: a
+//      bystander session in the same repo (the observed failure: a
+//      codex-plugin dispatch denied with a message whose remedy, a Claude
+//      model from the routing table, routes nothing on a codex dispatch), a
+//      missing owner file, no session_id. This guard fails open, and scope 1
 //      (which caught the nadia run) never relaxes. Same two checks, with one
-//      whitelist — a dispatch whose description begins "cold read" may route
+//      whitelist: a dispatch whose description begins "cold read" may route
 //      fable, because the cold read is one of the two sanctioned fable uses.
 //      Outside all of that the guard stays silent so the plugin never breaks
 //      unrelated sessions, concurrent or later.
@@ -42,7 +42,7 @@ import { join } from "node:path";
 
 // The sessions owning live runs here: .bottega/run/<slug>/owner, counted only
 // while the same slug's worktree entry .bottega/wt/<slug>/ is non-empty. Any
-// failure to read is a slug that doesn't fence — a guard must never break
+// failure to read is a slug that doesn't fence; a guard must never break
 // unrelated dispatches.
 function liveOwners(cwd) {
   const owners = new Set();
@@ -57,7 +57,7 @@ function liveOwners(cwd) {
       const owner = readFileSync(join(cwd, ".bottega", "run", slug, "owner"), "utf8").trim();
       if (owner && readdirSync(join(cwd, ".bottega", "wt", slug)).length > 0) owners.add(owner);
     } catch {
-      // not a run-state dir, no owner recorded, or no live worktree — silence
+      // not a run-state dir, no owner recorded, or no live worktree: silence
     }
   }
   return owners;
@@ -86,7 +86,7 @@ const WORKER_MODEL = {
 const COLD_READ = /^cold[\s-]?read\b/i;
 
 const DENY_UNROUTED =
-  "the dispatch was rejected because it names no model — an omitted model " +
+  "the dispatch was rejected because it names no model. An omitted model " +
   "inherits the dispatching session's own model, which from the orchestrator " +
   "silently escalates the worker to fable; re-issue the same dispatch with an " +
   "explicit model from the routing table in skills/run/SKILL.md (Claude " +
@@ -94,19 +94,19 @@ const DENY_UNROUTED =
   "run on sonnet).";
 
 const DENY_FABLE =
-  "the dispatch was rejected because it routes a worker agent to fable — " +
-  "fable runs exactly twice per run, the orchestrator's own session and the " +
+  "the dispatch was rejected because it routes a worker agent to fable. " +
+  "Fable runs exactly twice per run, the orchestrator's own session and the " +
   "cold read, and the cold read never runs on a worker agent; re-issue from " +
   "the routing table in skills/run/SKILL.md (Claude workers: " +
   "builder/reviewer/storyboarder run on opus, qa/documenter/mechanic run on " +
   "sonnet), and if you believe this slice genuinely needs fable-tier " +
-  "judgment, stop and put the escalation to the user — their budget, never a " +
+  "judgment, stop and put the escalation to the user; their budget, never a " +
   "self-serve dispatch.";
 
 function denyMisrouted(role, model) {
   return (
     "the dispatch was rejected because it routes the " + role + " agent to '" +
-    model + "' — the routing table in skills/run/SKILL.md gives each " +
+    model + "'. The routing table in skills/run/SKILL.md gives each " +
     "named Claude worker exactly one model (builder/reviewer/storyboarder: " +
     "opus; qa/documenter/mechanic: sonnet); re-issue with the table's model, " +
     "and treat wanting a different one as a routing-table change to propose, " +
@@ -116,14 +116,14 @@ function denyMisrouted(role, model) {
 
 const DENY_UNROUTED_RUN =
   "this session owns a live bottega run (its id is in .bottega/run/<slug>/owner) " +
-  "and this dispatch names no model — an omitted model inherits the dispatching " +
+  "and this dispatch names no model. An omitted model inherits the dispatching " +
   "session's own model, which from the orchestrator silently escalates the " +
   "dispatch to fable; re-issue with an explicit model from the routing table in " +
   "skills/run/SKILL.md.";
 
 const DENY_FABLE_RUN =
   "this session owns a live bottega run (its id is in .bottega/run/<slug>/owner) " +
-  "and this dispatch routes fable — fable runs exactly twice per run, the " +
+  "and this dispatch routes fable. Fable runs exactly twice per run, the " +
   "orchestrator's own session and the cold read; a cold-read dispatch's " +
   "description begins with 'cold read', and anything else re-issues from the " +
   "routing table in skills/run/SKILL.md or goes to the user as an escalation.";
@@ -167,7 +167,7 @@ const agentType = input.subagent_type;
 const model = input.model;
 const routed = typeof model === "string" && model.length > 0;
 
-// Scope 1 — named bottega worker agents, unconditional.
+// Scope 1: named bottega worker agents, unconditional.
 const workerMatch = typeof agentType === "string" ? agentType.match(WORKER_AGENT) : null;
 if (workerMatch) {
   const role = workerMatch[2];
@@ -177,7 +177,7 @@ if (workerMatch) {
   process.exit(0);
 }
 
-// Scope 2 — everything else, only from a session that owns a live run here.
+// Scope 2: everything else, only from a session that owns a live run here.
 const cwd =
   typeof event.cwd === "string" && event.cwd.length > 0 ? event.cwd : process.cwd();
 const session = typeof event.session_id === "string" ? event.session_id : "";
@@ -189,4 +189,4 @@ if (FABLE.test(model)) {
   if (!COLD_READ.test(description)) deny(DENY_FABLE_RUN);
 }
 
-process.exit(0); // routed off fable, or a named cold read — the choice is the orchestrator's
+process.exit(0); // routed off fable, or a named cold read; the choice is the orchestrator's

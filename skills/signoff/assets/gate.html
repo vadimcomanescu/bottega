@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{TITLE}} — spec {{ID}} · bottega gate</title>
+<title>{{TITLE}} · spec {{ID}} · bottega gate</title>
 <style>
 /* ── NadicodeAI design-system tokens (functional tier) ─────────────── */
 :root {
@@ -72,14 +72,14 @@ h1 { font:600 30px/32px var(--sans); margin:0 0 8px; text-wrap:balance; }
 .approve-btn { cursor:pointer; height:26px; padding:0 10px; font:500 12px/16px var(--mono); border-radius:4px; background:var(--canvas); color:var(--muted); border:1px solid var(--line); border-left:3px solid var(--line); }
 .approve-btn[data-on="1"][data-kind="ok"] { background:var(--link-bg-soft); color:var(--link-deep); border-left-color:var(--state-complete); }
 .approve-btn[data-on="1"][data-kind="fix"] { background:var(--warning-soft); color:var(--warning-deep); border-left-color:var(--state-review); }
-/* live feedback panel — playground-style prompt output, composes as you interact */
+/* live feedback panel: playground-style prompt output, composes as you interact */
 #feedback-panel { display:none; position:sticky; bottom:0; z-index:20; background:var(--canvas); border-top:1px solid var(--line); padding:12px 24px 16px; }
 #feedback-panel .panel-head { font:500 12px/16px var(--mono); color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px; display:flex; gap:8px; align-items:center; }
 #live-prompt { margin:0 0 10px; padding:12px 14px; max-height:160px; overflow:auto; background:var(--canvas-soft); border:1px solid var(--line); font:400 13px/20px var(--mono); color:var(--ink); white-space:pre-wrap; }
 #panel-status { font:500 12px/16px var(--mono); color:var(--link-deep); }
 #theme-toggle:focus-visible, .btn:focus-visible, .comment-add:focus-visible, textarea:focus-visible, figure.frame img:focus-visible { outline:2px solid var(--link); outline-offset:2px; }
 
-/* ── gherkin — the scenario verbatim from its feature file ─────────── */
+/* ── gherkin: the scenario verbatim from its feature file ─────────── */
 pre.gherkin { margin:0; padding:16px 20px; overflow-x:auto; background:var(--canvas-soft); border:1px solid var(--line); font:400 13px/20px var(--mono); color:var(--ink); white-space:pre; }
 
 /* ── storyboard: full-width evidence under its scenario ────────────── */
@@ -143,7 +143,7 @@ figure.frame > .comment-add { top:8px; right:8px; }
 .hint { font:400 12px/16px var(--sans); color:var(--muted); margin:4px 0 0; }
 .foot { display:flex; flex-wrap:wrap; gap:16px; align-items:center; padding:16px 24px; color:var(--muted); }
 
-/* ── motion: Settle on load, Confirm on arrival — nothing else ─────── */
+/* ── motion: Settle on load, Confirm on arrival, nothing else ─────── */
 @media (prefers-reduced-motion:no-preference) {
   .page-row { animation:settle .18s ease-out both; }
   @keyframes settle { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
@@ -170,9 +170,9 @@ figure.frame > .comment-add { top:8px; right:8px; }
         <span class="status-tag" id="conn-tag">…</span>
         <button id="theme-toggle" type="button" aria-label="Toggle color theme">THEME</button>
       </div>
-      <div class="banner signed" id="signed-banner">Signed. Your scenarios landed in the sign commit — the run is starting. You can close this page.</div>
-      <div class="banner waiting" id="waiting-banner">Bottega is revising — changed sections update right here, in place, when the new revision lands.</div>
-      <div class="banner waiting" id="static-banner">Bottega republishes this page in place as the spec evolves — refresh to pull the latest revision. Changed sections get badged; the conversation shows under the blocks it's about.</div>
+      <div class="banner signed" id="signed-banner">Signed. Your scenarios landed in the sign commit; the run is starting. You can close this page.</div>
+      <div class="banner waiting" id="waiting-banner">Bottega is revising; changed sections update right here, in place, when the new revision lands.</div>
+      <div class="banner waiting" id="static-banner">Bottega republishes this page in place as the spec evolves; refresh to pull the latest revision. Changed sections get badged; the conversation shows under the blocks it's about.</div>
     </div>
   </header>
 
@@ -186,25 +186,25 @@ figure.frame > .comment-add { top:8px; right:8px; }
 
   <section class="page-row annot" data-anchor="direction" data-label="Direction">
     <div class="active-lane">
-      <p class="eyebrow">Direction — where the change lives</p>
+      <p class="eyebrow">Direction: where the change lives</p>
       <p class="body-lg">{{DIRECTION}}</p>
       <div class="comment-slot"></div>
     </div>
   </section>
 
-  <!-- FLOW ROWS — one row per signed scenario; evidence sits WITH its scenario,
+  <!-- FLOW ROWS: one row per signed scenario; evidence sits WITH its scenario,
        full width below the Gherkin, each frame its own comment anchor.
-       The scenario text is sliced verbatim from its feature file, HTML-escaped —
+       The scenario text is sliced verbatim from its feature file, HTML-escaped;
        never rewritten. The filling worker replaces {{FLOW_ROWS}} with N copies:
 
-  <section class="page-row annot" data-anchor="scenario:N" data-label="Scenario N — NAME">
+  <section class="page-row annot" data-anchor="scenario:N" data-label="Scenario N: NAME">
     <div class="active-lane">
       <p class="eyebrow">Scenario N</p>
       <h2 class="title-sm">NAME</h2>
       <pre class="gherkin">SCENARIO GHERKIN, VERBATIM, HTML-ESCAPED</pre>
       <div class="comment-slot"></div>
       <div class="storyboard">
-        <figure class="frame annot" data-anchor="scenario:N:frame:M" data-label="Scenario N, frame M — CAPTION">
+        <figure class="frame annot" data-anchor="scenario:N:frame:M" data-label="Scenario N, frame M: CAPTION">
           <img src="assets/FILE.png" alt="ALT" tabindex="0">      (add class="phone" on the figure for phone flows)
           <figcaption><span class="proves">proves: SCENARIO NAME</span>CAPTION</figcaption>
           <div class="comment-slot"></div>
@@ -217,7 +217,7 @@ figure.frame > .comment-add { top:8px; right:8px; }
 
   <section class="page-row annot" data-anchor="domain" data-label="Domain model">
     <div class="active-lane">
-      <p class="eyebrow">Domain — the words this spec is written in</p>
+      <p class="eyebrow">Domain: the words this spec is written in</p>
       <ul class="domain">{{DOMAIN_LI}}</ul>
       <div class="comment-slot"></div>
     </div>
@@ -225,7 +225,7 @@ figure.frame > .comment-add { top:8px; right:8px; }
 
   <section class="page-row annot" data-anchor="testing" data-label="Testing">
     <div class="active-lane">
-      <p class="eyebrow">Testing — how each scenario gets verified</p>
+      <p class="eyebrow">Testing: how each scenario gets verified</p>
       <ul class="testing">{{TESTING_LI}}</ul>
       <div class="comment-slot"></div>
     </div>
@@ -251,7 +251,7 @@ figure.frame > .comment-add { top:8px; right:8px; }
     <div class="active-lane">
       <p class="eyebrow">Your call</p>
       <div class="approval-gate">
-        <p id="gate-help">Comment on any block — scenarios, frames, terms (hover it). Signing lands every scenario above in one commit as executable acceptance tests — the delivery shows you any change made after — and starts the run: {{RUN_ESTIMATE}} of autonomous work, on a machine that stays awake.</p>
+        <p id="gate-help">Comment on any block: scenarios, frames, terms (hover it). Signing lands every scenario above in one commit as executable acceptance tests and starts the run: {{RUN_ESTIMATE}} of autonomous work, on a machine that stays awake.</p>
         <div class="actions">
           <button class="btn primary" id="sign">Sign off</button>
           <button class="btn secondary" id="changes">Request changes</button>
@@ -262,7 +262,7 @@ figure.frame > .comment-add { top:8px; right:8px; }
   </section>
 
   <div id="feedback-panel">
-    <div class="panel-head"><span id="panel-title">YOUR FEEDBACK — BUILDS AS YOU REVIEW</span><span id="panel-status"></span></div>
+    <div class="panel-head"><span id="panel-title">YOUR FEEDBACK: BUILDS AS YOU REVIEW</span><span id="panel-status"></span></div>
     <pre id="live-prompt"></pre>
     <div class="actions">
       <button class="btn secondary small" id="copy">Copy for your session</button>
@@ -289,7 +289,7 @@ figure.frame > .comment-add { top:8px; right:8px; }
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2));
-  /* storage can throw in sandboxed iframes (hosted artifact viewers) — never let it kill the page */
+  /* storage can throw in sandboxed iframes (hosted artifact viewers); never let it kill the page */
   const store = {
     get(k)    { try { return localStorage.getItem(k) } catch { return null } },
     set(k, v) { try { localStorage.setItem(k, v) } catch {} },
@@ -331,7 +331,7 @@ figure.frame > .comment-add { top:8px; right:8px; }
     catch { return []; }
   })();
   const bakedIds = new Set(baked.map(c => c.id));
-  local = local.filter(c => !bakedIds.has(c.id));             // sent comments came back baked — drop the drafts
+  local = local.filter(c => !bakedIds.has(c.id));             // sent comments came back baked; drop the drafts
   persist();
   const allComments = () => served ? thread : baked.concat(local);
   const outgoing = () => served ? thread : local;
@@ -386,7 +386,7 @@ figure.frame > .comment-add { top:8px; right:8px; }
     const slot = $(":scope > .comment-slot", sec) || $(":scope > .active-lane > .comment-slot", sec);
     const c = document.createElement("div");
     c.className = "composer";
-    c.innerHTML = `<textarea placeholder="What's wrong or missing here — meaning, not wording."></textarea>
+    c.innerHTML = `<textarea placeholder="What's wrong or missing here: meaning, not wording."></textarea>
       <div class="composer-actions">
         <button class="btn secondary small save" type="button">${served ? "Send to bottega" : "Add comment"}</button>
         <button class="btn secondary small cancel" type="button">Cancel</button>
@@ -405,7 +405,7 @@ figure.frame > .comment-add { top:8px; right:8px; }
   }
   async function post(path, payload) {
     try { const r = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); if (!r.ok) throw 0; }
-    catch { toStatic("canvas — live link lost mid-send; tell bottega in your session"); local = allComments(); persist(); render(); }
+    catch { toStatic("canvas: live link lost mid-send; tell bottega in your session"); local = allComments(); persist(); render(); }
   }
 
   function render() {
@@ -417,7 +417,7 @@ figure.frame > .comment-add { top:8px; right:8px; }
     });
     const n = served ? thread.length : outgoing().length;
     $("#comment-count").textContent = !n ? "" :
-      served ? `${n} comment${n > 1 ? "s" : ""} — sent to bottega` : `${n} comment${n > 1 ? "s" : ""} in your review`;
+      served ? `${n} comment${n > 1 ? "s" : ""}, sent to bottega` : `${n} comment${n > 1 ? "s" : ""} in your review`;
     renderPrompt();
   }
   function threadCard(cm) {
@@ -460,15 +460,15 @@ figure.frame > .comment-add { top:8px; right:8px; }
     return t;
   }
 
-  /* live feedback message — playground-style: composes itself as you review */
+  /* live feedback message, playground-style: composes itself as you review */
   function composeFeedback(decision) {
     const ok  = Object.keys(approvals).filter(a => approvals[a] === "ok").map(labelFor);
     const fix = Object.keys(approvals).filter(a => approvals[a] === "fix").map(labelFor);
     const cs = outgoing();
     if (decision === "signed" && !cs.length && !fix.length) return `SIGNED ${ID}`;
-    const head = decision === "signed" ? `SIGNED ${ID} rev ${REVISION} — with notes:`
-      : decision === "changes" ? `FEEDBACK ${ID} rev ${REVISION} — request changes:`
-      : `Spec ${ID} rev ${REVISION} — review so far:`;
+    const head = decision === "signed" ? `SIGNED ${ID} rev ${REVISION}, with notes:`
+      : decision === "changes" ? `FEEDBACK ${ID} rev ${REVISION}, request changes:`
+      : `Spec ${ID} rev ${REVISION}, review so far:`;
     const parts = [];
     if (ok.length)  parts.push(`Approved: ${ok.join(" · ")}`);
     if (fix.length) parts.push(`Revisit: ${fix.join(" · ")}`);
@@ -481,18 +481,18 @@ figure.frame > .comment-add { top:8px; right:8px; }
     if (!active) return;
     $("#live-prompt").textContent = composeFeedback(decided);
     if (served) {
-      $("#panel-title").textContent = "YOUR REVIEW — LIVE";
+      $("#panel-title").textContent = "YOUR REVIEW: LIVE";
       $("#panel-status").textContent = "sent as you go";
       $("#copy").style.display = "none";
     } else {
-      $("#panel-title").textContent = decided ? "YOUR FEEDBACK — COPY IT INTO YOUR BOTTEGA SESSION" : "YOUR FEEDBACK — BUILDS AS YOU REVIEW";
+      $("#panel-title").textContent = decided ? "YOUR FEEDBACK: COPY IT INTO YOUR BOTTEGA SESSION" : "YOUR FEEDBACK: BUILDS AS YOU REVIEW";
       $("#panel-status").textContent = "";
       $("#copy").style.display = "";
     }
   }
 
   /* presence + transport */
-  const PRESENCE = { review: "AWAITING YOUR REVIEW", reading: "BOTTEGA IS READING YOUR COMMENTS", revising: "BOTTEGA REVISING — CHANGES LAND IN PLACE" };
+  const PRESENCE = { review: "AWAITING YOUR REVIEW", reading: "BOTTEGA IS READING YOUR COMMENTS", revising: "BOTTEGA REVISING: CHANGES LAND IN PLACE" };
   const bail = () => { store.sset("bottega-gate-scroll", String(scrollY)); location.reload(); };
   let morphing = false;
   async function morphTo(s) {
@@ -531,7 +531,7 @@ figure.frame > .comment-add { top:8px; right:8px; }
     Object.entries(s.working || {}).forEach(([anchor, note]) => {
       const sec = $(`[data-anchor="${CSS.escape(anchor)}"]`); if (!sec) return;
       const chip = document.createElement("span"); chip.className = "work-chip";
-      chip.textContent = note || "BOTTEGA — APPLYING CHANGE…";
+      chip.textContent = note || "BOTTEGA: APPLYING CHANGE…";
       ($(":scope > .active-lane > .eyebrow", sec) || $("figcaption", sec) || sec).appendChild(chip);
     });
     (s.changed || []).forEach(anchor => {
@@ -552,23 +552,23 @@ figure.frame > .comment-add { top:8px; right:8px; }
     try {
       const r = await fetch("gate/state", { cache: "no-store" }); if (!r.ok) throw 0;
       served = true;
-      $("#conn-tag").textContent = "LIVE"; $("#foot-mode").textContent = "live — comments reach bottega as you save them";
-      $("#gate-help").textContent = "Comment on any block — scenarios, frames, terms (hover it). Comments reach bottega as you save them; its replies appear right underneath, and changes land in place. Signing freezes every scenario above into executable acceptance tests no agent can edit, and starts the run.";
+      $("#conn-tag").textContent = "LIVE"; $("#foot-mode").textContent = "live: comments reach bottega as you save them";
+      $("#gate-help").textContent = "Comment on any block: scenarios, frames, terms (hover it). Comments reach bottega as you save them; its replies appear right underneath, and changes land in place. Signing freezes every scenario above into executable acceptance tests no agent can edit, and starts the run.";
       applyServerState(await r.json());
       pollTimer = setInterval(poll, 2500);
-    } catch { toStatic("canvas — talk to bottega in your session; this page updates in place"); }
+    } catch { toStatic("canvas: talk to bottega in your session; this page updates in place"); }
     render();
   }
   async function poll() {
     try { applyServerState(await (await fetch("gate/state", { cache: "no-store" })).json()); }
-    catch { toStatic("canvas — live link lost; talk to bottega in your session"); }
+    catch { toStatic("canvas: live link lost; talk to bottega in your session"); }
   }
   function toStatic(msg) {
     if (served) { local = thread.filter(c => !bakedIds.has(c.id)).map(c => ({ ...c })); persist(); }
     served = false; if (pollTimer) clearInterval(pollTimer);
     document.body.setAttribute("data-static", "");
     $("#conn-tag").textContent = "CANVAS"; $("#foot-mode").textContent = msg;
-    $("#gate-help").textContent = `Review this like a tool: mark each scenario ✓ APPROVE or ✗ REVISIT, comment on any block or frame (+ COMMENT), zoom the screens. The panel at the bottom writes your feedback message as you go — press Request changes or Sign off, copy it, paste it into your bottega session. One message, already written for you. (Served by a running bottega, this same page sends everything live and changes land in place.)`;
+    $("#gate-help").textContent = `Review this like a tool: mark each scenario ✓ APPROVE or ✗ REVISIT, comment on any block or frame (+ COMMENT), zoom the screens. The panel at the bottom writes your feedback message as you go: press Request changes or Sign off, copy it, paste it into your bottega session. One message, already written for you. (Served by a running bottega, this same page sends everything live and changes land in place.)`;
     if (!decided) { $("#static-banner").style.display = "block"; $("#waiting-banner").style.display = "none"; }
     render();
   }
@@ -593,11 +593,11 @@ figure.frame > .comment-add { top:8px; right:8px; }
         if (decision === "signed") showSigned();
         else { status = "revising"; const el = $("#gate-state"); el.dataset.state = "revising"; el.textContent = PRESENCE.revising; $("#waiting-banner").style.display = "block"; $("#sign").disabled = true; $("#changes").disabled = true; }
         renderPrompt(); return;
-      } catch { toStatic("canvas — live link lost; talk to bottega in your session"); }
+      } catch { toStatic("canvas: live link lost; talk to bottega in your session"); }
     }
     const el = $("#gate-state");
-    if (decision === "signed") { el.dataset.state = "complete"; el.textContent = "SIGNED — COPY THE MESSAGE BELOW"; }
-    else { el.dataset.state = "blocked"; el.textContent = "FEEDBACK READY — COPY THE MESSAGE BELOW"; }
+    if (decision === "signed") { el.dataset.state = "complete"; el.textContent = "SIGNED: COPY THE MESSAGE BELOW"; }
+    else { el.dataset.state = "blocked"; el.textContent = "FEEDBACK READY: COPY THE MESSAGE BELOW"; }
     renderPrompt();
     $("#feedback-panel").scrollIntoView({ block: "nearest" });
     navigator.clipboard && navigator.clipboard.writeText(composeFeedback(decision)).catch(() => {});
@@ -610,11 +610,11 @@ figure.frame > .comment-add { top:8px; right:8px; }
   });
   $("#copy").addEventListener("click", () => {
     navigator.clipboard.writeText($("#live-prompt").textContent)
-      .then(() => { $("#copy-hint").textContent = "Copied — paste it into your bottega session."; })
+      .then(() => { $("#copy-hint").textContent = "Copied. Paste it into your bottega session."; })
       .catch(() => {
         const r = document.createRange(); r.selectNodeContents($("#live-prompt"));
         const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
-        $("#copy-hint").textContent = "Clipboard is blocked here — the message is selected, copy it with ⌘C / Ctrl-C.";
+        $("#copy-hint").textContent = "Clipboard is blocked here; the message is selected, copy it with ⌘C / Ctrl-C.";
       });
   });
 

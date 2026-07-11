@@ -97,7 +97,7 @@ describe("route-guard: bottega worker agents (always checked)", () => {
     expect(out).toBe("");
   });
 
-  it("denies a misrouted worker dispatch — qa runs on sonnet, never opus", () => {
+  it("denies a misrouted worker dispatch: qa runs on sonnet, never opus", () => {
     const out = run(ROUTE_GUARD, {
       cwd: repoWithRun(true),
       tool_input: { subagent_type: "bottega-qa", model: "opus", prompt: "drive scenarios" },
@@ -145,10 +145,10 @@ describe("route-guard: all other dispatches, gated on a live run", () => {
     expect(denialOf(out)).toMatch(/live bottega run/);
   });
 
-  it("stays silent on a leftover bottega/* branch — a delivered run's local ref must never arm the guard", () => {
+  it("stays silent on a leftover bottega/* branch: a delivered run's local ref must never arm the guard", () => {
     // A PR merge deletes only the remote ref; the local bottega/<slug> branch
-    // survives delivery on the user's machine. Only the run worktree — which
-    // Close reaps — may arm scope 2.
+    // survives delivery on the user's machine. Only the run worktree (which
+    // Close reaps) may arm scope 2.
     const cwd = runBranchDir();
     for (const tool_input of [
       { subagent_type: "general-purpose", prompt: "unrouted, unrelated work" },
@@ -211,7 +211,7 @@ describe("route-guard: all other dispatches, gated on a live run", () => {
 
 describe("route-guard: stale contract state never arms the guard", () => {
   // The old activation keyed off locks, gate records, and spec-doc status
-  // strings — state nothing retires, so one delivered run fenced every
+  // strings; state nothing retires, so one delivered run fenced every
   // later session in the repo. Only live-run state may arm scope 2.
   function staleDir(): string {
     const dir = mkdtempSync(join(tmpdir(), "bottega-guard-stale-"));

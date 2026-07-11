@@ -30,11 +30,11 @@ const JUDGE = {
 phase('Draft')
 // Barrier is correct here: the judge needs every draft before it can compare.
 const [a, b] = await parallel([
-  // Panelist A — gpt-5.6-sol at ultra: a cheap agent executes the pinned headless codex
+  // Panelist A: gpt-5.6-sol at ultra. A cheap agent executes the pinned headless codex
   // command and returns its answer parsed to PANELIST.
-  () => agent(`Run the pinned headless codex command from skills/run/references/codex-dispatch.md — model gpt-5.6-sol, effort ultra, read-only, bounded — passing the task below verbatim, then return its answer in the schema.\n\nTask:\n${args.task}`,
+  () => agent(`Run the pinned headless codex command from skills/run/references/codex-dispatch.md (model gpt-5.6-sol, effort ultra, read-only, bounded), passing the task below verbatim, then return its answer in the schema.\n\nTask:\n${args.task}`,
               { label: 'panelist:sol', model: 'sonnet', effort: 'low', schema: PANELIST }),
-  // Panelist B — fable at xhigh, the panelist identity.
+  // Panelist B: fable at xhigh, the panelist identity.
   () => agent(args.task, { label: 'panelist:fable', agentType: 'bottega-panelist', model: 'fable', schema: PANELIST }),
 ])
 
