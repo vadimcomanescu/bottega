@@ -44,16 +44,16 @@ Nothing else is assumed about the host repo. Run state lives under `.bottega/`, 
 
 ## Roles
 
-Agent definitions in `agents/` say who a worker is; skills in `skills/` say how it works. Agent files never pin a model: routing is the orchestrator's, enforced by the hook.
+Agent definitions in `agents/` say who a worker is; skills in `skills/` say how it works. Agent files never pin a model: the full routing table (with reasoning effort per seat) lives in [`skills/run/SKILL.md`](skills/run/SKILL.md) and is enforced by the hook. The models below mirror it; every judgment-bearing role runs on a top-tier model, and sonnet holds only the mechanic, where the work is short and judgment is forbidden by design.
 
-| Role | Job | Method |
-| --- | --- | --- |
-| orchestrator | design, routing, arbitration, every judgment call | [`skills/run/SKILL.md`](skills/run/SKILL.md) |
-| builder | implements one slice, test-first, inside a given interface | [`skills/implementing/SKILL.md`](skills/implementing/SKILL.md) |
-| reviewer | tries to break the slice, polices the tests, judges the design | [`skills/reviewing/SKILL.md`](skills/reviewing/SKILL.md) |
-| qa | drives the built artifact as a user, records the evidence | [`skills/qa/SKILL.md`](skills/qa/SKILL.md) |
-| documenter | updates the host's agent-facing docs to match what shipped | [`skills/documenting/SKILL.md`](skills/documenting/SKILL.md) |
-| mechanic | executes fully specified command lists, no judgment calls | [`agents/bottega-mechanic.md`](agents/bottega-mechanic.md) |
+| Role | Job | Model | Method |
+| --- | --- | --- | --- |
+| orchestrator | design, routing, arbitration, every judgment call | fable-5 | [`skills/run/SKILL.md`](skills/run/SKILL.md) |
+| builder | implements one slice, test-first, inside a given interface | gpt-5.6-sol, or opus-4.8 for a user-facing slice | [`skills/implementing/SKILL.md`](skills/implementing/SKILL.md) |
+| reviewer | tries to break the slice, polices the tests, judges the design | the opposite family from the builder (sol or opus-4.8) | [`skills/reviewing/SKILL.md`](skills/reviewing/SKILL.md) |
+| qa | drives the built artifact as a user, records the evidence | opus-4.8 | [`skills/qa/SKILL.md`](skills/qa/SKILL.md) |
+| documenter | updates the host's agent-facing docs to match what shipped | opus-4.8 | [`skills/documenting/SKILL.md`](skills/documenting/SKILL.md) |
+| mechanic | executes fully specified command lists, no judgment calls | sonnet-5 | [`agents/bottega-mechanic.md`](agents/bottega-mechanic.md) |
 
 One design vocabulary spans all of them: [`skills/codebase-design`](skills/codebase-design/SKILL.md) (deep modules behind small interfaces, plus a `CONCEPTS.md` domain glossary in the host repo). The orchestrator designs by it, builders receive it in their briefs, reviewers judge against it.
 
