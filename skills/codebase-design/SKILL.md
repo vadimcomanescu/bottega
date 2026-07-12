@@ -7,8 +7,6 @@ user-invocable: false
 
 # Codebase design
 
-The house rules, used on both sides of the dispatch: the orchestrator designs by them, the brief carries them, the reviewer judges against them.
-
 ## Vocabulary
 
 Use these terms exactly; never "component", "service", "API", or "boundary".
@@ -36,10 +34,10 @@ Use these terms exactly; never "component", "service", "API", or "boundary".
 Sweep every pass for the classic smells (duplication, data clumps, primitive obsession, repeated switches, feature envy, message chains); each is a judgment call, the brief's contract overrides, and anything tooling already enforces is skipped. Three house-specific ones by name:
 
 - **Re-derived oracle**: a test or second consumer recomputes a value the code already owns, and the two drift. Export the owner's computed value; have the check consume that.
-- **Shotgun surgery / divergent change**: one logical change forcing scattered edits, or one module edited for unrelated reasons. The seam is misplaced; seams are the orchestrator's, so report it as evidence for a re-cut, not as the builder's defect.
+- **Shotgun surgery / divergent change**: one logical change forcing scattered edits, or one module edited for unrelated reasons. The seam is misplaced; report it as evidence for a re-cut, not as the builder's defect.
 - **Extraction for testability**: pure fragments split out so units are easy to test while the bugs live in how they're called, and the composition itself has no test. Deepen instead: assert the behavior through the module's interface.
 
 ## Domain model
 
-- Interface names come from the domain's language, the same words the signed scenarios use. A synonym invented in code ("purchase" where the spec says "order") is a conformance finding.
-- The glossary lives in `CONCEPTS.md` at the host repo root: one entry per domain term, definitions only, no implementation details. It starts with the spec (the spec's Direction drafts the vocabulary delta, and it lands in `CONCEPTS.md` at sign per `skills/spec`, so the user co-signs the words the code will use) and is updated the moment a term crystallizes or sharpens during the run; reviewers judge names against it.
+- Interface names come from the domain's language, the same words the agreed spec uses. A synonym invented in code ("purchase" where the spec says "order") is a conformance finding.
+- The glossary lives in `CONCEPTS.md` at the host repo root: one entry per domain term, definitions only, no implementation details. New terms enter with the spec the user OKs, so the user sees the words the code will use, and the glossary is updated the moment a term crystallizes or sharpens during the run; reviewers judge names against it.
