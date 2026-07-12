@@ -15,7 +15,7 @@ Builders and reviewers take `-s danger-full-access`; consultation reads take `-s
 - The safety rule (`skills/run`, Standing rules), verbatim.
 - Skills and files by absolute path. `$CLAUDE_PLUGIN_ROOT`, slash commands, and subagents do not exist for a codex worker; a brief naming any of them stalls the worker. Bulk work a Claude worker would fan out to subagents, a codex brief chunks inline.
 - The gate commands verbatim. The worker runs its own gate, including anything that binds (dev server, integration suite), and watches it pass. Green stays something the worker saw itself.
-- An output contract ending in a fenced JSON block (verdict, files touched, evidence paths, anomalies), so the `-o` message is parsed like every other worker's report instead of hand-read as prose. Reviewers are the exception: their contract is the schema, below.
+- An output contract ending in a fenced JSON block (verdict, files touched, evidence paths, anomalies, decisions the brief did not determine), so the `-o` message is parsed like every other worker's report instead of hand-read as prose. Reviewers are the exception: their contract is the schema, below.
 
 ## Codex reviewer preparation
 
