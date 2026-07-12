@@ -4,12 +4,12 @@ export const meta = {
   phases: [{ title: 'Review' }],
 }
 
-// args: { brief: string, effort?: 'xhigh' | 'high' }. Round 1 runs xhigh (the
-// default); a delta round passes 'high'. The harness rejects any final message
-// that does not match SCHEMA, so a malformed report is a failed dispatch, not
-// a parsing problem. SCHEMA is a verbatim copy of
-// ../references/report.schema.json (workflow scripts cannot read files);
-// tests/review-report.test.ts pins the two equal.
+// args: { brief: string }. The routing table gives delta rounds to sol, so
+// this workflow only ever dispatches the round-1 Claude reviewer, at xhigh.
+// The harness rejects any final message that does not match SCHEMA, so a
+// malformed report is a failed dispatch, not a parsing problem. SCHEMA is a
+// verbatim copy of ../references/report.schema.json (workflow scripts cannot
+// read files); tests/review-report.test.ts pins the two equal.
 const SCHEMA = {
   "type": "object",
   "additionalProperties": false,
@@ -213,7 +213,7 @@ phase('Review')
 const report = await agent(args.brief, {
   agentType: 'bottega:reviewer',
   model: 'opus',
-  effort: args.effort === 'high' ? 'high' : 'xhigh',
+  effort: 'xhigh',
   schema: SCHEMA,
   label: 'reviewer:claude',
 })

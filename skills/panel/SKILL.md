@@ -12,7 +12,8 @@ Run it after the spec is agreed, on a costly decision the plan turns on: where t
 Run it as the bundled workflow. The judge's comparison comes back schema-valid or not at all, and blinding is enforced by code, not discipline:
 
     Workflow({ scriptPath: "<this skill's dir>/panel.js",
-               args: { task: <one self-contained prompt> } })
+               args: { task: <one self-contained prompt>,
+                       codexExec: <absolute path to the plugin's scripts/codex-exec> } })
 
 The prompt is each panelist's whole world: the decision framed as a question, the agreed spec, the constraints, the repo pointers. Never include your preferred answer: panelists handed your bet return two copies of it, and the disagreement that would have surfaced a better shape never appears. If a panelist would need your session context, the prompt is missing something.
 

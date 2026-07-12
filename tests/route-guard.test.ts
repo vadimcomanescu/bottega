@@ -102,6 +102,14 @@ describe("route-guard: bottega worker agents (always checked)", () => {
     expect(denialOf(out)).toMatch(/builder and reviewer: opus/);
   });
 
+  it("allows a routed builder dispatch on opus", () => {
+    const out = run(ROUTE_GUARD, {
+      cwd: repoWithRun(),
+      tool_input: { subagent_type: "bottega:builder", model: "opus", prompt: "build slice A" },
+    });
+    expect(out).toBe("");
+  });
+
   it("stays silent on retired worker names: those are a host repo's own agents now", () => {
     const cwd = repoWithRun();
     for (const subagent_type of ["bottega:qa", "bottega:mechanic", "bottega:documenter"]) {
@@ -229,6 +237,22 @@ const b = await agent('run the gates', { label: 'gates', model: 'sonnet', effort
 const r = await agent('panel-style judging', { model: 'fable' })
 `;
     expect(denialOf(run(ROUTE_GUARD, workflowEvent({ script })))).toMatch(/routes an agent to fable/);
+  });
+
+  it("resolves a relative scriptPath against the event cwd", () => {
+    const dir = repoWithRun(OWNER);
+    writeFileSync(
+      join(dir, "wf.js"),
+      "export const meta = { name: 'sweep', description: 'x', phases: [] }\n" +
+        "const a = await agent('find bugs', { model: 'opus' })\n",
+    );
+    const out = run(ROUTE_GUARD, {
+      cwd: dir,
+      session_id: OWNER,
+      tool_name: "Workflow",
+      tool_input: { scriptPath: "wf.js" },
+    });
+    expect(out).toBe("");
   });
 
   it("denies what it cannot read: name-only invocations, dead scriptPaths, unclosed calls", () => {

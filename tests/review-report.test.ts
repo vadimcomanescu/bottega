@@ -158,7 +158,6 @@ describe("review-dispatch workflow", () => {
   function runOwnedEvent(tool_input: object): object {
     const dir = mkdtempSync(join(tmpdir(), "bottega-review-dispatch-"));
     cleanups.push(dir);
-    mkdirSync(join(dir, ".bottega", "wt", "demo", "run"), { recursive: true });
     mkdirSync(join(dir, ".bottega", "run", "demo"), { recursive: true });
     writeFileSync(join(dir, ".bottega", "run", "demo", "owner"), "owner-session\n");
     return { cwd: dir, session_id: "owner-session", tool_name: "Workflow", tool_input };

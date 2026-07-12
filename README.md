@@ -19,7 +19,7 @@ Autonomous issue-to-PR runs for Claude Code. One command takes a task, bug, or G
 4. Plans the work as vertical slices, and puts each costly decision (where the change lives, data shape, public contracts, dependency bets) to a panel of independent frontier models before building.
 5. Dispatches builders in parallel where slices allow it, with the host's gates green after every slice and the full suite at every integrate.
 6. Has the integrated diff reviewed once by two cold reviewers in parallel, one per model family, with schema-enforced reports; fixes get a single fresh reviewer each, and the rounds are hard-bounded.
-7. Drives the product as a user and records it: a feature shown working, a bug shown gone, video and screenshots in the PR.
+7. Drives the product as a user and records it: a feature shown working, a bug shown gone, walkthrough gifs and screenshots inline in the PR with the full recordings one click away.
 8. Syncs the host's docs to the diff and opens the PR carrying the spec, every decision made on the user's behalf, the review verdicts, and the QA evidence.
 
 The user appears exactly twice: agreeing to the spec, and merging the PR.
@@ -33,7 +33,7 @@ Nothing else is assumed about the host repo. A run leaves nothing behind but the
 
 ## Design decisions
 
-**No engine.** This repo is markdown prompts plus two small hooks. There is no scheduler, queue, or state machine; orchestration uses what Claude Code already provides (tracked subagent dispatches, tracked background shells, workflows). Why: any orchestration machinery written here would duplicate the harness and drift from it, and prompts that lean on the harness get its reliability for free.
+**No engine.** This repo is markdown prompts, two small hooks, and one codex dispatch script. There is no scheduler, queue, or state machine; orchestration uses what Claude Code already provides (tracked subagent dispatches, tracked background shells, workflows). Why: any orchestration machinery written here would duplicate the harness and drift from it, and prompts that lean on the harness get its reliability for free.
 
 **Both-family review, always.** The integrated diff is reviewed cold by two reviewers in parallel, one per model family (codex and Claude), neither seeing the other's findings; each fix is rechecked by a single fresh reviewer. Why: same-family review inherits the generator's blind spots and produces confident false verification, and an opposite-family read covers every line whoever built it. This is the one step never dropped, whatever the size of the change, because it is what lets a user merge without reading the diff. Every reviewer returns one schema-enforced JSON report (`skills/reviewing/references/report.schema.json`) pinned to the exact SHAs it reviewed, so "review passed" is a state derivable from the reports, not a narrative. The rounds are bounded by design: the same finding open after two fix attempts stops the fixing, round 3 stops the review, and nothing ever dispatches round 4 automatically.
 
@@ -41,7 +41,7 @@ Nothing else is assumed about the host repo. A run leaves nothing behind but the
 
 **The spec is a conversation, not a pipeline.** The spec is presented in the session and approved with a reply: acceptance criteria, definition of done, honest wireframes. Why: earlier versions carried a signed Gherkin pipeline (generated acceptance suites, hosted sign-off documents, feature-file mutation testing); in the field it burned hours building and reviewing its own test harness while catching zero product defects the review had not already caught. The proof the user actually consumes is the review plus the QA recording.
 
-**QA is a witness.** QA drives the real artifact after review leaves the head clean, records the session that produced the verdict, and never fixes what it finds. Why: a claim is believable when the process that produced it could not have benefited from it being false; a QA that fixes grades its own work. Recordings publish from a never-merged evidence branch so they render in the PR, and the branch dies after merge: the evidence's job ends when the user merges.
+**QA is a witness.** QA drives the real artifact after review leaves the head clean, records the session that produced the verdict, and never fixes what it finds. Why: a claim is believable when the process that produced it could not have benefited from it being false; a QA that fixes grades its own work. Evidence is read on github.com, never in local folders: walkthrough gifs and screenshots embed inline in the PR body from a never-merged evidence branch (GitHub plays gifs from raw links but never video files, so full recordings are linked beside them), and the branch dies after merge: the evidence's job ends when the user merges.
 
 **The PR is the only path to trunk.** Every run builds on its own branch in its own worktree; the user's checkout is never touched, and the merge click is the only human action that lands code. Why: an autonomous system should be unable to change what you run, only to propose it.
 
@@ -65,8 +65,9 @@ One design vocabulary spans all of them: [`skills/codebase-design`](skills/codeb
 ```
 skills/         run (the whole method), implementing, reviewing, panel, codebase-design
 agents/         agent definitions: identity and a pointer to the skill, nothing else
+scripts/        codex-exec, the one place a codex invocation is assembled
 hooks/          route guard (model routing) and entry guard (points prose at /bottega:run)
-tests/          unit tests for the hooks and the review report contract
+tests/          unit tests for the hooks, the codex script, and the review report contract
 docs/specs/     closed records of delivered runs
 ```
 

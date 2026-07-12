@@ -30,12 +30,13 @@ const JUDGE = {
 phase('Draft')
 // Barrier is correct here: the judge needs every draft before it can compare.
 const [a, b] = await parallel([
-  // Panelist A: gpt-5.6-sol at ultra. A cheap agent executes the pinned headless codex
-  // command and returns its answer parsed to PANELIST.
-  () => agent(`Run the pinned headless codex command from skills/run/references/codex-dispatch.md (model gpt-5.6-sol, effort ultra, read-only, bounded), passing the task below verbatim, then return its answer in the schema.\n\nTask:\n${args.task}`,
+  // Panelist A: gpt-5.6-sol at ultra, launched through the plugin's codex
+  // dispatch script (args.codexExec, an absolute path the orchestrator
+  // passes). A cheap agent runs it and returns the answer parsed to PANELIST.
+  () => agent(`Dispatch codex through the script at ${args.codexExec}: write the task below to a brief file in a temp directory, then run the script with --model gpt-5.6-sol --effort ultra --sandbox read-only --cwd <the repo root> --brief <the brief file> --out <an out file> --events <an events file>, wait for it to exit, and return the out file's answer in the schema.\n\nTask:\n${args.task}`,
               { label: 'panelist:sol', model: 'sonnet', effort: 'low', schema: PANELIST }),
-  // Panelist B: fable at xhigh, the panelist identity.
-  () => agent(args.task, { label: 'panelist:fable', agentType: 'bottega:panelist', model: 'fable', schema: PANELIST }),
+  // Panelist B: fable at high, the panelist identity.
+  () => agent(args.task, { label: 'panelist:fable', agentType: 'bottega:panelist', model: 'fable', effort: 'high', schema: PANELIST }),
 ])
 
 // Blind in code: fixed labels, model names never reach the judge.
@@ -43,6 +44,6 @@ const blinded = `Task:\n${args.task}\n\nDraft A:\n${a.draft}\n\nDraft B:\n${b.dr
 
 phase('Judge')
 const judge = await agent(`${blinded}\n\nCompare draft A and draft B.`,
-  { label: 'judge', agentType: 'bottega:panel-judge', model: 'fable', schema: JUDGE })
+  { label: 'judge', agentType: 'bottega:panel-judge', model: 'fable', effort: 'high', schema: JUDGE })
 
 return { A: a, B: b, judge }

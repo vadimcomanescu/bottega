@@ -13,7 +13,7 @@
 //      fable), fable never runs a worker agent, and each named worker has
 //      exactly one Claude model in the routing table; a mismatch is a
 //      misroute, denied. Effort is not a dispatch parameter this hook can
-//      see; it comes from the agent frontmatter defaults and the table.
+//      see; the routing table states it, unenforced here.
 //
 //   2. Every other dispatch, but only from a session that owns a live run
 //      here. Runs are keyed by feature slug and coexist in one repo, each
