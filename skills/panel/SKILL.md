@@ -1,19 +1,19 @@
 ---
 name: panel
-description: Draft one hard artifact from independent frontier panelists. Blinded drafts, a compare-only judge, the orchestrator synthesizes. Reached by pointer from skills/run and skills/spec.
+description: Independent feedback on a costly plan decision. Blinded frontier recommendations, a compare-only judge; the orchestrator synthesizes. Reached by pointer from skills/run.
 disable-model-invocation: true
 user-invocable: false
 ---
 
 # Panel
 
-Independent frontier panelists draft the same document blind; a judge compares; you synthesize. Independently trained models fail in different places, so the drafts disagree exactly where the problem is underdetermined or one draft is wrong, and the judge never merges, so the disagreement survives to be read. The disagreement is the product. A decided question stays decided.
+Run it after the spec is agreed, on a costly decision the plan turns on: where the change lives, data shape, public contracts, dependency bets. Independent frontier panelists answer the same question blind; a judge compares; you synthesize. Independently trained models fail in different places, so the answers disagree exactly where the problem is underdetermined or one answer is wrong, and the judge never merges, so the disagreement survives to be read. Panelists landing where you didn't is the signal your bet is suspect; panelists landing on your answer without ever seeing it is confirmation instead of an echo.
 
 Run it as the bundled workflow. The judge's comparison comes back schema-valid or not at all, and blinding is enforced by code, not discipline:
 
     Workflow({ scriptPath: "<this skill's dir>/panel.js",
                args: { task: <one self-contained prompt> } })
 
-The prompt is each panelist's whole world: the problem, the constraints, the repo pointers, the template. Never include your preferred solution: panelists handed your bet return two copies of it, and the contradiction that would have surfaced a better shape never appears. Write it at the level the user's answers set: intent-level when the request was a candidate (panelists free to spec a different move), request-level only when the ask is truly fixed. If a panelist would need your session context, the prompt is missing something.
+The prompt is each panelist's whole world: the decision framed as a question, the agreed spec, the constraints, the repo pointers. Never include your preferred answer: panelists handed your bet return two copies of it, and the disagreement that would have surfaced a better shape never appears. If a panelist would need your session context, the prompt is missing something.
 
-Synthesize from the returned comparison; the synthesis is yours, never a vote. Keep agreements weighed by their evidence; settle each contradiction by the stronger evidence; fold in what only one panelist saw. What no panelist addressed, and the assumptions they split on, go to the user as open questions. Save the returned comparison in the run's working state.
+Synthesize from the returned comparison; the synthesis is yours, never a vote. Settle each contradiction by the stronger evidence; fold in what only one panelist saw. Where the panel moved you is named in the PR.

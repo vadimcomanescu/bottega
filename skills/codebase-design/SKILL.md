@@ -41,5 +41,5 @@ Sweep every pass for the classic smells (duplication, data clumps, primitive obs
 
 ## Domain model
 
-- Interface names come from the domain's language, the same words the signed scenarios use. A synonym invented in code ("purchase" where the spec says "order") is a conformance finding.
-- The glossary lives in `CONCEPTS.md` at the host repo root: one entry per domain term, definitions only, no implementation details. It starts with the spec (the spec's Direction drafts the vocabulary delta, and it lands in `CONCEPTS.md` at sign per `skills/spec`, so the user co-signs the words the code will use) and is updated the moment a term crystallizes or sharpens during the run; reviewers judge names against it.
+- Interface names come from the domain's language, the same words the agreed spec uses. A synonym invented in code ("purchase" where the spec says "order") is a conformance finding.
+- The glossary lives in `CONCEPTS.md` at the host repo root: one entry per domain term, definitions only, no implementation details. New terms enter with the spec the user OKs, so the user sees the words the code will use, and the glossary is updated the moment a term crystallizes or sharpens during the run; reviewers judge names against it.
