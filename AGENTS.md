@@ -18,7 +18,7 @@ Autonomous issue-to-PR runs for Claude Code, built for Fable to orchestrate: one
 | `docs/specs/` | Closed records of delivered runs |
 | `tests/` | Unit tests for the hooks and the review report contract |
 
-In host repos, a run's working state lives under `.bottega/`, gitignored; the committed artifacts are the PR and, on spec runs, the spec doc, `features/*.feature`, and the step handlers in the host's test tree. Evidence the user sees lives in the delivery PR. The one exception is the never-merged evidence branch (`bottega/evidence-<feature-slug>`), deleted after merge.
+In host repos, a run's working state lives under `.bottega/`, gitignored; the committed artifacts are the PR, the run's dead-ends lines in `docs/specs/dead-ends.md`, and, on spec runs, the spec doc, `features/*.feature`, and the step handlers in the host's test tree. Evidence the user sees lives in the delivery PR. The one exception is the never-merged evidence branch (`bottega/evidence-<feature-slug>`), deleted after merge.
 
 ## Rules
 

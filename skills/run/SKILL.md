@@ -29,9 +29,9 @@ How you sequence the workers is yours. The flow is only: discover, decide the pl
 
 ## Discover
 
-Read first: the code, `CONCEPTS.md`, `docs/specs/dead-ends.md`, whatever product doc the host keeps. Close the read by naming what the request never mentions but the code, the history, or the domain says will bite, ranked by risk.
+Read first: the code, `CONCEPTS.md`, `docs/specs/dead-ends.md`, whatever product doc the host keeps. Close the read by naming what the request never mentions but the code, the history, or the domain says will bite, ranked by risk. An unknown closes one of two ways: the repo fact that settles it (look for the repo's own precedent before anything else: the same problem solved in another directory, suite, or config) or a default you choose, carrying the search that came back empty.
 
-If the request states a solution rather than a problem, ask the frame question first: "X in service of what outcome, and if a different move served that better, would you want it?" Then interview only what the request leaves open, with your recommended answer attached to each question. Every question must pass two tests: the repo could not answer it, and its answer changes the work. Stop when you can predict the user's answers. A visual question (layout, hierarchy, which control is primary) goes to 2 or 3 genuinely different wireframes instead of prose.
+If the request states a solution rather than a problem, ask the frame question first: "X in service of what outcome, and if a different move served that better, would you want it?" Then interview only what the request leaves open, with your recommended answer attached to each question. Every question must pass two tests: the repo could not answer it, and its answer changes the work. Stop when you can predict the user's answers. A visual question (layout, hierarchy, which control is primary) goes to 2 or 3 genuinely different wireframes instead of prose. When neither you nor the user would recognize good in a domain, variants settle nothing: surface it as a blocking unknown.
 
 Handed an issue, the issue and its thread are the interview: read them the same way, and close every question you would have asked as a decision made, flagged with its default. An absent or silent user gets decisions made and flagged for review at the PR, not a stalled run.
 
@@ -49,7 +49,7 @@ Every run, whatever its size, gets: its own branch and worktree, a build, the ho
 
 A mechanical fix needs none of the extras and ships within the hour. When the user says skip the process, the extras shrink; what every run gets never does. Work that turns out to be several independent deliverables: propose the split if the user is present; otherwise pick the shape yourself and disclose it in the PR.
 
-Close discovery by telling the user the plan: what you will build, how it will be verified, and why, in one short message ending in "Agree?". Attended, their nod is the go. Unattended, the same message is the run's first issue comment and the go is implicit. From that moment the user is out of the loop until the gate (if there is a spec) and the PR.
+Close discovery by telling the user the plan, one short message built to be vetoed in one read: what you will build, in a sentence or two; what this run gets beyond the standard, with the reason, or that nothing more was needed; the unknowns, ranked by risk, one line each in a fixed shape (the unknown, then **settled:** the repo fact, or **default:** the choice and the search that came back empty); and how the work will be verified. End with "Agree?". Attended, their nod is the go. Unattended, the same message is the run's first issue comment and the go is implicit. From that moment the user is out of the loop until the gate (if there is a spec) and the PR.
 
 ## Build
 
@@ -75,9 +75,9 @@ The PR opens only on a clean state derivable from the evidence directory: schema
 
 ## Deliver
 
-The PR says: what changed and why; the plan and its reasons (including when it was nothing beyond what every run gets); who built each slice and who reviewed the integrated diff (family, model, rounds, findings and verdicts); every decision the request left open, made and flagged; and the evidence for whatever verification the plan included. Recordings, when made, publish from a separate never-merged branch `bottega/evidence-<feature-slug>`, linked by commit-pinned URLs and rendered inline. On issue-born runs, close the loop: the PR names and closes the issue, and a status comment lands on the thread at every phase boundary (plan chosen, built, integrated, PR open). A thread that goes dark is a communication defect, whatever the run is doing.
+The PR says: what changed and why; the plan and its reasons (including when it was nothing beyond what every run gets); who built each slice and who reviewed the integrated diff (family, model, rounds, findings and verdicts); every decision the request left open, made and flagged (your discovery defaults and the decisions workers reported alike); and the evidence for whatever verification the plan included. Recordings, when made, publish from a separate never-merged branch `bottega/evidence-<feature-slug>`, linked by commit-pinned URLs and rendered inline. On issue-born runs, close the loop: the PR names and closes the issue, and a status comment lands on the thread at every phase boundary (plan chosen, built, integrated, PR open). A thread that goes dark is a communication defect, whatever the run is doing.
 
-After the PR is up: delete `.bottega/wt/<feature-slug>/` and `.bottega/run/<feature-slug>/` (this run's entries only; a concurrent run's state is never yours). After the merge, delete the local run branch and the evidence branch, local and remote. A spec run then rewrites its spec doc into a closed record (what shipped, pointers at code and PR, where it diverged from the signed plan) and appends the run's dead ends to `docs/specs/dead-ends.md`, one line each.
+After the PR is up: delete `.bottega/wt/<feature-slug>/` and `.bottega/run/<feature-slug>/` (this run's entries only; a concurrent run's state is never yours). After the merge, delete the local run branch and the evidence branch, local and remote. Every run then appends its dead ends to `docs/specs/dead-ends.md`, one line each; a spec run also rewrites its spec doc into a closed record (what shipped, pointers at code and PR, where it diverged from the signed plan).
 
 ## Resume
 
