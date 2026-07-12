@@ -21,7 +21,7 @@ Builders and reviewers take `-s danger-full-access`; consultation reads take `-s
 
 Before every codex reviewer dispatch, have a disposable copy of the run worktree created at the head SHA under review (a sonnet dispatch, or your own turns on a small run). Run the reviewer from the disposable copy with `-s danger-full-access`: read-only starves the suites and probes reviewing demands, and disposability, not the sandbox, keeps the reviewer's hands off the product tree. Remove the copy after the round.
 
-A reviewer dispatch adds `--output-schema <install root>/skills/reviewing/references/report.schema.json` (absolute path, like everything else here) to the `exec` line, so the `-o` message is the schema-enforced review report itself. Before accepting it, check the echoed identity against the brief: `round`, `reviewer.family`, `reviewer.model`, and all three `target` SHAs must match what you dispatched. The schema proves shape, not identity; a mismatch on either is a failed dispatch to diagnose, never a report to repair.
+A reviewer dispatch adds `--output-schema <install root>/skills/reviewing/references/report.schema.json` (absolute path, like everything else here) to the `exec` line, so the `-o` message is the schema-enforced review report itself. Before accepting it, check the echoed identity against the brief: `round`, `reviewer.family`, `reviewer.model`, and all three `target` SHAs must match what you dispatched; the schema proves shape, not identity (the mismatch rule is in `skills/run`, Review).
 
 ## The builder brief
 
