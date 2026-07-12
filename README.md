@@ -15,7 +15,7 @@ Autonomous issue-to-PR runs for Claude Code. One command takes a task, bug, or G
 
 1. Isolates the run in its own worktree and branch, and discovers the host's test, lint, typecheck, build, and run commands.
 2. Reads the codebase, surfaces the unknowns the request never mentions, researches how others solve the same problem, and grills the user when the intent is unclear.
-3. Presents a brief user-facing spec in the conversation: what changes, acceptance criteria, definition of done, wireframe mockups when UI is touched. The user's OK is the go signal.
+3. Presents a brief user-facing spec in the conversation: what changes, acceptance criteria, definition of done, wireframe mockups when UI is touched. The user's OK is the go signal; a request that waives sign-off in its own words skips the wait, and the PR presents the spec and every decision where the OK would have gone.
 4. Plans the work as vertical slices, and puts each costly decision (where the change lives, data shape, public contracts, dependency bets) to a panel of independent frontier models before building.
 5. Dispatches builders in parallel where slices allow it, with the host's gates green after every slice and the full suite at every integrate.
 6. Has the integrated diff reviewed once by two cold reviewers in parallel, one per model family, with schema-enforced reports; fixes get a single fresh reviewer each, and the rounds are hard-bounded.
