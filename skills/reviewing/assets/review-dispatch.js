@@ -18,7 +18,7 @@ const SCHEMA = {
     "round",
     "reviewer",
     "target",
-    "architecture_checks",
+    "architecture",
     "evidence_paths",
     "rechecks",
     "findings",
@@ -79,34 +79,25 @@ const SCHEMA = {
         }
       }
     },
-    "architecture_checks": {
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "contract_id",
-          "status",
-          "evidence"
-        ],
-        "properties": {
-          "contract_id": {
-            "type": "string",
-            "minLength": 1
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "conforms",
-              "finding",
-              "blocked"
-            ]
-          },
-          "evidence": {
-            "type": "string",
-            "minLength": 1
-          }
+    "architecture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidence"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "conforms",
+            "finding",
+            "blocked"
+          ]
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1
         }
       }
     },

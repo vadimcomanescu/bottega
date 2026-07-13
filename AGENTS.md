@@ -7,12 +7,12 @@ Autonomous issue-to-PR runs for Claude Code, built for Fable to orchestrate: one
 | Path | What it is |
 | --- | --- |
 | `.claude-plugin/` | Plugin + marketplace manifests, one-command install (`/plugin marketplace add vadimcomanescu/bottega`) |
-| `skills/run/SKILL.md` | The single entry (`/bottega:run`) and the orchestrator's whole method: isolate, discover, spec, plan, build, review, QA, deliver, plus the routing table and QA repair classification. `references/codex-dispatch.md` carries the codex mechanics |
-| `skills/implementing` | Shared builder method, loaded by both Claude-agent and Codex builder dispatches; it also loads the house design rules |
-| `skills/reviewing` | Shared reviewer method, loaded by both Claude-agent and Codex reviewer dispatches. Owns the report contract, including architecture checks: `references/report.schema.json` and the Claude reviewer workflow `assets/review-dispatch.js` |
-| `skills/panel` | Feedback on a costly plan decision: independent frontier panelists, blinded; a compare-only judge; the orchestrator synthesizes. Panelists are dispatched by its bundled workflow script |
-| `skills/codebase-design` | House design rules: vocabulary, architecture contracts, deep-module principles, `CONCEPTS.md` domain glossary. The orchestrator designs by them, builders follow them, reviewers prove conformance |
-| `agents/` | Worker identity: builder and reviewer point at their shared skills; panelist and panel-judge carry identity only for the panel workflow. Agent files never copy method or pin model or effort; routing lives in the orchestrator's table, enforced by the route guard |
+| `skills/run/SKILL.md` | The single entry (`/bottega:run`) and the orchestrator's whole method: isolate, discover, spec, plan, build, review, QA, deliver, plus routing and QA failure classification. `references/codex-dispatch.md` carries the Codex mechanics |
+| `skills/implementing` | Shared builder method for Claude and Codex: one fenced slice, Ponytail simplicity, test-first implementation, supplied technology skills |
+| `skills/reviewing` | Shared reviewer method for Claude and Codex. Owns the report contract and independent architecture verdict: `references/report.schema.json` and the Claude reviewer workflow `assets/review-dispatch.js` |
+| `skills/run/references/panel.md` | One-use costly-decision branch of `run`; its workflow and panel identities live in `skills/run/assets/panel.js`, not in standalone skills or agents |
+| `skills/codebase-design` | House design rules: domain model first, deep modules, complete interfaces, architecture brief. Fable designs by them; reviewers judge against them; builders receive the resulting brief |
+| `agents/` | Claude runtime adapters for the reusable builder and reviewer methods. One-use panel identities live directly in the panel workflow. Agent files never pin model or effort; routing lives in the orchestrator's table, enforced by the route guard |
 | `scripts/` | `codex-exec`, the one place a `codex exec` invocation is assembled; every codex worker launches through it |
 | `hooks/` | Route guard (PreToolUse): the named builder and reviewer agents always; any dispatch or workflow from a session that owns a live run (`.bottega/run/<slug>/owner`) must name a model, never fable (the panel's own script is the one sanctioned fable workflow; an unreadable script is denied). Entry guard (UserPromptSubmit) points run-intent prose at `/bottega:run` |
 | `docs/specs/` | Closed records of delivered runs, kept as history |

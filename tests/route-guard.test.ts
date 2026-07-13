@@ -227,7 +227,7 @@ const b = await agent('run the gates', { label: 'gates', model: 'sonnet', effort
   });
 
   it("allows the shipped panel script, fable pins and all", () => {
-    const panel = join(import.meta.dirname, "..", "skills", "panel", "panel.js");
+    const panel = join(import.meta.dirname, "..", "skills", "run", "assets", "panel.js");
     expect(run(ROUTE_GUARD, workflowEvent({ scriptPath: panel }))).toBe("");
   });
 

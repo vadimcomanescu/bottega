@@ -27,13 +27,10 @@ const round1 = {
     head_sha: "b2c3d4e5f678901234567890abcdef123456789a",
     tree_sha: "c3d4e5f678901234567890abcdef123456789abc",
   },
-  architecture_checks: [
-    {
-      contract_id: "A-1",
-      status: "finding",
-      evidence: "src/parse.ts:42 violates the inclusive-end invariant; reported as R1-001.",
-    },
-  ],
+  architecture: {
+    status: "finding",
+    evidence: "src/parse.ts:42 violates Fable's inclusive-end invariant; reported as R1-001.",
+  },
   evidence_paths: [
     ".bottega/evidence/demo/review/diff.patch",
     ".bottega/evidence/demo/review/unit-tests.txt",
@@ -65,13 +62,10 @@ const round2 = {
     head_sha: "e4c1b9f7a3d8e2f5c6a1b4d7e9f2a5c8d1e3f6b9",
     tree_sha: "b5d3e8a1c7f4a2b6d9e1f3a5c7e2d4f6a8b1c3e5",
   },
-  architecture_checks: [
-    {
-      contract_id: "A-1",
-      status: "conforms",
-      evidence: "src/formatDate.ts now narrows the value before calling .split(); the contract's error behavior is preserved.",
-    },
-  ],
+  architecture: {
+    status: "conforms",
+    evidence: "src/formatDate.ts now narrows before .split(); Fable's error behavior and module ownership are preserved.",
+  },
   evidence_paths: [".bottega/evidence/demo/review/r1-001-recheck.md"],
   rechecks: [
     {
@@ -105,11 +99,9 @@ describe("report schema", () => {
   });
 
   it("rejects a report that does not account for architecture", () => {
-    expect(validate(mutated(round2, (r) => (r.architecture_checks = [])))).toBe(false);
-    expect(validate(mutated(round2, (r) => delete r.architecture_checks))).toBe(false);
-    expect(validate(mutated(round2, (r) => (r.architecture_checks[0].contract_id = "")))).toBe(false);
-    expect(validate(mutated(round2, (r) => (r.architecture_checks[0].status = "assumed")))).toBe(false);
-    expect(validate(mutated(round2, (r) => (r.architecture_checks[0].evidence = "")))).toBe(false);
+    expect(validate(mutated(round2, (r) => delete r.architecture))).toBe(false);
+    expect(validate(mutated(round2, (r) => (r.architecture.status = "assumed")))).toBe(false);
+    expect(validate(mutated(round2, (r) => (r.architecture.evidence = "")))).toBe(false);
   });
 
   it("rejects decoration the contract deliberately dropped: confidence, verdicts, categories", () => {

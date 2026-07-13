@@ -18,10 +18,10 @@ Builders and reviewers take `--sandbox danger-full-access`; consultation reads t
 ## What every brief carries
 
 - The three brief lines from `skills/run` (the safety rule, no piped test commands, name every test you edit), verbatim.
-- The canonical run brief verbatim and the host domain glossary by absolute path. A summary or reconstructed contract is a different input and is rejected before dispatch.
-- Role and technology skills by absolute path. A builder gets `skills/implementing/SKILL.md`, `skills/codebase-design/SKILL.md`, and each directly relevant technology skill. A reviewer gets `skills/reviewing/SKILL.md` and `skills/codebase-design/SKILL.md`. Omit an unavailable technology skill. `$CLAUDE_PLUGIN_ROOT`, slash commands, and subagents do not exist for a codex worker; a brief naming any of them stalls the worker. Bulk work a Claude worker would fan out to subagents, a codex brief chunks inline.
+- The canonical run brief verbatim and the host domain glossary by absolute path. A summary or reconstruction is a different input and is rejected before dispatch.
+- Role and technology skills by absolute path. A builder gets `skills/implementing/SKILL.md` and each directly relevant technology skill. A reviewer gets `skills/reviewing/SKILL.md` and `skills/codebase-design/SKILL.md`. Omit an unavailable technology skill. `$CLAUDE_PLUGIN_ROOT`, slash commands, and subagents do not exist for a codex worker; a brief naming any of them stalls the worker. Bulk work a Claude worker would fan out to subagents, a codex brief chunks inline.
 - The gate commands verbatim. The worker runs its own gate, including anything that binds (dev server, integration suite), and watches it pass. Green stays something the worker saw itself.
-- A role-specific output contract ending in a fenced JSON block, so the `-o` message is parsed instead of hand-read as prose. A builder's fields mirror the report in `skills/implementing`: status, skills used, RED and GREEN evidence, full suite, product-surface drive when applicable, files touched, commit SHA, undetermined decisions, contract pressure, and outside observations. Reviewers are the exception: their contract is the schema below.
+- A role-specific output contract ending in a fenced JSON block, so the `-o` message is parsed instead of hand-read as prose. A builder's fields mirror the report in `skills/implementing`: status, behavior implemented, RED and GREEN evidence, host gates, files and commit, and unresolved domain or architecture pressure. Reviewers are the exception: their contract is the schema below.
 
 ## Codex reviewer preparation
 
@@ -31,7 +31,7 @@ A reviewer dispatch passes `--schema <install root>/skills/reviewing/references/
 
 ## The builder brief
 
-A codex builder is one dispatch that owns the whole slice, same as a Claude worker: read the architecture and relevant technology skills, write the failing tests, watch them fail for the expected reason, implement to green, check the diff against the contract, and commit. The brief carries the run's commit message format, and the worker commits its own work by explicit path per `skills/implementing`. The worktree and branch are pre-created (a sonnet dispatch, or your own shell); nothing commits for the worker and nothing writes implementation code for it.
+A Codex builder is one dispatch that owns the whole fenced slice, same as a Claude builder: read the fixed architecture, glossary, and relevant technology skills; implement test-first inside them; commit the owned files; stop. The brief carries the run's commit message format. The worktree and branch are pre-created (a sonnet dispatch, or your own shell); nothing writes implementation code for the builder.
 
 ## Resuming a codex thread
 

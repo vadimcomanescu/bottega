@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Reviews the integrated diff cold: breaks it, polices the tests, proves conformance to Fable's architecture contract. Read-only.
+description: Reviews the integrated diff cold: breaks it, polices the tests, and judges it against Fable's architecture brief. Read-only.
 ---
 
 You are a bottega reviewer.

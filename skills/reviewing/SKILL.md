@@ -29,15 +29,15 @@ Construct concrete failure scenarios and execute them; a reproduced failure outr
 
 ## Pass 2: test ratchet
 
-Run the suite yourself. Diff the test files against their previous state, and read any diff that rewrites many tests first: agents rewrite assertions to match broken new behavior. Any skipped test is a critical blocking issue regardless of stated reason. A weakened, deleted, or loosened assertion is judged against the brief's interface contract: if the contract requires the behavior change and the cold test-edit manifest names the edit with its authorizing contract ID, verify the new assertion matches the contract; anything else is a critical blocking issue, as are lowered coverage thresholds and disabled lint rules. Completion check: every test file in the diff accounted for as strengthened, unchanged, or flagged.
+Run the suite yourself. Diff the test files against their previous state, and read any diff that rewrites many tests first: agents rewrite assertions to match broken new behavior. Any skipped test is a critical blocking issue regardless of stated reason. A weakened, deleted, or loosened assertion is judged against the brief: if the brief requires the behavior change and the cold test-edit manifest names the exact requirement, verify the new assertion matches it; anything else is a critical blocking issue, as are lowered coverage thresholds and disabled lint rules. Completion check: every test file in the diff accounted for as strengthened, unchanged, or flagged.
 
 ## Pass 3: architectural conformance
 
-Read `../codebase-design/SKILL.md`, then judge the code against the approved spec, exact architecture contract, and domain glossary in the brief. Round 1 records one `architecture_checks` entry per contract ID. A delta round records each ID the fix can affect and every assigned architecture finding. Point each entry to inspected code, a finding, or a blocked check. Account for every added or changed domain name there.
+Read `../codebase-design/SKILL.md`, then judge the code against the approved spec, Fable's exact architecture brief, and the domain glossary. This is the architecture check; the builder does not certify its own conformance. Inspect every fixed design decision and return one independent `architecture` verdict with concrete code evidence. A deviation is also a finding; an uncheckable decision makes the verdict `blocked`.
 
 Four checks are always explicit:
 
-- **Ownership and seams:** behavior and state remain in the modules the contract assigns, dependencies cross only the permitted seams, and adapters satisfy the named interfaces. A builder-created seam or moved responsibility is a finding even when the code works.
+- **Ownership and seams:** behavior and state remain in the modules the architecture brief assigns, dependencies cross only the permitted seams, and adapters satisfy the named interfaces. A builder-created seam or moved responsibility is a finding even when the code works.
 - **Contract:** the implementation matches the brief's interface: signature, invariants, ordering, error modes, observable behavior. Any silent widening or narrowing is a finding, including a new return path that reuses an existing sentinel (null, empty, fallback) for a state consumers can no longer tell apart.
 - **Domain model:** interfaces, implementation, and tests use the glossary's canonical terms. A synonym or overloaded term that makes one concept look like another is a finding.
 - **Surplus behavior:** the diff is judged on doing only what was dispatched. Behavior neither the brief nor the spec asked for (an extra endpoint, flag, fallback, side feature) is a finding even when well built.
@@ -47,7 +47,7 @@ Four checks are always explicit:
 Your report is one JSON object matching `references/report.schema.json` (same root as this skill); your dispatch enforces the shape, and prose outside it is not read.
 
 - `target`: the three SHAs from your brief, verbatim.
-- `architecture_checks`: the contract IDs in scope, each with status `conforms`, `finding`, or `blocked`, plus concrete evidence. Never combine IDs.
+- `architecture`: status `conforms`, `finding`, or `blocked`, plus the concrete evidence behind the independent architecture verdict.
 - `findings`: confirmed only, severity critical / major / minor, each anchored at a `code_location` (a whole-diff finding anchors at its most representative file). Scenario, exact input/state, expected vs observed, and evidence you actually inspected go in their fields. No style notes, no praise.
 - `rechecks`: one entry per check ID your brief assigned, status proven by execution.
 - `blocked_checks`: every probe you could not run and why.
