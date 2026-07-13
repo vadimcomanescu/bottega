@@ -33,3 +33,4 @@ In host repos, a run leaves nothing behind but the PR. Working state is the work
 - Where a role's instructions live: a skill is method consumed by more than one role or more than one runtime; method small enough to ride in a dispatch (QA, the docs sweep) lives in `skills/run` and travels in the brief. Agent files carry identity and point to shared method when one exists; they never summarize it.
 - A dispatch is a context boundary before it is a worker: it buys a fresh window and returns a finished answer. The dispatcher reads answers, never transcripts. Conversation runs hub-and-spoke: workers ask the orchestrator, the orchestrator answers and resumes them; workers never coordinate with each other directly.
 - Keep `CLAUDE.md` symlinked to this file.
+- PR bodies contain review-relevant content only. Omit tool, model, and vendor attribution badges or footers.

@@ -13,6 +13,7 @@ const implementing = read("skills/implementing/SKILL.md");
 const reviewing = read("skills/reviewing/SKILL.md");
 const design = read("skills/codebase-design/SKILL.md");
 const codexDispatch = read("skills/run/references/codex-dispatch.md");
+const agents = read("AGENTS.md");
 
 describe("worker doctrine handoffs", () => {
   it("carries one architecture contract from Fable through build and review", () => {
@@ -60,5 +61,10 @@ describe("worker doctrine handoffs", () => {
     expect(read("agents/reviewer.md")).toContain("skills/reviewing/SKILL.md");
     expect(codexDispatch).toContain("skills/implementing/SKILL.md");
     expect(codexDispatch).toContain("skills/codebase-design/SKILL.md");
+  });
+
+  it("keeps attribution badges out of delivery PRs", () => {
+    expect(run).toContain("Keep tool, model, and vendor attribution badges or footers out of the PR body");
+    expect(agents).toContain("Omit tool, model, and vendor attribution badges or footers");
   });
 });
