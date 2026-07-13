@@ -1,6 +1,6 @@
 # Review orchestration
 
-Freeze the integrated target as base, head, and tree SHAs after the host gates pass. Round 1 runs one cold reviewer from each model family in parallel. Give both the diff, canonical run brief, domain glossary, changed-test justifications, SHAs, and an evidence directory. Give neither builder reasoning nor the other review.
+Freeze the integrated target as base, head, and tree SHAs after the host gates pass. Round 1 runs one reviewer from each model family in parallel. Give both the diff, canonical run brief, domain glossary, changed-test justifications, SHAs, and an evidence directory. Give neither builder reasoning nor the other review.
 
 Enforce `skills/reviewing/references/report.schema.json` at dispatch. Reject a report whose target or reviewer identity differs from the dispatch. Each report includes an independent architecture verdict.
 

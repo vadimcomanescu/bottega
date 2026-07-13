@@ -33,8 +33,8 @@ describe("worker doctrine boundaries", () => {
     expect(phase(run, 7)).toMatch(/never an implementer or architecture reviewer/i);
   });
 
-  it("keeps the Ponytail ladder ordered and the slice fenced", () => {
-    const rungs = [
+  it("keeps the minimum-code checks ordered and file scope fixed", () => {
+    const options = [
       "need not exist",
       "codebase already has it",
       "standard library",
@@ -43,7 +43,7 @@ describe("worker doctrine boundaries", () => {
       "direct expression",
       "minimum new code",
     ];
-    const positions = rungs.map((rung) => implementing.indexOf(rung));
+    const positions = options.map((option) => implementing.indexOf(option));
     expect(positions.every((position) => position >= 0)).toBe(true);
     expect(positions).toEqual([...positions].sort((a, b) => a - b));
     expect(implementing).toMatch(/architecture, interface, domain language, and owned files are fixed/i);
@@ -64,8 +64,10 @@ describe("worker doctrine boundaries", () => {
 
   it("supplies matching technology skills without giving builders design authorship", () => {
     expect(phase(run, 2)).toMatch(/technology skills/i);
+    expect(phase(run, 2)).toMatch(/version-sensitive technology.*installed version.*primary vendor docs/i);
     expect(phase(run, 5)).toMatch(/technology skills/i);
     expect(codexDispatch).toContain("each directly relevant technology skill");
+    expect(implementing).toMatch(/version-sensitive APIs.*installed version.*primary documentation/i);
     expect(codexDispatch).not.toMatch(/builder gets `skills\/implementing\/SKILL\.md`, `skills\/codebase-design/);
   });
 

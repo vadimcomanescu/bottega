@@ -25,8 +25,7 @@ Use these terms exactly; never "component", "service", "API", or "boundary".
 - **A seam needs a reason.** Actual variation, deployment isolation, or deterministic test control can justify one. One implementation alone does not.
 - **The interface is the test surface.** Callers and tests cross the same seam; wanting to test past it means the module is the wrong shape. Dependencies and intentional side effects stay behind explicit interfaces. Tests describe behavior and survive internal refactors; a test that must change when the implementation does was testing past the seam. Deepening replaces shallow tests rather than layering a second suite over them.
 - **The dependency picks the test strategy.** Test pure computation directly. Use a local stand-in when it faithfully exercises the required behavior. Use a port when external ownership, deployment, nondeterminism, or test control creates real variation. Mock a third party only when it cannot run deterministically.
-- **Sunk cost is not a design argument.** Existing code keeps its shape only when that shape remains the best end state.
-- **A bridge that must remain is tiny, named as compatibility, and carries a removal condition.** Anything less is the compatibility sediment reviewers flag. There is no third kind.
+- **A compatibility bridge that must remain is small, named as compatibility, and states its removal condition.** Other compatibility code is a review finding.
 
 ## Domain model first
 

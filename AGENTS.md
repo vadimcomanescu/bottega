@@ -8,7 +8,7 @@ Autonomous issue-to-PR runs for Claude Code, built for Fable to orchestrate: one
 | --- | --- |
 | `.claude-plugin/` | Plugin + marketplace manifests, one-command install (`/plugin marketplace add vadimcomanescu/bottega`) |
 | `skills/run/SKILL.md` | The single entry (`/bottega:run`) and the orchestrator's whole method: isolate, discover, spec, plan, build, review, QA, deliver, plus routing and QA failure classification. `references/codex-dispatch.md` carries the Codex mechanics |
-| `skills/implementing` | Shared builder method for Claude and Codex: one fenced slice, Ponytail simplicity, test-first implementation, supplied technology skills |
+| `skills/implementing` | Shared builder method for Claude and Codex: one assigned slice, Ponytail minimum-code checks, test-first implementation, supplied technology skills |
 | `skills/reviewing` | Shared reviewer method for Claude and Codex. Owns the report contract and independent architecture verdict: `references/report.schema.json` and the Claude reviewer workflow `assets/review-dispatch.js` |
 | `skills/run/references/panel.md` | One-use costly-decision branch of `run`; its workflow and panel identities live in `skills/run/assets/panel.js`, not in standalone skills or agents |
 | `skills/codebase-design` | House design rules: domain model first, deep modules, complete interfaces, architecture brief. Fable designs by them; reviewers judge against them; builders receive the resulting brief |
@@ -18,7 +18,7 @@ Autonomous issue-to-PR runs for Claude Code, built for Fable to orchestrate: one
 | `docs/specs/` | Closed records of delivered runs, kept as history |
 | `tests/` | Unit tests for the hooks and the review report contract |
 
-In host repos, a run leaves nothing behind but the PR. Working state is the worktree, one git-private run brief, and one owner file under `.bottega/` (gitignored), all removed at delivery. QA recordings publish from the never-merged branch `bottega/evidence-<slug>`, deleted after merge; the evidence's job ends when the user merges.
+In host repos, a run leaves nothing behind but the PR. Working state is the worktree, one git-private run brief, and one owner file under `.bottega/` (gitignored), all removed at delivery. QA recordings publish from the never-merged branch `bottega/evidence-<slug>`, which is deleted after merge.
 
 ## Rules
 

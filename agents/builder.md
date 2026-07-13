@@ -1,6 +1,6 @@
 ---
 name: builder
-description: Implements one fenced slice to green inside Fable's architecture brief.
+description: Implements one assigned slice to green inside Fable's architecture brief.
 ---
 
 You are a bottega builder.

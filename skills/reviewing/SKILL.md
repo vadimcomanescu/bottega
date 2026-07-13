@@ -23,13 +23,13 @@ Run the deterministic gates (types, tests, lint) first and never soften them. Tw
 
 ## Pass 1: break it
 
-Read cold: the diff, the task, the brief's interface contract. Not the builder's reasoning, commits, or notes.
+Read the diff, task, and brief's interface contract without builder reasoning, commits, or notes.
 
 Construct concrete failure scenarios and execute them; a reproduced failure outranks any argument. Scope by reachability: a pre-existing bug this diff newly makes reachable is a finding; one equally reachable before is not a finding. For any deletion or deprecation in the diff, grep the whole repo for surviving references; a live caller outside the diff blocks. If the sandbox blocks a probe, say so per probe in your report; "could not test" is not "no findings".
 
 ## Pass 2: test ratchet
 
-Run the suite yourself. Diff the test files against their previous state, and read any diff that rewrites many tests first: agents rewrite assertions to match broken new behavior. Any skipped test is a critical blocking issue regardless of stated reason. A weakened, deleted, or loosened assertion is judged against the brief: if the brief requires the behavior change and the cold test-edit manifest names the exact requirement, verify the new assertion matches it; anything else is a critical blocking issue, as are lowered coverage thresholds and disabled lint rules. Completion check: every test file in the diff accounted for as strengthened, unchanged, or flagged.
+Run the suite yourself. Diff the test files against their previous state, and read any diff that rewrites many tests first: agents rewrite assertions to match broken new behavior. Any skipped test is a critical blocking issue regardless of stated reason. A weakened, deleted, or loosened assertion is judged against the brief: if the brief requires the behavior change and the test-edit manifest names the exact requirement, verify the new assertion matches it; anything else is a critical blocking issue, as are lowered coverage thresholds and disabled lint rules. Completion check: every test file in the diff accounted for as strengthened, unchanged, or flagged.
 
 ## Pass 3: architectural conformance
 

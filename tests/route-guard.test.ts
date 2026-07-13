@@ -148,7 +148,7 @@ describe("route-guard: all other dispatches, gated on a live run", () => {
 
   it("stays silent on a leftover bottega/* branch: a delivered run's local ref must never arm the guard", () => {
     // A PR merge deletes only the remote ref; the local bottega/<slug> branch
-    // survives delivery on the user's machine. Only the owner file (which
+    // remains after delivery on the user's machine. Only the owner file (which
     // delivery deletes) may arm scope 2.
     const cwd = runBranchDir();
     for (const tool_input of [
@@ -166,7 +166,7 @@ describe("route-guard: all other dispatches, gated on a live run", () => {
       {
         subagent_type: "general-purpose",
         model: "fable",
-        description: "Cold read (fable, fresh)",
+        description: "Independent read (fable, fresh)",
         prompt: "independent read of the diff",
       },
     ]) {
