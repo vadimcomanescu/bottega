@@ -45,6 +45,9 @@ const [a, b] = await parallel([
   }),
 ])
 
+// A failed panelist resolves to null; a one-draft comparison is not a panel.
+if (!a || !b) throw new Error('a panelist returned no draft; the comparison needs both, re-run the panel')
+
 const blinded = `Task:\n${args.task}\n\nDraft A:\n${JSON.stringify(a, null, 2)}\n\nDraft B:\n${JSON.stringify(b, null, 2)}`
 
 phase('Compare')
