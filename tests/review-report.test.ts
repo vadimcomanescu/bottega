@@ -79,7 +79,7 @@ const round2 = {
 };
 
 function mutated(base: object, change: (r: any) => void): object {
-  const copy = JSON.parse(JSON.stringify(base));
+  const copy = structuredClone(base);
   change(copy);
   return copy;
 }
