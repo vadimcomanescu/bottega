@@ -1,43 +1,48 @@
 ---
 name: codebase-design
-description: House design rules. Deep modules behind small interfaces, seams cut where things vary, names from CONCEPTS.md. Loaded by the orchestrator designing a change and every reviewer judging conformance.
-disable-model-invocation: true
+description: Shared architecture doctrine for defining or checking a Bottega domain model, ownership, interfaces, dependencies, and change scope.
 user-invocable: false
 ---
 
 # Codebase design
 
-## Vocabulary
-
-Use these terms exactly; never "component", "service", "API", or "boundary".
-
-- **Module**: anything with an interface and an implementation (a function, class, package, or slice). Scale-agnostic.
-- **Interface**: everything a caller must know to use the module correctly: signature, invariants, ordering constraints, error modes, required configuration, performance traits. Never just the type surface.
-- **Depth**: behavior per unit of interface a caller must learn. Deep = much behavior behind a small interface. Shallow = interface nearly as complex as the implementation.
-- **Seam**: a place behavior can change without editing in place; where a module's interface lives. Where the seam goes is its own design decision, distinct from what goes behind it.
-- **Adapter**: a concrete thing satisfying an interface at a seam. A role, not a substance.
-
-## Principles
-
-- **Design deep modules.** For every interface ask: fewer methods? simpler parameters? more complexity hidden inside? A module that stays shallow (interface as complex as its implementation) gets inlined.
-- **Depth is a property of the interface, not the implementation.** A deep module may be built of small swappable parts inside; they just aren't part of the interface.
-- **The deletion test.** Delete the module mentally. If complexity just vanishes, it was hiding nothing: negative code. If complexity reappears across callers, it earns its place. Run it on every new module or wrapper.
-- **One adapter is a hypothetical seam; two is a real one.** Never cut a seam where nothing varies.
-- **The interface is the test surface.** Callers and tests cross the same seam; wanting to test past it means the module is the wrong shape. Modules accept dependencies rather than creating them, and return results rather than producing side effects. Tests describe behavior and survive internal refactors; a test that must change when the implementation does was testing past the seam. Deepening replaces tests, never layers them: the old shallow modules' suites are deleted and the behavior asserted once, at the new interface.
-- **The dependency picks the test strategy.** Pure computation: no seam, test it directly. A dependency with a local stand-in (embedded database, in-memory filesystem): the stand-in runs in the suite; no port appears at the interface. Your own service across a network: a port at the seam, with an in-memory adapter in tests and a transport adapter in production. A third party you don't control: an injected port, mocked in tests. Never cut a port where a stand-in exists.
-- **Validate at system edges only** (user input, external responses, configuration). Inside a seam, modules trust their callers' contracts; internal re-validation is speculative structure.
-- **Design it twice.** Before committing to an interface, sketch a second, radically different one; keep whichever is simpler for callers, whatever it costs the implementation.
-- **A bridge that must remain is tiny, named as compatibility, and carries a removal condition.** Anything less is the compatibility sediment reviewers flag. There is no third kind.
-
-## Smells
-
-Sweep every pass for the classic smells (duplication, data clumps, primitive obsession, repeated switches, feature envy, message chains); each is a judgment call, the brief's contract overrides, and anything tooling already enforces is skipped. Three house-specific ones by name:
-
-- **Re-derived oracle**: a test or second consumer recomputes a value the code already owns, and the two drift. Export the owner's computed value; have the check consume that.
-- **Shotgun surgery / divergent change**: one logical change forcing scattered edits, or one module edited for unrelated reasons. The seam is misplaced; report it as evidence for a re-cut, not as the builder's defect.
-- **Extraction for testability**: pure fragments split out so units are easy to test while the bugs live in how they're called, and the composition itself has no test. Deepen instead: assert the behavior through the module's interface.
+Model the domain before arranging files. Architecture should make the required behavior easy to express, hard to misuse, and inexpensive to change.
 
 ## Domain model
 
-- Interface names come from the domain's language, the same words the agreed spec uses. A synonym invented in code ("purchase" where the spec says "order") is a conformance finding.
-- The glossary lives in `CONCEPTS.md` at the host repo root: one entry per domain term, definitions only, no implementation details. New terms enter with the spec the user OKs, so the user sees the words the code will use, and the glossary is updated the moment a term crystallizes or sharpens during the run; reviewers judge names against it.
+- Define the concepts, states, relationships, and invariants that the change depends on. Resolve overloaded or conflicting terms with concrete scenarios and current code.
+- Use one term for one concept across the spec, glossary, interfaces, implementation, errors, and tests. `CONCEPTS.md` records domain meaning, not implementation structure.
+- Put behavior with the state and rules it protects. A file boundary or existing class is evidence, not authority, when it conflicts with the model.
+
+## Design the current change
+
+- An interface is everything a caller must know: operations, inputs, outputs, invariants, ordering, failure modes, side effects, configuration, and relevant performance limits. Keep it smaller than the behavior it hides.
+- Add a seam only for a present reason such as real variation, external ownership, deployment isolation, or deterministic test control. One implementation and a possible future are not reasons.
+- Prefer deep, cohesive modules: substantial behavior behind a small interface, with changeable decisions hidden from callers. If removing a wrapper makes complexity disappear instead of returning to callers, the wrapper was not useful.
+- Keep dependencies pointed toward the code that owns the domain rule. Adapters translate at the edge; they do not redefine the domain.
+- Apply YAGNI to presumptive capabilities and flexibility. Do not use it to avoid refactoring, tests, clear names, validation, security, accessibility, or data safety. Those keep evolutionary design viable.
+- A current change may justify refactoring when it removes duplication, restores ownership, or makes the required behavior clear. Do not create abstractions for unrequested variants.
+- For a consequential choice without a strong repository precedent, compare a credible alternative and use the panel when reversing the choice after merge would be expensive.
+
+## Architecture brief
+
+Write the shortest brief that fixes what a builder must not decide:
+
+- domain terms, states, and invariants;
+- which module owns each behavior and piece of state;
+- the complete interfaces and failure behavior;
+- allowed dependency, data, and control flow;
+- trust boundaries and irreversible effects;
+- what the builder may change freely behind each interface;
+- the evidence a reviewer can inspect for conformance.
+
+The brief is complete when a builder can implement without inventing domain meaning or moving responsibility, and an independent reviewer can tell whether the design survived. It is not a line-by-line implementation plan.
+
+## Review questions
+
+- Does the code express the approved domain model, or translate it into primitives and synonyms?
+- Is each rule next to the state it protects, with dependencies crossing only the approved interfaces?
+- Did the implementation preserve caller-visible behavior, failures, and invariants without adding ambiguous states?
+- Is every new abstraction earning its cost for the current requirement?
+- Do tests cross the same interfaces as callers and survive internal refactoring?
+- Would the next change to the same rule be local, or would it require scattered edits?

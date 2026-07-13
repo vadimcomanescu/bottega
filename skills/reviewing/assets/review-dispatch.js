@@ -4,8 +4,8 @@ export const meta = {
   phases: [{ title: 'Review' }],
 }
 
-// args: { brief: string }. The routing table gives delta rounds to sol, so
-// this workflow only ever dispatches the round-1 Claude reviewer, at xhigh.
+// args: { brief: string }. This workflow dispatches the round-1 Claude
+// reviewer and Claude delta reviewers for Codex-authored fixes, at xhigh.
 // The harness rejects any final message that does not match SCHEMA, so a
 // malformed report is a failed dispatch, not a parsing problem. SCHEMA is a
 // verbatim copy of ../references/report.schema.json (workflow scripts cannot
@@ -18,6 +18,7 @@ const SCHEMA = {
     "round",
     "reviewer",
     "target",
+    "architecture",
     "evidence_paths",
     "rechecks",
     "findings",
@@ -27,7 +28,7 @@ const SCHEMA = {
     "schema_version": {
       "type": "integer",
       "enum": [
-        1
+        2
       ]
     },
     "round": {
@@ -78,6 +79,28 @@ const SCHEMA = {
         }
       }
     },
+    "architecture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidence"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "conforms",
+            "finding",
+            "blocked"
+          ]
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
     "evidence_paths": {
       "type": "array",
       "minItems": 1,
@@ -92,12 +115,12 @@ const SCHEMA = {
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "finding_id",
+          "check_id",
           "status",
           "evidence"
         ],
         "properties": {
-          "finding_id": {
+          "check_id": {
             "type": "string",
             "minLength": 1
           },

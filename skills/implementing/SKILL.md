@@ -1,24 +1,32 @@
 ---
 name: implementing
-description: Builder method. One slice, test-first, inside a given architecture. Loaded by every builder dispatch.
-disable-model-invocation: true
+description: Builder method for one assigned Bottega slice. Load in builder contexts for initial implementation and repairs.
 user-invocable: false
 ---
 
 # Implementing
 
-## The loop
+Implement one assigned slice. Fable owns the domain model, architecture, and interfaces. You own the simplest correct implementation behind them.
 
-1. Read the brief: slice intent, the interface contract, your owned files, the host's discovered commands.
-2. Work test-first: write the smallest failing test for the next behavior, watch it fail on the assertion, make it pass with the least code that works. Verify unfamiliar library calls against the installed version; flag what you can't verify as unverified.
-3. Repeat until the slice's tests are green. Run the full suite; redirect output to a file and check the exit code, never pipe it.
-4. Commit. Stage your owned files by explicit path, never `git add -A`. Report: status `green|stuck`, the test summary line you watched, files touched, the commit SHA, every decision the brief did not determine, and anything you noticed outside your files. One task per invocation.
+## Understand first
 
-## Hard rules
+- Read the run brief, domain glossary, relevant code and tests, owned files, and every technology skill supplied with the dispatch.
+- Trace the behavior end to end before editing. For a bug, reproduce the reported behavior deterministically, find the earliest shared cause, and test one falsifiable explanation at a time.
+- Change one explanation at a time and undo a failed attempt before the next. After three failed fixes, report `stuck` with the evidence instead of guessing again.
+- State the current behavior and the required observable behavior. If correctness requires different ownership, an interface change, a new dependency direction, a different domain meaning, or a file outside your ownership, stop and ask Fable.
 
-- The architecture is given. The interface in your brief is fixed; everything behind it is yours. If the interface cannot work, stop and report; do not redesign around it.
-- Never skip a test, and never weaken or delete one to reach green. One exception: a test asserting behavior your brief's interface contract explicitly changes. Update it and name it in your report with the contract line that requires the change; the reviewer checks every named edit against the contract, and an unnamed or unjustified test edit is always a critical finding.
-- When your brief says sibling slices build in parallel, do not touch files outside your owned list; report what you notice out there. Building alone, the list is informational: touch what the work needs and name every extra file in your report.
-- A decision your brief is missing is a question, not a guess: stop and ask. Your dispatcher answers and resumes you, which is cheaper than re-dispatching after a wrong guess. An edge case wholly inside your interface is yours: take the conservative option and keep going; it is one of the decisions your report already carries.
-- Three failed fix attempts is stuck, and stuck is a valid report. "Green" is a claim about what you watched happen in this worktree, just now.
-- Keep bulky command output on disk: redirect, then read the tail and the exit code. Where your runtime has subagents, fan bulk reads and bulk mechanical work out to them and verify the results yourself; delegation never picks models, workers, or reviewers.
+## Implement the current requirement
+
+- Work one observable behavior at a time through the assigned interface. Write the smallest behavior test, see it fail for the expected reason, add the minimum code that makes it pass, then refactor while green.
+- Before adding code, stop at the first correct option: the behavior need not exist; the codebase already has it; the standard library has it; the platform has it; an installed dependency has it; one clear direct expression does it; only then write the minimum new code.
+- YAGNI applies to presumptive features, extensibility, configuration, and abstractions. It does not excuse incomplete behavior, weak validation, unsafe data handling, poor accessibility, security gaps, misleading names, duplicated logic in the changed path, or misplaced domain rules. Refactor enough to keep the current path clear and easy to change, but do not build for an imagined future.
+- Put behavior with the state and invariant it protects. Use the glossary's terms in interfaces, names, errors, and tests. Do not add a seam solely to make mocking easy.
+- Test observable outcomes from an independent expectation. Prefer the real dependency or a faithful local stand-in; mock an external dependency only when it cannot run deterministically.
+- Use supplied technology skills for stack-specific knowledge. The approved brief and repository remain authoritative. Verify version-sensitive APIs against the installed version and primary vendor documentation.
+- Stay inside the slice. Do not implement the next task or unrelated cleanup. A changed test must name the brief requirement that changed it; a skipped or weakened test is not green.
+
+## Prove and report
+
+Run focused checks while working and the host gates after the slice is complete. A browser or desktop drive is optional when it is the shortest debugging loop; the independent product verdict belongs to QA.
+
+Commit only owned files. Report `green` or `stuck`, the behavior implemented, red and green evidence, host-gate results, changed tests with their authorizing requirement, files and commit, and unresolved domain or architecture conflicts.

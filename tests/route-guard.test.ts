@@ -99,7 +99,7 @@ describe("route-guard: bottega worker agents (always checked)", () => {
       cwd: repoWithRun(OWNER),
       tool_input: { subagent_type: "bottega:builder", model: "sonnet", prompt: "build" },
     });
-    expect(denialOf(out)).toMatch(/builder and reviewer: opus/);
+    expect(denialOf(out)).toMatch(/builder, reviewer, and QA: opus/);
   });
 
   it("allows a routed builder dispatch on opus", () => {
@@ -110,9 +110,26 @@ describe("route-guard: bottega worker agents (always checked)", () => {
     expect(out).toBe("");
   });
 
+  it("checks the QA agent unconditionally and allows only opus", () => {
+    const cwd = repoWithRun();
+    expect(
+      denialOf(run(ROUTE_GUARD, { cwd, tool_input: { subagent_type: "bottega:qa" } })),
+    ).toMatch(/names no model/);
+    for (const model of ["sonnet", "not-opus"]) {
+      expect(
+        denialOf(run(ROUTE_GUARD, { cwd, tool_input: { subagent_type: "bottega:qa", model } })),
+      ).toMatch(/builder, reviewer, and QA: opus/);
+    }
+    for (const model of ["opus", "claude-opus-4-8"]) {
+      expect(run(ROUTE_GUARD, { cwd, tool_input: { subagent_type: "bottega:qa", model } })).toBe(
+        "",
+      );
+    }
+  });
+
   it("stays silent on retired worker names: those are a host repo's own agents now", () => {
     const cwd = repoWithRun();
-    for (const subagent_type of ["bottega:qa", "bottega:mechanic", "bottega:documenter"]) {
+    for (const subagent_type of ["bottega:mechanic", "bottega:documenter"]) {
       expect(run(ROUTE_GUARD, { cwd, tool_input: { subagent_type, prompt: "x" } })).toBe("");
     }
   });
@@ -148,7 +165,7 @@ describe("route-guard: all other dispatches, gated on a live run", () => {
 
   it("stays silent on a leftover bottega/* branch: a delivered run's local ref must never arm the guard", () => {
     // A PR merge deletes only the remote ref; the local bottega/<slug> branch
-    // survives delivery on the user's machine. Only the owner file (which
+    // remains after delivery on the user's machine. Only the owner file (which
     // delivery deletes) may arm scope 2.
     const cwd = runBranchDir();
     for (const tool_input of [
@@ -166,7 +183,7 @@ describe("route-guard: all other dispatches, gated on a live run", () => {
       {
         subagent_type: "general-purpose",
         model: "fable",
-        description: "Cold read (fable, fresh)",
+        description: "Independent read (fable, fresh)",
         prompt: "independent read of the diff",
       },
     ]) {

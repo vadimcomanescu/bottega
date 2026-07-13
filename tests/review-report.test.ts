@@ -1,8 +1,5 @@
-// The review report contract: the schema fail-closes on hollow or decorated
-// reports, and the shipped Claude dispatch workflow carries the same schema
-// the codex dispatch reads from disk. The two valid fixtures are real outputs:
-// one from `codex exec --output-schema` (gpt-5.6-sol), one from a harness
-// workflow agent() with `schema:` (opus family path), captured 2026-07-11.
+// The review report contract fail-closes on hollow or decorated reports, and
+// the Claude workflow carries the same schema the Codex dispatch reads.
 import { Ajv } from "ajv";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -22,13 +19,17 @@ const schema = JSON.parse(readFileSync(SCHEMA_PATH, "utf8"));
 const validate = new Ajv({ strict: true }).compile(schema);
 
 const round1 = {
-  schema_version: 1,
+  schema_version: 2,
   round: 1,
   reviewer: { family: "codex", model: "gpt-5.6-sol" },
   target: {
     base_sha: "a1b2c3d4e5f678901234567890abcdef12345678",
     head_sha: "b2c3d4e5f678901234567890abcdef123456789a",
     tree_sha: "c3d4e5f678901234567890abcdef123456789abc",
+  },
+  architecture: {
+    status: "finding",
+    evidence: "src/parse.ts:42 violates Fable's inclusive-end invariant; reported as R1-001.",
   },
   evidence_paths: [
     ".bottega/evidence/demo/review/diff.patch",
@@ -53,7 +54,7 @@ const round1 = {
 };
 
 const round2 = {
-  schema_version: 1,
+  schema_version: 2,
   round: 2,
   reviewer: { family: "claude", model: "opus-4.8" },
   target: {
@@ -61,10 +62,14 @@ const round2 = {
     head_sha: "e4c1b9f7a3d8e2f5c6a1b4d7e9f2a5c8d1e3f6b9",
     tree_sha: "b5d3e8a1c7f4a2b6d9e1f3a5c7e2d4f6a8b1c3e5",
   },
+  architecture: {
+    status: "conforms",
+    evidence: "src/formatDate.ts now narrows before .split(); Fable's error behavior and module ownership are preserved.",
+  },
   evidence_paths: [".bottega/evidence/demo/review/r1-001-recheck.md"],
   rechecks: [
     {
-      finding_id: "R1-001",
+      check_id: "R1-001",
       status: "fixed",
       evidence: "Re-ran the recorded reproduction; the type guard now narrows before .split(), both branches covered by tests/formatDate.test.ts, no TypeError at the call site.",
     },
@@ -93,6 +98,12 @@ describe("report schema", () => {
     expect(validate(mutated(round2, (r) => delete r.evidence_paths))).toBe(false);
   });
 
+  it("rejects a report that does not account for architecture", () => {
+    expect(validate(mutated(round2, (r) => delete r.architecture))).toBe(false);
+    expect(validate(mutated(round2, (r) => (r.architecture.status = "assumed")))).toBe(false);
+    expect(validate(mutated(round2, (r) => (r.architecture.evidence = "")))).toBe(false);
+  });
+
   it("rejects decoration the contract deliberately dropped: confidence, verdicts, categories", () => {
     expect(validate(mutated(round1, (r) => (r.overall_correctness = "patch is correct")))).toBe(false);
     expect(validate(mutated(round1, (r) => (r.findings[0].confidence = 0.9)))).toBe(false);
@@ -107,6 +118,7 @@ describe("report schema", () => {
   });
 
   it("rejects a recheck without an executable disposition", () => {
+    expect(validate(mutated(round2, (r) => (r.rechecks[0].check_id = "")))).toBe(false);
     expect(validate(mutated(round2, (r) => (r.rechecks[0].status = "done")))).toBe(false);
     expect(validate(mutated(round2, (r) => (r.rechecks[0].evidence = "")))).toBe(false);
   });

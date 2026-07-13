@@ -1,20 +1,20 @@
 ---
 name: panel
-description: Independent feedback on a costly plan decision. Blinded frontier recommendations, a compare-only judge; the orchestrator synthesizes. Reached by pointer from skills/run.
-disable-model-invocation: true
+description: Independent comparison for one Bottega plan decision that would be expensive to reverse. Use from the Plan phase when the repository has no established answer.
 user-invocable: false
 ---
 
 # Panel
 
-Independent frontier panelists answer the same question blind; a judge compares; you synthesize. Independently trained models fail in different places, so the answers disagree exactly where the problem is underdetermined or one answer is wrong, and the judge never merges, so the disagreement survives to be read. Panelists landing where you didn't is the signal your bet is suspect; panelists landing on your answer without ever seeing it is confirmation instead of an echo.
+Run the bundled workflow:
 
-Run it as the bundled workflow. The judge's comparison comes back schema-valid or not at all, and blinding is enforced by code, not discipline:
+    Workflow({ scriptPath: "<install root>/skills/panel/panel.js",
+               args: { task: <one self-contained question>,
+                       cwd: <absolute repository root>,
+                       codexExec: <absolute path to scripts/codex-exec> } })
 
-    Workflow({ scriptPath: "<this skill's dir>/panel.js",
-               args: { task: <one self-contained prompt>,
-                       codexExec: <absolute path to the plugin's scripts/codex-exec> } })
+The task contains the approved spec, relevant constraints, and repository pointers. Do not include Fable's preferred answer. If a panelist would need the current conversation to understand the question, complete the task prompt before dispatch.
 
-The prompt is each panelist's whole world: the decision framed as a question, the agreed spec, the constraints, the repo pointers. Never include your preferred answer: panelists handed your bet return two copies of it, and the disagreement that would have surfaced a better shape never appears. If a panelist would need your session context, the prompt is missing something.
+The workflow collects one Sol draft and one Opus draft independently, blinds their identities, and asks a compare-only judge to identify agreement, contradictions, partial coverage, unique points, and omissions. Fable reads the drafts and comparison, resolves disagreements by evidence, and makes the decision. The panel does not vote or decide.
 
-Synthesize from the returned comparison; the synthesis is yours, never a vote. Settle each contradiction by the stronger evidence; fold in what only one panelist saw. Where the panel moved you is named in the PR.
+Record the decision and any material change caused by the panel in the run brief and PR.

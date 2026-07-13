@@ -1,49 +1,62 @@
 export const meta = {
   name: 'panel',
-  description: 'Fan one task to independent frontier panelists, blind, judge, return the comparison',
-  phases: [{ title: 'Draft' }, { title: 'Judge' }],
+  description: 'Collect two independent plan drafts, blind them, and return a structured comparison',
+  phases: [{ title: 'Draft' }, { title: 'Compare' }],
 }
 
 const PANELIST = {
   type: 'object',
+  additionalProperties: false,
   required: ['draft', 'claims', 'assumptions', 'would_change'],
   properties: {
-    draft: { type: 'string', description: 'the complete answer, self-contained' },
-    claims: { type: 'array', items: { type: 'string' }, description: 'claims the draft stands on' },
+    draft: { type: 'string', description: 'complete self-contained answer' },
+    claims: { type: 'array', items: { type: 'string' } },
     assumptions: { type: 'array', items: { type: 'string' } },
-    would_change: { type: 'array', items: { type: 'string' }, description: 'what would change this answer' },
+    would_change: { type: 'array', items: { type: 'string' } },
   },
 }
 
 const JUDGE = {
   type: 'object',
+  additionalProperties: false,
   required: ['consensus', 'contradictions', 'partial_coverage', 'unique_insights', 'blind_spots'],
   properties: {
-    consensus: { type: 'array', items: { type: 'string' }, description: 'where the drafts agree, with the evidence' },
-    contradictions: { type: 'array', items: { type: 'string' }, description: 'where they disagree, quoting each side' },
-    partial_coverage: { type: 'array', items: { type: 'string' }, description: 'what each draft covers only partly' },
-    unique_insights: { type: 'array', items: { type: 'string' }, description: 'what only one draft saw' },
-    blind_spots: { type: 'array', items: { type: 'string' }, description: 'what no draft addressed' },
+    consensus: { type: 'array', items: { type: 'string' } },
+    contradictions: { type: 'array', items: { type: 'string' } },
+    partial_coverage: { type: 'array', items: { type: 'string' } },
+    unique_insights: { type: 'array', items: { type: 'string' } },
+    blind_spots: { type: 'array', items: { type: 'string' } },
   },
 }
 
 phase('Draft')
-// Barrier is correct here: the judge needs every draft before it can compare.
+const task = `Work independently on this task, using the repository as evidence. Give a complete answer with claims, assumptions, and evidence that would change it.\n\nTask:\n${args.task}`
 const [a, b] = await parallel([
-  // Panelist A: gpt-5.6-sol at ultra, launched through the plugin's codex
-  // dispatch script (args.codexExec, an absolute path the orchestrator
-  // passes). A cheap agent runs it and returns the answer parsed to PANELIST.
-  () => agent(`Dispatch codex through the script at ${args.codexExec}: write the task below to a brief file in a temp directory, then run the script with --model gpt-5.6-sol --effort ultra --sandbox read-only --cwd <the repo root> --brief <the brief file> --out <an out file> --events <an events file>, wait for it to exit, and return the out file's answer in the schema.\n\nTask:\n${args.task}`,
-              { label: 'panelist:sol', model: 'sonnet', effort: 'low', schema: PANELIST }),
-  // Panelist B: fable at high, the panelist identity.
-  () => agent(args.task, { label: 'panelist:fable', agentType: 'bottega:panelist', model: 'fable', effort: 'high', schema: PANELIST }),
+  () => agent(
+    `Dispatch Codex through ${args.codexExec}. Write the task below to a temporary brief, then run the script with --model gpt-5.6-sol --effort max --sandbox read-only --cwd ${args.cwd} --brief <brief> --out <out> --events <events>. Wait for exit and return the final answer in the required schema.\n\n${task}`,
+    { label: 'panelist:sol', model: 'sonnet', effort: 'low', schema: PANELIST },
+  ),
+  () => agent(task, {
+    label: 'panelist:opus',
+    agentType: 'bottega:panelist',
+    model: 'opus',
+    effort: 'xhigh',
+    schema: PANELIST,
+  }),
 ])
 
-// Blind in code: fixed labels, model names never reach the judge.
-const blinded = `Task:\n${args.task}\n\nDraft A:\n${a.draft}\n\nDraft B:\n${b.draft}`
+// A failed panelist resolves to null; a one-draft comparison is not a panel.
+if (!a || !b) throw new Error('a panelist returned no draft; the comparison needs both, re-run the panel')
 
-phase('Judge')
-const judge = await agent(`${blinded}\n\nCompare draft A and draft B.`,
-  { label: 'judge', agentType: 'bottega:panel-judge', model: 'fable', effort: 'high', schema: JUDGE })
+const blinded = `Task:\n${args.task}\n\nDraft A:\n${JSON.stringify(a, null, 2)}\n\nDraft B:\n${JSON.stringify(b, null, 2)}`
+
+phase('Compare')
+const judge = await agent(`${blinded}\n\nCompare draft A and draft B.`, {
+  label: 'panel-judge',
+  agentType: 'bottega:panel-judge',
+  model: 'fable',
+  effort: 'high',
+  schema: JUDGE,
+})
 
 return { A: a, B: b, judge }
