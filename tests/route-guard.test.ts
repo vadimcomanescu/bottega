@@ -99,7 +99,7 @@ describe("route-guard: bottega worker agents (always checked)", () => {
       cwd: repoWithRun(OWNER),
       tool_input: { subagent_type: "bottega:builder", model: "sonnet", prompt: "build" },
     });
-    expect(denialOf(out)).toMatch(/builder and reviewer: opus/);
+    expect(denialOf(out)).toMatch(/builder, reviewer, and QA: opus/);
   });
 
   it("allows a routed builder dispatch on opus", () => {
@@ -110,9 +110,26 @@ describe("route-guard: bottega worker agents (always checked)", () => {
     expect(out).toBe("");
   });
 
+  it("checks the QA agent unconditionally and allows only opus", () => {
+    const cwd = repoWithRun();
+    expect(
+      denialOf(run(ROUTE_GUARD, { cwd, tool_input: { subagent_type: "bottega:qa" } })),
+    ).toMatch(/names no model/);
+    for (const model of ["sonnet", "not-opus"]) {
+      expect(
+        denialOf(run(ROUTE_GUARD, { cwd, tool_input: { subagent_type: "bottega:qa", model } })),
+      ).toMatch(/builder, reviewer, and QA: opus/);
+    }
+    for (const model of ["opus", "claude-opus-4-8"]) {
+      expect(run(ROUTE_GUARD, { cwd, tool_input: { subagent_type: "bottega:qa", model } })).toBe(
+        "",
+      );
+    }
+  });
+
   it("stays silent on retired worker names: those are a host repo's own agents now", () => {
     const cwd = repoWithRun();
-    for (const subagent_type of ["bottega:qa", "bottega:mechanic", "bottega:documenter"]) {
+    for (const subagent_type of ["bottega:mechanic", "bottega:documenter"]) {
       expect(run(ROUTE_GUARD, { cwd, tool_input: { subagent_type, prompt: "x" } })).toBe("");
     }
   });
@@ -227,7 +244,7 @@ const b = await agent('run the gates', { label: 'gates', model: 'sonnet', effort
   });
 
   it("allows the shipped panel script, fable pins and all", () => {
-    const panel = join(import.meta.dirname, "..", "skills", "run", "assets", "panel.js");
+    const panel = join(import.meta.dirname, "..", "skills", "panel", "panel.js");
     expect(run(ROUTE_GUARD, workflowEvent({ scriptPath: panel }))).toBe("");
   });
 

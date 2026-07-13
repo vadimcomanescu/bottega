@@ -7,11 +7,11 @@
 // nadia-0001 run, 103 of 132 dispatches went through general-purpose agents
 // the old guard never saw):
 //
-//   1. Named bottega worker agents (builder, reviewer), always checked, run
+//   1. Named bottega worker agents (builder, reviewer, QA), always checked, run
 //      or no run: a dispatch that omits `model` inherits the dispatching
 //      session's model (from the orchestrator that is a silent escalation to
 //      fable), fable never runs a worker agent, and each named worker has
-//      exactly one Claude model in the routing table; a mismatch is a
+//      exactly one Claude model family in the routing table; a mismatch is a
 //      misroute, denied. Effort is not a dispatch parameter this hook can
 //      see; the routing table states it, unenforced here.
 //
@@ -70,15 +70,17 @@ function liveOwners(cwd) {
 // Plugin agents register as <plugin>:<agent>, so every real dispatch names
 // bottega:<role>; a bare role name resolves to nothing in the harness and, if
 // it did, could be a host repo's own agent, which this guard never routes.
-const WORKER_AGENT = /^bottega:(builder|reviewer)$/;
+const WORKER_AGENT = /^bottega:(builder|reviewer|qa)$/;
 const FABLE = /fable/i;
+const OPUS = /^(?:claude-)?opus(?:[-.][a-z0-9]+)*$/i;
 // The Claude column of the routing table (skills/run/SKILL.md). Codex
 // workers run through `codex exec`, never the Agent tool, so every Claude
 // dispatch of a named worker is fully checkable here: the Claude builder
-// (user-facing slices) and the Claude reviewer both run on opus.
+// (user-facing slices), reviewer, and QA worker all run on opus.
 const WORKER_MODEL = {
-  builder: /opus/i,
-  reviewer: /opus/i,
+  builder: OPUS,
+  reviewer: OPUS,
+  qa: OPUS,
 };
 
 const DENY_UNROUTED =
@@ -86,13 +88,13 @@ const DENY_UNROUTED =
   "inherits the dispatching session's own model, which from the orchestrator " +
   "silently escalates the worker to fable; re-issue the same dispatch with an " +
   "explicit model from the routing table in skills/run/SKILL.md (Claude " +
-  "workers, builder and reviewer, run on opus).";
+  "workers, builder, reviewer, and QA, run on opus).";
 
 const DENY_FABLE =
   "the dispatch was rejected because it routes a worker agent to fable. " +
-  "Fable is the orchestrator's own session and nothing else; re-issue from " +
-  "the routing table in skills/run/SKILL.md (Claude workers, builder and " +
-  "reviewer, run on opus), and if you believe this slice genuinely needs " +
+  "Fable is not a builder, reviewer, or QA worker; re-issue from " +
+  "the routing table in skills/run/SKILL.md (Claude workers, builder, " +
+  "reviewer, and QA, run on opus), and if you believe this work genuinely needs " +
   "fable-tier judgment, do that part yourself in your own turns instead of " +
   "dispatching it.";
 
@@ -100,7 +102,7 @@ function denyMisrouted(role, model) {
   return (
     "the dispatch was rejected because it routes the " + role + " agent to '" +
     model + "'. The routing table in skills/run/SKILL.md gives each named " +
-    "Claude worker exactly one model (builder and reviewer: opus); re-issue " +
+    "Claude worker exactly one model family (builder, reviewer, and QA: opus); re-issue " +
     "with the table's model, and treat wanting a different one as a " +
     "routing-table change to propose, never a per-dispatch override."
   );
@@ -115,9 +117,10 @@ const DENY_UNROUTED_RUN =
 
 const DENY_FABLE_RUN =
   "this session owns a live bottega run (its id is in .bottega/run/<slug>/owner) " +
-  "and this dispatch routes fable. Fable is the orchestrator's own session and " +
-  "nothing else; re-issue from the routing table in skills/run/SKILL.md, and " +
-  "do fable-tier work in your own turns instead of dispatching it.";
+  "and this dispatch routes fable. Fable is the orchestrator, not a general " +
+  "worker; the panel's compare-only workflow judge is the sole exception. " +
+  "Re-issue from the routing table in skills/run/SKILL.md, and do fable-tier " +
+  "work in your own turns instead of dispatching it.";
 
 const DENY_WORKFLOW_UNPINNED_RUN =
   "this session owns a live bottega run (its id is in .bottega/run/<slug>/owner) " +

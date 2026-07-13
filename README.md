@@ -47,15 +47,15 @@ Nothing else is assumed about the host repo. A run leaves nothing behind but the
 
 ## Roles
 
-Agent definitions in `agents/` say who a worker is; skills in `skills/` say how it works. Agent files never pin a model: the routing table (with reasoning effort per role) lives in [`skills/run/SKILL.md`](skills/run/SKILL.md) and is enforced by the hook.
+Agent definitions say who enters an isolated context: the role, authority, prohibitions, available tools, and required result. Skills hold reusable methods or independently invoked capabilities. References hold phase-specific detail for one parent skill. Hooks, schemas, tests, and workflow code enforce deterministic rules. A one-call-site count alone decides nothing: method stays a skill when it crosses runtimes or roles, or owns a workflow or contract. Agent files never pin a model. The routing table lives in [`skills/run/SKILL.md`](skills/run/SKILL.md) and is enforced by the hook.
 
 | Role | Job | Model | Method |
 | --- | --- | --- | --- |
 | orchestrator | design, routing, review arbitration, architecture acceptance | fable-5 | [`skills/run/SKILL.md`](skills/run/SKILL.md) |
 | builder | implements one assigned slice, test-first, inside Fable's fixed architecture | gpt-5.6-sol (high), or opus-4.8 (xhigh) for a user-facing slice | [`skills/implementing/SKILL.md`](skills/implementing/SKILL.md) |
 | reviewer | breaks the integrated diff, polices tests, independently checks Fable's architecture | gpt-5.6-sol (high) + opus-4.8 (xhigh) in round 1; opposite family from each fixer on deltas | [`skills/reviewing/SKILL.md`](skills/reviewing/SKILL.md) |
-| qa | drives the built artifact as a user, records the evidence | opus-4.8 (high) | the QA rules in [`skills/run/SKILL.md`](skills/run/SKILL.md) |
-| panelist / judge | blind recommendations on a costly decision / compare-only judgment | dispatched by the panel workflow | [`skills/run/references/panel.md`](skills/run/references/panel.md) |
+| qa | drives the built artifact as a user, records the evidence, never edits product code | opus-4.8 (high) | [`agents/qa.md`](agents/qa.md) |
+| panelist / judge | independent recommendations on a costly decision / blinded comparison only | gpt-5.6-sol (max) + opus-4.8 (xhigh); fable judge | [`skills/panel/SKILL.md`](skills/panel/SKILL.md) |
 | mechanical work | worktree setup, merges, gate re-runs, bulk reads; no judgment | sonnet-5 (low) | the closed command list in its dispatch |
 
 [`skills/codebase-design`](skills/codebase-design/SKILL.md) is shared by the roles that make and judge architecture: Fable uses it to model the domain and write the architecture brief; reviewers use it to test the diff against that exact brief. Builders receive the brief and glossary as fixed input.
@@ -63,8 +63,8 @@ Agent definitions in `agents/` say who a worker is; skills in `skills/` say how 
 ## Repo layout
 
 ```
-skills/         run, implementing, reviewing, codebase-design
-agents/         Claude adapters for the reusable builder and reviewer skills
+skills/         run, implementing, reviewing, codebase-design, panel
+agents/         Claude identities for builder, reviewer, QA, panelist, and panel judge
 scripts/        codex-exec, the one place a codex invocation is assembled
 hooks/          route guard (model routing) and entry guard (points prose at /bottega:run)
 tests/          unit tests for the hooks, the codex script, and the review report contract

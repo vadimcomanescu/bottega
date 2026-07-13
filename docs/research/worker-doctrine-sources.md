@@ -1,131 +1,130 @@
-# Worker programming doctrine
+# Worker doctrine and topology
 
-Snapshot: 2026-07-13. Every external link is a first-party repository pinned to the fetched default-branch commit. Source statements and Bottega decisions are kept separate.
+Snapshot: 2026-07-13. This note separates source facts, Bottega inferences, and repository decisions.
 
-## Sources
+## The placement rule
 
-| Repository | Pinned head | Used for |
+The earlier audit treated current call count as the deciding fact. That was wrong. One call site can still be a reusable capability, while one named role can consume a method in several runtimes and phases.
+
+### Source facts
+
+- A Claude subagent has its own context, system prompt, tools, and permissions. Its `skills` field preloads the full content of named skills ([Claude subagent documentation](https://code.claude.com/docs/en/sub-agents)).
+- A Claude skill is optional procedural or domain content with invocation controls and supporting files ([Claude skill documentation](https://code.claude.com/docs/en/slash-commands)).
+- Addy Osmani separates agent, skill, and command as who, how, and when. The agent supplies a stable perspective; the skill supplies a reusable workflow; the command composes them ([`docs/agents.md`](https://github.com/addyosmani/agent-skills/blob/98967c45a42b88d6b8fb3a88b7ff6273920763d6/docs/agents.md)).
+- Public software-engineering skills often add no measured value when they are broad or mismatched. In SWE-Skills-Bench, 39 of 49 skills produced no pass-rate gain, and some reduced performance because their guidance conflicted with the repository or version ([SWE-Skills-Bench](https://arxiv.org/abs/2603.15401)).
+- Skill constraints are easy to violate when their logical relationship is low-salience. SLBench found logical relations in 70 percent of sampled skills and reduced targeted violations with a small guard ([SLBench](https://arxiv.org/abs/2607.09016)).
+
+### Bottega decision
+
+- **Agent:** a named worker in an isolated context. It defines perspective, authority, forbidden actions, available tools, and the required result.
+- **Skill:** reusable method or an independently invoked capability. Keep it separate when it crosses roles, runtimes, or phases, or owns a workflow, script, schema, or other contract.
+- **Reference:** supporting detail for one parent skill. Load it only in the phase that needs it.
+- **Harness:** hooks, schemas, tests, and workflow code that enforce deterministic rules.
+
+Inline method in an agent only when all four are true: one kind of task for that role, one runtime, no independent invocation, and no assets or contract of its own. Current call count is evidence, never the rule. A shared skill has one source of truth and is preloaded or passed to the worker, not summarized into the agent prompt.
+
+## Complete Bottega inventory
+
+| Item | Semantic use | Decision |
 | --- | --- | --- |
-| Dietrich Gebert, `ponytail` | [`14a0d79`](https://github.com/DietrichGebert/ponytail/commit/14a0d79548d4de8fc2de95c1b94bb0de63a739d3) | Understanding before reduction, root-cause placement, minimum-code ladder, safety limits |
-| Addy Osmani, `agent-skills` | [`98967c4`](https://github.com/addyosmani/agent-skills/commit/98967c45a42b88d6b8fb3a88b7ff6273920763d6) | Vertical implementation, behavior tests, source verification, technology-skill selection, browser inspection |
-| Addy Osmani, `agent-engineer` | [`d06e2cb`](https://github.com/addyosmani/agent-engineer/commit/d06e2cbed4481621a453cee8743d99669df3a7ba) | Skill reuse and role separation |
-| obra, `superpowers` | [`d884ae0`](https://github.com/obra/superpowers/commit/d884ae04edebef577e82ff7c4e143debd0bbec99) | Test-first behavior, scientific debugging, implementation and review separation |
-| Matt Pocock, `skills` | [`391a270`](https://github.com/mattpocock/skills/commit/391a2701dd948f94f56a39f7533f8eea9a859c87) | Domain modeling, deep modules, test seams, debugging, two-axis review |
+| `skills/run` | Explicit user entry, executed by Fable; composes every phase | Keep as the orchestration skill. It owns gates, routing, decisions, and phase transitions, not worker programming method. |
+| `skills/implementing` | Claude and Codex builders; initial slices and later repairs | Keep. It crosses runtimes and phases even though the role name stays builder. |
+| `skills/reviewing` | Claude and Codex reviewers; integrated and delta rounds; report schema and Claude workflow | Keep. It crosses runtimes and owns a stable report contract. |
+| `skills/codebase-design` | Fable creates the architecture brief; reviewers test the implementation against it | Keep. It is shared doctrine for design and independent verification. Builders receive the resulting brief rather than redoing the architecture. |
+| `skills/panel` | Independently invoked for one costly plan decision; owns a workflow and structured comparison | Keep. Its workflow and contract make it a capability, regardless of how often a run needs it. |
+| `agents/builder` | Claude builder identity | Keep thin and preload `bottega:implementing`. |
+| `agents/reviewer` | Claude reviewer identity | Keep thin and preload `bottega:reviewing` and `bottega:codebase-design`. |
+| `agents/qa` | One independent Claude product-verification role | Keep the small method in the agent. It has one consumer, one runtime, no independent invocation, and no skill-owned assets. |
+| `agents/panelist` | Stable independent-draft perspective inside the panel workflow | Keep as identity. The panel method remains in `skills/panel`. |
+| `agents/panel-judge` | Stable compare-only perspective inside the panel workflow | Keep as identity. It compares drafts and never chooses the architecture. |
+| `skills/run/references/codex-dispatch.md` | Codex launch and resume mechanics used by run | Keep as a reference. It is supporting runtime detail, not a user or model-invoked capability. |
+| `skills/run/references/review.md` | Frozen-target, round, and repair routing details for Review | Keep as a phase reference. |
+| `skills/run/references/qa-evidence.md` | Publication mechanics needed after QA has evidence | Keep as a phase reference. |
+| `skills/reviewing/assets/review-dispatch.js` | Schema-enforced Claude reviewer launch | Keep as workflow code and invoke it from the Review reference. |
+| `skills/panel/panel.js` | Independent drafts and blinded comparison | Keep with the panel skill. |
+| route guard, report schema, and tests | Routing, output shape, and invariant enforcement | Keep in code. Do not restate their mechanics as worker ceremony. |
+| docs sweep | Small task-specific brief inside Deliver | Keep inline. It does not need a reusable identity or method. |
+
+This inventory has no unused skill. It also has no agent-skill pair that should be collapsed. Implementation and review cross two runtimes; architecture crosses two roles; panel is independently invoked and owns assets. QA is the one method correctly inlined in an agent.
 
 ## Builder doctrine
 
 ### Understand before reducing
 
-**Source.** Ponytail runs its minimum-code ladder only after reading the affected code and tracing the real flow. For bugs it traces callers and fixes the shared cause, because a small patch in the wrong place leaves sibling paths broken ([`ponytail/SKILL.md` lines 32-54](https://github.com/DietrichGebert/ponytail/blob/14a0d79548d4de8fc2de95c1b94bb0de63a739d3/skills/ponytail/SKILL.md#L32-L54)). Addy's simplification method likewise requires understanding responsibilities, callers, error paths, tests, and history before changing structure ([`code-simplification/SKILL.md` lines 105-121](https://github.com/addyosmani/agent-skills/blob/98967c45a42b88d6b8fb3a88b7ff6273920763d6/skills/code-simplification/SKILL.md#L105-L121)).
+Ponytail reads the affected flow before applying its minimum-code ladder and fixes the shared cause rather than one reported path ([Ponytail method](https://github.com/DietrichGebert/ponytail/blob/14a0d79548d4de8fc2de95c1b94bb0de63a739d3/skills/ponytail/SKILL.md#L32-L64)). Matt Pocock's debugging method builds a fast deterministic reproduction, minimizes it, and tests falsifiable explanations ([diagnosing bugs](https://github.com/mattpocock/skills/blob/391a2701dd948f94f56a39f7533f8eea9a859c87/skills/engineering/diagnosing-bugs/SKILL.md#L12-L60)). Superpowers likewise changes one variable at a time and treats repeated failed fixes as a reason to question the design ([systematic debugging](https://github.com/obra/superpowers/blob/d884ae04edebef577e82ff7c4e143debd0bbec99/skills/systematic-debugging/SKILL.md#L145-L213)).
 
-**Bottega decision.** A builder first understands the behavior, data flow, callers, and failure path. Only then does it choose the smallest correct change. Diff size never outranks placement or comprehension.
+Bottega therefore asks the builder to trace the behavior, reproduce a bug, identify the earliest shared cause, and state the required observable behavior before editing. A small diff in the wrong owner is not a simple solution.
 
 ### Make the domain model executable
 
-**Source.** Pocock's domain method challenges conflicting terms, sharpens overloaded language, tests relationships with concrete scenarios, and checks claims against code ([`domain-modeling/SKILL.md` lines 42-64](https://github.com/mattpocock/skills/blob/391a2701dd948f94f56a39f7533f8eea9a859c87/skills/engineering/domain-modeling/SKILL.md#L42-L64)). His design vocabulary defines an interface as everything a caller must know, including invariants, ordering, error modes, configuration, and performance traits ([`codebase-design/SKILL.md` lines 14-28](https://github.com/mattpocock/skills/blob/391a2701dd948f94f56a39f7533f8eea9a859c87/skills/engineering/codebase-design/SKILL.md#L14-L28)). Tests and other outputs use the glossary's exact domain language and surface conflicts with existing decisions ([`setup domain guidance` lines 41-51](https://github.com/mattpocock/skills/blob/391a2701dd948f94f56a39f7533f8eea9a859c87/skills/engineering/setup-matt-pocock-skills/domain.md#L41-L51)).
+Pocock sharpens overloaded terms with scenarios and checks the resulting model against code ([domain modeling](https://github.com/mattpocock/skills/blob/391a2701dd948f94f56a39f7533f8eea9a859c87/skills/engineering/domain-modeling/SKILL.md#L42-L64)). His design method treats an interface as everything a caller must know, including invariants, ordering, failures, configuration, and relevant performance behavior ([codebase design](https://github.com/mattpocock/skills/blob/391a2701dd948f94f56a39f7533f8eea9a859c87/skills/engineering/codebase-design/SKILL.md#L14-L28)).
 
-**Bottega decision.** Fable owns changes to the domain model. The builder consumes it: names, interfaces, states, invariants, errors, and behavior tests use the same concepts. A domain conflict is not a naming cleanup. It returns to Fable before code chooses a new meaning.
+Fable owns the domain model and architecture. The builder expresses the approved terms in names, states, errors, interfaces, and tests. A conflict in meaning, ownership, interface, or dependency direction returns to Fable. The builder has broad freedom behind the fixed interface, not freedom to silently move it.
 
-### Build one behavior through the interface
+### Build one observable behavior at a time
 
-**Source.** Matt's TDD method works one vertical slice at a pre-agreed seam, tests observable behavior, rejects implementation-coupled and tautological tests, and avoids writing a horizontal batch of imagined tests ([`tdd/SKILL.md` lines 8-36](https://github.com/mattpocock/skills/blob/391a2701dd948f94f56a39f7533f8eea9a859c87/skills/engineering/tdd/SKILL.md#L8-L36)). Superpowers requires one test, an expected assertion failure, minimum green code, and real code unless a mock is unavoidable ([`test-driven-development/SKILL.md` lines 71-196](https://github.com/obra/superpowers/blob/d884ae04edebef577e82ff7c4e143debd0bbec99/skills/test-driven-development/SKILL.md#L71-L196)). Addy orders test dependencies from real implementation through fake and stub to mock ([`test-driven-development/SKILL.md` lines 174-232](https://github.com/addyosmani/agent-skills/blob/98967c45a42b88d6b8fb3a88b7ff6273920763d6/skills/test-driven-development/SKILL.md#L174-L232)).
+Pocock's TDD method works through an agreed interface and rejects tests coupled to implementation details ([TDD](https://github.com/mattpocock/skills/blob/391a2701dd948f94f56a39f7533f8eea9a859c87/skills/engineering/tdd/SKILL.md#L8-L36)). Superpowers requires one expected failing test, minimum green code, and refactoring while green ([test-driven development](https://github.com/obra/superpowers/blob/d884ae04edebef577e82ff7c4e143debd0bbec99/skills/test-driven-development/SKILL.md#L71-L196)). Addy prefers real dependencies and faithful fakes before mocks ([test-driven development](https://github.com/addyosmani/agent-skills/blob/98967c45a42b88d6b8fb3a88b7ff6273920763d6/skills/test-driven-development/SKILL.md#L174-L232)).
 
-**Bottega decision.** The builder works one observable behavior at a time through Fable's interface. Red must fail for the expected reason. Green adds only the behavior under test. Expected values come from the spec, a worked example, or another independent source, never a copy of the implementation.
-
-### Let test pain expose design problems
-
-**Source.** Pocock makes callers and tests cross the same interface and treats a desire to test past it as evidence that the module has the wrong shape ([`codebase-design/SKILL.md` lines 60-65](https://github.com/mattpocock/skills/blob/391a2701dd948f94f56a39f7533f8eea9a859c87/skills/engineering/codebase-design/SKILL.md#L60-L65)). Superpowers treats hard-to-test code, pervasive mocks, and large setup as design feedback, not reasons to add test machinery ([`test-driven-development/SKILL.md` lines 342-349](https://github.com/obra/superpowers/blob/d884ae04edebef577e82ff7c4e143debd0bbec99/skills/test-driven-development/SKILL.md#L342-L349)).
-
-**Bottega decision.** The builder does not work around a bad seam with private-state assertions, test-only hooks, or internal mocks. It reports a required architecture change to Fable. Inside a sound seam, it keeps implementation complexity local and the interface small.
-
-### Debug with a tight feedback loop
-
-**Source.** Pocock puts most debugging effort into one fast, deterministic, red-capable command that asserts the exact symptom. It then minimizes the reproduction, ranks falsifiable hypotheses, changes one variable at a time, fixes through the correct seam, and re-runs the original scenario ([`diagnosing-bugs/SKILL.md` lines 12-60](https://github.com/mattpocock/skills/blob/391a2701dd948f94f56a39f7533f8eea9a859c87/skills/engineering/diagnosing-bugs/SKILL.md#L12-L60), [`lines 62-123`](https://github.com/mattpocock/skills/blob/391a2701dd948f94f56a39f7533f8eea9a859c87/skills/engineering/diagnosing-bugs/SKILL.md#L62-L123)). Superpowers also requires one explicit hypothesis and one minimal probe; three failed fixes trigger an architecture question instead of a fourth guess ([`systematic-debugging/SKILL.md` lines 145-213](https://github.com/obra/superpowers/blob/d884ae04edebef577e82ff7c4e143debd0bbec99/skills/systematic-debugging/SKILL.md#L145-L213)).
-
-**Bottega decision.** Caller tracing alone is not a debugging method. The builder must create a feedback loop, reproduce and minimize the failure, test falsifiable hypotheses, and fix the cause. If the evidence points outside the architecture brief, Fable decides the architecture.
+The builder works red, green, refactor on one observable behavior. Expected values come from the requirement or another independent source. Test pain is design evidence, not a reason to expose internals or add test-only seams.
 
 ### Use the first correct option
 
-**Source.** Ponytail asks, in order: is the code needed, does it already exist here, does the standard library cover it, does the platform cover it, does an installed dependency cover it, can one clear line do it, and only then what minimum new code works ([`ponytail/SKILL.md` lines 32-48](https://github.com/DietrichGebert/ponytail/blob/14a0d79548d4de8fc2de95c1b94bb0de63a739d3/skills/ponytail/SKILL.md#L32-L48)). It rejects speculative abstractions and protects trust-boundary validation, data-loss handling, security, accessibility, and explicit requirements from reduction ([`lines 56-64`](https://github.com/DietrichGebert/ponytail/blob/14a0d79548d4de8fc2de95c1b94bb0de63a739d3/skills/ponytail/SKILL.md#L56-L64), [`lines 90-112`](https://github.com/DietrichGebert/ponytail/blob/14a0d79548d4de8fc2de95c1b94bb0de63a739d3/skills/ponytail/SKILL.md#L90-L112)).
+Ponytail checks, in order: whether the behavior is needed, whether the repository already has it, whether the standard library has it, whether the platform has it, whether an installed dependency has it, whether one clear direct expression is enough, and only then the minimum new code ([Ponytail ladder](https://github.com/DietrichGebert/ponytail/blob/14a0d79548d4de8fc2de95c1b94bb0de63a739d3/skills/ponytail/SKILL.md#L32-L48)). It explicitly protects validation, data safety, security, accessibility, and requirements from reduction ([Ponytail safety limits](https://github.com/DietrichGebert/ponytail/blob/14a0d79548d4de8fc2de95c1b94bb0de63a739d3/skills/ponytail/SKILL.md#L90-L112)).
 
-**Bottega decision.** This ladder is the central implementation doctrine, not a final cleanup check. The builder applies it at every green step after understanding the problem.
+This is the builder's central implementation choice after understanding the problem. It is not a cleanup checklist and does not mean smallest diff at any cost.
 
-### Load stack knowledge on demand
+### Apply YAGNI to capability, not quality
 
-**Source.** Addy's skill router maps implementation work to relevant UI, interface, source-verification, testing, browser, security, and performance skills ([`using-agent-skills/SKILL.md` lines 12-41](https://github.com/addyosmani/agent-skills/blob/98967c45a42b88d6b8fb3a88b7ff6273920763d6/skills/using-agent-skills/SKILL.md#L12-L41)). Source-driven development checks installed versions and the specific official documentation before using framework APIs ([`source-driven-development/SKILL.md` lines 38-120](https://github.com/addyosmani/agent-skills/blob/98967c45a42b88d6b8fb3a88b7ff6273920763d6/skills/source-driven-development/SKILL.md#L38-L120)). Addy's agent-engineering guide keeps reusable expertise loadable on demand instead of crowding one role prompt ([`17-agent-skills/README.md` lines 21-42](https://github.com/addyosmani/agent-engineer/blob/d06e2cbed4481621a453cee8743d99669df3a7ba/17-agent-skills/README.md#L21-L42)).
+Martin Fowler defines YAGNI as declining capability presumed for the future, within incremental design ([YAGNI](https://martinfowler.com/bliki/Yagni.html)). He separately explains that internal quality makes later change faster and cheaper ([Is High Quality Software Worth the Cost?](https://martinfowler.com/articles/is-quality-worth-cost.html)).
 
-**Bottega decision.** The orchestrator exposes directly matching installed technology skills. The builder selects and follows the ones that help with the actual stack. They supply current technology knowledge inside the architecture brief; they do not override the spec, domain model, architecture, or repository rules.
+Bottega applies YAGNI to speculative features, variants, configuration, dependencies, compatibility layers, and abstractions. It never excuses incomplete requested behavior, weak validation, unsafe data handling, poor accessibility, security gaps, missing tests, unclear names, duplication left in the changed path, or a misplaced rule. Refactoring for the current requirement is compatible with YAGNI; designing for an imagined variant is not.
 
-### Stay inside the architecture
+### Load only relevant technology knowledge
 
-**Source.** Superpowers tells an implementer to follow the planned structure and stop when the task requires an unplanned architecture choice or restructuring ([`implementer-prompt.md` lines 50-78](https://github.com/obra/superpowers/blob/d884ae04edebef577e82ff7c4e143debd0bbec99/skills/subagent-driven-development/implementer-prompt.md#L50-L78)). Pocock gives the builder useful freedom behind a small interface: hide complexity, keep locality, and add no variation seam for a single adapter ([`codebase-design/SKILL.md` lines 54-65](https://github.com/mattpocock/skills/blob/391a2701dd948f94f56a39f7533f8eea9a859c87/skills/engineering/codebase-design/SKILL.md#L54-L65)).
+Addy's router selects skills that match the actual stack and task, while source-driven development checks installed versions and primary vendor documentation ([skill routing](https://github.com/addyosmani/agent-skills/blob/98967c45a42b88d6b8fb3a88b7ff6273920763d6/skills/using-agent-skills/SKILL.md#L12-L41), [source-driven development](https://github.com/addyosmani/agent-skills/blob/98967c45a42b88d6b8fb3a88b7ff6273920763d6/skills/source-driven-development/SKILL.md#L38-L120)). SWE-Skills-Bench shows why blanket loading is harmful when guidance is irrelevant or version-mismatched.
 
-**Bottega decision.** Fable fixes ownership, seams, interfaces, and domain meaning. The builder owns the implementation behind them. A correct solution that needs the architecture brief changed returns to Fable. The builder does not redesign silently, and it does not replace reviewer independence with a ceremonial line-by-line self-verdict.
+Fable inventories both runtimes and supplies only directly relevant technology skills. Those skills improve stack knowledge. They do not override the approved requirement, architecture, domain model, installed version, or repository rules.
 
-## Role boundary
+## Architecture, review, and QA
 
-**Source.** Superpowers gives implementation and task review to separate roles; the reviewer independently checks spec compliance, code quality, tests, interfaces, and planned structure ([`task-reviewer-prompt.md` lines 78-115](https://github.com/obra/superpowers/blob/d884ae04edebef577e82ff7c4e143debd0bbec99/skills/subagent-driven-development/task-reviewer-prompt.md#L78-L115)). Pocock keeps spec fidelity and repository standards as separate review verdicts so one cannot hide failure on the other ([`code-review/SKILL.md` lines 82-89](https://github.com/mattpocock/skills/blob/391a2701dd948f94f56a39f7533f8eea9a859c87/skills/engineering/code-review/SKILL.md#L82-L89)). Addy's generator-critic pattern also assigns production and evaluation to different agents ([`18-orchestrators/README.md` lines 174-201](https://github.com/addyosmani/agent-engineer/blob/d06e2cbed4481621a453cee8743d99669df3a7ba/18-orchestrators/README.md#L174-L201)). These sources separate builder and reviewer. Bottega's independent product QA is a local design decision layered after that review.
+Superpowers separates implementation from review and gives the reviewer the plan and code rather than the builder's self-assessment ([implementer prompt](https://github.com/obra/superpowers/blob/d884ae04edebef577e82ff7c4e143debd0bbec99/skills/subagent-driven-development/implementer-prompt.md#L50-L78), [reviewer prompt](https://github.com/obra/superpowers/blob/d884ae04edebef577e82ff7c4e143debd0bbec99/skills/subagent-driven-development/task-reviewer-prompt.md#L78-L115)). SWE-Review finds that a structured generate, review, revise loop improves issue resolution over one-shot generation ([SWE-Review](https://arxiv.org/abs/2607.06065)). These sources support an independent reviewer. Extending that reviewer to architecture conformance is Bottega's decision.
 
-**Bottega decision.**
+The final order is:
 
-| Role | Owns | Does not own |
+1. Fable resolves the domain model and writes the architecture brief.
+2. Builders implement slices behind that contract.
+3. Independent reviewers inspect the exact integrated tree against behavior, tests, domain meaning, and every fixed architecture decision.
+4. Fable reconciles their evidence and accepts or rejects the architecture. Fable is accountable, but is not the sole verifier of its own design.
+5. QA drives the accepted head as a user. QA verifies product behavior, not internal architecture.
+
+QA does not repair product code. Product-surface evidence identifies a symptom, not necessarily the responsible module or the class of defect. Letting QA fix would collapse independent verification and encourage local surface patches. Fable classifies the cause and routes it:
+
+| Cause | Owner | Required recheck |
 | --- | --- | --- |
-| Fable | Spec, domain decisions, ownership, seams, interfaces, permitted dependencies, arbitration of domain and architecture conflicts, acceptance of independent architecture evidence | Production implementation by default, independent review, final product verdict |
-| Builder | Correct, simple implementation behind the architecture brief; vertical behavior tests; focused debugging; use of relevant technology skills | Changing the domain model or architecture; proving its own architectural conformance; final QA evidence |
-| Reviewer | Independent, read-only evaluation of the fixed diff against behavior, tests, repository standards, domain model, and architecture | Implementing fixes; certifying the product surface as a user |
-| QA | Driving every changed product surface in the real artifact after review; recording independent scenario verdicts and evidence | Reviewing code; changing architecture; fixing product code |
+| Disposable drive setup or evidence capture | QA | Repeat the affected scenario |
+| Product implementation violates an unchanged brief | Builder that owns the responsible module | Gates, opposite-family delta review, Fable acceptance, fresh QA |
+| Spec, domain model, interface, ownership, or architecture is wrong | Fable returns to Plan | Revised build, both-family integrated review, Fable acceptance, fresh QA |
 
-This boundary is deliberate. Addy's browser method is useful during implementation and debugging ([`test-driven-development/SKILL.md` lines 298-327](https://github.com/addyosmani/agent-skills/blob/98967c45a42b88d6b8fb3a88b7ff6273920763d6/skills/test-driven-development/SKILL.md#L298-L327)), and Pocock lists a browser script as one possible bug feedback loop ([`diagnosing-bugs/SKILL.md` lines 18-29](https://github.com/mattpocock/skills/blob/391a2701dd948f94f56a39f7533f8eea9a859c87/skills/engineering/diagnosing-bugs/SKILL.md#L18-L29)). A builder may therefore use a browser as a focused debugging instrument when the red loop requires it. Bottega should not mandate a builder product drive, recording, or surface verdict. Those belong to independent QA. Reviewer conformance remains independent between implementation and QA.
+A builder may use a browser as the shortest debugging loop. It does not produce the independent product verdict. A reviewer may execute product scenarios to reproduce a code finding. It does not replace QA's complete user drive.
 
-The reviewer and Fable responsibilities are different. Reviewers independently verify the code against the brief. Fable reconciles their evidence against every fixed architecture decision and accepts or rejects the reviewed head. Fable is accountable for the architecture, but is not treated as an independent verifier of its own design. QA starts only after that acceptance and verifies product behavior, not internal architecture.
+## Prompt and harness implications
 
-On a QA failure, QA reports and stops. Fable classifies the cause, never the surface where it appeared: drive, evidence, or environment; implementation inside the unchanged architecture brief; or wrong spec, domain model, interface, or architecture. Fable then chooses setup repair, the builder that owns the responsible module, or redesign. QA fixing and certifying the same head would collapse independent verification into implementation.
+Inside the Skill Market finds that implementation, testing, and review are easier to package as reusable skills than high-context requirements and design ([Inside the Skill Market](https://arxiv.org/abs/2607.09065)). Better Harnesses, Smaller Models shows that detailed harness adaptation helps routine, repeated tasks, especially for smaller models ([Better Harnesses, Smaller Models](https://arxiv.org/abs/2607.08938)). Failure as a Process finds that coding-agent failures often begin as early epistemic errors and become hard to recover later ([Failure as a Process](https://arxiv.org/abs/2607.09510)). Obey, Diverge, Collapse shows that a model may recognize an incorrect instruction and still follow it, corrupting later work ([Obey, Diverge, Collapse](https://arxiv.org/abs/2607.04537)).
 
-## Final Bottega audit
+OpenAI's GPT-5.6 launch emphasizes stronger intent following, sustained focus, and useful work with less steering in reported use ([GPT-5.6](https://openai.com/index/gpt-5-6/)). That is not a formal rule to remove instructions. Combined with the skill benchmarks, it supports a narrower conclusion for Bottega:
 
-| Concern | Final location | Verdict |
-| --- | --- | --- |
-| Technology skills and current APIs | `skills/implementing/SKILL.md:14,34`; `skills/run/SKILL.md:34,40` | Resolved. Fable passes only matching installed skills. Builders read every supplied skill and verify version-sensitive APIs against the installed version and primary documentation. |
-| Domain model in code | `skills/implementing/SKILL.md:16,27,29`; `skills/codebase-design/SKILL.md:31-40` | Resolved. Fable fixes domain meaning in the brief; builder names, states, invariants, errors, and tests express it; meaning conflicts return to Fable. |
-| Root-cause debugging | `skills/implementing/SKILL.md:15,35` | Resolved. The builder starts with the smallest deterministic reproduction, traces the shared cause, tests one falsifiable hypothesis at a time, and stops after three failed attempts. |
-| True programming doctrine | `skills/implementing/SKILL.md:20-22,30-34` | Resolved. The center of the skill is one vertical red-green behavior, Ponytail's ordered minimum-code checks, interface-level tests, real dependencies or stand-ins, protected product quality, and source-verified APIs. |
-| Architecture ownership | `skills/implementing/SKILL.md:10,16,27`; `skills/reviewing/SKILL.md:34-43`; `skills/run/SKILL.md:46` | Resolved. The builder stays behind Fable's fixed interface and reports conflicts. Reviewers independently check every design decision, domain meaning, and surplus behavior; Fable accepts or rejects their evidence. |
-| Builder report | `skills/implementing/SKILL.md:23,28` | Resolved. The required report contains behavior, fresh red and green evidence, gates, files, commit, and unresolved domain or architecture conflicts. It no longer requires skill narration, a product drive, or an outside-observation inventory; line 28 merely permits reporting a useful observation without editing it. |
-| Builder, reviewer, and QA boundary | `skills/run/SKILL.md:40,46,48-54` | Resolved. Builders prove code and tests, reviewers verify architecture, Fable accepts the evidence, and QA alone drives the complete product surface. A builder browser remains optional as a focused debugging instrument. |
-| Review mechanics | `skills/run/SKILL.md:46`; `skills/run/references/review.md:1-9` | Resolved. `run` keeps Fable's decisions and gate; frozen targets, dispatch contents, schema checks, round limits, and completion mechanics live in the one-use review reference. |
-| QA publication mechanics | `skills/run/SKILL.md:48-54`; `skills/run/references/qa-evidence.md:1-5` | Resolved. `run` keeps QA independence, verdicts, invalidation, and failure routing. GitHub publication details are disclosed only when evidence is ready. |
-| Costly-decision panel | `skills/run/SKILL.md:38`; `skills/run/references/panel.md:1-13`; `skills/run/assets/panel.js:30-50` | Resolved. The one-use panel branch and identities live with `run`; no standalone panel skill or panel agents remain. |
-
-## Skill and agent placement
-
-**Source.** Addy distinguishes reusable skills from role identity and output format; the user or command composes them ([`docs/agents.md` lines 12-22](https://github.com/addyosmani/agent-skills/blob/98967c45a42b88d6b8fb3a88b7ff6273920763d6/docs/agents.md#L12-L22)). His agent-engineering guide says shared, independently updated expertise belongs in a skill, while a simple one-off method belongs in the prompt ([`17-agent-skills/README.md` lines 21-32](https://github.com/addyosmani/agent-engineer/blob/d06e2cbed4481621a453cee8743d99669df3a7ba/17-agent-skills/README.md#L21-L32), [`lines 352-373`](https://github.com/addyosmani/agent-engineer/blob/d06e2cbed4481621a453cee8743d99669df3a7ba/17-agent-skills/README.md#L352-L373)). Ponytail keeps host adapters thin and points them at one shared method ([`agent-portability.md` lines 1-5](https://github.com/DietrichGebert/ponytail/blob/14a0d79548d4de8fc2de95c1b94bb0de63a739d3/docs/agent-portability.md#L1-L5), [`lines 34-38`](https://github.com/DietrichGebert/ponytail/blob/14a0d79548d4de8fc2de95c1b94bb0de63a739d3/docs/agent-portability.md#L34-L38)).
-
-| Bottega method or identity | Actual reuse | Placement decision |
-| --- | --- | --- |
-| `skills/implementing` | Claude and Codex builders; initial work and review or QA repairs | Keep as a shared skill. Inlining in `agents/builder.md` would duplicate it for Codex. |
-| `skills/reviewing` | Claude and Codex reviewers; integrated and delta review | Keep as a shared skill with its schema and dispatch asset. |
-| `skills/codebase-design` | Fable designs with it; reviewers judge with it; builders consume the resulting architecture brief | Keep as shared architect and reviewer doctrine. Do not make a builder re-run the design method. |
-| `skills/run` | One explicit user entry point executed by Fable, with several one-use branches | Keep as the user-invoked orchestration skill. Keep branch-specific mechanics in its references and assets. |
-| Panel method and identities | One costly-decision branch used only by `run` | Correctly inlined as `skills/run/references/panel.md` and `skills/run/assets/panel.js`. A standalone skill or agent adds no reuse. |
-| QA and docs sweep | One role and one scenario each, only inside `run` | Correctly inline in `run`; only QA publication mechanics are disclosed in `references/qa-evidence.md`. |
-| `agents/builder.md`, `agents/reviewer.md` | Runtime identities that point to methods shared with Codex | Keep as thin pointers. |
-
-No remaining Bottega skill is unused. No remaining agent and skill form a one-runtime, one-scenario pair that benefits from inlining. Review orchestration, QA publication, the panel method, and panel identities are one-use branches under `skills/run`, not standalone skills or agents.
-
-## Compact builder carry text
-
-1. Understand the whole behavior and domain before editing. For a bug, build a tight red signal, minimize it, and fix the shared cause.
-2. Work one observable behavior at a time through Fable's interface. See the expected red, add minimum green code, and test outcomes against an independent expected value.
-3. Before adding code, apply Ponytail's ordered checks: needed, already here, standard library, native platform, installed dependency, one clear line, minimum new code.
-4. Use the domain's exact concepts in names, states, invariants, errors, and tests. Return a conflict in meaning or architecture to Fable.
-5. Treat hard tests as design evidence. Test through the interface, prefer real dependencies or local stand-ins, and do not expose internals to make tests easy.
-6. Load the installed technology skills that directly match the stack and verify version-sensitive APIs against the installed version and primary documentation.
-7. Architecture fixes ownership, seams, and interfaces. Implementation behind them is yours. If correctness requires changing them, stop and report.
-8. Claim green only from fresh evidence.
+- Tell frontier workers what competence cannot derive: decision rights, domain meaning, fixed interfaces, failure routing, safety constraints, and output contracts.
+- Keep a few important logical rules prominent. Put mechanically checkable guarantees in hooks, schemas, workflow code, and tests.
+- Load specialized knowledge only when it matches the stack and version.
+- Cut narration of ordinary tool use, repeated reminders, motivational prose, and generic programming advice.
+- Validate understanding and architecture early. Do not compensate for a wrong brief with more end-of-run ceremony.
+- Codex workers use Sol at most. The panel uses Sol at max effort, not a multi-agent model tier.
 
 ## Deliberate exclusions
 
-- Ponytail's one-check minimum and permission to omit tests for trivial one-liners are not adopted. Bottega keeps its stronger behavior-test contract.
-- Addy's browser completion checklist is not copied into the builder. It assumes one implementation lifecycle; Bottega has an independent QA role.
-- Addy and Superpowers use broad mandatory skill-trigger rules. Bottega loads only skills that directly match the stack or risk.
-- Generic command, commit, routing, recording, and publishing instructions are not programming doctrine. They belong in the harness, a dispatch reference, or the one brief that needs them.
+- Ponytail's permission to omit tests for trivial one-liners is not adopted. Bottega keeps observable behavior evidence.
+- Addy's browser completion checklist is not mandatory builder work. Bottega has independent QA.
+- Broad automatic loading of every available skill is not adopted. Relevance and version compatibility decide.
+- Fable does not perform a second implementation-style self-review of its own architecture. Independent reviewers verify it; Fable performs the accountable final acceptance step.
+- QA does not fix product code. It may only repair disposable drive setup and evidence capture.
+- Mechanical command narration, polling, and status ceremony do not belong in worker doctrine.
