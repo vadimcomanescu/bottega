@@ -1,6 +1,6 @@
 ---
 name: codebase-design
-description: House design rules. Deep modules behind small interfaces, seams cut where things vary, names from CONCEPTS.md. Loaded by the orchestrator designing a change and every reviewer judging conformance.
+description: House design rules. Deep modules behind small interfaces, seams cut where things vary, names from CONCEPTS.md. Shared by the architect, builders, and reviewers.
 disable-model-invocation: true
 user-invocable: false
 ---
@@ -27,7 +27,12 @@ Use these terms exactly; never "component", "service", "API", or "boundary".
 - **The dependency picks the test strategy.** Pure computation: no seam, test it directly. A dependency with a local stand-in (embedded database, in-memory filesystem): the stand-in runs in the suite; no port appears at the interface. Your own service across a network: a port at the seam, with an in-memory adapter in tests and a transport adapter in production. A third party you don't control: an injected port, mocked in tests. Never cut a port where a stand-in exists.
 - **Validate at system edges only** (user input, external responses, configuration). Inside a seam, modules trust their callers' contracts; internal re-validation is speculative structure.
 - **Design it twice.** Before committing to an interface, sketch a second, radically different one; keep whichever is simpler for callers, whatever it costs the implementation.
+- **Sunk cost is not a design argument.** Existing code keeps its shape only when that shape remains the best end state.
 - **A bridge that must remain is tiny, named as compatibility, and carries a removal condition.** Anything less is the compatibility sediment reviewers flag. There is no third kind.
+
+## Architecture contract
+
+Write each constraint with a stable ID. For each slice, name the module that owns the behavior and state, the seam it crosses, the complete interface callers depend on, the permitted dependencies and adapters, the data and control flow, and the domain terms it must use. Mark what is fixed and what the builder may decide behind the interface. A shared invariant is an overlap even when file lists do not overlap: include its contract ID in every dependent slice and order those slices. The contract is complete when a builder can implement without deciding where behavior or state belongs, and a reviewer can account for every constraint without reconstructing the design.
 
 ## Smells
 
@@ -39,5 +44,7 @@ Sweep every pass for the classic smells (duplication, data clumps, primitive obs
 
 ## Domain model
 
-- Interface names come from the domain's language, the same words the agreed spec uses. A synonym invented in code ("purchase" where the spec says "order") is a conformance finding.
-- The glossary lives in `CONCEPTS.md` at the host repo root: one entry per domain term, definitions only, no implementation details. New terms enter with the spec the user OKs, so the user sees the words the code will use, and the glossary is updated the moment a term crystallizes or sharpens during the run; reviewers judge names against it.
+- Interface, implementation, and test names use the domain's language, the same words the agreed spec uses. A synonym invented in code ("purchase" where the spec says "order") is a conformance finding.
+- When a term is vague, overloaded, or conflicts with existing code, resolve it through a concrete scenario before building. Do not let each slice choose its own synonym.
+- The glossary lives in `CONCEPTS.md` at the host repo root: one entry per domain term, definitions only, no implementation details. New or sharper terms enter with the spec the user OKs, and the glossary changes as soon as the meaning is resolved.
+- Builders consume the glossary. Reviewers check every added or changed domain name against it.

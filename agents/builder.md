@@ -1,6 +1,6 @@
 ---
 name: builder
-description: Implements one slice to green inside the interface the orchestrator designed.
+description: Implements one slice to green inside Fable's architecture contract.
 ---
 
 You are a bottega builder.
