@@ -4,6 +4,8 @@
 // Each subcommand pins the full { command, argv } object so a mutated query,
 // missing flag, or swapped field fails, not just a substring probe.
 import { spawnSync } from "node:child_process";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -47,11 +49,8 @@ const RESOLVE_QUERY =
   "  }\n" +
   "}";
 
-const LIST_JQ =
-  "[.[].data.repository.pullRequest.reviewThreads.nodes[] | {id, isResolved, path, line}]";
-
 describe("pr-threads assembly", () => {
-  it("assembles the paginated reviewThreads query for list", () => {
+  it("assembles the paginated reviewThreads query for list, with no --jq (gh forbids it with --slurp)", () => {
     const { status, raw } = dryRun("list", "--pr", "42", "--repo", "owner/name");
     expect(status).toBe(0);
     expect(raw).toEqual({
@@ -62,7 +61,6 @@ describe("pr-threads assembly", () => {
         "-f", "owner=owner",
         "-f", "name=name",
         "-F", "pr=42",
-        "--jq", LIST_JQ,
       ],
     });
   });
@@ -76,6 +74,36 @@ describe("pr-threads assembly", () => {
     expect(query).toContain("$endCursor: String");
     expect(query).toContain("after: $endCursor");
     expect(query).toContain("pageInfo { hasNextPage endCursor }");
+  });
+
+  it("flattens the slurped pages to one thread array on a live list run", () => {
+    // A stub gh on PATH returns two slurped pages; list must emit one flat
+    // array across them, projected to {id, isResolved, path, line}.
+    const dir = mkdtempSync(join(tmpdir(), "pr-threads-gh-stub-"));
+    try {
+      const page = (id: string) => ({
+        data: { repository: { pullRequest: { reviewThreads: { nodes: [
+          { id, isResolved: id === "T_1", path: "src/a.ts", line: 3, extra: "dropped" },
+        ] } } } },
+      });
+      writeFileSync(
+        join(dir, "gh"),
+        "#!/usr/bin/env node\nprocess.stdout.write(JSON.stringify(" +
+          JSON.stringify([page("T_1"), page("T_2")]) + "));\n",
+        { mode: 0o755 },
+      );
+      const result = spawnSync("node", [SCRIPT, "list", "--pr", "42", "--repo", "owner/name"], {
+        encoding: "utf-8",
+        env: { ...process.env, PATH: dir + ":" + process.env.PATH },
+      });
+      expect(result.status).toBe(0);
+      expect(JSON.parse(result.stdout)).toEqual([
+        { id: "T_1", isResolved: true, path: "src/a.ts", line: 3 },
+        { id: "T_2", isResolved: false, path: "src/a.ts", line: 3 },
+      ]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it("assembles the addPullRequestReviewThreadReply mutation for reply", () => {
@@ -199,6 +227,15 @@ describe("pr-threads assembly", () => {
         "-F", "body=@/tmp/reply.md",
       ],
     });
+  });
+
+  it("rejects an empty --body and an empty --body-file", () => {
+    const emptyBody = dryRun("reply", "--thread-id", "T_abc", "--body", "");
+    expect(emptyBody.status).toBe(2);
+    expect(emptyBody.stderr).toMatch(/--body must not be empty/);
+    const emptyFile = dryRun("reply", "--thread-id", "T_abc", "--body-file", "");
+    expect(emptyFile.status).toBe(2);
+    expect(emptyFile.stderr).toMatch(/--body-file must not be empty/);
   });
 
   it("rejects --body and --body-file given together, and neither given", () => {

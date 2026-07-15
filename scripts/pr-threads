@@ -11,10 +11,12 @@
 //   pr-threads comment --pr <n> --repo <owner/name> --commit <sha> --path <file> --line <n> [--side LEFT|RIGHT] (--body <text> | --body-file <path>)
 //
 // list prints a JSON array of the PR's review threads (id, isResolved, path,
-// line), paginating past 100 threads so the array is complete. reply posts a
-// reply on a thread; resolve marks it resolved. comment posts a new inline
-// review comment at path:line of commit on the PR, optionally anchored on the
-// LEFT (deleted) or RIGHT (added) side of the diff.
+// line), paginating past 100 threads so the array is complete. gh forbids
+// combining --slurp with --jq, so list captures the slurped pages and flattens
+// them to one array itself. reply posts a reply on a thread; resolve marks it
+// resolved. comment posts a new inline review comment at path:line of commit
+// on the PR, optionally anchored on the LEFT (deleted) or RIGHT (added) side
+// of the diff.
 //
 // reply and comment take exactly one of --body or --body-file. --body is the
 // text itself; --body-file is a path and emits -F body=@<path> so gh reads the
@@ -87,13 +89,18 @@ function requireRepo() {
   return parts;
 }
 
-// Exactly one of --body or --body-file. --body-file emits -F body=@<path> so gh
-// reads the text from the file. Both given or neither given is an error.
+// Exactly one of --body or --body-file, and the given one is nonempty.
+// --body-file emits -F body=@<path> so gh reads the text from the file.
 function bodyFields() {
   const hasBody = values.body !== undefined;
   const hasBodyFile = values["body-file"] !== undefined;
   if (hasBody === hasBodyFile) {
     process.stderr.write("pr-threads: exactly one of --body or --body-file is required\n");
+    process.exit(2);
+  }
+  const name = hasBody ? "body" : "body-file";
+  if (values[name] === "") {
+    process.stderr.write("pr-threads: --" + name + " must not be empty\n");
     process.exit(2);
   }
   return hasBody ? ["-f", "body=" + values.body] : ["-F", "body=@" + values["body-file"]];
@@ -122,7 +129,6 @@ if (subcommand === "list") {
     "-f", "owner=" + owner,
     "-f", "name=" + name,
     "-F", "pr=" + values.pr,
-    "--jq", "[.[].data.repository.pullRequest.reviewThreads.nodes[] | {id, isResolved, path, line}]",
   ];
 } else if (subcommand === "reply") {
   requireFlags(["thread-id"]);
@@ -179,9 +185,27 @@ if (values["dry-run"]) {
   process.exit(0);
 }
 
-const result = spawnSync("gh", argv, { stdio: "inherit" });
+// list captures gh's slurped pages and prints one flat thread array; the other
+// subcommands pass gh's output through untouched.
+const capture = subcommand === "list";
+const result = spawnSync("gh", argv, {
+  stdio: capture ? ["inherit", "pipe", "inherit"] : "inherit",
+  encoding: "utf8",
+});
 if (result.error) {
   process.stderr.write("pr-threads: " + result.error.message + "\n");
   process.exit(1);
+}
+if (capture && result.status === 0) {
+  let threads;
+  try {
+    const pages = JSON.parse(result.stdout);
+    threads = pages.flatMap((page) => page.data.repository.pullRequest.reviewThreads.nodes)
+      .map(({ id, isResolved, path, line }) => ({ id, isResolved, path, line }));
+  } catch (error) {
+    process.stderr.write("pr-threads: unexpected gh output: " + String(error.message) + "\n");
+    process.exit(1);
+  }
+  process.stdout.write(JSON.stringify(threads) + "\n");
 }
 process.exit(result.status ?? 1);
