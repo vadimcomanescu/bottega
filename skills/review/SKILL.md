@@ -17,7 +17,7 @@ Fix the target as base, head, and tree SHAs after the host gates pass and before
 The intent a reviewer judges conformance against depends on the caller. This is a contract:
 
 - **Run brief present** (invoked from a run): reviewers receive the canonical run brief and domain glossary verbatim. Conformance is judged against the brief's fixed decisions.
-- **PR only** (no frozen brief): the intent is the PR title, body, and linked issue. Conformance is judged against that self-reported intent, and the adjudication states that basis. The architecture verdict is doctrine-only: judged against `skills/codebase-design` with no fixed per-run decisions to check. Reports stay at schema_version 2; each reviewer states the doctrine-only basis in `architecture.evidence`.
+- **No frozen brief** (invoked without a run): the intent is the PR title, body, and linked issue when the target is a PR, otherwise the user's request as stated in the conversation. Conformance is judged against that self-reported intent, and the adjudication states that basis. The architecture verdict is doctrine-only: judged against `skills/codebase-design` with no fixed per-run decisions to check. Reports stay at schema_version 2; each reviewer states the doctrine-only basis in `architecture.evidence`.
 
 ## Round 1
 
@@ -28,11 +28,11 @@ One reviewer from each model family, in parallel, each blind: no builder reasoni
 
 Launch the Codex reviewer per the Codex reviewer preparation in `skills/run/references/codex-dispatch.md`, against the same report schema. Reject any report whose target SHAs or reviewer identity differ from the dispatch.
 
-**Trivial-diff exception (PR-only targets).** A run's integrated review always takes both families and is never eligible for this exception. For a PR-only target, a diff under 150 changed lines that touches no risk path may take a single reviewer, from the family opposite the head's author; record that choice. A risk path is any path `skills/reviewing` requires the strongest probes for. When the head author's model family is unknown (a human PR or unknown authorship), the exception does not apply and both families review. A diff touching any risk path always takes both families.
+**Trivial-diff exception.** The exception applies to a PR target only; a run's integrated review always takes both families and is never eligible. For a PR target under 150 changed lines that touches no risk path, a single reviewer may review, from the family opposite the head's author; record that choice. A risk path is any path `skills/reviewing` requires the strongest probes for. When the head author's model family is unknown (a human PR or unknown authorship), the exception does not apply and both families review.
 
 ## Adjudication
 
-The orchestrator verifies every finding against the real code path before accepting it, and refutes only with evidence. Reconcile both architecture verdicts against the applicable basis (the brief's fixed decisions for a run, `skills/codebase-design` doctrine for a PR-only target); missing coverage or unresolved disagreement blocks acceptance. An implementation fix routes to whoever owns the module: a run's builder, or a fixer the caller dispatches. A design finding returns to the orchestrator before any code change.
+The orchestrator verifies every finding against the real code path before accepting it, and refutes only with evidence. Reconcile both architecture verdicts against the applicable basis (the brief's fixed decisions for a run, `skills/codebase-design` doctrine when there is no frozen brief); missing coverage or unresolved disagreement blocks acceptance. An implementation fix routes to whoever owns the module: a run's builder, or a fixer the caller dispatches. A design finding returns to the orchestrator before any code change.
 
 ## Delta rounds
 

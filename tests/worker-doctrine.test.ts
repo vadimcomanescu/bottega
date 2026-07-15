@@ -158,7 +158,7 @@ describe("worker doctrine boundaries", () => {
     expect(reviewDispatch).toMatch(/one reviewer from each model family/i);
     expect(reviewDispatch).toMatch(/two failed fixes stops the repair/i);
     expect(reviewDispatch).toMatch(/round 3 stops the review/i);
-    expect(reviewDispatch).toMatch(/PR only/);
+    expect(reviewDispatch).toMatch(/No frozen brief/);
     expect(reviewDispatch).toMatch(/doctrine-only/);
   });
 

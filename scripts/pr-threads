@@ -6,14 +6,22 @@
 // built.
 //
 //   pr-threads list --pr <n> --repo <owner/name>
-//   pr-threads reply --thread-id <id> --body <text>
+//   pr-threads reply --thread-id <id> (--body <text> | --body-file <path>)
 //   pr-threads resolve --thread-id <id>
-//   pr-threads comment --pr <n> --repo <owner/name> --commit <sha> --path <file> --line <n> --body <text>
+//   pr-threads comment --pr <n> --repo <owner/name> --commit <sha> --path <file> --line <n> [--side LEFT|RIGHT] (--body <text> | --body-file <path>)
 //
 // list prints a JSON array of the PR's review threads (id, isResolved, path,
-// line). reply posts a reply on a thread; resolve marks it resolved. comment
-// posts a new inline review comment at path:line of commit on the PR. list,
-// reply, and resolve use the GraphQL API; comment uses the REST API. Each
+// line), paginating past 100 threads so the array is complete. reply posts a
+// reply on a thread; resolve marks it resolved. comment posts a new inline
+// review comment at path:line of commit on the PR, optionally anchored on the
+// LEFT (deleted) or RIGHT (added) side of the diff.
+//
+// reply and comment take exactly one of --body or --body-file. --body is the
+// text itself; --body-file is a path and emits -F body=@<path> so gh reads the
+// text from that file, which also lets the text begin with a dash (a value that
+// --body cannot carry because parseArgs reads it as a flag).
+//
+// list, reply, and resolve use the GraphQL API; comment uses the REST API. Each
 // subcommand runs one gh call and the exit code is gh's own. --dry-run prints
 // the assembled invocation as JSON and runs nothing.
 
@@ -31,9 +39,11 @@ try {
       repo: { type: "string" },
       "thread-id": { type: "string" },
       body: { type: "string" },
+      "body-file": { type: "string" },
       commit: { type: "string" },
       path: { type: "string" },
       line: { type: "string" },
+      side: { type: "string" },
       "dry-run": { type: "boolean", default: false },
     },
   }));
@@ -57,39 +67,66 @@ function requireFlags(names) {
   }
 }
 
+// A positive integer: one or more digits, no leading zero, no sign, nothing
+// else. Rejects 0, negatives, "abc", and injection like "@/etc/passwd" before
+// the value reaches a gh invocation.
+function requirePositiveInt(name) {
+  if (!/^[1-9][0-9]*$/.test(values[name])) {
+    process.stderr.write("pr-threads: --" + name + " must be a positive integer\n");
+    process.exit(2);
+  }
+}
+
+// --repo must be exactly two nonempty segments, owner/name, with no third.
+function requireRepo() {
+  const parts = values.repo.split("/");
+  if (parts.length !== 2 || !parts[0] || !parts[1]) {
+    process.stderr.write("pr-threads: --repo must be owner/name\n");
+    process.exit(2);
+  }
+  return parts;
+}
+
+// Exactly one of --body or --body-file. --body-file emits -F body=@<path> so gh
+// reads the text from the file. Both given or neither given is an error.
+function bodyFields() {
+  const hasBody = values.body !== undefined;
+  const hasBodyFile = values["body-file"] !== undefined;
+  if (hasBody === hasBodyFile) {
+    process.stderr.write("pr-threads: exactly one of --body or --body-file is required\n");
+    process.exit(2);
+  }
+  return hasBody ? ["-f", "body=" + values.body] : ["-F", "body=@" + values["body-file"]];
+}
+
 let argv;
 
 if (subcommand === "list") {
   requireFlags(["pr", "repo"]);
-  const [owner, name] = values.repo.split("/");
-  if (!owner || !name) {
-    process.stderr.write("pr-threads: --repo must be owner/name\n");
-    process.exit(2);
-  }
-  if (!/^\d+$/.test(values.pr)) {
-    process.stderr.write("pr-threads: --pr must be a number\n");
-    process.exit(2);
-  }
+  requirePositiveInt("pr");
+  const [owner, name] = requireRepo();
   const query =
-    "query($owner: String!, $name: String!, $pr: Int!) {\n" +
+    "query($owner: String!, $name: String!, $pr: Int!, $endCursor: String) {\n" +
     "  repository(owner: $owner, name: $name) {\n" +
     "    pullRequest(number: $pr) {\n" +
-    "      reviewThreads(first: 100) {\n" +
+    "      reviewThreads(first: 100, after: $endCursor) {\n" +
+    "        pageInfo { hasNextPage endCursor }\n" +
     "        nodes { id isResolved path line }\n" +
     "      }\n" +
     "    }\n" +
     "  }\n" +
     "}";
   argv = [
-    "api", "graphql",
+    "api", "graphql", "--paginate", "--slurp",
     "-f", "query=" + query,
     "-f", "owner=" + owner,
     "-f", "name=" + name,
     "-F", "pr=" + values.pr,
-    "--jq", "[.data.repository.pullRequest.reviewThreads.nodes[] | {id, isResolved, path, line}]",
+    "--jq", "[.[].data.repository.pullRequest.reviewThreads.nodes[] | {id, isResolved, path, line}]",
   ];
 } else if (subcommand === "reply") {
-  requireFlags(["thread-id", "body"]);
+  requireFlags(["thread-id"]);
+  const body = bodyFields();
   const query =
     "mutation($threadId: ID!, $body: String!) {\n" +
     "  addPullRequestReviewThreadReply(input: {pullRequestReviewThreadId: $threadId, body: $body}) {\n" +
@@ -100,7 +137,7 @@ if (subcommand === "list") {
     "api", "graphql",
     "-f", "query=" + query,
     "-f", "threadId=" + values["thread-id"],
-    "-f", "body=" + values.body,
+    ...body,
   ];
 } else if (subcommand === "resolve") {
   requireFlags(["thread-id"]);
@@ -116,23 +153,25 @@ if (subcommand === "list") {
     "-f", "threadId=" + values["thread-id"],
   ];
 } else {
-  requireFlags(["pr", "repo", "commit", "path", "line", "body"]);
-  const [owner, name] = values.repo.split("/");
-  if (!owner || !name) {
-    process.stderr.write("pr-threads: --repo must be owner/name\n");
+  requireFlags(["pr", "repo", "commit", "path", "line"]);
+  requirePositiveInt("pr");
+  requirePositiveInt("line");
+  if (values.side !== undefined && values.side !== "LEFT" && values.side !== "RIGHT") {
+    process.stderr.write("pr-threads: --side must be LEFT or RIGHT\n");
     process.exit(2);
   }
-  if (!/^\d+$/.test(values.pr)) {
-    process.stderr.write("pr-threads: --pr must be a number\n");
-    process.exit(2);
-  }
+  const [owner, name] = requireRepo();
+  const body = bodyFields();
   argv = [
     "api", "repos/" + owner + "/" + name + "/pulls/" + values.pr + "/comments",
-    "-f", "body=" + values.body,
+    ...body,
     "-f", "commit_id=" + values.commit,
     "-f", "path=" + values.path,
     "-F", "line=" + values.line,
   ];
+  if (values.side !== undefined) {
+    argv.push("-f", "side=" + values.side);
+  }
 }
 
 if (values["dry-run"]) {

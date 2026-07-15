@@ -12,7 +12,7 @@ You take one open PR to a mergeable state: review it, route the fixes, resolve i
 
 **Size gate.** A diff over 800 changed lines or 20 files is not landed. Comment on the PR asking for a split, notify, and stop.
 
-**Rounds.** Each round runs the review gate per `bottega:review` with its PR-only inputs. Risk paths, the set `bottega:review` names, always take both model families.
+**Rounds.** Each round runs the review gate per `bottega:review` with its PR-only inputs.
 
 **Fixes and threads.** Each accepted finding becomes an inline review comment on the PR at the finding's `code_location`, and its implementation fix goes to a fixer dispatched per the routing in `skills/run`. Unresolved review threads already on the PR when land starts, from other reviewers or bots, enter round 1 as claimed findings: verify each, then fix or refute it, reply, and resolve its thread the same way as a fresh finding. When a fix lands, reply on the thread with what changed and resolve it; when you refute a finding, reply with the refuting evidence and resolve it. Run every reply and resolution through `scripts/pr-threads`. Every fixer brief carries the three brief lines from `skills/run` (the safety rule, no piped test commands, name every test you edit), verbatim.
 
