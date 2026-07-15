@@ -1,0 +1,218 @@
+#!/usr/bin/env node
+
+// Deterministic GitHub review mechanics for skills/land. One place assembles
+// every `gh api` call for a PR's review threads and inline review comments, the
+// same way scripts/codex-exec is the one place a `codex exec` invocation is
+// built.
+//
+//   pr-threads list --pr <n> --repo <owner/name>
+//   pr-threads reply --thread-id <id> (--body <text> | --body-file <path>)
+//   pr-threads resolve --thread-id <id>
+//   pr-threads comment --pr <n> --repo <owner/name> --commit <sha> --path <file> --line <n> [--side LEFT|RIGHT] (--body <text> | --body-file <path>)
+//
+// list prints a JSON array of the PR's review threads (id, isResolved, path,
+// line), paginating past 100 threads so the array is complete. gh forbids
+// combining --slurp with --jq, so list captures the slurped pages and flattens
+// them to one array itself. reply posts a reply on a thread; resolve marks it
+// resolved. comment posts a new inline review comment at path:line of commit
+// on the PR, optionally anchored on the LEFT (deleted) or RIGHT (added) side
+// of the diff.
+//
+// reply and comment take exactly one of --body or --body-file. --body is the
+// text itself; --body-file is a path and emits -F body=@<path> so gh reads the
+// text from that file, which also lets the text begin with a dash (a value that
+// --body cannot carry because parseArgs reads it as a flag).
+//
+// list, reply, and resolve use the GraphQL API; comment uses the REST API. Each
+// subcommand runs one gh call and the exit code is gh's own. --dry-run prints
+// the assembled invocation as JSON and runs nothing.
+
+import { spawnSync } from "node:child_process";
+import { parseArgs } from "node:util";
+
+const SUBCOMMANDS = new Set(["list", "reply", "resolve", "comment"]);
+
+let values, positionals;
+try {
+  ({ values, positionals } = parseArgs({
+    allowPositionals: true,
+    options: {
+      pr: { type: "string" },
+      repo: { type: "string" },
+      "thread-id": { type: "string" },
+      body: { type: "string" },
+      "body-file": { type: "string" },
+      commit: { type: "string" },
+      path: { type: "string" },
+      line: { type: "string" },
+      side: { type: "string" },
+      "dry-run": { type: "boolean", default: false },
+    },
+  }));
+} catch (error) {
+  process.stderr.write(String(error.message) + "\n");
+  process.exit(2);
+}
+
+const subcommand = positionals[0];
+if (!SUBCOMMANDS.has(subcommand)) {
+  process.stderr.write("pr-threads: subcommand must be list, reply, resolve, or comment\n");
+  process.exit(2);
+}
+
+function requireFlags(names) {
+  for (const name of names) {
+    if (!values[name]) {
+      process.stderr.write("pr-threads: --" + name + " is required\n");
+      process.exit(2);
+    }
+  }
+}
+
+// A positive integer: one or more digits, no leading zero, no sign, nothing
+// else. Rejects 0, negatives, "abc", and injection like "@/etc/passwd" before
+// the value reaches a gh invocation.
+function requirePositiveInt(name) {
+  if (!/^[1-9][0-9]*$/.test(values[name])) {
+    process.stderr.write("pr-threads: --" + name + " must be a positive integer\n");
+    process.exit(2);
+  }
+}
+
+// --repo must be exactly two nonempty segments, owner/name, with no third.
+function requireRepo() {
+  const parts = values.repo.split("/");
+  if (parts.length !== 2 || !parts[0] || !parts[1]) {
+    process.stderr.write("pr-threads: --repo must be owner/name\n");
+    process.exit(2);
+  }
+  return parts;
+}
+
+// Exactly one of --body or --body-file, and the given one is nonempty.
+// --body-file emits -F body=@<path> so gh reads the text from the file.
+function bodyFields() {
+  const hasBody = values.body !== undefined;
+  const hasBodyFile = values["body-file"] !== undefined;
+  if (hasBody === hasBodyFile) {
+    process.stderr.write("pr-threads: exactly one of --body or --body-file is required\n");
+    process.exit(2);
+  }
+  const name = hasBody ? "body" : "body-file";
+  if (values[name] === "") {
+    process.stderr.write("pr-threads: --" + name + " must not be empty\n");
+    process.exit(2);
+  }
+  return hasBody ? ["-f", "body=" + values.body] : ["-F", "body=@" + values["body-file"]];
+}
+
+let argv;
+
+if (subcommand === "list") {
+  requireFlags(["pr", "repo"]);
+  requirePositiveInt("pr");
+  const [owner, name] = requireRepo();
+  const query =
+    "query($owner: String!, $name: String!, $pr: Int!, $endCursor: String) {\n" +
+    "  repository(owner: $owner, name: $name) {\n" +
+    "    pullRequest(number: $pr) {\n" +
+    "      reviewThreads(first: 100, after: $endCursor) {\n" +
+    "        pageInfo { hasNextPage endCursor }\n" +
+    "        nodes { id isResolved path line }\n" +
+    "      }\n" +
+    "    }\n" +
+    "  }\n" +
+    "}";
+  argv = [
+    "api", "graphql", "--paginate", "--slurp",
+    "-f", "query=" + query,
+    "-f", "owner=" + owner,
+    "-f", "name=" + name,
+    "-F", "pr=" + values.pr,
+  ];
+} else if (subcommand === "reply") {
+  requireFlags(["thread-id"]);
+  const body = bodyFields();
+  const query =
+    "mutation($threadId: ID!, $body: String!) {\n" +
+    "  addPullRequestReviewThreadReply(input: {pullRequestReviewThreadId: $threadId, body: $body}) {\n" +
+    "    comment { id url }\n" +
+    "  }\n" +
+    "}";
+  argv = [
+    "api", "graphql",
+    "-f", "query=" + query,
+    "-f", "threadId=" + values["thread-id"],
+    ...body,
+  ];
+} else if (subcommand === "resolve") {
+  requireFlags(["thread-id"]);
+  const query =
+    "mutation($threadId: ID!) {\n" +
+    "  resolveReviewThread(input: {threadId: $threadId}) {\n" +
+    "    thread { id isResolved }\n" +
+    "  }\n" +
+    "}";
+  argv = [
+    "api", "graphql",
+    "-f", "query=" + query,
+    "-f", "threadId=" + values["thread-id"],
+  ];
+} else {
+  requireFlags(["pr", "repo", "commit", "path", "line"]);
+  requirePositiveInt("pr");
+  requirePositiveInt("line");
+  if (values.side !== undefined && values.side !== "LEFT" && values.side !== "RIGHT") {
+    process.stderr.write("pr-threads: --side must be LEFT or RIGHT\n");
+    process.exit(2);
+  }
+  const [owner, name] = requireRepo();
+  const body = bodyFields();
+  argv = [
+    "api", "repos/" + owner + "/" + name + "/pulls/" + values.pr + "/comments",
+    ...body,
+    "-f", "commit_id=" + values.commit,
+    "-f", "path=" + values.path,
+    "-F", "line=" + values.line,
+  ];
+  if (values.side !== undefined) {
+    argv.push("-f", "side=" + values.side);
+  }
+}
+
+if (values["dry-run"]) {
+  process.stdout.write(JSON.stringify({ command: "gh", argv }) + "\n");
+  process.exit(0);
+}
+
+// list captures gh's slurped pages and prints one flat thread array; the other
+// subcommands pass gh's output through untouched.
+const capture = subcommand === "list";
+const result = spawnSync("gh", argv, {
+  stdio: capture ? ["inherit", "pipe", "inherit"] : "inherit",
+  encoding: "utf8",
+});
+if (result.error) {
+  process.stderr.write("pr-threads: " + result.error.message + "\n");
+  process.exit(1);
+}
+if (capture && result.status === 0) {
+  let threads;
+  try {
+    const pages = JSON.parse(result.stdout);
+    threads = pages.flatMap((page) => page.data.repository.pullRequest.reviewThreads.nodes)
+      .map(({ id, isResolved, path, line }) => {
+        // id and isResolved are non-null in the GraphQL schema; path and line
+        // are legitimately null on outdated threads.
+        if (typeof id !== "string" || id === "" || typeof isResolved !== "boolean") {
+          throw new Error("thread node missing id or isResolved");
+        }
+        return { id, isResolved, path, line };
+      });
+  } catch (error) {
+    process.stderr.write("pr-threads: unexpected gh output: " + String(error.message) + "\n");
+    process.exit(1);
+  }
+  process.stdout.write(JSON.stringify(threads) + "\n");
+}
+process.exit(result.status ?? 1);
