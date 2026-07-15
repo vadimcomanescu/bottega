@@ -1,0 +1,148 @@
+#!/usr/bin/env node
+
+// Deterministic GitHub review mechanics for skills/land. One place assembles
+// every `gh api` call for a PR's review threads and inline review comments, the
+// same way scripts/codex-exec is the one place a `codex exec` invocation is
+// built.
+//
+//   pr-threads list --pr <n> --repo <owner/name>
+//   pr-threads reply --thread-id <id> --body <text>
+//   pr-threads resolve --thread-id <id>
+//   pr-threads comment --pr <n> --repo <owner/name> --commit <sha> --path <file> --line <n> --body <text>
+//
+// list prints a JSON array of the PR's review threads (id, isResolved, path,
+// line). reply posts a reply on a thread; resolve marks it resolved. comment
+// posts a new inline review comment at path:line of commit on the PR. list,
+// reply, and resolve use the GraphQL API; comment uses the REST API. Each
+// subcommand runs one gh call and the exit code is gh's own. --dry-run prints
+// the assembled invocation as JSON and runs nothing.
+
+import { spawnSync } from "node:child_process";
+import { parseArgs } from "node:util";
+
+const SUBCOMMANDS = new Set(["list", "reply", "resolve", "comment"]);
+
+let values, positionals;
+try {
+  ({ values, positionals } = parseArgs({
+    allowPositionals: true,
+    options: {
+      pr: { type: "string" },
+      repo: { type: "string" },
+      "thread-id": { type: "string" },
+      body: { type: "string" },
+      commit: { type: "string" },
+      path: { type: "string" },
+      line: { type: "string" },
+      "dry-run": { type: "boolean", default: false },
+    },
+  }));
+} catch (error) {
+  process.stderr.write(String(error.message) + "\n");
+  process.exit(2);
+}
+
+const subcommand = positionals[0];
+if (!SUBCOMMANDS.has(subcommand)) {
+  process.stderr.write("pr-threads: subcommand must be list, reply, resolve, or comment\n");
+  process.exit(2);
+}
+
+function requireFlags(names) {
+  for (const name of names) {
+    if (!values[name]) {
+      process.stderr.write("pr-threads: --" + name + " is required\n");
+      process.exit(2);
+    }
+  }
+}
+
+let argv;
+
+if (subcommand === "list") {
+  requireFlags(["pr", "repo"]);
+  const [owner, name] = values.repo.split("/");
+  if (!owner || !name) {
+    process.stderr.write("pr-threads: --repo must be owner/name\n");
+    process.exit(2);
+  }
+  if (!/^\d+$/.test(values.pr)) {
+    process.stderr.write("pr-threads: --pr must be a number\n");
+    process.exit(2);
+  }
+  const query =
+    "query($owner: String!, $name: String!, $pr: Int!) {\n" +
+    "  repository(owner: $owner, name: $name) {\n" +
+    "    pullRequest(number: $pr) {\n" +
+    "      reviewThreads(first: 100) {\n" +
+    "        nodes { id isResolved path line }\n" +
+    "      }\n" +
+    "    }\n" +
+    "  }\n" +
+    "}";
+  argv = [
+    "api", "graphql",
+    "-f", "query=" + query,
+    "-f", "owner=" + owner,
+    "-f", "name=" + name,
+    "-F", "pr=" + values.pr,
+    "--jq", "[.data.repository.pullRequest.reviewThreads.nodes[] | {id, isResolved, path, line}]",
+  ];
+} else if (subcommand === "reply") {
+  requireFlags(["thread-id", "body"]);
+  const query =
+    "mutation($threadId: ID!, $body: String!) {\n" +
+    "  addPullRequestReviewThreadReply(input: {pullRequestReviewThreadId: $threadId, body: $body}) {\n" +
+    "    comment { id url }\n" +
+    "  }\n" +
+    "}";
+  argv = [
+    "api", "graphql",
+    "-f", "query=" + query,
+    "-f", "threadId=" + values["thread-id"],
+    "-f", "body=" + values.body,
+  ];
+} else if (subcommand === "resolve") {
+  requireFlags(["thread-id"]);
+  const query =
+    "mutation($threadId: ID!) {\n" +
+    "  resolveReviewThread(input: {threadId: $threadId}) {\n" +
+    "    thread { id isResolved }\n" +
+    "  }\n" +
+    "}";
+  argv = [
+    "api", "graphql",
+    "-f", "query=" + query,
+    "-f", "threadId=" + values["thread-id"],
+  ];
+} else {
+  requireFlags(["pr", "repo", "commit", "path", "line", "body"]);
+  const [owner, name] = values.repo.split("/");
+  if (!owner || !name) {
+    process.stderr.write("pr-threads: --repo must be owner/name\n");
+    process.exit(2);
+  }
+  if (!/^\d+$/.test(values.pr)) {
+    process.stderr.write("pr-threads: --pr must be a number\n");
+    process.exit(2);
+  }
+  argv = [
+    "api", "repos/" + owner + "/" + name + "/pulls/" + values.pr + "/comments",
+    "-f", "body=" + values.body,
+    "-f", "commit_id=" + values.commit,
+    "-f", "path=" + values.path,
+    "-F", "line=" + values.line,
+  ];
+}
+
+if (values["dry-run"]) {
+  process.stdout.write(JSON.stringify({ command: "gh", argv }) + "\n");
+  process.exit(0);
+}
+
+const result = spawnSync("gh", argv, { stdio: "inherit" });
+if (result.error) {
+  process.stderr.write("pr-threads: " + result.error.message + "\n");
+  process.exit(1);
+}
+process.exit(result.status ?? 1);

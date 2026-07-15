@@ -22,7 +22,8 @@ const panelSkill = read("skills/panel/SKILL.md");
 const panelWorkflow = read("skills/panel/panel.js");
 const qa = read("agents/qa.md");
 const codexDispatch = read("skills/run/references/codex-dispatch.md");
-const reviewDispatch = read("skills/run/references/review.md");
+const reviewDispatch = read("skills/review/SKILL.md");
+const land = read("skills/land/SKILL.md");
 
 describe("worker doctrine boundaries", () => {
   it("keeps reusable methods in skills and single-role identity in agents", () => {
@@ -38,7 +39,7 @@ describe("worker doctrine boundaries", () => {
         .filter((entry) => entry.isDirectory())
         .map((entry) => entry.name)
         .sort(),
-    ).toEqual(["codebase-design", "implementing", "panel", "reviewing", "run"]);
+    ).toEqual(["codebase-design", "implementing", "land", "panel", "review", "reviewing", "run"]);
 
     expect(read("agents/builder.md")).toContain("bottega:implementing");
     expect(read("agents/reviewer.md")).toContain("bottega:reviewing");
@@ -61,6 +62,9 @@ describe("worker doctrine boundaries", () => {
     for (const skill of [implementing, reviewing, design, panelSkill]) {
       expect(skill).toContain("user-invocable: false");
       expect(skill).not.toContain("disable-model-invocation: true");
+    }
+    for (const entry of [run, reviewDispatch, land]) {
+      expect(entry).not.toContain("user-invocable: false");
     }
   });
 
@@ -141,5 +145,34 @@ describe("worker doctrine boundaries", () => {
       ([model]) => model,
     );
     expect(new Set(codexModels)).toEqual(new Set(["gpt-5.6-sol"]));
+  });
+
+  it("relocates the review gate into skills/review and points run step 6 at it", () => {
+    expect(existsSync(join(ROOT, "skills/run/references/review.md"))).toBe(false);
+    expect(phase(run, 6)).toContain("../review/SKILL.md");
+    expect(phase(run, 6)).toMatch(/bottega:review/);
+    expect(phase(run, 6)).not.toContain("references/review.md");
+
+    expect(reviewDispatch).toContain("skills/reviewing/assets/review-dispatch.js");
+    expect(reviewDispatch).toContain("skills/run/references/codex-dispatch.md");
+    expect(reviewDispatch).toMatch(/one reviewer from each model family/i);
+    expect(reviewDispatch).toMatch(/two failed fixes stops the repair/i);
+    expect(reviewDispatch).toMatch(/round 3 stops the review/i);
+    expect(reviewDispatch).toMatch(/PR only/);
+    expect(reviewDispatch).toMatch(/doctrine-only/);
+  });
+
+  it("keeps the land skill carrying the GitHub surface, stops, and merge policy", () => {
+    expect(land).toContain("scripts/pr-threads");
+    expect(land).toMatch(/never auto-merged/i);
+    expect(land).toMatch(/converged/i);
+    expect(land).toMatch(/round 3 stops the review/i);
+    expect(land).toMatch(/two failed fixes stops that repair/i);
+    expect(land).toMatch(/two fix cycles without convergence/i);
+    expect(land).toMatch(/exceed the PR's stated intent/i);
+    expect(land).toMatch(/size-gated/);
+    expect(land).toMatch(/gates-red/);
+    expect(land).toMatch(/already on the PR when land starts.*enter round 1 as claimed findings/i);
+    expect(land).toMatch(/three brief lines from `skills\/run`.*name every test you edit.*verbatim/i);
   });
 });
