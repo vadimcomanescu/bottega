@@ -229,6 +229,28 @@ describe("pr-threads assembly", () => {
     });
   });
 
+  it("fails a live list run when a thread node lacks id or isResolved", () => {
+    const dir = mkdtempSync(join(tmpdir(), "pr-threads-gh-stub-"));
+    try {
+      const pages = [{ data: { repository: { pullRequest: { reviewThreads: { nodes: [
+        { isResolved: false, path: "src/a.ts", line: 3 },
+      ] } } } } }];
+      writeFileSync(
+        join(dir, "gh"),
+        "#!/usr/bin/env node\nprocess.stdout.write(JSON.stringify(" + JSON.stringify(pages) + "));\n",
+        { mode: 0o755 },
+      );
+      const result = spawnSync("node", [SCRIPT, "list", "--pr", "42", "--repo", "owner/name"], {
+        encoding: "utf-8",
+        env: { ...process.env, PATH: dir + ":" + process.env.PATH },
+      });
+      expect(result.status).toBe(1);
+      expect(result.stderr).toMatch(/unexpected gh output/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it("rejects an empty --body and an empty --body-file", () => {
     const emptyBody = dryRun("reply", "--thread-id", "T_abc", "--body", "");
     expect(emptyBody.status).toBe(2);

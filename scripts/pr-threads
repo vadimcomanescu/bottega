@@ -201,7 +201,14 @@ if (capture && result.status === 0) {
   try {
     const pages = JSON.parse(result.stdout);
     threads = pages.flatMap((page) => page.data.repository.pullRequest.reviewThreads.nodes)
-      .map(({ id, isResolved, path, line }) => ({ id, isResolved, path, line }));
+      .map(({ id, isResolved, path, line }) => {
+        // id and isResolved are non-null in the GraphQL schema; path and line
+        // are legitimately null on outdated threads.
+        if (typeof id !== "string" || id === "" || typeof isResolved !== "boolean") {
+          throw new Error("thread node missing id or isResolved");
+        }
+        return { id, isResolved, path, line };
+      });
   } catch (error) {
     process.stderr.write("pr-threads: unexpected gh output: " + String(error.message) + "\n");
     process.exit(1);
