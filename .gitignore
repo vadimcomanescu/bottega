@@ -1,4 +1,5 @@
 node_modules/
 .bottega/
+.worktrees/
 build-artifacts/
 *.tsbuildinfo

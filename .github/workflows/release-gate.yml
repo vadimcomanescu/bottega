@@ -10,6 +10,7 @@ on:
 
 jobs:
   version-bump:
+    name: gate-version-bump
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,6 +31,7 @@ jobs:
           fi
 
   test:
+    name: gate-test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
-import { basename, join } from "node:path";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const ROOT = join(import.meta.dirname, "..");
@@ -13,9 +13,8 @@ describe("Codex plugin package", () => {
     const manifest = json(join(ROOT, ".codex-plugin", "plugin.json"));
     const claudeManifest = json(join(ROOT, ".claude-plugin", "plugin.json"));
 
-    expect(basename(ROOT)).toBe("bottega");
     expect(manifest.name).toBe("bottega");
-    expect(manifest.version).toBe("0.52.0");
+    expect(manifest.version).toBe("0.53.0");
     expect(manifest.version).toBe(claudeManifest.version);
     expect(manifest.repository).toBe("https://github.com/vadimcomanescu/bottega");
     expect(manifest.skills).toBe("./skills/");

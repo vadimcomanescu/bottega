@@ -20,6 +20,7 @@ Autonomous issue-to-PR runs for Claude Code and Codex: one command takes a task 
 | `agents/` | Reusable worker identities for builder, reviewer, QA, mechanic, panelist, and panel judge. Claude workers load them as plugin agents; Codex workers receive their absolute paths. Agent files never pin model or effort |
 | `scripts/` | `codex-exec`, the Claude-host boundary to Codex; `claude-exec`, the Codex-host boundary to Claude; `exec-common.js`, the Claude boundary checks; and `pr-threads`, the GitHub review-thread boundary |
 | `hooks/` | Claude-only route and entry guards. The route guard applies to Claude Code sessions that own a live run; the entry guard points Claude run-intent prose at `/bottega:run` |
+| `docs/internal/repository-workflow.md` | Required worktree, branch, issue, pull request, verification, and cleanup procedure for changes to this repository |
 | `docs/specs/` | Closed records of delivered runs, kept as history |
 | `tests/` | Plugin, transport, hook, script, worker-doctrine, workflow, and report-contract tests |
 
@@ -33,6 +34,7 @@ In host repos, a run leaves nothing behind but the PR. Working state is the work
 - Orchestration is the harness: tracked dispatches, tracked background Bash, workflows. Never add a polling loop, a hand-written scheduler, or prose that imitates worker tracking. An instruction line that restates or replaces a harness capability is a defect.
 - Keep one canonical `skills/`, `agents/`, and `scripts/` tree for both hosts. Host differences live in `skills/run/references/host-transports.md`, the two external adapters, Claude-only hooks, and the two manifests. A copied or generated Codex doctrine tree is a defect.
 - On Codex, the active GPT-5.6 Sol Ultra task orchestrates native subagents and never launches another Codex process. On Claude Code, Fable 5 orchestrates and all Codex workers launch through `scripts/codex-exec`.
+- Every task that changes tracked files runs on a dedicated branch in an isolated linked worktree and ends in a pull request. The primary checkout is for synchronization and worktree management only; it must not receive tracked-file edits. Read `docs/internal/repository-workflow.md` before changing this repository.
 - Every run gets: isolation in its own worktree and branch, a build, host gates green after every integrated slice, one cross-family review of the integrated diff, a QA drive with recorded evidence, and a PR. The integrated review is the one thing never dropped.
 - Verification gate: `npm test` (hook and script unit tests). Never pipe test output inside a `&&` chain; redirect to a file and check the exit code.
 - Creating or editing any skill or agent file, load `skills/writing-great-skills` and evaluate the writing against it. That directory is vendored: keep its body text as imported; the style rules above govern the rest of the repo, not it.

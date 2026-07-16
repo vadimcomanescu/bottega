@@ -109,6 +109,11 @@ tests/           plugin, transport, hook, schema, and workflow contracts
 
 ## Development
 
+Every tracked change to Bottega must follow the linked-worktree, dedicated-branch,
+and pull-request procedure in
+[`docs/internal/repository-workflow.md`](docs/internal/repository-workflow.md).
+Do not edit tracked files in the primary checkout.
+
 ```bash
 npm install
 npm test
