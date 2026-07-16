@@ -13,12 +13,13 @@
 //              [--schema <file>] [--resume <thread-id>] [--dry-run]
 //
 // codex reads the brief file on stdin; the --json event stream lands in the
-// events file; the final message lands in the out file. The exit code is
-// codex's own. --dry-run prints the assembled invocation as JSON and runs
+// events file; the final message lands in the out file. A run whose events
+// file stops growing for CODEX_EXEC_STALL_MS (default five minutes) is
+// killed as hung. --dry-run prints the assembled invocation as JSON and runs
 // nothing.
 
-import { spawnSync } from "node:child_process";
-import { existsSync, openSync, readFileSync } from "node:fs";
+import { spawn } from "node:child_process";
+import { existsSync, openSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { isAbsolute } from "node:path";
 import { parseArgs } from "node:util";
 
@@ -105,74 +106,107 @@ if (values["dry-run"]) {
   process.exit(0);
 }
 
-for (const name of ["cwd", "brief", ...(values.schema ? ["schema"] : [])]) {
-  if (!existsSync(values[name])) {
-    process.stderr.write("codex-exec: --" + name + " " + values[name] + " does not exist\n");
-    process.exit(2);
-  }
+function fail(message, code = 1) {
+  process.stderr.write("codex-exec: " + message + "\n");
+  process.exit(code);
 }
 
-const result = spawnSync("codex", argv, {
+for (const name of ["cwd", "brief", ...(values.schema ? ["schema"] : [])]) {
+  if (!existsSync(values[name])) fail("--" + name + " " + values[name] + " does not exist", 2);
+}
+
+// Both output files start empty: a stale final message from a prior dispatch
+// at the same path must never pass verification.
+writeFileSync(values.out, "");
+
+const STALL_MS = Number(process.env.CODEX_EXEC_STALL_MS) || 300000;
+
+const child = spawn("codex", argv, {
   cwd: values.cwd,
   stdio: [openSync(values.brief, "r"), openSync(values.events, "w"), "inherit"],
 });
-if (result.error) {
-  process.stderr.write("codex-exec: " + result.error.message + "\n");
-  process.exit(1);
-}
 
-function fail(message) {
-  process.stderr.write("codex-exec: " + message + "\n");
-  process.exit(1);
-}
+// A wedged codex sits alive at 0% CPU forever and never exits into the
+// caller's process tracking; the events file is the liveness signal.
+let lastSize = -1;
+let lastGrowth = Date.now();
+let stalled = false;
+const watchdog = setInterval(() => {
+  let size = 0;
+  try {
+    size = statSync(values.events).size;
+  } catch {}
+  if (size > lastSize) {
+    lastSize = size;
+    lastGrowth = Date.now();
+  } else if (Date.now() - lastGrowth >= STALL_MS) {
+    stalled = true;
+    child.kill("SIGKILL");
+  }
+}, Math.min(15000, Math.max(50, Math.floor(STALL_MS / 5))));
+
+const [status, spawnError] = await new Promise((resolve) => {
+  child.on("error", (error) => resolve([1, error]));
+  child.on("close", (code) => resolve([code ?? 1, null]));
+});
+clearInterval(watchdog);
+if (spawnError) fail(spawnError.message);
+if (stalled)
+  fail(
+    "killed after " + Math.round(STALL_MS / 1000) +
+      "s without event activity; the run was hung, resume the thread to continue"
+  );
 
 // The event stream is the completion authority: a run finished when it
 // emitted turn.completed, and a failed run names its reason in error and
 // turn.failed events. Exit code and stream EOF alone prove neither.
-let events = [];
-try {
-  events = readFileSync(values.events, "utf8")
-    .split("\n")
-    .map((line) => {
-      try {
-        return JSON.parse(line);
-      } catch {
-        return null;
-      }
-    })
-    .filter((event) => event && typeof event.type === "string");
-} catch {}
+const RELEVANT = /"type":\s*"(thread\.started|turn\.completed|turn\.failed|error)"/;
+const events = readFileSync(values.events, "utf8")
+  .split("\n")
+  .filter((line) => RELEVANT.test(line))
+  .map((line) => {
+    try {
+      return JSON.parse(line);
+    } catch {
+      return null;
+    }
+  })
+  .filter((event) => event && typeof event.type === "string");
 
-const status = result.status ?? 1;
+const failure = events.findLast(
+  (event) => event.type === "turn.failed" || event.type === "error"
+);
+const reason =
+  typeof failure?.error === "string"
+    ? failure.error
+    : failure?.error?.message ?? failure?.message;
+
 if (status !== 0) {
-  const failure = events.findLast(
-    (event) => event.type === "turn.failed" || event.type === "error"
-  );
-  const message = failure?.error?.message ?? failure?.message;
-  if (message) process.stderr.write("codex-exec: " + message + "\n");
+  if (reason) process.stderr.write("codex-exec: " + reason + "\n");
   process.exit(status);
 }
 
-// A resumed thread echoes its id in thread.started; a different id means
-// the thread was gone and codex forked a fresh session with none of the
-// context the resume was for.
+// A resumed thread echoes its id in thread.started; a different or missing
+// id means codex forked a fresh session with none of the context the resume
+// was for, and the fork may have touched the worktree before this check.
 const started = events.find((event) => event.type === "thread.started");
-if (values.resume && started && started.thread_id !== values.resume) {
+if (values.resume) {
+  if (!started) fail("resume of thread " + values.resume + " emitted no thread.started event; re-dispatch fresh");
+  if (started.thread_id !== values.resume)
+    fail(
+      "resume of thread " + values.resume + " started a new session " +
+        started.thread_id + " instead; the thread no longer exists and the forked session may have modified the worktree, re-dispatch fresh"
+    );
+}
+if (!events.some((event) => event.type === "turn.completed"))
   fail(
-    "resume of thread " + values.resume + " started a new session " +
-      started.thread_id + " instead; the thread no longer exists, re-dispatch fresh"
+    "codex exited 0 without a turn.completed event; the run did not finish" +
+      (reason ? " (last failure event: " + reason + ")" : "")
   );
-}
-if (!events.some((event) => event.type === "turn.completed")) {
-  fail("codex exited 0 without a turn.completed event; the run did not finish");
-}
 
 // -o and --output-schema both survive resume, so every clean exit must have
 // written the final message, and a schema'd dispatch parseable JSON.
-let final = "";
-try {
-  final = readFileSync(values.out, "utf8");
-} catch {}
+const final = readFileSync(values.out, "utf8");
 if (!final.trim()) fail("codex exited 0 but wrote no final message to --out");
 if (values.schema) {
   try {

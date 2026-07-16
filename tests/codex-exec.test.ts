@@ -3,10 +3,10 @@
 // traps (resume drops -s and -C silently) are the reason this script exists;
 // both are asserted here.
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 
 const SCRIPT = join(import.meta.dirname, "..", "scripts", "codex-exec");
 
@@ -111,7 +111,7 @@ describe("codex-exec assembly", () => {
 
 // Post-run verification, exercised against a stub codex binary that emits a
 // controllable event stream and out file. The event stream is the completion
-// authority; these pin every way a run can lie with exit code 0.
+// authority; these pin every exit-0 outcome that is not a finished run.
 describe("codex-exec completion verification", () => {
   const STUB = `#!/usr/bin/env node
 const { writeFileSync } = require("node:fs");
@@ -121,23 +121,35 @@ const resumed = args[1] === "resume" ? args[2] : null;
 const mode = process.env.CODEX_STUB_MODE ?? "ok";
 const threadId = mode === "fork" ? "t-forked" : (resumed ?? "t-fresh");
 const emit = (event) => process.stdout.write(JSON.stringify(event) + "\\n");
-emit({ type: "thread.started", thread_id: threadId });
-if (mode === "fail") {
-  emit({ type: "turn.failed", error: { message: "usage limit reached" } });
-  process.exit(1);
+if (mode === "hang") setTimeout(() => {}, 60000);
+else {
+  emit({ type: "thread.started", thread_id: threadId });
+  if (mode === "fail") {
+    emit({ type: "turn.failed", error: { message: "usage limit reached" } });
+    process.exit(1);
+  }
+  emit({ type: "item.completed", item: { type: "agent_message", text: "done" } });
+  if (mode !== "no-turn-completed") emit({ type: "turn.completed", usage: {} });
+  if (mode === "bad-json") writeFileSync(out, "not json");
+  else if (mode !== "empty-out") writeFileSync(out, '{"word":"ok"}');
+  process.exit(0);
 }
-emit({ type: "item.completed", item: { type: "agent_message", text: "done" } });
-if (mode !== "no-turn-completed") emit({ type: "turn.completed", usage: {} });
-if (mode === "bad-json") writeFileSync(out, "not json");
-else if (mode !== "empty-out") writeFileSync(out, '{"word":"ok"}');
-process.exit(0);
 `;
 
-  function runStubbed(mode: string, ...extra: string[]) {
+  const dirs: string[] = [];
+  afterAll(() => {
+    for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
+  });
+
+  function runStubbed(
+    mode: string,
+    options: { schema?: boolean; resume?: string; staleOut?: string; stallMs?: number } = {},
+  ) {
     const dir = mkdtempSync(join(tmpdir(), "codex-exec-test-"));
+    dirs.push(dir);
     writeFileSync(join(dir, "codex"), STUB, { mode: 0o755 });
     writeFileSync(join(dir, "brief.md"), "the brief");
-    writeFileSync(join(dir, "schema.json"), "{}");
+    if (options.staleOut !== undefined) writeFileSync(join(dir, "out.txt"), options.staleOut);
     const args = [
       "--model", "gpt-5.6-sol",
       "--effort", "high",
@@ -146,17 +158,26 @@ process.exit(0);
       "--brief", join(dir, "brief.md"),
       "--out", join(dir, "out.txt"),
       "--events", join(dir, "events.jsonl"),
-      ...extra.map((v) => (v === "<schema>" ? join(dir, "schema.json") : v)),
     ];
+    if (options.schema) {
+      writeFileSync(join(dir, "schema.json"), "{}");
+      args.push("--schema", join(dir, "schema.json"));
+    }
+    if (options.resume) args.push("--resume", options.resume);
     return spawnSync("node", [SCRIPT, ...args], {
       encoding: "utf-8",
-      env: { ...process.env, PATH: `${dir}:${process.env.PATH}`, CODEX_STUB_MODE: mode },
+      env: {
+        ...process.env,
+        PATH: `${dir}:${process.env.PATH}`,
+        CODEX_STUB_MODE: mode,
+        CODEX_EXEC_STALL_MS: String(options.stallMs ?? 300000),
+      },
     });
   }
 
   it("passes a clean run, fresh and resumed", () => {
     expect(runStubbed("ok").status).toBe(0);
-    expect(runStubbed("ok", "--resume", "t-123").status).toBe(0);
+    expect(runStubbed("ok", { resume: "t-123" }).status).toBe(0);
   });
 
   it("fails an exit-0 run that never emitted turn.completed", () => {
@@ -165,20 +186,25 @@ process.exit(0);
     expect(result.stderr).toMatch(/without a turn.completed event/);
   });
 
-  it("fails an exit-0 run that wrote no final message", () => {
-    const result = runStubbed("empty-out");
-    expect(result.status).toBe(1);
-    expect(result.stderr).toMatch(/wrote no final message/);
+  it("fails an exit-0 run that wrote no final message, even over a stale out file", () => {
+    const empty = runStubbed("empty-out");
+    expect(empty.status).toBe(1);
+    expect(empty.stderr).toMatch(/wrote no final message/);
+
+    // A prior dispatch's final message at the same --out path must not pass.
+    const stale = runStubbed("empty-out", { staleOut: '{"word":"stale"}' });
+    expect(stale.status).toBe(1);
+    expect(stale.stderr).toMatch(/wrote no final message/);
   });
 
   it("fails a schema'd run whose out file is not JSON", () => {
-    const result = runStubbed("bad-json", "--schema", "<schema>");
+    const result = runStubbed("bad-json", { schema: true });
     expect(result.status).toBe(1);
     expect(result.stderr).toMatch(/not valid JSON/);
   });
 
   it("fails a resume that forked a new session instead of continuing the thread", () => {
-    const result = runStubbed("fork", "--resume", "t-123");
+    const result = runStubbed("fork", { resume: "t-123" });
     expect(result.status).toBe(1);
     expect(result.stderr).toMatch(/started a new session t-forked/);
   });
@@ -187,5 +213,11 @@ process.exit(0);
     const result = runStubbed("fail");
     expect(result.status).toBe(1);
     expect(result.stderr).toMatch(/usage limit reached/);
+  });
+
+  it("kills a run whose events file stops growing and reports the stall", () => {
+    const result = runStubbed("hang", { stallMs: 400 });
+    expect(result.status).toBe(1);
+    expect(result.stderr).toMatch(/without event activity/);
   });
 });
