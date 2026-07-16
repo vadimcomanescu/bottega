@@ -1,0 +1,40 @@
+# Every merge to main is a release: the plugin marketplace serves whatever
+# version .claude-plugin/plugin.json names, so a PR that changes the repo
+# without bumping the version ships nothing until someone notices. This gate
+# makes the bump a merge requirement instead of a convention.
+name: release-gate
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  version-bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: fetch the base branch manifest
+        run: git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+      - name: require the version to move past the base
+        run: |
+          base="$(git show "origin/${{ github.base_ref }}:.claude-plugin/plugin.json" | node -e 'let d="";process.stdin.on("data",c=>d+=c);process.stdin.on("end",()=>console.log(JSON.parse(d).version))')"
+          head="$(node -p 'require("./.claude-plugin/plugin.json").version')"
+          echo "base: $base, head: $head"
+          if [ "$base" = "$head" ]; then
+            echo "::error file=.claude-plugin/plugin.json::every merge to main is a release; bump the version above $base"
+            exit 1
+          fi
+          if [ "$(printf '%s\n%s\n' "$base" "$head" | sort -V | tail -1)" != "$head" ]; then
+            echo "::error file=.claude-plugin/plugin.json::version $head is not above the base version $base"
+            exit 1
+          fi
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm test
