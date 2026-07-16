@@ -52,4 +52,10 @@ Each fix is rechecked by one helper invocation, single engine, the family opposi
 
 The report stands at the frozen SHAs, every finding is fixed or refuted, every blocked check is resolved, and the gates are green.
 
-A clean completion is recorded where GitHub reads it, never as a PR comment: post one commit status on the reviewed head, context `bottega/review`, state success (`gh api repos/<owner>/<repo>/statuses/<sha> -f state=success -f context=bottega/review`). The status binds to the SHA and disappears with a new head, so its presence on a live head always means exactly "this head passed the gate". Post it once the reviewed head exists on the remote: land posts immediately after its clean round; a run posts at Deliver, after the push and before opening the PR.
+A clean completion is recorded where GitHub reads it, never as a PR comment: post one commit status on the reviewed head, naming the base it was reviewed against.
+
+    gh api repos/<owner>/<repo>/statuses/<reviewed-head-sha> \
+      -f state=success -f context=bottega/review \
+      -f description="reviewed against base <reviewed-base-sha>"
+
+A status stays on the commit it was posted against; a new head simply carries no status of its own. That is what makes it a reviewed marker: it can never describe a head it was not posted on. It says nothing about any other head, and nothing about a base that moved after the review, which is why the base SHA is part of it and why every reader validates both (`skills/land` Entry). Post it once the reviewed head exists on the remote: land posts immediately after its clean round; a run posts at Deliver, after the push and before opening the PR.

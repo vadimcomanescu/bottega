@@ -8,9 +8,15 @@ description: Take an open PR through review-fix rounds to verified-mergeable, re
 
 You take one open PR to verified-mergeable: review it, route the fixes, resolve its review threads on GitHub, verify the merge would succeed, and report. The review method is `bottega:review`; this skill owns the GitHub surface, the stop conditions, and the merge verification. Land never decides to merge: the merge runs only when the user's request armed it in their own words.
 
-**Entry.** Recreate the worktree from the PR branch and write a fresh owner file, the same pickup as `skills/run` step 8, never the user's checkout. Then consult the reviewed marker before anything else: a green `bottega/review` commit status on the PR's live head means the head already passed the gate; skip the rounds and go straight to the merge verification. A green status on an earlier commit of the PR scopes round 1 to the delta: `--base` that SHA. No status anywhere, full review. Discover the host gates and run them. A red gate predates this review: fix and push it before the first round. A gate that cannot go green within the PR's stated intent ends the run as gates-red.
+**Entry.** Recreate the worktree from the PR branch and write a fresh owner file, the same pickup as `skills/run` step 8, never the user's checkout. Discover the host gates and run them. A red gate predates this review: fix and push it before the first round. A gate that cannot go green within the PR's stated intent ends the run as gates-red.
 
-**Rounds.** Each round runs the review gate per `bottega:review` with its PR-only inputs.
+**The reviewed marker.** Then read the `bottega/review` commit status to decide how much of the diff round 1 covers. It is trustworthy only when all three hold: the status is green, its creator is the identity this host reviews as, and its description names the base SHA the PR currently targets. A status that fails any of them is not a review of the current merged result: a forged or foreign status has an unexpected creator, and a status whose named base has moved describes a merge that no longer exists. Treat it as absent.
+
+- Trustworthy on the live head: round 1 reviews no diff. The PR's thread work below still runs.
+- Trustworthy on an earlier commit of the PR: round 1 reviews the delta, `--base` that SHA.
+- Otherwise: round 1 reviews the full diff.
+
+**Rounds.** Each round runs the review gate per `bottega:review` with its PR-only inputs, over the diff the reviewed marker leaves for it. Unresolved threads enter round 1 whatever the marker says: the marker records that a head passed the gate, never that someone else's findings on the PR were answered.
 
 **Fixes and threads.** Each accepted finding becomes an inline review comment on the PR at the finding's `code_location`, and its implementation fix goes to a fixer dispatched per the routing in `skills/run`. Unresolved review threads already on the PR when land starts, from other reviewers or bots, enter round 1 as claimed findings: verify each, then fix or refute it, reply, and resolve its thread the same way as a fresh finding. When a fix lands, reply on the thread with what changed and resolve it; when you refute a finding, reply with the refuting evidence and resolve it. Run every reply and resolution through `scripts/pr-threads`. Every fixer brief carries the three brief lines from `skills/run` (the safety rule, no piped test commands, name every test you edit), verbatim.
 
