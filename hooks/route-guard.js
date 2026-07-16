@@ -209,7 +209,7 @@ function agentCalls(script) {
 // regexes run on the call's options object only, never on prompt prose.
 const MODEL_LITERAL = /\bmodel\s*:\s*(['"])([^'"]*)\1/;
 const WORKFLOW_WORKER = new RegExp(
-  "\\bagentType\\s*:\\s*['\"]bottega:(" + ROLES + ")['\"]"
+  "\\bagentType\\s*:\\s*['\"`]bottega:(" + ROLES + ")['\"`]"
 );
 const WORKFLOW_UNKNOWN_SEAT = new RegExp(
   "\\bagentType\\s*:\\s*['\"`]bottega:(" + REMOVED_ROLE + ")['\"`]"

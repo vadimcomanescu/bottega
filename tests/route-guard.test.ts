@@ -173,6 +173,7 @@ describe("route-guard: all other dispatches, gated on a live run", () => {
   it("denies any fable-routed dispatch during a run: fable is the orchestrator, never a dispatch", () => {
     const cwd = repoWithRun(OWNER);
     for (const tool_input of [
+      { subagent_type: "bottega:builder", model: "fable", prompt: "build" },
       { subagent_type: "Explore", model: "claude-fable-5", prompt: "map territory" },
       {
         subagent_type: "general-purpose",
@@ -182,7 +183,7 @@ describe("route-guard: all other dispatches, gated on a live run", () => {
       },
     ]) {
       expect(denialOf(run(ROUTE_GUARD, { cwd, session_id: OWNER, tool_input }))).toMatch(
-        /routes fable/,
+        /routes (?:a worker agent to )?fable/,
       );
     }
   });
@@ -332,6 +333,17 @@ const r = await agent("the table gives builders model: 'opus'; review it", { age
 const r = await agent("note agentType: 'bottega:builder' is used elsewhere; summarize", { model: 'sonnet' })
 `;
     expect(run(ROUTE_GUARD, workflowEvent({ script: prose }))).toBe("");
+  });
+
+  it("enforces worker routing for a static backtick agentType", () => {
+    const script = (model: string) =>
+      "export const meta = { name: 'sweep', description: 'x', phases: [] }\n" +
+      `const r = await agent('build', { agentType: \`bottega:builder\`, model: '${model}' })\n`;
+
+    expect(
+      denialOf(run(ROUTE_GUARD, workflowEvent({ script: script("sonnet") }))),
+    ).toMatch(/routes the builder agent/);
+    expect(run(ROUTE_GUARD, workflowEvent({ script: script("opus") }))).toBe("");
   });
 
   it("treats a template-literal model as unpinned", () => {
