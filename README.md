@@ -67,7 +67,7 @@ skills/         run, review, land, implementing, autoreview (vendored), codebase
 agents/         Claude identities for builder, QA, panelist, and panel judge
 scripts/        codex-exec (the one place a codex invocation is assembled) and pr-threads (PR review-thread calls)
 hooks/          route guard (model routing) and entry guard (points prose at /bottega:run)
-tests/          unit tests for the hooks, the codex-exec and pr-threads scripts, the worker doctrine, and the review report contract
+tests/          unit tests for the hooks, the codex-exec and pr-threads scripts, the worker doctrine, and the vendored autoreview tree's integrity
 docs/specs/     closed records of delivered runs
 docs/research/  primary-source notes supporting worker doctrine
 ```
@@ -76,7 +76,7 @@ docs/research/  primary-source notes supporting worker doctrine
 
 ```bash
 npm install
-npm test        # hook unit tests
+npm test        # vitest suites plus the vendored autoreview Python suites (needs python3 and git on PATH)
 ```
 
 ## Credits

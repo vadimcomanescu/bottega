@@ -26,11 +26,11 @@ You take one open PR to MERGED: review it, route the fixes, resolve its review t
 
     curl -s -H "Title: land <PR> <state>" -d "<one-line summary>" https://ntfy.sh/$BOTTEGA_NTFY_TOPIC
 
-**Merge.** A risk path is authentication, money, permissions, persisted data, or destructive operations. A risk-path PR stops at converged-mergeable and reports for a person to merge; every other converged PR you merge yourself. Run the terminal sequence in order and stop on the first step that fails, reporting it:
+**Merge.** A risk path is authentication, money, permissions, persisted data, or destructive operations. Run the terminal sequence in order for every converged PR, risk-path included, and stop on the first step that fails, reporting it:
 
-1. Watch the PR's required checks to green: `gh pr checks <PR> --required --watch`.
+1. Watch the PR's required checks to green: `gh pr checks <PR> --required --watch`. A host with no required checks passes this step: distinguish gh's no-required-checks exit from a failing check before calling it a failure.
 2. Confirm the PR is not a draft.
 3. Confirm the live head SHA equals the head SHA the final review round was frozen at.
-4. `gh pr merge <PR> --squash --match-head-commit <reviewed-head-sha>`, which refuses the merge if the head has moved.
+4. A risk-path PR stops here: report it converged-mergeable, verified through step 3, for a person to merge. Every other PR: `gh pr merge <PR> --squash --match-head-commit <reviewed-head-sha>`, which refuses the merge if the head has moved.
 5. Confirm the PR state is MERGED.
 6. Delete the PR's remote branch, then remove the worktree, the run state, and the evidence branches, as `skills/run` step 8 does once a session learns the PR merged.

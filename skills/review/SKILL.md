@@ -6,7 +6,7 @@ argument-hint: "<PR number, ref range, or integrated worktree>"
 
 # Review
 
-The cross-family review gate. It freezes the target, invokes the vendored autoreview helper as a two-family panel, adjudicates the findings, and routes every repair. Two callers reach it: a run at its Review phase, and a land taking an open PR to mergeable. The helper runs the review engines and returns one JSON report; this gate owns the frozen SHAs, the house model routing line, adjudication, the caps, and the routing of fixes. It never restates helper method: `skills/autoreview/SKILL.md` is the runtime doctrine for the invocation, verbatim, and this gate defers to it by path.
+The cross-family review gate. It freezes the target, invokes the vendored autoreview helper as a two-family panel, adjudicates the findings, and routes every repair. Two callers reach it: a run at its Review phase, and a land taking an open PR to merged. The helper runs the review engines and returns one JSON report; this gate owns the frozen SHAs, the house model routing line, adjudication, the caps, and the routing of fixes. It never restates helper method: `skills/autoreview/SKILL.md` is the runtime doctrine for the invocation, verbatim, and this gate defers to it by path.
 
 ## Freeze the target
 
@@ -29,6 +29,8 @@ One helper invocation reviews the frozen diff with both families in parallel. Th
 - `--json-output`, and any `--output`, must resolve outside the reviewed repo; use the session scratchpad. The helper enforces this.
 - **Intent** is the `--prompt` text. From a run: the canonical run brief and domain glossary verbatim, plus the instruction to report design nonconformance as findings anchored in the diff; conformance is judged against the brief's fixed decisions. Without a run brief: the PR title, body, and linked issue for a PR, otherwise the user's stated request, and the architecture verdict is judged against `skills/codebase-design` doctrine; the adjudication states that basis.
 - **Codex-host posture.** The helper's codex engine is a bounded read-only `codex exec` in an empty workspace. It is permitted on both hosts; it is not an orchestrating Codex process.
+- **Fail-closed bundles.** The helper refuses a bundle carrying secret-shaped or sensitive content, and that refusal is not overridable. When the refused content is legitimate (a vendored test fixture, a seeded credential in test data), split the review into coherent targets: build a temporary review head without the refused paths, review the authored remainder against the same base, and verify the excluded part deterministically (a byte pin against upstream, its own test suite). Record the split and its verification in the adjudication.
+- **Helper location.** Invoke the helper from a checkout that carries it. When the review head does not (the vendored tree is itself excluded or under review), run the helper by absolute path from a checkout outside the reviewed one, with the reviewed worktree as the working directory.
 
 **Trivial-diff exception.** For a PR target under 150 changed lines that touches no risk path, review with a single engine via `--engine`, from the family opposite the head author; record that choice. A risk path is authentication, money, permissions, persisted data, or a destructive operation. When the head author's family is unknown (a human PR or unknown authorship) the exception does not apply and both families review. A run's integrated review always takes both families and is never eligible.
 
