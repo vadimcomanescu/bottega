@@ -5,15 +5,15 @@ export const meta = {
 }
 
 const PANELIST = {
-  type: 'object',
-  additionalProperties: false,
-  required: ['draft', 'claims', 'assumptions', 'would_change'],
-  properties: {
-    draft: { type: 'string', minLength: 1, description: 'complete self-contained answer' },
-    claims: { type: 'array', items: { type: 'string' } },
-    assumptions: { type: 'array', items: { type: 'string' } },
-    would_change: { type: 'array', items: { type: 'string' } },
-  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["draft", "claims", "assumptions", "would_change"],
+  "properties": {
+    "draft": { "type": "string", "minLength": 1 },
+    "claims": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "assumptions": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "would_change": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+  }
 }
 
 // The Sol draft crosses two boundaries (wrapper agent, then codex), so the
@@ -33,16 +33,16 @@ const SOL_TRANSPORT = {
 }
 
 const JUDGE = {
-  type: 'object',
-  additionalProperties: false,
-  required: ['consensus', 'contradictions', 'partial_coverage', 'unique_insights', 'blind_spots'],
-  properties: {
-    consensus: { type: 'array', items: { type: 'string' } },
-    contradictions: { type: 'array', items: { type: 'string' } },
-    partial_coverage: { type: 'array', items: { type: 'string' } },
-    unique_insights: { type: 'array', items: { type: 'string' } },
-    blind_spots: { type: 'array', items: { type: 'string' } },
-  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["consensus", "contradictions", "partial_coverage", "unique_insights", "blind_spots"],
+  "properties": {
+    "consensus": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "contradictions": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "partial_coverage": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "unique_insights": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "blind_spots": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+  }
 }
 
 // A caller that JSON-encodes the args object hands the script one string and

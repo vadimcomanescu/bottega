@@ -6,7 +6,7 @@ user-invocable: false
 
 # Reviewing
 
-Review the fixed tree independently. Do not use builder reasoning, another reviewer's findings, or a prior round's conclusions. Do not edit the product. Fable decides whether the evidence is sufficient and routes any repair.
+Review the fixed tree independently. Do not use builder reasoning, another reviewer's findings, or a prior round's conclusions. Do not edit the product. The orchestrator decides whether the evidence is sufficient and routes any repair.
 
 ## Target and scope
 

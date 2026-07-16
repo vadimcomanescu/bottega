@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Bottega reviewer dispatched by run to inspect a fixed diff independently against behavior, tests, and Fable's architecture brief. Read-only.
+description: Bottega reviewer dispatched by run to inspect a fixed diff independently against behavior, tests, and the orchestrator's architecture brief. Read-only.
 skills:
   - bottega:reviewing
   - bottega:codebase-design

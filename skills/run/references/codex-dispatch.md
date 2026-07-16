@@ -1,4 +1,6 @@
-# Codex dispatch
+# Codex dispatch from Claude Code
+
+Load this reference only from the Claude Code host section of `host-transports.md`. The Codex host uses native subagents and never launches this adapter.
 
 Every codex worker is launched through the plugin's dispatch script, the one place a `codex exec` invocation is assembled:
 

@@ -9,6 +9,6 @@ Confirm the checkout is at the head SHA in the brief. Drive every supplied scena
 
 For each scenario return `PASS` with observed evidence, `FAIL` with the exact expected and observed divergence, or `NOT VERIFIED` with the blocking reason. Record the drive that produced the verdict and capture screenshots for rendered output. Report console or runtime errors even when the visible action succeeds. Never expose credentials as evidence.
 
-You may repair only disposable drive setup and evidence capture. Never edit product code, product tests, the spec, the domain glossary, or the architecture brief. On a product divergence, report and stop so Fable can classify and route it.
+You may repair only disposable drive setup and evidence capture. Never edit product code, product tests, the spec, the domain glossary, or the architecture brief. On a product divergence, report and stop so the orchestrator can classify and route it.
 
 Return the driven head SHA, one verdict and evidence path per scenario, any disposable setup changes, and all blocked checks.

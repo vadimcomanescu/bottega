@@ -1,6 +1,6 @@
 ---
 name: review
-description: Review an integrated diff through the cross-family gate. Invoke via /bottega:review on a PR or a ref range; a run reaches the same gate at its Review phase.
+description: Review an integrated diff through the cross-family gate. Invoke via /bottega:review in Claude Code or $bottega:review in Codex; a run reaches the same gate at its Review phase.
 argument-hint: "<PR number, ref range, or integrated worktree>"
 ---
 
@@ -21,12 +21,7 @@ The intent a reviewer judges conformance against depends on the caller. This is 
 
 ## Round 1
 
-One reviewer from each model family, in parallel, each blind: no builder reasoning, and not the other reviewer's report. Each report carries an independent architecture verdict. Each reviewer brief carries the diff, the intent input for its tier, the domain glossary when the host has one, the changed-test justifications, the frozen SHAs, and an evidence directory. Launch the Claude reviewer through the shipped workflow so its report is schema-enforced:
-
-    Workflow({ scriptPath: "<install root>/skills/reviewing/assets/review-dispatch.js",
-               args: { brief: <complete reviewer brief> } })
-
-Launch the Codex reviewer per the Codex reviewer preparation in `skills/run/references/codex-dispatch.md`, against the same report schema. Reject any report whose target SHAs or reviewer identity differ from the dispatch.
+One reviewer from each model family, in parallel, each blind: no builder reasoning, and not the other reviewer's report. Each report carries an independent architecture verdict. Each reviewer brief carries the diff, the intent input for its tier, the domain glossary when the host has one, the changed-test justifications, the frozen SHAs, and an evidence directory. Load [the host transport reference](../run/references/host-transports.md) and use the active host's two review routes against `skills/reviewing/references/report.schema.json`. Reject any report whose target SHAs, round, or reviewer identity differ from the dispatch.
 
 **Trivial-diff exception.** The exception applies to a PR target only; a run's integrated review always takes both families and is never eligible. For a PR target under 150 changed lines that touches no risk path, a single reviewer may review, from the family opposite the head's author; record that choice. A risk path is any path `skills/reviewing` requires the strongest probes for. When the head author's model family is unknown (a human PR or unknown authorship), the exception does not apply and both families review.
 

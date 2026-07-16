@@ -8,7 +8,7 @@ description: Take an open PR through review-fix rounds until it is mergeable, re
 
 You take one open PR to a mergeable state: review it, route the fixes, resolve its review threads on GitHub, and report where it ended. The review method is `bottega:review`; this skill owns the GitHub surface, the size gate, the stop conditions, and the merge decision.
 
-**Entry.** Recreate the worktree from the PR branch and write a fresh owner file, the same pickup as `skills/run` step 8, never the user's checkout. Discover the host gates and run them. A red gate predates this review: fix and push it before the first round. A gate that cannot go green within the PR's stated intent ends the run as gates-red.
+**Entry.** Recreate the worktree from the PR branch and restore the active host's ownership marker per `skills/run/references/host-transports.md`, the same pickup as `skills/run` step 8, never the user's checkout. Discover the host gates and run them. A red gate predates this review: fix and push it before the first round. A gate that cannot go green within the PR's stated intent ends the run as gates-red.
 
 **Size gate.** A diff over 800 changed lines or 20 files is not landed. Comment on the PR asking for a split, notify, and stop.
 

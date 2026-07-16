@@ -15,6 +15,7 @@ function phase(text: string, number: number): string {
 }
 
 const run = read("skills/run/SKILL.md");
+const hostTransports = read("skills/run/references/host-transports.md");
 const implementing = read("skills/implementing/SKILL.md");
 const reviewing = read("skills/reviewing/SKILL.md");
 const design = read("skills/codebase-design/SKILL.md");
@@ -30,6 +31,7 @@ describe("worker doctrine boundaries", () => {
   it("keeps reusable methods in skills and single-role identity in agents", () => {
     expect(readdirSync(join(ROOT, "agents")).sort()).toEqual([
       "builder.md",
+      "mechanic.md",
       "panel-judge.md",
       "panelist.md",
       "qa.md",
@@ -105,9 +107,9 @@ describe("worker doctrine boundaries", () => {
   });
 
   it("gives builders implementation freedom without architecture authorship", () => {
-    expect(implementing).toMatch(/Fable owns the domain model, architecture, and interfaces/i);
+    expect(implementing).toMatch(/orchestrator owns the domain model, architecture, and interfaces/i);
     expect(implementing).toMatch(/simplest correct implementation behind them/i);
-    expect(implementing).toMatch(/different ownership.*interface change.*dependency direction.*domain meaning.*stop and ask Fable/i);
+    expect(implementing).toMatch(/different ownership.*interface change.*dependency direction.*domain meaning.*stop and ask the orchestrator/i);
     expect(implementing).toMatch(/supplied technology skills/i);
     expect(implementing).toMatch(/installed version and primary vendor documentation/i);
     expect(implementing).toMatch(/browser or desktop drive is optional.*independent product verdict belongs to QA/i);
@@ -123,12 +125,12 @@ describe("worker doctrine boundaries", () => {
     expect(design).toMatch(/not a line-by-line implementation plan/i);
   });
 
-  it("separates independent architecture verification, Fable acceptance, and product QA", () => {
+  it("separates independent architecture verification, orchestrator acceptance, and product QA", () => {
     expect(reviewing).toMatch(/Review the fixed tree independently/i);
     expect(reviewing).toMatch(/Apply the supplied codebase-design doctrine/i);
     expect(reviewing).toMatch(/architecture` verdict: `conforms`, `finding`, or `blocked`/i);
     expect(phase(run, 6)).toMatch(/Reviewers verify conformance/i);
-    expect(phase(run, 6)).toMatch(/Fable performs the final architecture step/i);
+    expect(phase(run, 6)).toMatch(/orchestrator performs the final architecture step/i);
     expect(phase(run, 6)).toMatch(/not the only verifier of the design it authored/i);
 
     expect(qa).toMatch(/Verify the product as a user/i);
@@ -139,23 +141,27 @@ describe("worker doctrine boundaries", () => {
   });
 
   it("keeps independently invoked workflows as real skills and wires their assets", () => {
-    expect(panelSkill).toContain("skills/panel/panel.js");
+    expect(panelSkill).toContain("../run/references/host-transports.md");
+    expect(panelSkill).toContain("references/panelist.schema.json");
+    expect(panelSkill).toContain("references/judge.schema.json");
     expect(panelSkill).toMatch(/The panel does not vote or decide/i);
     expect(panelWorkflow).toContain("--model gpt-5.6-sol --effort max");
-    expect(reviewDispatch).toContain("skills/reviewing/assets/review-dispatch.js");
+    expect(hostTransports).toContain("skills/panel/panel.js");
+    expect(hostTransports).toContain("skills/reviewing/assets/review-dispatch.js");
     expect(existsSync(join(ROOT, "skills/run/references/panel.md"))).toBe(false);
     expect(existsSync(join(ROOT, "skills/run/assets/panel.js"))).toBe(false);
   });
 
-  it("keeps attribution badges out and caps Codex routing at Sol", () => {
+  it("keeps attribution badges out and bounds each host route", () => {
     expect(phase(run, 8)).toMatch(/attribution badges or footers out of the PR body/i);
     expect(read("AGENTS.md")).toMatch(/Omit tool, model, and vendor attribution badges or footers/i);
-    expect(run).toMatch(/Codex workers never use a multi-agent model tier/i);
-    expect(run).toMatch(/Sol at max effort is the ceiling/i);
-    const codexModels = [...`${run}\n${panelWorkflow}`.matchAll(/gpt-5\.6-[a-z-]+/g)].map(
+    expect(hostTransports).toMatch(/Never launch another Codex process/i);
+    expect(run).toMatch(/highest worker effort is reserved for the panel.*one deliberate retry/i);
+    const codexModels = [...`${hostTransports}\n${panelWorkflow}`.matchAll(/gpt-5\.6-[a-z-]+/g)].map(
       ([model]) => model,
     );
-    expect(new Set(codexModels)).toEqual(new Set(["gpt-5.6-sol"]));
+    expect(codexModels).toContain("gpt-5.6-sol");
+    expect(codexModels.every((model) => ["gpt-5.6-sol", "gpt-5.6-terra"].includes(model))).toBe(true);
   });
 
   it("relocates the review gate into skills/review and points run step 6 at it", () => {
@@ -164,8 +170,10 @@ describe("worker doctrine boundaries", () => {
     expect(phase(run, 6)).toMatch(/bottega:review/);
     expect(phase(run, 6)).not.toContain("references/review.md");
 
-    expect(reviewDispatch).toContain("skills/reviewing/assets/review-dispatch.js");
-    expect(reviewDispatch).toContain("skills/run/references/codex-dispatch.md");
+    expect(reviewDispatch).toContain("../run/references/host-transports.md");
+    expect(hostTransports).toContain("skills/reviewing/assets/review-dispatch.js");
+    expect(hostTransports).toContain("scripts/codex-exec");
+    expect(hostTransports).toContain("scripts/claude-exec");
     expect(reviewDispatch).toMatch(/one reviewer from each model family/i);
     expect(reviewDispatch).toMatch(/two failed fixes stops the repair/i);
     expect(reviewDispatch).toMatch(/round 3 stops the review/i);

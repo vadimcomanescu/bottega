@@ -1,0 +1,34 @@
+{
+  "name": "bottega",
+  "version": "0.52.0",
+  "description": "Autonomous issue-to-PR runs for Codex and Claude Code with mandatory cross-family review.",
+  "author": {
+    "name": "Vadim Comanescu",
+    "url": "https://github.com/vadimcomanescu"
+  },
+  "homepage": "https://github.com/vadimcomanescu/bottega#readme",
+  "repository": "https://github.com/vadimcomanescu/bottega",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "autonomous",
+    "agents",
+    "orchestration",
+    "code-review",
+    "qa"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Bottega",
+    "shortDescription": "Take an issue to a reviewed, evidence-backed PR.",
+    "longDescription": "Runs discovery, specification, planning, implementation, mandatory Codex and Claude review, product QA, and pull request delivery from one task.",
+    "developerName": "Vadim Comanescu",
+    "category": "Coding",
+    "capabilities": ["Agents", "Write", "Code review"],
+    "defaultPrompt": [
+      "$bottega:run Take this task to a reviewed pull request.",
+      "$bottega:review Review this PR through both model families.",
+      "$bottega:land Take this pull request to a mergeable state."
+    ]
+  }
+}
