@@ -32,6 +32,7 @@ const AsyncFunction = Object.getPrototypeOf(async function () {})
 async function runScript(
   path: string,
   args: unknown,
+  solExitCode = 0,
 ): Promise<{ calls: AgentCall[]; result: unknown }> {
   const source = readFileSync(join(ROOT, path), "utf8").replace(
     "export const meta",
@@ -40,7 +41,13 @@ async function runScript(
   const calls: AgentCall[] = [];
   const agent = async (prompt: string, opts: Record<string, unknown>) => {
     calls.push({ prompt, opts });
-    return opts.label === "panel-judge" ? JUDGE_RESULT : PANELIST_RESULT;
+    if (opts.label === "panel-judge") return JUDGE_RESULT;
+    if (opts.label === "panelist:sol")
+      return {
+        exit_code: solExitCode,
+        draft: solExitCode === 0 ? PANELIST_RESULT : null,
+      };
+    return PANELIST_RESULT;
   };
   const parallel = (thunks: Array<() => Promise<unknown>>) =>
     Promise.all(thunks.map((t) => t().catch(() => null)));
@@ -90,6 +97,12 @@ describe("workflow args normalization", () => {
 
   it("panel refuses args that are not valid JSON", async () => {
     await expect(runScript(PANEL, "not json")).rejects.toThrow();
+  });
+
+  it("panel refuses a Sol dispatch whose codex run failed, instead of comparing a fabricated draft", async () => {
+    await expect(runScript(PANEL, PANEL_ARGS, 1)).rejects.toThrow(
+      "a panelist returned no draft",
+    );
   });
 
   it("review dispatch sends the brief from object args", async () => {

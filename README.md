@@ -55,7 +55,7 @@ Agent definitions say who enters an isolated context: the role, authority, prohi
 | builder | implements one assigned slice, test-first, inside Fable's fixed architecture | gpt-5.6-sol (high), or opus-4.8 (xhigh) for a user-facing slice | [`skills/implementing/SKILL.md`](skills/implementing/SKILL.md) |
 | reviewer | breaks the integrated diff, polices tests, independently checks Fable's architecture | gpt-5.6-sol (high) + opus-4.8 (xhigh) in round 1; opposite family from each fixer on deltas | [`skills/reviewing/SKILL.md`](skills/reviewing/SKILL.md) |
 | qa | drives the built artifact as a user, records the evidence, never edits product code | opus-4.8 (high) | [`agents/qa.md`](agents/qa.md) |
-| panelist / judge | independent recommendations on a costly decision / blinded comparison only | gpt-5.6-sol (max) + opus-4.8 (xhigh); fable judge | [`skills/panel/SKILL.md`](skills/panel/SKILL.md) |
+| panelist / judge | independent recommendations on a costly decision / blinded comparison only | gpt-5.6-sol (max) + fable-5 (high); fable judge | [`skills/panel/SKILL.md`](skills/panel/SKILL.md) |
 | mechanical work | worktree setup, merges, gate re-runs, bulk reads; no judgment | sonnet-5 (low) | the closed command list in its dispatch |
 
 [`skills/codebase-design`](skills/codebase-design/SKILL.md) is shared by the roles that make and judge architecture: Fable uses it to model the domain and write the architecture brief; reviewers use it to test the diff against that exact brief. Builders receive the brief and glossary as fixed input.
