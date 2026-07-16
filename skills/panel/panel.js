@@ -4,20 +4,22 @@ export const meta = {
   phases: [{ title: 'Draft' }, { title: 'Compare' }],
 }
 
-// Workflow scripts cannot read sibling files. PANELIST and JUDGE are verbatim
-// copies of the extracted schemas under references/; the panel schema test
-// pins both representations equal.
-const PANELIST = {
-  "type": "object",
-  "additionalProperties": false,
-  "required": ["draft", "claims", "assumptions", "would_change"],
-  "properties": {
-    "draft": { "type": "string", "minLength": 1 },
-    "claims": { "type": "array", "items": { "type": "string", "minLength": 1 } },
-    "assumptions": { "type": "array", "items": { "type": "string", "minLength": 1 } },
-    "would_change": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+// A caller that JSON-encodes the args object hands the script one string and
+// every field reads undefined; the panelists then receive a task of "undefined".
+const input = typeof args === 'string' ? JSON.parse(args) : args
+for (const field of ['task', 'cwd', 'codexExec']) {
+  if (typeof input?.[field] !== 'string' || !input[field]) throw new Error(`args.${field} is required`)
+}
+for (const field of ['panelistSchema', 'judgeSchema']) {
+  if (!input?.[field] || typeof input[field] !== 'object' || Array.isArray(input[field])) {
+    throw new Error(`args.${field} is required`)
   }
 }
+
+// Workflow scripts cannot read sibling files. The caller reads the canonical
+// reference schemas and passes the parsed objects as workflow arguments.
+const PANELIST = input.panelistSchema
+const JUDGE = input.judgeSchema
 
 // The Sol draft crosses two boundaries (wrapper agent, then codex), so the
 // wrapper reports transport facts the script can check instead of being
@@ -33,26 +35,6 @@ const SOL_TRANSPORT = {
       description: 'the JSON codex wrote to --out; null when the dispatch failed',
     },
   },
-}
-
-const JUDGE = {
-  "type": "object",
-  "additionalProperties": false,
-  "required": ["consensus", "contradictions", "partial_coverage", "unique_insights", "blind_spots"],
-  "properties": {
-    "consensus": { "type": "array", "items": { "type": "string", "minLength": 1 } },
-    "contradictions": { "type": "array", "items": { "type": "string", "minLength": 1 } },
-    "partial_coverage": { "type": "array", "items": { "type": "string", "minLength": 1 } },
-    "unique_insights": { "type": "array", "items": { "type": "string", "minLength": 1 } },
-    "blind_spots": { "type": "array", "items": { "type": "string", "minLength": 1 } }
-  }
-}
-
-// A caller that JSON-encodes the args object hands the script one string and
-// every field reads undefined; the panelists then receive a task of "undefined".
-const input = typeof args === 'string' ? JSON.parse(args) : args
-for (const field of ['task', 'cwd', 'codexExec']) {
-  if (typeof input?.[field] !== 'string' || !input[field]) throw new Error(`args.${field} is required`)
 }
 
 phase('Draft')

@@ -58,10 +58,18 @@ async function runScript(
 
 const PANEL = "skills/panel/panel.js";
 const REVIEW = "skills/reviewing/assets/review-dispatch.js";
+const PANELIST_SCHEMA = JSON.parse(
+  readFileSync(join(ROOT, "skills/panel/references/panelist.schema.json"), "utf8"),
+);
+const JUDGE_SCHEMA = JSON.parse(
+  readFileSync(join(ROOT, "skills/panel/references/judge.schema.json"), "utf8"),
+);
 const PANEL_ARGS = {
   task: "Pick the storage engine.",
   cwd: "/tmp/example-repo",
   codexExec: "/tmp/example-repo/scripts/codex-exec",
+  panelistSchema: PANELIST_SCHEMA,
+  judgeSchema: JUDGE_SCHEMA,
 };
 
 describe("workflow args normalization", () => {
@@ -74,6 +82,8 @@ describe("workflow args normalization", () => {
     }
     expect(calls[0]?.prompt).toContain(PANEL_ARGS.codexExec);
     expect(calls[0]?.prompt).toContain(PANEL_ARGS.cwd);
+    expect(calls[1]?.opts.schema).toEqual(PANELIST_SCHEMA);
+    expect(calls[2]?.opts.schema).toEqual(JUDGE_SCHEMA);
   });
 
   it("panel accepts args as a JSON-encoded string", async () => {
@@ -86,8 +96,8 @@ describe("workflow args normalization", () => {
   });
 
   it("panel refuses to dispatch when a required field is missing", async () => {
-    for (const missing of ["task", "cwd", "codexExec"]) {
-      const args: Record<string, string> = { ...PANEL_ARGS };
+    for (const missing of ["task", "cwd", "codexExec", "panelistSchema", "judgeSchema"]) {
+      const args: Record<string, unknown> = { ...PANEL_ARGS };
       delete args[missing];
       await expect(runScript(PANEL, args)).rejects.toThrow(
         `args.${missing} is required`,
