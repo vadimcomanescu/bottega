@@ -314,6 +314,30 @@ const r = await agent('review the diff', { agentType: 'bottega:reviewer', model:
 `;
     expect(run(ROUTE_GUARD, workflowEvent({ script: routed }))).toBe("");
   });
+
+  it("reads routing from the options object, never from prompt prose", () => {
+    // A model literal in the prompt must not shadow the real pin.
+    const masked = `export const meta = { name: 'sweep', description: 'x', phases: [] }
+const r = await agent("the table gives reviewers model: 'opus'; review it", { agentType: 'bottega:reviewer', model: 'sonnet' })
+`;
+    expect(denialOf(run(ROUTE_GUARD, workflowEvent({ script: masked })))).toMatch(
+      /routes the reviewer agent/,
+    );
+
+    // A worker agentType quoted in prose must not arm the table on a
+    // legitimate non-worker dispatch.
+    const prose = `export const meta = { name: 'sweep', description: 'x', phases: [] }
+const r = await agent("note agentType: 'bottega:builder' is used elsewhere; summarize", { model: 'sonnet' })
+`;
+    expect(run(ROUTE_GUARD, workflowEvent({ script: prose }))).toBe("");
+  });
+
+  it("treats a template-literal model as unpinned", () => {
+    const script =
+      "export const meta = { name: 'sweep', description: 'x', phases: [] }\n" +
+      "const r = await agent('judge', { label: 'judge', model: `${input.model}` })\n";
+    expect(denialOf(run(ROUTE_GUARD, workflowEvent({ script })))).toMatch(/names no model/);
+  });
 });
 
 describe("route-guard: stale contract state never arms the guard", () => {

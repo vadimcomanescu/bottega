@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -122,5 +122,23 @@ describe("workflow args normalization", () => {
 
   it("review dispatch refuses a missing brief", async () => {
     await expect(runScript(REVIEW, {})).rejects.toThrow("args.brief is required");
+  });
+
+  it("every bundled workflow script normalizes string args", () => {
+    // Discovery by the meta marker, not a hardcoded list: a future workflow
+    // script that skips normalization re-ships the undefined-args bug.
+    const scripts = readdirSync(join(ROOT, "skills"), { recursive: true })
+      .map(String)
+      .filter((path) => path.endsWith(".js"))
+      .filter((path) =>
+        readFileSync(join(ROOT, "skills", path), "utf8").includes("export const meta"),
+      );
+    expect(scripts.length).toBeGreaterThanOrEqual(2);
+    for (const path of scripts) {
+      expect(
+        readFileSync(join(ROOT, "skills", path), "utf8"),
+        `${path} must parse a string args value before reading fields`,
+      ).toContain("typeof args === 'string'");
+    }
   });
 });

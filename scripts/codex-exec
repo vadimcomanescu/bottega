@@ -18,7 +18,7 @@
 // nothing.
 
 import { spawnSync } from "node:child_process";
-import { existsSync, openSync, readFileSync } from "node:fs";
+import { existsSync, openSync, statSync } from "node:fs";
 import { isAbsolute } from "node:path";
 import { parseArgs } from "node:util";
 
@@ -58,15 +58,18 @@ if (!SANDBOXES.has(values.sandbox)) {
   process.exit(2);
 }
 
-// A relative path resolves against the dispatching shell's cwd, so a worker
-// can silently run against the wrong tree; every path is absolute or refused.
-for (const name of ["cwd", "brief", "out", "events", "schema", "resume"]) {
-  if (values[name] === undefined) continue;
+// An empty optional flag would silently degrade: --resume "" becomes a fresh
+// dispatch, --schema "" an unenforced one.
+for (const name of ["schema", "resume"]) {
   if (values[name] === "") {
     process.stderr.write("codex-exec: --" + name + " must not be empty\n");
     process.exit(2);
   }
-  if (name !== "resume" && !isAbsolute(values[name])) {
+}
+// A relative path resolves against the dispatching shell's cwd, so a worker
+// can silently run against the wrong tree; every path is absolute or refused.
+for (const name of ["cwd", "brief", "out", "events", "schema"]) {
+  if (values[name] !== undefined && !isAbsolute(values[name])) {
     process.stderr.write("codex-exec: --" + name + " must be an absolute path\n");
     process.exit(2);
   }
@@ -119,13 +122,16 @@ if (result.error) {
 }
 
 // A clean exit with an empty out file is a failed dispatch, not a success.
+// Fresh dispatches only: resume already drops -s and -C silently, and
+// whether it honors -o is unverified, so the rule would misclassify a
+// completed resume as a failure.
 const status = result.status ?? 1;
-if (status === 0) {
-  let final = "";
+if (status === 0 && !values.resume) {
+  let size = 0;
   try {
-    final = readFileSync(values.out, "utf8");
+    size = statSync(values.out).size;
   } catch {}
-  if (!final.trim()) {
+  if (size === 0) {
     process.stderr.write(
       "codex-exec: codex exited 0 but wrote no final message to --out\n"
     );

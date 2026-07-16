@@ -56,7 +56,7 @@ phase('Draft')
 const task = `Work independently on this task, using the repository at ${input.cwd} as evidence. Give a complete answer with claims, assumptions, and evidence that would change it.\n\nTask:\n${input.task}`
 const [transport, b] = await parallel([
   () => agent(
-    `Dispatch Codex through ${input.codexExec}. Write the task below to a temporary brief file, and this JSON Schema to a temporary schema file:\n\n${JSON.stringify(PANELIST)}\n\nThen run the script with --model gpt-5.6-sol --effort max --sandbox read-only --cwd ${input.cwd} --brief <brief> --out <out> --events <events> --schema <schema>. Wait for exit. Report exit_code and, when it is 0, the parsed JSON from the out file as draft. Never author or repair the draft yourself: on a nonzero exit, an empty out file, or JSON that does not match the schema, report draft: null.\n\n${task}`,
+    `Dispatch Codex through ${input.codexExec}. Write the task below to a temporary brief file, and this JSON Schema to a temporary schema file:\n\n${JSON.stringify(PANELIST)}\n\nThen run the script with --model gpt-5.6-sol --effort max --sandbox read-only --cwd ${input.cwd} --brief <brief> --out <out> --events <events> --schema <schema>, every path absolute (the script refuses relative paths). Wait for exit. Report exit_code and, when it is 0, the parsed JSON from the out file as draft. Never author or repair the draft yourself: on a nonzero exit, an empty out file, or JSON that does not match the schema, report draft: null.\n\n${task}`,
     { label: 'panelist:sol', model: 'sonnet', effort: 'low', schema: SOL_TRANSPORT },
   ),
   () => agent(task, {
