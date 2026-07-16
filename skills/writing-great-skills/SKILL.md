@@ -1,6 +1,7 @@
 ---
 name: writing-great-skills
-description: Reference for writing skills that behave predictably. Use when creating a skill, editing a SKILL.md or an agent file, or evaluating skill writing.
+description: Reference for predictable skill writing. Use when creating, editing, or evaluating any skill file, including SKILL.md, references, assets, schemas, and agent files.
+user-invocable: false
 ---
 
 A skill exists to wrangle determinism out of a stochastic system. **Predictability** — the agent taking the same _process_ every run, not producing the same output — is the root virtue; every lever below serves it.
