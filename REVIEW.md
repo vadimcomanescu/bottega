@@ -1,31 +1,31 @@
 # REVIEW
 
-Bottega-specific review guidance for changes to this repository. The general reviewer method is `skills/reviewing` and the design doctrine is `skills/codebase-design`; this file carries only the risks a cold reviewer cannot reconstruct from one of those alone.
+Review guidance specific to this repository. The reviewer method is `skills/reviewing`, the design doctrine is `skills/codebase-design`, and the working agreement is `AGENTS.md`; this file adds only the risks a reviewer without prior Bottega context tends to miss.
 
 ## Plugin packaging and host neutrality
 
-Bottega runs as an installed plugin inside arbitrary host repositories. Every path handed to a worker must resolve under the install root (`$CLAUDE_PLUGIN_ROOT` when installed, this repo when working inside it), never a path that exists only in this checkout. Never create a doc or config surface in a host that the host does not already have. Reject a change that assumes a specific host language, framework, or layout.
+Bottega runs as an installed plugin inside arbitrary host repositories. Bottega asset paths handed to a worker (skills, scripts, schemas) must resolve under the install root (`$CLAUDE_PLUGIN_ROOT` when installed, this repo when working inside it); a hard-coded path that exists only in this checkout breaks every installed host. Reject a change that assumes a specific host language, framework, or layout.
 
 ## Role and routing boundaries
 
-Judgment stays with the orchestrator: design, routing, adjudication of findings, acceptance of the head. Workers receive one task and return one finished answer; they never coordinate with each other or pick their own model. Agent files never pin model or effort; routing lives in the run skill's table, enforced by the route guard. Codex routing is capped at gpt-5.6-sol, and fable is dispatched only through the panel's bundled workflow. Reject a change that moves a judgment call into a worker, pins routing in an agent file, or copies a shared skill into an agent.
+The orchestrator makes every judgment call; workers return finished answers and never coordinate with each other. Routing lives in one place, the table in `skills/run/SKILL.md`, enforced by `hooks/route-guard.js`. Reject a change that moves a judgment call into a worker, pins a model or effort in an agent file, adds a second routing authority, or copies a shared skill into an agent.
 
 ## Frozen target and schema identity
 
-The review gate fixes base, head, and tree SHAs before round 1 and rejects any report whose SHAs or reviewer identity differ from the dispatch. Both reviewer families report against `skills/reviewing/references/report.schema.json` at schema_version 2. Reject a change that lets a reviewer see a moving target or that alters one family's report shape without the other.
+The review gate (`skills/review`) freezes base, head, and tree SHAs before round 1, and every reviewer reports against `skills/reviewing/references/report.schema.json`, whichever family it is from. Reject a change that lets a reviewer see a moving target, accepts a report whose SHAs or reviewer identity differ from the dispatch, or gives one family a different report contract than the other.
 
 ## Review and QA ordering
 
-Host gates are green after every integrated slice. Documentation reconciliation happens before the final host gate and the review freeze, so the integrated review covers doc fixes. QA runs only on a head Fable accepted, and the PR publishes that exact head; no Deliver step changes a tracked file. An implementation repair takes gates, an opposite-family delta review, acceptance, and fresh QA; a changed brief reopens build and both-family review.
+The order in `skills/run/SKILL.md` steps 5 to 8 is load-bearing: gates green after every integrated slice, the docs sweep before the review freeze, QA only on an accepted head, and a Deliver step that changes no tracked file, so the PR publishes the accepted reviewed head. Reject a change that lets any tracked edit reach the PR without passing the gate and review path first. The integrated cross-family review is the one step never dropped.
 
 ## GitHub thread handling
 
-Every land review-thread action is assembled in `scripts/pr-threads`, and every codex invocation in `scripts/codex-exec`. Reject a second assembly point for either. PRs are never auto-merged; the user merges. PR bodies carry review-relevant content only, with no tool, model, or vendor attribution.
+`scripts/pr-threads` is the one place a review-thread call is assembled, and `scripts/codex-exec` the one place a codex invocation is assembled. Reject a second assembly point for either. Merging stays with the user; only an explicitly armed `/bottega:land` may auto-merge a converged non-risk PR, per `skills/land/SKILL.md`.
 
 ## Cleanup
 
-A run leaves nothing in the host but the PR. Working state is the worktree, one git-private run brief, and one gitignored owner file under `.bottega/`, all removed at delivery; the evidence branch is deleted after merge. Reject a change that writes any other file into a host or drops a cleanup step.
+Run state in a host is exactly the worktree, the git-private run brief, and the gitignored owner file under `.bottega/`, all removed at delivery, plus the evidence branch deleted after merge. Reject a change that adds a new host-side artifact or drops a removal step.
 
 ## Harness duplication
 
-Orchestration is the harness: tracked dispatches, tracked background Bash, workflows. A polling loop, a hand-written scheduler, or an instruction line that restates worker tracking is a defect, whichever file it lands in.
+Reject orchestration machinery: a polling loop, a hand-written scheduler, or an instruction line that restates a harness capability (tracked dispatches, tracked background Bash, workflows), whichever file it lands in.

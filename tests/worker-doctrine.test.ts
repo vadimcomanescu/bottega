@@ -172,20 +172,18 @@ describe("worker doctrine boundaries", () => {
     expect(agents).toMatch(/read root `REVIEW\.md` first/i);
   });
 
-  it("passes host REVIEW.md to both reviewer families when present", () => {
-    const instruction = reviewDispatch.indexOf("root `REVIEW.md`");
-    expect(instruction).toBeGreaterThanOrEqual(0);
-    expect(reviewDispatch.indexOf("Launch the Claude reviewer")).toBeGreaterThan(instruction);
-    expect(reviewDispatch.indexOf("Launch the Codex reviewer")).toBeGreaterThan(instruction);
-    expect(reviewDispatch).toMatch(/frozen checkout/i);
-    expect(reviewDispatch).toMatch(/round 1 and in every delta recheck/i);
-    expect(reviewDispatch).toMatch(/absent file/i);
+  it("has every reviewer read the host's root REVIEW.md when present", () => {
+    expect(reviewing).toMatch(/root `REVIEW\.md`/);
+    expect(reviewing).toMatch(/applies in every round/i);
+    expect(read("agents/reviewer.md")).toContain("bottega:reviewing");
+    expect(codexDispatch).toContain("skills/reviewing/SKILL.md");
   });
 
-  it("runs the documentation sweep before the review freeze and keeps Deliver free of tracked edits", () => {
+  it("runs the docs sweep before the review freeze and keeps Deliver free of tracked edits", () => {
+    expect(phase(run, 6)).toMatch(/docs sweep/i);
     expect(phase(run, 6)).toMatch(/doc claim the diff falsified/i);
     expect(phase(run, 6)).toMatch(/before the final host gate and the review freeze/i);
-    expect(phase(run, 6)).toMatch(/falsifies documentation again/i);
+    expect(phase(run, 7)).toMatch(/docs sweep over what it changed/i);
     expect(phase(run, 8)).not.toMatch(/docs sweep|doc claim/i);
     expect(phase(run, 8)).toMatch(/changes no tracked file/i);
   });

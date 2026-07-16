@@ -40,4 +40,4 @@ In host repos, a run leaves nothing behind but the PR. Working state is the work
 
 ## Review guidelines
 
-Reviewing a change to this repository, read root `REVIEW.md` first. It carries the Bottega-specific risks: plugin packaging and host neutrality, role and routing boundaries, frozen-target and schema identity, review and QA ordering, GitHub thread handling, cleanup, and harness duplication.
+Reviewing a change to this repository, read root `REVIEW.md` first. It carries the Bottega-specific review risks.
