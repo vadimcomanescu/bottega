@@ -288,6 +288,32 @@ const r = await agent('panel-style judging', { model: 'fable' })
       run(ROUTE_GUARD, workflowEvent({ script: CODE_REVIEW_SHAPE }, OWNER, null)),
     ).toBe("");
   });
+
+  it("treats an expression-valued model as unpinned: unverifiable routing is unrouted routing", () => {
+    const script = `export const meta = { name: 'sweep', description: 'x', phases: [] }
+const r = await agent('judge the diff', { label: 'judge', model: input.model })
+`;
+    expect(denialOf(run(ROUTE_GUARD, workflowEvent({ script })))).toMatch(/names no model/);
+  });
+
+  it("never counts 'model:' inside a prompt string as a pin", () => {
+    const script = `export const meta = { name: 'sweep', description: 'x', phases: [] }
+const r = await agent('the doc prefers model: opus for this, summarize findings')
+`;
+    expect(denialOf(run(ROUTE_GUARD, workflowEvent({ script })))).toMatch(/names no model/);
+  });
+
+  it("applies the worker routing table to named workers inside workflow scripts", () => {
+    const script = `export const meta = { name: 'sweep', description: 'x', phases: [] }
+const r = await agent('review the diff', { agentType: 'bottega:reviewer', model: 'sonnet' })
+`;
+    expect(denialOf(run(ROUTE_GUARD, workflowEvent({ script })))).toMatch(/routes the reviewer agent/);
+
+    const routed = `export const meta = { name: 'sweep', description: 'x', phases: [] }
+const r = await agent('review the diff', { agentType: 'bottega:reviewer', model: 'opus' })
+`;
+    expect(run(ROUTE_GUARD, workflowEvent({ script: routed }))).toBe("");
+  });
 });
 
 describe("route-guard: stale contract state never arms the guard", () => {

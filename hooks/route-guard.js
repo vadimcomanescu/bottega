@@ -193,8 +193,36 @@ function agentCalls(script) {
   return calls;
 }
 
-const PINNED = /\bmodel\s*:/;
+// A pin is a quoted literal; an expression (`model: input.model`) is
+// statically unverifiable and counts as unrouted. PINNED runs on the call
+// text with string contents stripped, so "model:" inside a prompt string
+// never counts as routing. PINNED_FABLE runs on the raw text: a fable
+// literal anywhere outside the panel fails closed.
+const PINNED = /\bmodel\s*:\s*['"`]/;
 const PINNED_FABLE = /\bmodel\s*:\s*['"`][^'"`]*fable/i;
+const WORKFLOW_WORKER = /\bagentType\s*:\s*['"`]bottega:(builder|reviewer|qa)['"`]/;
+const MODEL_LITERAL = /\bmodel\s*:\s*['"`]([^'"`]*)['"`]/;
+
+// The call text with every string literal's contents removed (delimiters
+// kept), so option keys stay visible and prompt prose does not.
+function stripStrings(text) {
+  let out = "";
+  let quote = "";
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (quote) {
+      if (ch === "\\") i++;
+      else if (ch === quote) {
+        quote = "";
+        out += ch;
+      }
+    } else {
+      out += ch;
+      if (ch === "'" || ch === '"' || ch === "`") quote = ch;
+    }
+  }
+  return out;
+}
 
 function readStdin() {
   return new Promise((resolve) => {
@@ -256,9 +284,18 @@ if (event.tool_name === "Workflow") {
   const script = workflowScript(input, cwd);
   const calls = script === null ? null : agentCalls(script);
   if (calls === null) deny(DENY_WORKFLOW_UNCHECKED_RUN);
-  if (calls.some((call) => !PINNED.test(call))) deny(DENY_WORKFLOW_UNPINNED_RUN);
+  if (calls.some((call) => !PINNED.test(stripStrings(call)))) deny(DENY_WORKFLOW_UNPINNED_RUN);
   if (calls.some((call) => PINNED_FABLE.test(call)) && !PANEL_META.test(script))
     deny(DENY_WORKFLOW_FABLE_RUN);
+  // A named worker inside a workflow obeys the same routing table as a
+  // direct dispatch.
+  for (const call of calls) {
+    const worker = call.match(WORKFLOW_WORKER);
+    if (!worker) continue;
+    const pin = call.match(MODEL_LITERAL);
+    const value = pin ? pin[1] : "";
+    if (!WORKER_MODEL[worker[1]].test(value)) deny(denyMisrouted(worker[1], value));
+  }
   process.exit(0);
 }
 
