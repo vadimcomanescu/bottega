@@ -162,6 +162,34 @@ describe("worker doctrine boundaries", () => {
     expect(reviewDispatch).toMatch(/doctrine-only/);
   });
 
+  it("routes repository review work to the root REVIEW.md", () => {
+    const reviewDoc = read("REVIEW.md");
+    expect(reviewDoc).toMatch(/host neutrality/i);
+    expect(reviewDoc).toMatch(/frozen/i);
+    expect(reviewDoc).toContain("scripts/pr-threads");
+    const agents = read("AGENTS.md");
+    expect(agents).toContain("## Review guidelines");
+    expect(agents).toMatch(/read root `REVIEW\.md` first/i);
+  });
+
+  it("passes host REVIEW.md to both reviewer families when present", () => {
+    const instruction = reviewDispatch.indexOf("root `REVIEW.md`");
+    expect(instruction).toBeGreaterThanOrEqual(0);
+    expect(reviewDispatch.indexOf("Launch the Claude reviewer")).toBeGreaterThan(instruction);
+    expect(reviewDispatch.indexOf("Launch the Codex reviewer")).toBeGreaterThan(instruction);
+    expect(reviewDispatch).toMatch(/frozen checkout/i);
+    expect(reviewDispatch).toMatch(/round 1 and in every delta recheck/i);
+    expect(reviewDispatch).toMatch(/absent file/i);
+  });
+
+  it("runs the documentation sweep before the review freeze and keeps Deliver free of tracked edits", () => {
+    expect(phase(run, 6)).toMatch(/doc claim the diff falsified/i);
+    expect(phase(run, 6)).toMatch(/before the final host gate and the review freeze/i);
+    expect(phase(run, 6)).toMatch(/falsifies documentation again/i);
+    expect(phase(run, 8)).not.toMatch(/docs sweep|doc claim/i);
+    expect(phase(run, 8)).toMatch(/changes no tracked file/i);
+  });
+
   it("keeps the land skill carrying the GitHub surface, stops, and merge policy", () => {
     expect(land).toContain("scripts/pr-threads");
     expect(land).toMatch(/never auto-merged/i);

@@ -21,7 +21,7 @@ The intent a reviewer judges conformance against depends on the caller. This is 
 
 ## Round 1
 
-One reviewer from each model family, in parallel, each blind: no builder reasoning, and not the other reviewer's report. Each report carries an independent architecture verdict. Each reviewer brief carries the diff, the intent input for its tier, the domain glossary when the host has one, the changed-test justifications, the frozen SHAs, and an evidence directory. Launch the Claude reviewer through the shipped workflow so its report is schema-enforced:
+One reviewer from each model family, in parallel, each blind: no builder reasoning, and not the other reviewer's report. Each report carries an independent architecture verdict. Each reviewer brief carries the diff, the intent input for its tier, the domain glossary when the host has one, the changed-test justifications, the frozen SHAs, and an evidence directory. When the frozen checkout has a root `REVIEW.md`, every brief, Claude and Codex, in round 1 and in every delta recheck, tells the reviewer to read that file from the frozen checkout; an absent file needs nothing, the reviewer proceeds on `skills/reviewing` and the host instructions alone. Launch the Claude reviewer through the shipped workflow so its report is schema-enforced:
 
     Workflow({ scriptPath: "<install root>/skills/reviewing/assets/review-dispatch.js",
                args: { brief: <complete reviewer brief> } })
