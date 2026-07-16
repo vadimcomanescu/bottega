@@ -216,6 +216,8 @@ describe("worker doctrine boundaries", () => {
     expect(land).toContain("gh pr checks <PR> --required --watch");
     expect(land).toMatch(/Confirm the PR is not a draft/i);
     expect(land).toMatch(/live head SHA equals the head SHA the final review round was frozen at/i);
+    expect(land).toMatch(/target base SHA still equals the base the review was frozen at/i);
+    expect(land).toMatch(/--match-head-commit` pins only the head/i);
     expect(land).toContain("gh pr merge <PR> --squash --match-head-commit <reviewed-head-sha>");
     expect(land).toMatch(/Confirm the PR state is MERGED/i);
     expect(land).toMatch(/delete the remote branch.*remove the worktree.*run state/i);
