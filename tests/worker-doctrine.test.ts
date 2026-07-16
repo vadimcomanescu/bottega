@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, readlinkSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -39,7 +39,16 @@ describe("worker doctrine boundaries", () => {
         .filter((entry) => entry.isDirectory())
         .map((entry) => entry.name)
         .sort(),
-    ).toEqual(["codebase-design", "implementing", "land", "panel", "review", "reviewing", "run"]);
+    ).toEqual([
+      "codebase-design",
+      "implementing",
+      "land",
+      "panel",
+      "review",
+      "reviewing",
+      "run",
+      "writing-great-skills",
+    ]);
 
     expect(read("agents/builder.md")).toContain("bottega:implementing");
     expect(read("agents/reviewer.md")).toContain("bottega:reviewing");
@@ -186,6 +195,19 @@ describe("worker doctrine boundaries", () => {
     expect(phase(run, 7)).toMatch(/docs sweep over what it changed/i);
     expect(phase(run, 8)).not.toMatch(/docs sweep|doc claim/i);
     expect(phase(run, 8)).toMatch(/changes no tracked file/i);
+  });
+
+  it("vendors the skill-writing reference model-invocable and linked for every runtime", () => {
+    const skill = read("skills/writing-great-skills/SKILL.md");
+    const frontmatter = skill.split("---")[1];
+    expect(frontmatter).not.toContain("disable-model-invocation");
+    expect(frontmatter).toMatch(/^description: .*(creating|editing|evaluating).*skill/im);
+    expect(existsSync(join(ROOT, "skills/writing-great-skills/GLOSSARY.md"))).toBe(true);
+    for (const link of [".claude/skills/writing-great-skills", ".agents/skills/writing-great-skills"]) {
+      expect(readlinkSync(join(ROOT, link))).toBe("../../skills/writing-great-skills");
+      expect(existsSync(join(ROOT, link, "SKILL.md"))).toBe(true);
+    }
+    expect(read("AGENTS.md")).toMatch(/skill or agent file, load `skills\/writing-great-skills`/);
   });
 
   it("keeps the land skill carrying the GitHub surface, stops, and merge policy", () => {
