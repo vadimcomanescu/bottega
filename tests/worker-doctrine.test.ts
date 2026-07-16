@@ -210,13 +210,15 @@ describe("worker doctrine boundaries", () => {
     expect(land).toMatch(/two fix cycles without convergence/i);
     expect(land).toMatch(/exceed the PR's stated intent/i);
     expect(land).toMatch(/gates-red/);
-    expect(land).toMatch(/risk-path PR.*stops at converged-mergeable/i);
+    expect(land).toMatch(/never decides to merge/i);
+    expect(land).toMatch(/armed merging in their own words|armed it in their own words/i);
+    expect(land).toMatch(/risk-path PR.*never merged by land/i);
     expect(land).toContain("gh pr checks <PR> --required --watch");
     expect(land).toMatch(/Confirm the PR is not a draft/i);
     expect(land).toMatch(/live head SHA equals the head SHA the final review round was frozen at/i);
     expect(land).toContain("gh pr merge <PR> --squash --match-head-commit <reviewed-head-sha>");
     expect(land).toMatch(/Confirm the PR state is MERGED/i);
-    expect(land).toMatch(/Delete the PR's remote branch.*remove the worktree.*run state/i);
+    expect(land).toMatch(/delete the remote branch.*remove the worktree.*run state/i);
     expect(land).toMatch(/already on the PR when land starts.*enter round 1 as claimed findings/i);
     expect(land).toMatch(/three brief lines from `skills\/run`.*name every test you edit.*verbatim/i);
   });

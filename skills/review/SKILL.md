@@ -6,7 +6,7 @@ argument-hint: "<PR number, ref range, or integrated worktree>"
 
 # Review
 
-The cross-family review gate. It freezes the target, invokes the vendored autoreview helper as a two-family panel, adjudicates the findings, and routes every repair. Two callers reach it: a run at its Review phase, and a land taking an open PR to merged. The helper runs the review engines and returns one JSON report; this gate owns the frozen SHAs, the house model routing line, adjudication, the caps, and the routing of fixes. It never restates helper method: `skills/autoreview/SKILL.md` is the runtime doctrine for the invocation, verbatim, and this gate defers to it by path.
+The cross-family review gate. It freezes the target, invokes the vendored autoreview helper as a two-family panel, adjudicates the findings, and routes every repair. Two callers reach it: a run at its Review phase, and a land taking an open PR to verified-mergeable (merged only when the request armed it). The helper runs the review engines and returns one JSON report; this gate owns the frozen SHAs, the house model routing line, adjudication, the caps, and the routing of fixes. It never restates helper method: `skills/autoreview/SKILL.md` is the runtime doctrine for the invocation, verbatim, and this gate defers to it by path.
 
 ## Freeze the target
 
