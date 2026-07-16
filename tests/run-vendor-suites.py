@@ -39,8 +39,12 @@ def main() -> int:
     suite = unittest.TestSuite()
     scripts_dir = str(VENDOR / "scripts")
     tests_dir = str(VENDOR / "tests")
-    suite.addTests(loader.discover(scripts_dir, pattern="autoreview_test.py", top_level_dir=scripts_dir))
-    suite.addTests(loader.discover(tests_dir, pattern="test_autoreview_hardening.py", top_level_dir=tests_dir))
+    for start, pattern in ((scripts_dir, "autoreview_test.py"), (tests_dir, "test_autoreview_hardening.py")):
+        found = loader.discover(start, pattern=pattern, top_level_dir=start)
+        if not found.countTestCases():
+            print(f"run-vendor-suites: no tests discovered in {start} ({pattern})", file=sys.stderr)
+            return 1
+        suite.addTests(found)
     result = unittest.TextTestRunner(verbosity=1).run(suite)
     return 0 if result.wasSuccessful() else 1
 

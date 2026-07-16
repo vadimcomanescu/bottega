@@ -22,7 +22,7 @@ You take one open PR to verified-mergeable: review it, route the fixes, resolve 
 - Two fix cycles without convergence: stop editing and reclassify every remaining finding before any further edit.
 - A fix that would exceed the PR's stated intent is not applied: comment it on the PR and stop that finding's repair.
 
-**Notify.** Report the terminal state in the conversation every time: converged-mergeable (verified, reported for a person to merge), merged (an armed merge ran), stopped (naming the stopping condition), or gates-red. When `BOTTEGA_NTFY_TOPIC` is set, also send it:
+**Notify.** Report the terminal state in the conversation every time: verified-mergeable (verified, reported for a person to merge), merged (an armed merge ran), stopped (naming the stopping condition), or gates-red. When `BOTTEGA_NTFY_TOPIC` is set, also send it:
 
     curl -s -H "Title: land <PR> <state>" -d "<one-line summary>" https://ntfy.sh/$BOTTEGA_NTFY_TOPIC
 
@@ -32,4 +32,4 @@ You take one open PR to verified-mergeable: review it, route the fixes, resolve 
 2. Confirm the PR is not a draft.
 3. Confirm the live head SHA equals the head SHA the final review round was frozen at.
 
-A PR verified through step 3 is converged-mergeable: report it for a person to merge. Run the merge itself only when the user's request armed merging in their own words, the same waiver doctrine as the sign-off waiver in `skills/run`; a risk-path PR (authentication, money, permissions, persisted data, or destructive operations) is never merged by land, whatever the request armed. An armed merge is `gh pr merge <PR> --squash --match-head-commit <reviewed-head-sha>`, which refuses the merge if the head has moved; confirm the PR state is MERGED, then delete the remote branch and remove the worktree, the run state, and the evidence branches, as `skills/run` step 8 does once a session learns the PR merged.
+A PR verified through step 3 is verified-mergeable: report it for a person to merge. Run the merge itself only when the user's request armed merging in their own words, the same waiver doctrine as the sign-off waiver in `skills/run`; a risk-path PR (authentication, money, permissions, persisted data, or destructive operations) is never merged by land, whatever the request armed. An armed merge is `gh pr merge <PR> --squash --match-head-commit <reviewed-head-sha>`, which refuses the merge if the head has moved; confirm the PR state is MERGED, then delete the remote branch and remove the worktree, the run state, and the evidence branches, as `skills/run` step 8 does once a session learns the PR merged.
