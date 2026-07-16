@@ -67,10 +67,6 @@ function liveOwners(cwd) {
   return owners;
 }
 
-// Plugin agents register as <plugin>:<agent>, so every real dispatch names
-// bottega:<role>; a bare role name resolves to nothing in the harness and, if
-// it did, could be a host repo's own agent, which this guard never routes.
-const WORKER_AGENT = /^bottega:(builder|reviewer|qa)$/;
 const FABLE = /fable/i;
 const OPUS = /^(?:claude-)?opus(?:[-.][a-z0-9]+)*$/i;
 // The Claude column of the routing table (skills/run/SKILL.md). Codex
@@ -82,6 +78,11 @@ const WORKER_MODEL = {
   reviewer: OPUS,
   qa: OPUS,
 };
+const ROLES = Object.keys(WORKER_MODEL).join("|");
+// Plugin agents register as <plugin>:<agent>, so every real dispatch names
+// bottega:<role>; a bare role name resolves to nothing in the harness and, if
+// it did, could be a host repo's own agent, which this guard never routes.
+const WORKER_AGENT = new RegExp("^bottega:(" + ROLES + ")$");
 
 const DENY_UNROUTED =
   "the dispatch was rejected because it names no model. An omitted model " +
@@ -118,7 +119,7 @@ const DENY_UNROUTED_RUN =
 const DENY_FABLE_RUN =
   "this session owns a live bottega run (its id is in .bottega/run/<slug>/owner) " +
   "and this dispatch routes fable. Fable is the orchestrator, not a general " +
-  "worker; the panel's compare-only workflow judge is the sole exception. " +
+  "worker; the panel's bundled workflow is the sole exception. " +
   "Re-issue from the routing table in skills/run/SKILL.md, and do fable-tier " +
   "work in your own turns instead of dispatching it.";
 
@@ -193,8 +194,42 @@ function agentCalls(script) {
   return calls;
 }
 
-const PINNED = /\bmodel\s*:/;
-const PINNED_FABLE = /\bmodel\s*:\s*['"`][^'"`]*fable/i;
+// A pin is a plain quoted literal; an expression (`model: input.model`) or a
+// template literal is statically unverifiable and counts as unrouted. Both
+// regexes run on the call's options object only, never on prompt prose.
+const MODEL_LITERAL = /\bmodel\s*:\s*(['"])([^'"]*)\1/;
+const WORKFLOW_WORKER = new RegExp(
+  "\\bagentType\\s*:\\s*['\"]bottega:(" + ROLES + ")['\"]"
+);
+
+// The options object of one agent() call: the last top-level `{ ... }` in
+// the call's argument text, found with the same string-skipping scan as
+// agentCalls. Prompt strings are skipped whole, so their contents can never
+// read as routing.
+function optionsText(call) {
+  let quote = "";
+  let depth = 0;
+  let start = -1;
+  let last = "";
+  for (let i = 0; i < call.length; i++) {
+    const ch = call[i];
+    if (quote) {
+      if (ch === "\\") i++;
+      else if (ch === quote) quote = "";
+    } else if (ch === "'" || ch === '"' || ch === "`") quote = ch;
+    else if (ch === "{") {
+      if (depth === 0) start = i;
+      depth++;
+    } else if (ch === "}") {
+      depth--;
+      if (depth === 0 && start >= 0) {
+        last = call.slice(start, i + 1);
+        start = -1;
+      }
+    }
+  }
+  return last;
+}
 
 function readStdin() {
   return new Promise((resolve) => {
@@ -256,9 +291,17 @@ if (event.tool_name === "Workflow") {
   const script = workflowScript(input, cwd);
   const calls = script === null ? null : agentCalls(script);
   if (calls === null) deny(DENY_WORKFLOW_UNCHECKED_RUN);
-  if (calls.some((call) => !PINNED.test(call))) deny(DENY_WORKFLOW_UNPINNED_RUN);
-  if (calls.some((call) => PINNED_FABLE.test(call)) && !PANEL_META.test(script))
-    deny(DENY_WORKFLOW_FABLE_RUN);
+  for (const call of calls) {
+    const options = optionsText(call);
+    const pin = options.match(MODEL_LITERAL);
+    if (!pin) deny(DENY_WORKFLOW_UNPINNED_RUN);
+    if (FABLE.test(pin[2]) && !PANEL_META.test(script)) deny(DENY_WORKFLOW_FABLE_RUN);
+    // A named worker inside a workflow obeys the same routing table as a
+    // direct dispatch.
+    const worker = options.match(WORKFLOW_WORKER);
+    if (worker && !WORKER_MODEL[worker[1]].test(pin[2]))
+      deny(denyMisrouted(worker[1], pin[2]));
+  }
   process.exit(0);
 }
 

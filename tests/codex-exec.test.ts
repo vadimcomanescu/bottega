@@ -78,4 +78,31 @@ describe("codex-exec assembly", () => {
     expect(badSandbox.status).toBe(2);
     expect(badSandbox.stderr).toMatch(/read-only or danger-full-access/);
   });
+
+  it("refuses a relative path: it would resolve against the dispatching shell's cwd", () => {
+    for (const flag of ["--cwd", "--brief", "--out", "--events"]) {
+      const args = [...BASE];
+      args[args.indexOf(flag) + 1] = "relative/path";
+      const result = spawnSync("node", [SCRIPT, ...args, "--dry-run"], { encoding: "utf-8" });
+      expect(result.status).toBe(2);
+      expect(result.stderr).toMatch(/must be an absolute path/);
+    }
+    const schema = spawnSync("node", [SCRIPT, ...BASE, "--schema", "report.json", "--dry-run"], {
+      encoding: "utf-8",
+    });
+    expect(schema.status).toBe(2);
+    expect(schema.stderr).toMatch(/must be an absolute path/);
+  });
+
+  it("refuses an empty optional flag instead of silently degrading it", () => {
+    // --resume "" would silently assemble a fresh dispatch; --schema "" an
+    // unenforced one.
+    for (const flag of ["--resume", "--schema"]) {
+      const result = spawnSync("node", [SCRIPT, ...BASE, flag, "", "--dry-run"], {
+        encoding: "utf-8",
+      });
+      expect(result.status).toBe(2);
+      expect(result.stderr).toMatch(/must not be empty/);
+    }
+  });
 });

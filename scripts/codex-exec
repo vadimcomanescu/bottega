@@ -18,7 +18,8 @@
 // nothing.
 
 import { spawnSync } from "node:child_process";
-import { openSync } from "node:fs";
+import { existsSync, openSync, statSync } from "node:fs";
+import { isAbsolute } from "node:path";
 import { parseArgs } from "node:util";
 
 const SANDBOXES = new Set(["read-only", "danger-full-access"]);
@@ -57,6 +58,23 @@ if (!SANDBOXES.has(values.sandbox)) {
   process.exit(2);
 }
 
+// An empty optional flag would silently degrade: --resume "" becomes a fresh
+// dispatch, --schema "" an unenforced one.
+for (const name of ["schema", "resume"]) {
+  if (values[name] === "") {
+    process.stderr.write("codex-exec: --" + name + " must not be empty\n");
+    process.exit(2);
+  }
+}
+// A relative path resolves against the dispatching shell's cwd, so a worker
+// can silently run against the wrong tree; every path is absolute or refused.
+for (const name of ["cwd", "brief", "out", "events", "schema"]) {
+  if (values[name] !== undefined && !isAbsolute(values[name])) {
+    process.stderr.write("codex-exec: --" + name + " must be an absolute path\n");
+    process.exit(2);
+  }
+}
+
 const argv = ["exec"];
 if (values.resume) argv.push("resume", values.resume);
 argv.push(
@@ -87,6 +105,13 @@ if (values["dry-run"]) {
   process.exit(0);
 }
 
+for (const name of ["cwd", "brief", ...(values.schema ? ["schema"] : [])]) {
+  if (!existsSync(values[name])) {
+    process.stderr.write("codex-exec: --" + name + " " + values[name] + " does not exist\n");
+    process.exit(2);
+  }
+}
+
 const result = spawnSync("codex", argv, {
   cwd: values.cwd,
   stdio: [openSync(values.brief, "r"), openSync(values.events, "w"), "inherit"],
@@ -95,4 +120,22 @@ if (result.error) {
   process.stderr.write("codex-exec: " + result.error.message + "\n");
   process.exit(1);
 }
-process.exit(result.status ?? 1);
+
+// A clean exit with an empty out file is a failed dispatch, not a success.
+// Fresh dispatches only: resume already drops -s and -C silently, and
+// whether it honors -o is unverified, so the rule would misclassify a
+// completed resume as a failure.
+const status = result.status ?? 1;
+if (status === 0 && !values.resume) {
+  let size = 0;
+  try {
+    size = statSync(values.out).size;
+  } catch {}
+  if (size === 0) {
+    process.stderr.write(
+      "codex-exec: codex exited 0 but wrote no final message to --out\n"
+    );
+    process.exit(1);
+  }
+}
+process.exit(status);
