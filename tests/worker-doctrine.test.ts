@@ -41,6 +41,7 @@ describe("worker doctrine boundaries", () => {
         .map((entry) => entry.name)
         .sort(),
     ).toEqual([
+      "autoreview",
       "codebase-design",
       "implementing",
       "land",
