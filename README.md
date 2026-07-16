@@ -18,9 +18,9 @@ Autonomous issue-to-PR runs for Claude Code. One command takes a task, bug, or G
 3. Presents a brief user-facing spec in the conversation: what changes, acceptance criteria, definition of done, domain terms, wireframe mockups when UI is touched. The user's OK is the go signal; a request that waives sign-off in its own words skips the wait, and the PR presents the spec and every decision where the OK would have gone.
 4. Models the domain, writes Fable's architecture brief, plans vertical slices inside it, and puts each costly decision (where behavior or state belongs, data shape, public contracts, dependency bets) to a panel before building.
 5. Dispatches builders with one assigned slice, the fixed architecture, the glossary, and relevant technology skills. Builders work test-first and stop at the slice boundary; host gates stay green at every integrate.
-6. Has the integrated diff reviewed independently by two reviewers in parallel, one per model family. Neither receives builder reasoning. Each checks behavior, tests, and conformance to Fable's architecture. Fable reconciles their evidence and accepts one reviewed head; fixes get a fresh opposite-family reviewer.
+6. Syncs the host's docs to the diff, then has the integrated diff reviewed independently by two reviewers in parallel, one per model family. Neither receives builder reasoning. Each checks behavior, tests, and conformance to Fable's architecture. Fable reconciles their evidence and accepts one reviewed head; fixes get a fresh opposite-family reviewer.
 7. Sends a separate QA worker through that exact head and records the product verdict. QA reports and stops. Fable classifies a failure as environment, implementation, or design before routing a repair; every product change gets fresh review, Fable acceptance, and QA.
-8. Syncs the host's docs to the diff and opens the PR carrying the spec, every decision made on the user's behalf, the review verdicts, Fable's architecture acceptance, and the QA evidence.
+8. Opens the PR carrying the spec, every decision made on the user's behalf, the review verdicts, Fable's architecture acceptance, and the QA evidence. Delivery changes no tracked file, so the PR publishes the accepted reviewed head.
 
 The user appears exactly twice: agreeing to the spec, and merging the PR.
 

@@ -10,7 +10,7 @@ Review the fixed tree independently. Do not use builder reasoning, another revie
 
 ## Target and scope
 
-Confirm the checkout matches the brief's base, head, and tree SHAs. A mismatch blocks the review.
+Confirm the checkout matches the brief's base, head, and tree SHAs. A mismatch blocks the review. When that checkout has a root `REVIEW.md`, read it: it carries the repository's own review doctrine and applies in every round.
 
 Round 1 reviews the entire integrated diff. A later round receives check IDs and a fix range: execute each recheck, inspect the fix range for new defects, and rerun the deterministic gates. Risk sets depth. Authentication, money, permissions, persisted data, and destructive paths require the strongest probes.
 

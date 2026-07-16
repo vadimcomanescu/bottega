@@ -37,3 +37,7 @@ In host repos, a run leaves nothing behind but the PR. Working state is the work
 - Each dispatch gives one task a fresh context and returns a finished answer. The dispatcher reads the answer, not the transcript. Workers ask the orchestrator; the orchestrator answers and resumes them. Workers do not coordinate with each other directly.
 - Keep `CLAUDE.md` symlinked to this file.
 - PR bodies contain review-relevant content only. Omit tool, model, and vendor attribution badges or footers.
+
+## Review guidelines
+
+Reviewing a change to this repository, read root `REVIEW.md` first. It carries the Bottega-specific review risks.
