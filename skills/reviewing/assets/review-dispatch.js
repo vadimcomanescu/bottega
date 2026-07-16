@@ -232,8 +232,13 @@ const SCHEMA = {
   }
 }
 
+// A caller that JSON-encodes the args object hands the script one string and
+// args.brief reads undefined; the reviewer would then review nothing.
+const input = typeof args === 'string' ? JSON.parse(args) : args
+if (typeof input?.brief !== 'string' || !input.brief) throw new Error('args.brief is required')
+
 phase('Review')
-const report = await agent(args.brief, {
+const report = await agent(input.brief, {
   agentType: 'bottega:reviewer',
   model: 'opus',
   effort: 'xhigh',

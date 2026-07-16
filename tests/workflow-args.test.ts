@@ -1,0 +1,113 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+
+// Executes the shipped workflow scripts the way the Workflow runtime does:
+// the body wrapped in an async function with the harness hooks as arguments.
+// A real run passed args as a JSON-encoded string and every panelist received
+// the task "undefined"; these tests pin that both scripts normalize a string
+// args value and refuse to dispatch when a required field is missing.
+
+const ROOT = join(import.meta.dirname, "..");
+
+type AgentCall = { prompt: string; opts: Record<string, unknown> };
+
+const PANELIST_RESULT = {
+  draft: "draft",
+  claims: [],
+  assumptions: [],
+  would_change: [],
+};
+const JUDGE_RESULT = {
+  consensus: [],
+  contradictions: [],
+  partial_coverage: [],
+  unique_insights: [],
+  blind_spots: [],
+};
+
+const AsyncFunction = Object.getPrototypeOf(async function () {})
+  .constructor as new (...params: string[]) => (...args: unknown[]) => Promise<unknown>;
+
+async function runScript(
+  path: string,
+  args: unknown,
+): Promise<{ calls: AgentCall[]; result: unknown }> {
+  const source = readFileSync(join(ROOT, path), "utf8").replace(
+    "export const meta",
+    "const meta",
+  );
+  const calls: AgentCall[] = [];
+  const agent = async (prompt: string, opts: Record<string, unknown>) => {
+    calls.push({ prompt, opts });
+    return opts.label === "panel-judge" ? JUDGE_RESULT : PANELIST_RESULT;
+  };
+  const parallel = (thunks: Array<() => Promise<unknown>>) =>
+    Promise.all(thunks.map((t) => t().catch(() => null)));
+  const body = new AsyncFunction("agent", "parallel", "phase", "log", "args", source);
+  const result = await body(agent, parallel, () => {}, () => {}, args);
+  return { calls, result };
+}
+
+const PANEL = "skills/panel/panel.js";
+const REVIEW = "skills/reviewing/assets/review-dispatch.js";
+const PANEL_ARGS = {
+  task: "Pick the storage engine.",
+  cwd: "/tmp/example-repo",
+  codexExec: "/tmp/example-repo/scripts/codex-exec",
+};
+
+describe("workflow args normalization", () => {
+  it("panel dispatches the task from object args", async () => {
+    const { calls } = await runScript(PANEL, PANEL_ARGS);
+    expect(calls).toHaveLength(3);
+    for (const call of calls) {
+      expect(call.prompt).toContain("Pick the storage engine.");
+      expect(call.prompt).not.toContain("undefined");
+    }
+    expect(calls[0]?.prompt).toContain(PANEL_ARGS.codexExec);
+    expect(calls[0]?.prompt).toContain(PANEL_ARGS.cwd);
+  });
+
+  it("panel accepts args as a JSON-encoded string", async () => {
+    const { calls } = await runScript(PANEL, JSON.stringify(PANEL_ARGS));
+    expect(calls).toHaveLength(3);
+    for (const call of calls) {
+      expect(call.prompt).toContain("Pick the storage engine.");
+      expect(call.prompt).not.toContain("undefined");
+    }
+  });
+
+  it("panel refuses to dispatch when a required field is missing", async () => {
+    for (const missing of ["task", "cwd", "codexExec"]) {
+      const args: Record<string, string> = { ...PANEL_ARGS };
+      delete args[missing];
+      await expect(runScript(PANEL, args)).rejects.toThrow(
+        `args.${missing} is required`,
+      );
+    }
+  });
+
+  it("panel refuses args that are not valid JSON", async () => {
+    await expect(runScript(PANEL, "not json")).rejects.toThrow();
+  });
+
+  it("review dispatch sends the brief from object args", async () => {
+    const { calls } = await runScript(REVIEW, { brief: "Review this diff." });
+    expect(calls).toHaveLength(1);
+    expect(calls[0]?.prompt).toBe("Review this diff.");
+  });
+
+  it("review dispatch accepts args as a JSON-encoded string", async () => {
+    const { calls } = await runScript(
+      REVIEW,
+      JSON.stringify({ brief: "Review this diff." }),
+    );
+    expect(calls).toHaveLength(1);
+    expect(calls[0]?.prompt).toBe("Review this diff.");
+  });
+
+  it("review dispatch refuses a missing brief", async () => {
+    await expect(runScript(REVIEW, {})).rejects.toThrow("args.brief is required");
+  });
+});
