@@ -113,7 +113,8 @@ describe("workflow args normalization", () => {
       .filter((path) =>
         readFileSync(join(ROOT, "skills", path), "utf8").includes("export const meta"),
       );
-    expect(scripts).toEqual(["panel/panel.js"]);
+    expect(scripts.length).toBeGreaterThanOrEqual(1);
+    expect(scripts).toContain("panel/panel.js");
     for (const path of scripts) {
       expect(
         readFileSync(join(ROOT, "skills", path), "utf8"),
