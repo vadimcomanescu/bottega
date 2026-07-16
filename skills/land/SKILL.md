@@ -8,7 +8,7 @@ description: Take an open PR through review-fix rounds to verified-mergeable, re
 
 You take one open PR to verified-mergeable: review it, route the fixes, resolve its review threads on GitHub, verify the merge would succeed, and report. The review method is `bottega:review`; this skill owns the GitHub surface, the stop conditions, and the merge verification. Land never decides to merge: the merge runs only when the user's request armed it in their own words.
 
-**Entry.** Recreate the worktree from the PR branch and write a fresh owner file, the same pickup as `skills/run` step 8, never the user's checkout. Discover the host gates and run them. A red gate predates this review: fix and push it before the first round. A gate that cannot go green within the PR's stated intent ends the run as gates-red.
+**Entry.** Recreate the worktree from the PR branch and write a fresh owner file, the same pickup as `skills/run` step 8, never the user's checkout. Then consult the reviewed marker before anything else: a green `bottega/review` commit status on the PR's live head means the head already passed the gate; skip the rounds and go straight to the merge verification. A green status on an earlier commit of the PR scopes round 1 to the delta: `--base` that SHA. No status anywhere, full review. Discover the host gates and run them. A red gate predates this review: fix and push it before the first round. A gate that cannot go green within the PR's stated intent ends the run as gates-red.
 
 **Rounds.** Each round runs the review gate per `bottega:review` with its PR-only inputs.
 

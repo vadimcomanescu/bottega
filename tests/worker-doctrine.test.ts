@@ -219,6 +219,11 @@ describe("worker doctrine boundaries", () => {
     expect(land).toContain("gh pr merge <PR> --squash --match-head-commit <reviewed-head-sha>");
     expect(land).toMatch(/Confirm the PR state is MERGED/i);
     expect(land).toMatch(/delete the remote branch.*remove the worktree.*run state/i);
+    expect(reviewDispatch).toMatch(/commit status on the reviewed head.*context `bottega\/review`/i);
+    expect(reviewDispatch).toMatch(/never as a PR comment/i);
+    expect(land).toMatch(/green `bottega\/review` commit status on the PR's live head.*skip the rounds/i);
+    expect(land).toMatch(/status on an earlier commit.*--base/i);
+    expect(phase(run, 8)).toMatch(/post the `bottega\/review` success status on the accepted head/i);
     expect(land).toMatch(/already on the PR when land starts.*enter round 1 as claimed findings/i);
     expect(land).toMatch(/three brief lines from `skills\/run`.*name every test you edit.*verbatim/i);
   });

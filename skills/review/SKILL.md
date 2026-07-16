@@ -51,3 +51,5 @@ Each fix is rechecked by one helper invocation, single engine, the family opposi
 ## Completion
 
 The report stands at the frozen SHAs, every finding is fixed or refuted, every blocked check is resolved, and the gates are green.
+
+A clean completion is recorded where GitHub reads it, never as a PR comment: post one commit status on the reviewed head, context `bottega/review`, state success (`gh api repos/<owner>/<repo>/statuses/<sha> -f state=success -f context=bottega/review`). The status binds to the SHA and disappears with a new head, so its presence on a live head always means exactly "this head passed the gate". Post it once the reviewed head exists on the remote: land posts immediately after its clean round; a run posts at Deliver, after the push and before opening the PR.
