@@ -18,7 +18,7 @@
 // nothing.
 
 import { spawnSync } from "node:child_process";
-import { existsSync, openSync, statSync } from "node:fs";
+import { existsSync, openSync, readFileSync } from "node:fs";
 import { isAbsolute } from "node:path";
 import { parseArgs } from "node:util";
 
@@ -121,21 +121,64 @@ if (result.error) {
   process.exit(1);
 }
 
-// A clean exit with an empty out file is a failed dispatch, not a success.
-// Fresh dispatches only: resume already drops -s and -C silently, and
-// whether it honors -o is unverified, so the rule would misclassify a
-// completed resume as a failure.
+function fail(message) {
+  process.stderr.write("codex-exec: " + message + "\n");
+  process.exit(1);
+}
+
+// The event stream is the completion authority: a run finished when it
+// emitted turn.completed, and a failed run names its reason in error and
+// turn.failed events. Exit code and stream EOF alone prove neither.
+let events = [];
+try {
+  events = readFileSync(values.events, "utf8")
+    .split("\n")
+    .map((line) => {
+      try {
+        return JSON.parse(line);
+      } catch {
+        return null;
+      }
+    })
+    .filter((event) => event && typeof event.type === "string");
+} catch {}
+
 const status = result.status ?? 1;
-if (status === 0 && !values.resume) {
-  let size = 0;
+if (status !== 0) {
+  const failure = events.findLast(
+    (event) => event.type === "turn.failed" || event.type === "error"
+  );
+  const message = failure?.error?.message ?? failure?.message;
+  if (message) process.stderr.write("codex-exec: " + message + "\n");
+  process.exit(status);
+}
+
+// A resumed thread echoes its id in thread.started; a different id means
+// the thread was gone and codex forked a fresh session with none of the
+// context the resume was for.
+const started = events.find((event) => event.type === "thread.started");
+if (values.resume && started && started.thread_id !== values.resume) {
+  fail(
+    "resume of thread " + values.resume + " started a new session " +
+      started.thread_id + " instead; the thread no longer exists, re-dispatch fresh"
+  );
+}
+if (!events.some((event) => event.type === "turn.completed")) {
+  fail("codex exited 0 without a turn.completed event; the run did not finish");
+}
+
+// -o and --output-schema both survive resume, so every clean exit must have
+// written the final message, and a schema'd dispatch parseable JSON.
+let final = "";
+try {
+  final = readFileSync(values.out, "utf8");
+} catch {}
+if (!final.trim()) fail("codex exited 0 but wrote no final message to --out");
+if (values.schema) {
   try {
-    size = statSync(values.out).size;
-  } catch {}
-  if (size === 0) {
-    process.stderr.write(
-      "codex-exec: codex exited 0 but wrote no final message to --out\n"
-    );
-    process.exit(1);
+    JSON.parse(final);
+  } catch {
+    fail("the --out file is not valid JSON despite --schema; treat the dispatch as failed");
   }
 }
-process.exit(status);
+process.exit(0);
