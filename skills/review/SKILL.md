@@ -6,38 +6,44 @@ argument-hint: "<PR number, ref range, or integrated worktree>"
 
 # Review
 
-The cross-family review gate. One reviewer from each model family reads the frozen target independently, and the invoking orchestrator adjudicates their findings, routes every repair, and accepts or rejects the head. Two callers reach it: a run at its Review phase, and a land taking an open PR to mergeable. The orchestrator makes every judgment call; the reviewers only report.
+The cross-family review gate. It freezes the target, invokes the vendored autoreview helper as a two-family panel, adjudicates the findings, and routes every repair. Two callers reach it: a run at its Review phase, and a land taking an open PR to mergeable. The helper runs the review engines and returns one JSON report; this gate owns the frozen SHAs, the house model routing line, adjudication, the caps, and the routing of fixes. It never restates helper method: `skills/autoreview/SKILL.md` is the runtime doctrine for the invocation, verbatim, and this gate defers to it by path.
 
 ## Freeze the target
 
-Fix the target as base, head, and tree SHAs after the host gates pass and before round 1, and dispatch every reviewer against them. For a PR target, create a worktree at the PR head and review that, never the user's checkout.
+Fix base, head, and tree SHAs after the host gates pass and before the panel round, and review against them. For a PR target, create a worktree at the PR head and review that, never the user's checkout. The base ref must resolve locally before the invocation; the helper never fetches.
 
-## Intent input
+## Panel round
 
-The intent a reviewer judges conformance against depends on the caller. This is a contract:
+One helper invocation reviews the frozen diff with both families in parallel. This is the only place the flags are stated (wording may differ, flags may not):
 
-- **Run brief present** (invoked from a run): reviewers receive the canonical run brief and domain glossary verbatim. Conformance is judged against the brief's fixed decisions.
-- **No frozen brief** (invoked without a run): the intent is the PR title, body, and linked issue when the target is a PR, otherwise the user's request as stated in the conversation. Conformance is judged against that self-reported intent, and the adjudication states that basis. The architecture verdict is doctrine-only: judged against `skills/codebase-design` with no fixed per-run decisions to check. Reports stay at schema_version 2; each reviewer states the doctrine-only basis in `architecture.evidence`.
+    # the vendored helper under the install root; .claude/... on the Claude host, .agents/... on the Codex host
+    export AUTOREVIEW="<install root>/skills/autoreview/scripts/autoreview"
+    "$AUTOREVIEW" --mode branch --base <frozen-base> \
+      --reviewers codex,claude \
+      --model codex=gpt-5.6-sol  --thinking codex=high \
+      --model claude=claude-opus-4-8 --thinking claude=xhigh \
+      --prompt "<intent text + architecture-verdict instruction>" \
+      --json-output <path in the session scratchpad>
 
-## Round 1
+- Run it as tracked background Bash. Respect the helper's heartbeat doctrine (`skills/autoreview/SKILL.md`): no intervention under 30 minutes or while heartbeats advance, and a hard backstop kill only after 45 minutes with no heartbeat.
+- `--json-output`, and any `--output`, must resolve outside the reviewed repo; use the session scratchpad. The helper enforces this.
+- **Intent** is the `--prompt` text. From a run: the canonical run brief and domain glossary verbatim, plus the instruction to report design nonconformance as findings anchored in the diff; conformance is judged against the brief's fixed decisions. Without a run brief: the PR title, body, and linked issue for a PR, otherwise the user's stated request, and the architecture verdict is judged against `skills/codebase-design` doctrine; the adjudication states that basis.
+- **Codex-host posture.** The helper's codex engine is a bounded read-only `codex exec` in an empty workspace. It is permitted on both hosts; it is not an orchestrating Codex process.
 
-One reviewer from each model family, in parallel, each blind: no builder reasoning, and not the other reviewer's report. Each report carries an independent architecture verdict. Each reviewer brief carries the diff, the intent input for its tier, the domain glossary when the host has one, the changed-test justifications, the frozen SHAs, and an evidence directory. Launch the Claude reviewer through the shipped workflow so its report is schema-enforced:
+**Trivial-diff exception.** For a PR target under 150 changed lines that touches no risk path, review with a single engine via `--engine`, from the family opposite the head author; record that choice. A risk path is authentication, money, permissions, persisted data, or a destructive operation. When the head author's family is unknown (a human PR or unknown authorship) the exception does not apply and both families review. A run's integrated review always takes both families and is never eligible.
 
-    Workflow({ scriptPath: "<install root>/skills/reviewing/assets/review-dispatch.js",
-               args: { brief: <complete reviewer brief> } })
+## Adjudicate
 
-Launch the Codex reviewer per the Codex reviewer preparation in `skills/run/references/codex-dispatch.md`, against the same report schema. Reject any report whose target SHAs or reviewer identity differ from the dispatch.
+The helper's JSON report is the report contract. Findings anchored to files the diff did not change are dropped by the helper before it reports, so expect no finding outside the frozen diff.
 
-**Trivial-diff exception.** The exception applies to a PR target only; a run's integrated review always takes both families and is never eligible. For a PR target under 150 changed lines that touches no risk path, a single reviewer may review, from the family opposite the head's author; record that choice. A risk path is any path `skills/reviewing` requires the strongest probes for. When the head author's model family is unknown (a human PR or unknown authorship), the exception does not apply and both families review.
+Verify every accepted finding against the real code path before routing a fix, and refute only with evidence. Classify each in the vendored scope governor's vocabulary (`skills/autoreview/SKILL.md`, Scope Governor): **in-scope blocker**, **follow-up**, or **stop-and-escalate**. An in-scope blocker routes as a fix to whoever owns the module: a run's builder, or a fixer the caller dispatches. A finding that requires a design change returns to the orchestrator before any code change.
 
-## Adjudication
-
-The orchestrator verifies every finding against the real code path before accepting it, and refutes only with evidence. Reconcile both architecture verdicts against the applicable basis (the brief's fixed decisions for a run, `skills/codebase-design` doctrine when there is no frozen brief); missing coverage or unresolved disagreement blocks acceptance. An implementation fix routes to whoever owns the module: a run's builder, or a fixer the caller dispatches. A design finding returns to the orchestrator before any code change.
+Reconcile the reported design findings against the applicable basis: the brief's fixed decisions for a run, `skills/codebase-design` doctrine without a brief. Missing coverage or unresolved nonconformance blocks acceptance. Fable performs this reconciliation; the review engines only report.
 
 ## Delta rounds
 
-Each fix is rechecked by a fresh reviewer from the family opposite the fixer, scoped to the check IDs and the fix range. The same finding still open after two failed fixes stops the repair. Round 3 stops the review.
+Each fix is rechecked by one helper invocation, single engine, the family opposite the fixer, `--mode branch --base <last-reviewed-head>`, scoped to the open findings and the fix range. The same finding still open after two failed fixes stops the repair. Round 3 stops the review.
 
 ## Completion
 
-Reports stand at their stated SHAs, every finding is fixed or refuted, every blocked check is resolved, and the gates are green.
+The report stands at the frozen SHAs, every finding is fixed or refuted, every blocked check is resolved, and the gates are green.
