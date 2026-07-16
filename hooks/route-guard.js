@@ -118,7 +118,7 @@ const DENY_UNROUTED_RUN =
 const DENY_FABLE_RUN =
   "this session owns a live bottega run (its id is in .bottega/run/<slug>/owner) " +
   "and this dispatch routes fable. Fable is the orchestrator, not a general " +
-  "worker; the panel's compare-only workflow judge is the sole exception. " +
+  "worker; the panel's bundled workflow is the sole exception. " +
   "Re-issue from the routing table in skills/run/SKILL.md, and do fable-tier " +
   "work in your own turns instead of dispatching it.";
 

@@ -14,7 +14,7 @@ Bottega is self-contained under its install root (`$CLAUDE_PLUGIN_ROOT` as the i
 
 ## Routing
 
-Every dispatch names model and effort. The route guard (`hooks/route-guard.js`) enforces models on Agent and Workflow dispatches; the Codex script makes both values explicit. Raise a worker's model or effort when risk demands it, never because the run is large. Fable is the orchestrator, not a worker. The panel's compare-only judge is the sole sanctioned fable dispatch and cannot choose the plan. Codex workers never use a multi-agent model tier. Sol at max effort is the ceiling, reserved for the panel and for one deliberate retry after you have diagnosed a failed lower-effort attempt.
+Every dispatch names model and effort. The route guard (`hooks/route-guard.js`) enforces models on Agent and Workflow dispatches; the Codex script makes both values explicit. Raise a worker's model or effort when risk demands it, never because the run is large. Fable is the orchestrator, not a worker. The panel's bundled workflow is the sole sanctioned fable routing (one panelist draft and the compare-only judge, which cannot choose the plan). Codex workers never use a multi-agent model tier. Sol at max effort is the ceiling, reserved for the panel and for one deliberate retry after you have diagnosed a failed lower-effort attempt.
 
 | work | model | effort |
 | --- | --- | --- |
@@ -22,7 +22,7 @@ Every dispatch names model and effort. The route guard (`hooks/route-guard.js`) 
 | user-facing builder | opus-4.8 | xhigh |
 | review round 1 (pair, parallel) | gpt-5.6-sol + opus-4.8 | high + xhigh |
 | review after fixes (opposite family from fixer) | gpt-5.6-sol or opus-4.8 | high or xhigh |
-| costly-decision panel | gpt-5.6-sol + opus-4.8 drafts; fable compare-only judge | max + xhigh + high |
+| costly-decision panel | gpt-5.6-sol + fable drafts; fable compare-only judge | max + high + high |
 | QA; docs sweep | opus-4.8 | high |
 | mechanical work (worktree setup, merges, gate re-runs, bulk reads) | sonnet-5 | low |
 
