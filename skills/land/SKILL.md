@@ -6,11 +6,9 @@ description: Take an open PR through review-fix rounds until it is mergeable, re
 
 # Land
 
-You take one open PR to a mergeable state: review it, route the fixes, resolve its review threads on GitHub, and report where it ended. The review method is `bottega:review`; this skill owns the GitHub surface, the size gate, the stop conditions, and the merge decision.
+You take one open PR to a mergeable state: review it, route the fixes, resolve its review threads on GitHub, and report where it ended. The review method is `bottega:review`; this skill owns the GitHub surface, the stop conditions, and the merge decision.
 
 **Entry.** Recreate the worktree from the PR branch and write a fresh owner file, the same pickup as `skills/run` step 8, never the user's checkout. Discover the host gates and run them. A red gate predates this review: fix and push it before the first round. A gate that cannot go green within the PR's stated intent ends the run as gates-red.
-
-**Size gate.** A diff over 800 changed lines or 20 files is not landed. Comment on the PR asking for a split, notify, and stop.
 
 **Rounds.** Each round runs the review gate per `bottega:review` with its PR-only inputs.
 
@@ -24,7 +22,7 @@ You take one open PR to a mergeable state: review it, route the fixes, resolve i
 - Two fix cycles without convergence: stop editing and reclassify every remaining finding before any further edit.
 - A fix that would exceed the PR's stated intent is not applied: comment it on the PR and stop that finding's repair.
 
-**Notify.** Report the terminal state in the conversation every time: converged, stopped (naming the stopping condition), size-gated, or gates-red. When `BOTTEGA_NTFY_TOPIC` is set, also send it:
+**Notify.** Report the terminal state in the conversation every time: converged, stopped (naming the stopping condition), or gates-red. When `BOTTEGA_NTFY_TOPIC` is set, also send it:
 
     curl -s -H "Title: land <PR> <state>" -d "<one-line summary>" https://ntfy.sh/$BOTTEGA_NTFY_TOPIC
 

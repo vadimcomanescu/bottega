@@ -221,7 +221,6 @@ describe("worker doctrine boundaries", () => {
     expect(land).toMatch(/two failed fixes stops that repair/i);
     expect(land).toMatch(/two fix cycles without convergence/i);
     expect(land).toMatch(/exceed the PR's stated intent/i);
-    expect(land).toMatch(/size-gated/);
     expect(land).toMatch(/gates-red/);
     expect(land).toMatch(/already on the PR when land starts.*enter round 1 as claimed findings/i);
     expect(land).toMatch(/three brief lines from `skills\/run`.*name every test you edit.*verbatim/i);
