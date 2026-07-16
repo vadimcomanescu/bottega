@@ -77,14 +77,14 @@ The exact routes and path rules live in [`skills/run/references/host-transports.
 
 ## Roles
 
-| Role | Responsibility | Claude Code route | Codex route |
-| --- | --- | --- | --- |
-| orchestrator | design, routing, review arbitration, architecture acceptance | Fable 5 | GPT-5.6 Sol, Ultra |
-| builder | one test-first vertical slice inside the fixed architecture | GPT-5.6 Sol high, or Claude Opus xhigh for a user-facing slice | GPT-5.6 Sol high |
-| reviewer | complete frozen diff, tests, and independent architecture verdict | GPT-5.6 Sol high plus Claude Opus xhigh | native GPT-5.6 Sol high plus Claude Opus xhigh |
-| QA | product scenarios and evidence, no product edits | Claude Opus high | GPT-5.6 Sol high |
-| panelist and judge | independent drafts and blinded comparison for one costly decision | GPT-5.6 Sol max plus Fable | GPT-5.6 Sol max plus Claude Opus |
-| mechanic | bounded setup, integration, gates, and bulk reads | Claude Sonnet low | GPT-5.6 Terra high |
+| Role | Responsibility | Method |
+| --- | --- | --- |
+| orchestrator | design, routing, review arbitration, architecture acceptance | [`skills/run`](skills/run/SKILL.md) |
+| builder | one test-first vertical slice inside the fixed architecture | [`skills/implementing`](skills/implementing/SKILL.md) |
+| reviewer | complete frozen diff, tests, and independent architecture verdict | [`skills/reviewing`](skills/reviewing/SKILL.md) |
+| QA | product scenarios and evidence, no product edits | [`agents/qa.md`](agents/qa.md) |
+| panelist and judge | independent drafts and blinded comparison for one costly decision | [`skills/panel`](skills/panel/SKILL.md) |
+| mechanic | bounded setup, integration, gates, and bulk reads | [`agents/mechanic.md`](agents/mechanic.md) |
 
 ## Skills
 

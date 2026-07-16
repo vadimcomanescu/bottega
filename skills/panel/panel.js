@@ -4,6 +4,9 @@ export const meta = {
   phases: [{ title: 'Draft' }, { title: 'Compare' }],
 }
 
+// Workflow scripts cannot read sibling files. PANELIST and JUDGE are verbatim
+// copies of the extracted schemas under references/; the panel schema test
+// pins both representations equal.
 const PANELIST = {
   "type": "object",
   "additionalProperties": false,

@@ -127,11 +127,36 @@ describe("route-guard: bottega worker agents (always checked)", () => {
     }
   });
 
-  it("stays silent on retired worker names: those are a host repo's own agents now", () => {
+  it("checks the mechanic unconditionally and allows only sonnet", () => {
     const cwd = repoWithRun();
-    for (const subagent_type of ["bottega:mechanic", "bottega:documenter"]) {
-      expect(run(ROUTE_GUARD, { cwd, tool_input: { subagent_type, prompt: "x" } })).toBe("");
+    expect(
+      denialOf(run(ROUTE_GUARD, {
+        cwd,
+        tool_input: { subagent_type: "bottega:mechanic", prompt: "run the gate" },
+      })),
+    ).toMatch(/names no model/);
+    for (const model of ["opus", "not-sonnet"]) {
+      expect(
+        denialOf(run(ROUTE_GUARD, {
+          cwd,
+          tool_input: { subagent_type: "bottega:mechanic", model, prompt: "run the gate" },
+        })),
+      ).toMatch(/mechanic: sonnet/);
     }
+    for (const model of ["sonnet", "claude-sonnet-5"]) {
+      expect(run(ROUTE_GUARD, {
+        cwd,
+        tool_input: { subagent_type: "bottega:mechanic", model, prompt: "run the gate" },
+      })).toBe("");
+    }
+  });
+
+  it("stays silent on a retired worker name: that is a host repo's own agent now", () => {
+    const cwd = repoWithRun();
+    expect(run(ROUTE_GUARD, {
+      cwd,
+      tool_input: { subagent_type: "bottega:documenter", prompt: "x" },
+    })).toBe("");
   });
 
   it("stays silent on a bare role name: that is a host repo's own agent, never bottega's", () => {
@@ -313,6 +338,18 @@ const r = await agent('review the diff', { agentType: 'bottega:reviewer', model:
 const r = await agent('review the diff', { agentType: 'bottega:reviewer', model: 'opus' })
 `;
     expect(run(ROUTE_GUARD, workflowEvent({ script: routed }))).toBe("");
+
+    const mechanicMisrouted = `export const meta = { name: 'sweep', description: 'x', phases: [] }
+const r = await agent('run the gates', { agentType: 'bottega:mechanic', model: 'opus' })
+`;
+    expect(
+      denialOf(run(ROUTE_GUARD, workflowEvent({ script: mechanicMisrouted }))),
+    ).toMatch(/routes the mechanic agent/);
+
+    const mechanicRouted = `export const meta = { name: 'sweep', description: 'x', phases: [] }
+const r = await agent('run the gates', { agentType: 'bottega:mechanic', model: 'sonnet' })
+`;
+    expect(run(ROUTE_GUARD, workflowEvent({ script: mechanicRouted }))).toBe("");
   });
 
   it("reads routing from the options object, never from prompt prose", () => {
