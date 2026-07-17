@@ -1,0 +1,353 @@
+#!/usr/bin/env node
+
+// Deterministic advisory session claim for skills/land and skills/review. One
+// place assembles every `gh api` call for the structured claim comment a bottega
+// session leaves on a PR, the same way scripts/pr-threads is the one place a
+// review-thread call is built and scripts/codex-exec is the one place a
+// `codex exec` invocation is built. Skills never call gh for this surface.
+//
+//   pr-claim acquire --repo <owner/name> --pr <n> --session <id> --skill <land|review> [--stale-hours 12]
+//   pr-claim release --repo <owner/name> --pr <n> --comment-id <id>
+//
+// The claim comment carries an HTML marker line plus one human-readable
+// sentence:
+//
+//   <!-- bottega-claim {"session":"<id>","host":"<host>","skill":"land|review"} -->
+//
+// acquire takes one session per PR. It reads the PR's issue comments (the full
+// paginated list), trusts only bottega-claim markers authored by the
+// authenticated gh login (`gh api user`), and:
+//   - reuses its own existing claim only when that claim is the oldest fresh
+//     claim on the PR (same session id), posting nothing;
+//   - refuses when a fresh foreign claim is older than its own claim, or when
+//     it holds no fresh claim of its own, exit 3, listing every fresh foreign
+//     holder (host, skill, createdAt, ageHours);
+//   - replaces claims older than --stale-hours, including its own claim once
+//     that claim itself has gone stale (delete then post its own);
+//   - otherwise posts its own claim.
+// Foreign-author or malformed bottega-claim markers (including a claim whose
+// skill is not exactly land or review) are reported in an "ignored" array,
+// never honored.
+//
+// release deletes the exact comment id acquire returned. A 404 (already gone) is
+// success.
+//
+// Every subcommand runs one or more gh calls; a required gh call that fails is
+// loud and exits nonzero. --dry-run prints the statically assembled gh
+// invocations as a JSON array and runs nothing; calls that depend on fetched
+// data (which stale claims to delete, the id of a just-posted comment) are
+// omitted from the dry-run listing.
+//
+// Exit codes: 0 success, 2 usage error, 3 held (acquire), 1 a gh call failed or
+// returned output this script could not parse.
+
+import { spawnSync } from "node:child_process";
+import { hostname } from "node:os";
+import { parseArgs } from "node:util";
+
+const SUBCOMMANDS = new Set(["acquire", "release"]);
+
+let values, positionals;
+try {
+  ({ values, positionals } = parseArgs({
+    allowPositionals: true,
+    options: {
+      repo: { type: "string" },
+      pr: { type: "string" },
+      session: { type: "string" },
+      skill: { type: "string" },
+      "stale-hours": { type: "string", default: "12" },
+      "comment-id": { type: "string" },
+      "dry-run": { type: "boolean", default: false },
+    },
+  }));
+} catch (error) {
+  process.stderr.write(String(error.message) + "\n");
+  process.exit(2);
+}
+
+const subcommand = positionals[0];
+if (!SUBCOMMANDS.has(subcommand)) {
+  process.stderr.write("pr-claim: subcommand must be acquire or release\n");
+  process.exit(2);
+}
+
+function fail(message) {
+  process.stderr.write("pr-claim: " + message + "\n");
+  process.exit(2);
+}
+
+function requireFlags(names) {
+  for (const name of names) {
+    if (!values[name]) {
+      fail("--" + name + " is required");
+    }
+  }
+}
+
+// A positive integer: one or more digits, no leading zero, no sign, nothing
+// else. Rejects 0, negatives, "abc", and injection before the value reaches a
+// gh invocation.
+function requirePositiveInt(name) {
+  if (!/^[1-9][0-9]*$/.test(values[name])) {
+    fail("--" + name + " must be a positive integer");
+  }
+}
+
+// --repo must be exactly two nonempty segments, owner/name, with no third.
+function requireRepo() {
+  const parts = String(values.repo).split("/");
+  if (parts.length !== 2 || !parts[0] || !parts[1]) {
+    fail("--repo must be owner/name");
+  }
+  return parts;
+}
+
+// A positive number (integer or decimal), so callers can shorten the freshness
+// window in tests without editing the script.
+function requireStaleHours() {
+  if (!/^[0-9]+(\.[0-9]+)?$/.test(values["stale-hours"]) || Number(values["stale-hours"]) <= 0) {
+    fail("--stale-hours must be a positive number");
+  }
+  return Number(values["stale-hours"]);
+}
+
+// Session ids are written into the claim marker JSON and matched back out of it.
+// Restrict to characters that cannot corrupt that one-line JSON.
+function requireSession() {
+  if (!/^[A-Za-z0-9._-]+$/.test(values.session)) {
+    fail("--session must be one or more of A-Z a-z 0-9 . _ -");
+  }
+  return values.session;
+}
+
+function requireSkill() {
+  if (values.skill !== "land" && values.skill !== "review") {
+    fail("--skill must be land or review");
+  }
+  return values.skill;
+}
+
+const CLAIM_TAG = "<!-- bottega-claim";
+const CLAIM_RE = /<!-- bottega-claim (\{[^\n]*?\}) -->/;
+
+function claimBody(session, host, skill) {
+  const marker = "<!-- bottega-claim " + JSON.stringify({ session, host, skill }) + " -->";
+  return marker + "\nBottega " + skill + " session " + session + " holds this PR from host " + host + ".";
+}
+
+// gh invocation builders. Each returns the argv array for one `gh` call. A POST
+// is implied by the presence of -f (gh switches to POST automatically), so no
+// --method flag is needed to create a comment.
+function userArgv() {
+  return ["api", "user"];
+}
+function listCommentsArgv(owner, name, pr) {
+  return ["api", "--paginate", "repos/" + owner + "/" + name + "/issues/" + pr + "/comments"];
+}
+function postCommentArgv(owner, name, pr, body) {
+  return ["api", "repos/" + owner + "/" + name + "/issues/" + pr + "/comments", "-f", "body=" + body];
+}
+function deleteCommentArgv(owner, name, id) {
+  return ["api", "--method", "DELETE", "repos/" + owner + "/" + name + "/issues/comments/" + id];
+}
+
+function dryRun(invocations) {
+  process.stdout.write(JSON.stringify(invocations.map((argv) => ({ command: "gh", argv }))) + "\n");
+  process.exit(0);
+}
+
+// Run one gh call. On spawn failure or (when required) a nonzero exit, print the
+// failure and exit 1. Returns { status, stdout, stderr }.
+function gh(argv, { required = true } = {}) {
+  const result = spawnSync("gh", argv, { encoding: "utf8" });
+  if (result.error) {
+    process.stderr.write("pr-claim: " + result.error.message + "\n");
+    process.exit(1);
+  }
+  if (required && result.status !== 0) {
+    process.stderr.write("pr-claim: gh " + argv.join(" ") + " failed: " + (result.stderr || "").trim() + "\n");
+    process.exit(1);
+  }
+  return result;
+}
+
+function ghJson(argv) {
+  const result = gh(argv);
+  try {
+    return JSON.parse(result.stdout);
+  } catch (error) {
+    process.stderr.write("pr-claim: unexpected gh output for " + argv.join(" ") + ": " + String(error.message) + "\n");
+    process.exit(1);
+  }
+}
+
+function login() {
+  const user = ghJson(userArgv());
+  if (typeof user.login !== "string" || user.login === "") {
+    process.stderr.write("pr-claim: gh api user returned no login\n");
+    process.exit(1);
+  }
+  return user.login;
+}
+
+function ageHoursOf(createdAt) {
+  return (Date.now() - Date.parse(createdAt)) / 3600000;
+}
+
+// Partition the PR's comments into this session's own claim, fresh foreign
+// claims, stale foreign claims, and ignored (foreign-author or malformed)
+// claim markers. A comment with no claim tag is not a claim and is skipped
+// silently; only bottega-claim markers that are foreign or malformed are
+// reported. A claim whose skill is not exactly "land" or "review" is
+// malformed: it is never a holder and never treated as fresh or stale, own
+// or foreign. The own claim (when present) carries the same host, skill,
+// createdAt, and ageHours fields as a foreign holder, so the caller can weigh
+// it against fresh foreign claims by age.
+function classifyClaims(comments, self, session, staleHours) {
+  let own = null;
+  const fresh = [];
+  const stale = [];
+  const ignored = [];
+  for (const c of comments) {
+    const body = typeof c.body === "string" ? c.body : "";
+    if (!body.includes(CLAIM_TAG)) {
+      continue;
+    }
+    const author = c.user && typeof c.user.login === "string" ? c.user.login : null;
+    if (author !== self) {
+      ignored.push({ commentId: c.id, reason: "foreign-author" });
+      continue;
+    }
+    const match = body.match(CLAIM_RE);
+    let data;
+    if (match) {
+      try {
+        data = JSON.parse(match[1]);
+      } catch {
+        data = null;
+      }
+    }
+    if (
+      !data ||
+      typeof data.session !== "string" ||
+      typeof data.host !== "string" ||
+      (data.skill !== "land" && data.skill !== "review")
+    ) {
+      ignored.push({ commentId: c.id, reason: "malformed" });
+      continue;
+    }
+    const entry = {
+      commentId: c.id,
+      host: data.host,
+      skill: data.skill,
+      createdAt: c.created_at,
+      ageHours: ageHoursOf(c.created_at),
+    };
+    if (data.session === session) {
+      if (!own) {
+        own = entry;
+      }
+      continue;
+    }
+    if (entry.ageHours < staleHours) {
+      fresh.push(entry);
+    } else {
+      stale.push(entry);
+    }
+  }
+  return { own, fresh, stale, ignored };
+}
+
+function withIgnored(output, ignored) {
+  if (ignored.length > 0) {
+    output.ignored = ignored;
+  }
+  return output;
+}
+
+if (subcommand === "acquire") {
+  requireFlags(["repo", "pr", "session", "skill"]);
+  requirePositiveInt("pr");
+  const [owner, name] = requireRepo();
+  const session = requireSession();
+  const skill = requireSkill();
+  const staleHours = requireStaleHours();
+  const host = hostname();
+  const body = claimBody(session, host, skill);
+
+  if (values["dry-run"]) {
+    dryRun([userArgv(), listCommentsArgv(owner, name, values.pr), postCommentArgv(owner, name, values.pr, body)]);
+  }
+
+  const self = login();
+  const comments = ghJson(listCommentsArgv(owner, name, values.pr));
+  if (!Array.isArray(comments)) {
+    process.stderr.write("pr-claim: gh comment list was not an array\n");
+    process.exit(1);
+  }
+  const { own, fresh, stale, ignored } = classifyClaims(comments, self, session, staleHours);
+
+  // An own claim wins reuse only when it is itself fresh and at least as old
+  // as every fresh foreign claim on the PR. A fresh foreign claim with an
+  // earlier created_at beats it; a stale own claim is never a basis for
+  // reuse at all.
+  if (own && own.ageHours < staleHours) {
+    const oldestForeignFreshAge = fresh.length > 0 ? Math.max(...fresh.map((f) => f.ageHours)) : -Infinity;
+    if (own.ageHours >= oldestForeignFreshAge) {
+      process.stdout.write(JSON.stringify(withIgnored({ state: "reused", commentId: own.commentId }, ignored)) + "\n");
+      process.exit(0);
+    }
+  }
+
+  if (fresh.length > 0) {
+    const holders = fresh.map(({ host: h, skill: s, createdAt, ageHours }) => ({ host: h, skill: s, createdAt, ageHours }));
+    process.stdout.write(JSON.stringify(withIgnored({ state: "held", holders }, ignored)) + "\n");
+    process.exit(3);
+  }
+
+  // No fresh claim, foreign or own, stands in the way. Delete every stale
+  // claim on the PR, including our own if it has gone stale, before posting
+  // a fresh one.
+  const staleAll = own && own.ageHours >= staleHours ? [...stale, own] : stale;
+  const replaced = [];
+  for (const s of staleAll) {
+    gh(deleteCommentArgv(owner, name, s.commentId));
+    replaced.push({ host: s.host, skill: s.skill, createdAt: s.createdAt, ageHours: s.ageHours });
+  }
+  const posted = ghJson(postCommentArgv(owner, name, values.pr, body));
+  if (typeof posted.id !== "number" && typeof posted.id !== "string") {
+    process.stderr.write("pr-claim: posted claim comment has no id\n");
+    process.exit(1);
+  }
+  const state = replaced.length > 0 ? "replaced-stale" : "acquired";
+  const output = { state, commentId: posted.id };
+  if (replaced.length > 0) {
+    output.replaced = replaced;
+  }
+  process.stdout.write(JSON.stringify(withIgnored(output, ignored)) + "\n");
+  process.exit(0);
+} else {
+  // release
+  requireFlags(["repo", "pr", "comment-id"]);
+  requirePositiveInt("pr");
+  requirePositiveInt("comment-id");
+  const [owner, name] = requireRepo();
+
+  if (values["dry-run"]) {
+    dryRun([deleteCommentArgv(owner, name, values["comment-id"])]);
+  }
+
+  const result = gh(deleteCommentArgv(owner, name, values["comment-id"]), { required: false });
+  if (result.status === 0) {
+    process.stdout.write(JSON.stringify({ state: "released", commentId: values["comment-id"] }) + "\n");
+    process.exit(0);
+  }
+  // A comment that is already gone is success; anything else is a real failure.
+  if (/\b404\b|not found/i.test(result.stderr || "")) {
+    process.stdout.write(JSON.stringify({ state: "already-gone", commentId: values["comment-id"] }) + "\n");
+    process.exit(0);
+  }
+  process.stderr.write("pr-claim: gh delete failed: " + (result.stderr || "").trim() + "\n");
+  process.exit(1);
+}

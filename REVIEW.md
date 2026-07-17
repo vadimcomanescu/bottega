@@ -20,7 +20,7 @@ The order in `skills/run/SKILL.md` steps 5 to 8 is load-bearing: gates green aft
 
 ## GitHub thread handling
 
-`scripts/pr-threads` is the one place a review-thread call is assembled, and `scripts/codex-exec` the one place a codex invocation is assembled. Reject a second assembly point for either. Merging stays with the user; only an explicitly armed `/bottega:land` may auto-merge a converged non-risk PR, per `skills/land/SKILL.md`.
+`scripts/pr-threads` is the one place a review-thread call is assembled, `scripts/pr-claim` the one place a PR's session-claim comment call is assembled, and `scripts/codex-exec` the one place a codex invocation is assembled. Reject a second assembly point for any of them. Merging stays with the user; only an explicitly armed `/bottega:land` may auto-merge a converged non-risk PR, per `skills/land/SKILL.md`.
 
 ## Cleanup
 
