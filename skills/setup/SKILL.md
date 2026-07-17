@@ -48,7 +48,7 @@ Show the exact file edits and the exact GitHub label mutations, wait for approva
 - **A `.bottega/` entry in `.gitignore`** when it is missing.
 - **The `agent:working` label** through `scripts/issue-claim ensure-label`, the one place that call is assembled: it gets or creates the label and reads it back.
 - **The approved `area:*` labels**, each through get-or-create with read-back: create only what is absent, confirm each exists afterward, and never rename or delete an existing label.
-- **The legacy `CONCEPTS.md` migration**: move its content into the relevant `CONTEXT.md` atomically and update every reference in the same change. When both `CONCEPTS.md` and the target `CONTEXT.md` hold material, stop and put the merge to the user before writing. The migrated entries follow the format rule in [`bottega:codebase-design`](../codebase-design/SKILL.md): the existing target's format wins, a new file follows its vendored format references.
+- **The legacy `CONCEPTS.md` migration**: move its content into the relevant `CONTEXT.md` atomically and update every reference in the same change. When both `CONCEPTS.md` and the target `CONTEXT.md` hold material, stop and put the merge to the user before writing. The migrated entries follow the format rule in [`bottega:codebase-design`](../codebase-design/SKILL.md).
 
 ## Verifies (findings, never mutations)
 

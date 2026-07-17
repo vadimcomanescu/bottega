@@ -15,7 +15,7 @@ Autonomous issue-to-PR runs for Claude Code. One command takes a task, bug, or G
 
 1. Isolates the run in its own worktree and branch, and discovers the host's test, lint, typecheck, build, and run commands.
 2. Reads the codebase and domain glossary, identifies risks omitted from the request, inventories relevant installed technology skills, and asks the user when the intent is unclear.
-3. Presents a brief user-facing spec in the conversation: what changes, acceptance criteria, definition of done, domain terms, wireframe mockups when UI is touched. The user's OK is the go signal; a request that waives sign-off in its own words skips the wait, and the PR presents the spec and every decision where the OK would have gone.
+3. Presents a brief user-facing spec in the conversation, following the [shared spec format](skills/spec/references/spec-format.md). The user's OK is the go signal; a request that waives sign-off in its own words skips the wait, and the PR presents the spec and every decision where the OK would have gone.
 4. Models the domain, writes Fable's architecture brief, plans vertical slices inside it, and puts each costly decision (where behavior or state belongs, data shape, public contracts, dependency bets) to a panel before building.
 5. Dispatches builders with one assigned slice, the fixed architecture, the glossary, and relevant technology skills. Builders work test-first and stop at the slice boundary; host gates stay green at every integrate.
 6. Syncs the host's docs to the diff, then reviews the integrated diff through one panel invocation of the vendored autoreview helper: two isolated engines, one per model family, neither seeing builder reasoning or the other's findings, each checking behavior, tests, and conformance to Fable's architecture brief. Fable verifies the findings and accepts one reviewed head; fixes get a single-engine delta round from the opposite family.
@@ -39,7 +39,7 @@ Nothing else is assumed about the host repo. A run leaves nothing behind but the
 
 **Model routing is enforced, not suggested.** Worker roles map to fixed models (the routing table in `skills/run/SKILL.md`), and a PreToolUse hook (`hooks/route-guard.js`) rejects any dispatch or workflow that omits a model or routes a worker to the top-tier model. Why: a dispatch that omits a model silently inherits the orchestrator's model, the most expensive one, and in a measured run 103 of 132 dispatches did exactly that before this hook existed.
 
-**The spec is a conversation, not a pipeline.** The spec is presented in the session and approved with a reply: acceptance criteria, definition of done, honest wireframes. Why: earlier versions carried a signed Gherkin pipeline (generated acceptance suites, hosted sign-off documents, feature-file mutation testing); in the field it burned hours building and reviewing its own test harness while catching zero product defects the review had not already caught. The proof the user actually consumes is the review plus the QA recording.
+**The spec is a conversation, not a pipeline.** The spec is presented in the session and approved with a reply, per the [shared spec format](skills/spec/references/spec-format.md). Why: earlier versions carried a signed Gherkin pipeline (generated acceptance suites, hosted sign-off documents, feature-file mutation testing); in the field it burned hours building and reviewing its own test harness while catching zero product defects the review had not already caught. The proof the user actually consumes is the review plus the QA recording.
 
 **QA owns the product drive.** Builders prove their slice through code and tests. Reviewers inspect the integrated code and architecture. Only after Fable accepts the review evidence does a fresh QA worker drive the accepted head and record the verdict; QA never edits product code. Fable reads a failure before routing it: environment and evidence failures stay in QA setup, implementation defects go to the builder that owns the module, and a wrong spec, domain model, or architecture returns to planning. Any product-code repair gets fresh review, Fable acceptance, and QA. Evidence is read on github.com, never in local folders: walkthrough gifs and screenshots embed inline in the PR body from a never-merged evidence branch, which is deleted after merge.
 
@@ -63,7 +63,7 @@ Agent definitions say who enters an isolated context: the role, authority, prohi
 ## Repo layout
 
 ```
-skills/         run, improve, setup, review, land, implementing, autoreview (vendored), codebase-design, panel
+skills/         run, spec, improve, setup, review, land, implementing, autoreview (vendored), codebase-design, panel
 agents/         Claude identities for builder, QA, panelist, and panel judge
 scripts/        codex-exec (the one place a codex invocation is assembled), pr-threads (PR review-thread calls), pr-claim (the PR session-claim comment), and issue-claim (the issue session-claim comment, label, and assignment)
 hooks/          route guard (model routing) and entry guard (points prose at /bottega:run)

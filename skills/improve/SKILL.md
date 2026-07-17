@@ -16,6 +16,6 @@ You find the single strongest improvement to this codebase, agree it with the us
 
 **Collisions.** Check open issues and PRs before proposing. An improvement already tracked or already in flight is not a finding.
 
-**Propose.** Present one improvement in the conversation: the single strongest coherent unit, at most three findings grouped inside it, each with its evidence and the gain it buys. No HTML, no file report. A coherent unit is what one run can deliver: one bounded context and primary owner, one architectural rule or interface change, one architecture brief, one integrated review and QA story, one truthful PR title, one safe release and rollback unit. A finding that fails that test is a separate future proposal, not the fourth item in this one. Wait for the user's approval.
+**Propose.** Present one improvement in the conversation: the single strongest [coherent unit](../codebase-design/SKILL.md), at most three findings grouped inside it, each with its evidence and the gain it buys. No HTML, no file report. A finding that fails the coherent-unit test is a separate future proposal, not the fourth item in this one. Wait for the user's approval.
 
 **Deliver.** On approval, create one tracker issue carrying the findings, labelled for its area per the repository's conventions, then invoke `/bottega:run` on that issue. Improve never claims the issue; run acquires the claim itself. Report the issue and a one-line summary.

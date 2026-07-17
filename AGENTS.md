@@ -8,6 +8,7 @@ Autonomous issue-to-PR runs for Claude Code, built for Fable to orchestrate: one
 | --- | --- | --- |
 | `.claude-plugin/` | Plugin and marketplace manifests | Changing install or release metadata |
 | `skills/run/SKILL.md` | `/bottega:run`, the orchestrator's whole method and the routing table | Anything touches a run's phases, routing, or state |
+| `skills/spec/SKILL.md` | `/bottega:spec`, the cold-mode spec: grill unknowns, prepare the spec, push to tickets; run's Spec phase routes to its `references/spec-format.md` | Anything touches spec content, unknown discovery, or ticket push |
 | `skills/improve/SKILL.md` | `/bottega:improve`, one agreed improvement filed as an issue and handed to run | Changing how improvements are found or handed off |
 | `skills/setup/SKILL.md` | `/bottega:setup`, one-time reconciliation of a host repo with the methodology | Changing what setup writes or verifies |
 | `skills/implementing` | Builder method shared by Claude and Codex workers | Changing how builders work a slice |

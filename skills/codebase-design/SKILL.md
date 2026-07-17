@@ -32,6 +32,7 @@ Model the domain before arranging files. Architecture should make the required b
 - Keep dependencies pointed toward the code that owns the domain rule. Adapters translate at the edge; they do not redefine the domain.
 - Apply YAGNI to presumptive capabilities and flexibility. Do not use it to avoid refactoring, tests, clear names, validation, security, accessibility, or data safety. Those keep evolutionary design viable.
 - A current change may justify refactoring when it removes duplication, restores ownership, or makes the required behavior clear. Do not create abstractions for unrequested variants.
+- A coherent unit is what one run can deliver: one bounded context and primary owner, one architectural rule or interface change, one brief, one integrated review and QA story, one truthful PR title, one safe release and rollback unit. A change that fails this test is more than one unit.
 - For a consequential choice without a strong repository precedent, compare a credible alternative and use the panel when reversing the choice after merge would be expensive.
 
 ## Architecture brief

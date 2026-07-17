@@ -48,6 +48,7 @@ describe("worker doctrine boundaries", () => {
       "review",
       "run",
       "setup",
+      "spec",
       "writing-great-skills",
     ]);
 
@@ -189,6 +190,12 @@ describe("worker doctrine boundaries", () => {
     expect(phase(run, 7)).toMatch(/docs sweep over what it changed/i);
     expect(phase(run, 8)).not.toMatch(/docs sweep|doc claim/i);
     expect(phase(run, 8)).toMatch(/changes no tracked file/i);
+  });
+
+  it("routes run's Spec phase to the spec skill's format reference and watches required checks before Deliver", () => {
+    expect(existsSync(join(ROOT, "skills/spec/references/spec-format.md"))).toBe(true);
+    expect(phase(run, 3)).toMatch(/spec-format\.md/);
+    expect(phase(run, 8)).toMatch(/required checks/i);
   });
 
   it("vendors the skill-writing reference model-invocable and linked for every runtime", () => {
