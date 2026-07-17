@@ -3,7 +3,7 @@
 // traps (resume drops -s and -C silently) are the reason this script exists;
 // both are asserted here.
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
@@ -121,7 +121,40 @@ const resumed = args[1] === "resume" ? args[2] : null;
 const mode = process.env.CODEX_STUB_MODE ?? "ok";
 const threadId = mode === "fork" ? "t-forked" : (resumed ?? "t-fresh");
 const emit = (event) => process.stdout.write(JSON.stringify(event) + "\\n");
+const okOut = () => writeFileSync(out, '{"word":"ok"}');
 if (mode === "hang") setTimeout(() => {}, 60000);
+else if (mode === "raw") {
+  // Emit a caller-supplied byte sequence verbatim, then a valid final message.
+  process.stdout.write(process.env.CODEX_STUB_RAW ?? "");
+  okOut();
+  process.exit(0);
+}
+else if (mode === "progress") {
+  emit({ type: "thread.started", thread_id: threadId });
+  emit({ type: "item.completed", item: { type: "command_execution", command: "npm test", exit_code: 0 } });
+  emit({ type: "item.completed", item: { type: "agent_message", text: "working on it" } });
+  emit({ type: "item.completed", item: { type: "file_change", changes: [{ path: "a.ts" }, { path: "b.ts" }] } });
+  emit({ type: "turn.completed", usage: { input_tokens: 100, cached_input_tokens: 10, output_tokens: 5, reasoning_output_tokens: 0 } });
+  okOut();
+  process.exit(0);
+}
+else if (mode === "error-progress") {
+  emit({ type: "thread.started", thread_id: threadId });
+  emit({ type: "error", message: "sandbox denied the write" });
+  emit({ type: "turn.completed", usage: {} });
+  okOut();
+  process.exit(0);
+}
+else if (mode === "slow") {
+  // Emit one line, then a gap longer than the heartbeat interval.
+  emit({ type: "thread.started", thread_id: threadId });
+  setTimeout(() => {
+    emit({ type: "item.completed", item: { type: "agent_message", text: "done" } });
+    emit({ type: "turn.completed", usage: {} });
+    okOut();
+    process.exit(0);
+  }, 500);
+}
 else {
   emit({ type: "thread.started", thread_id: threadId });
   if (mode === "fail") {
@@ -131,7 +164,7 @@ else {
   emit({ type: "item.completed", item: { type: "agent_message", text: "done" } });
   if (mode !== "no-turn-completed") emit({ type: "turn.completed", usage: {} });
   if (mode === "bad-json") writeFileSync(out, "not json");
-  else if (mode !== "empty-out") writeFileSync(out, '{"word":"ok"}');
+  else if (mode !== "empty-out") okOut();
   process.exit(0);
 }
 `;
@@ -143,7 +176,14 @@ else {
 
   function runStubbed(
     mode: string,
-    options: { schema?: boolean; resume?: string; staleOut?: string; stallMs?: number } = {},
+    options: {
+      schema?: boolean;
+      resume?: string;
+      staleOut?: string;
+      stallMs?: number;
+      heartbeatMs?: number;
+      raw?: string;
+    } = {},
   ) {
     const dir = mkdtempSync(join(tmpdir(), "codex-exec-test-"));
     dirs.push(dir);
@@ -164,15 +204,18 @@ else {
       args.push("--schema", join(dir, "schema.json"));
     }
     if (options.resume) args.push("--resume", options.resume);
-    return spawnSync("node", [SCRIPT, ...args], {
+    const result = spawnSync("node", [SCRIPT, ...args], {
       encoding: "utf-8",
       env: {
         ...process.env,
         PATH: `${dir}:${process.env.PATH}`,
         CODEX_STUB_MODE: mode,
+        CODEX_STUB_RAW: options.raw ?? "",
         CODEX_EXEC_STALL_MS: String(options.stallMs ?? 300000),
+        CODEX_EXEC_HEARTBEAT_MS: String(options.heartbeatMs ?? 60000),
       },
     });
+    return Object.assign(result, { dir });
   }
 
   it("passes a clean run, fresh and resumed", () => {
@@ -215,9 +258,60 @@ else {
     expect(result.stderr).toMatch(/usage limit reached/);
   });
 
-  it("kills a run whose events file stops growing and reports the stall", () => {
+  it("kills a run that emits no stdout line for the stall window and reports the stall", () => {
     const result = runStubbed("hang", { stallMs: 400 });
     expect(result.status).toBe(1);
     expect(result.stderr).toMatch(/without event activity/);
+  });
+
+  // stdout is piped through the parent: every raw line is appended to the
+  // events file verbatim, and each line is also parsed for a progress line on
+  // stderr. Progress is display-only and never changes exit semantics.
+  it("prints a progress line to stderr for each event kind", () => {
+    const result = runStubbed("progress");
+    expect(result.status).toBe(0);
+    expect(result.stderr).toMatch(/codex-exec: thread t-fresh/);
+    expect(result.stderr).toMatch(/codex-exec: \$ npm test \(exit 0\)/);
+    expect(result.stderr).toMatch(/codex-exec: agent:/);
+    expect(result.stderr).toMatch(/working on it/);
+    expect(result.stderr).toMatch(/codex-exec: files a\.ts, b\.ts/);
+    expect(result.stderr).toMatch(/codex-exec: turn complete, tokens in=100 out=5 cached=10 reasoning=0/);
+  });
+
+  it("prints the turn.failed/error progress line, distinct from the post-run reason writer", () => {
+    // Exit 0 so the post-run reason writer (status !== 0) stays silent: the
+    // reason on stderr can only come from the display-only error progress
+    // branch, so a broken or emptied branch fails this test.
+    const result = runStubbed("error-progress");
+    expect(result.status).toBe(0);
+    expect(result.stderr).toMatch(/codex-exec: sandbox denied the write/);
+  });
+
+  it("writes the events file byte-identical to the stub's stdout, malformed and unknown lines included", () => {
+    const raw =
+      '{"type":"thread.started","thread_id":"t-fresh"}\n' +
+      "this is not valid json\n" +
+      '{"type":"mystery.event","n":1}\n' +
+      '{"type":"item.completed","item":{"type":"agent_message","text":"OK"}}\n' +
+      '{"type":"turn.completed","usage":{"input_tokens":1,"cached_input_tokens":0,"output_tokens":2,"reasoning_output_tokens":0}}\n';
+    const result = runStubbed("raw", { raw });
+    expect(result.status).toBe(0);
+    expect(readFileSync(join(result.dir, "events.jsonl"), "utf8")).toBe(raw);
+  });
+
+  it("exits 0 on a stream of only unknown and malformed events with a valid turn.completed", () => {
+    const raw =
+      '{"type":"wibble"}\n' +
+      '{"type":"wobble","data":123}\n' +
+      "not even json\n" +
+      '{"type":"turn.completed","usage":{}}\n';
+    const result = runStubbed("raw", { raw });
+    expect(result.status).toBe(0);
+  });
+
+  it("emits a heartbeat when no stdout line arrives within the interval", () => {
+    const result = runStubbed("slow", { heartbeatMs: 100 });
+    expect(result.status).toBe(0);
+    expect(result.stderr).toMatch(/codex-exec: still running, \d+s elapsed, last event \d+s ago/);
   });
 });
