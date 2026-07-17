@@ -1,6 +1,6 @@
 # Spec format
 
-The default shape a spec takes, whether presented in the conversation or written into a ticket body. It is not a template to fill or a checklist to satisfy: Fable adapts it to the work, keeps the parts the work needs, and drops the rest. The parts:
+The default shape a spec takes, whether presented in the conversation or written into a ticket body. It is not a template to fill or a checklist to satisfy: Fable adapts it to the work, keeps the parts the work needs, drops the rest, and adds any part this work needs that the format does not name. The parts:
 
 - **What changes.** The behavior the work adds or alters, stated so the user can picture the result.
 - **Acceptance criteria.** The observable conditions that decide the work is correct.
