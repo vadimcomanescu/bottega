@@ -19,9 +19,15 @@
 // nothing.
 
 import { spawn } from "node:child_process";
-import { existsSync, openSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { createWriteStream, existsSync, openSync, readFileSync, writeFileSync } from "node:fs";
 import { isAbsolute } from "node:path";
+import { StringDecoder } from "node:string_decoder";
 import { parseArgs } from "node:util";
+
+// Progress and heartbeat emission must never change dispatch semantics: if the
+// consumer closes stderr, swallow the EPIPE instead of dying on an unhandled
+// stream error mid-run.
+process.stderr.on("error", () => {});
 
 const SANDBOXES = new Set(["read-only", "danger-full-access"]);
 
@@ -120,36 +126,193 @@ for (const name of ["cwd", "brief", ...(values.schema ? ["schema"] : [])]) {
 writeFileSync(values.out, "");
 
 const STALL_MS = Number(process.env.CODEX_EXEC_STALL_MS) || 300000;
+const HEARTBEAT_MS = Number(process.env.CODEX_EXEC_HEARTBEAT_MS) || 60000;
 
+// stdout is piped through this process, not wired straight to the events
+// file. Every raw line is appended verbatim, so the on-disk record stays
+// byte-identical (malformed and unknown lines included), and each line is
+// also parsed for a human-readable progress line on stderr. The stream is
+// flushed and closed before the post-run read so no buffered line is lost.
+const eventsStream = createWriteStream(values.events, { flags: "w" });
+
+const startedAt = Date.now();
 const child = spawn("codex", argv, {
   cwd: values.cwd,
-  stdio: [openSync(values.brief, "r"), openSync(values.events, "w"), "inherit"],
+  stdio: [openSync(values.brief, "r"), "pipe", "inherit"],
+});
+child.stdout.on("error", () => {}); // a killed child destroys the read side
+// The events file is the run's record. If writing it fails (disk full, an I/O
+// error), the dispatch cannot be verified: kill codex so it is not orphaned
+// and fail cleanly, rather than crash the parent with an uncaught error.
+eventsStream.on("error", (error) => {
+  try {
+    child.kill("SIGKILL");
+  } catch {}
+  fail("events file " + values.events + " write failed: " + error.message);
+});
+
+function note(text) {
+  process.stderr.write("codex-exec: " + text + "\n");
+}
+
+// codex output can carry ANSI/OSC control sequences that manipulate the
+// terminal. Strip ESC-based sequences and C0 control characters (keeping tab
+// and newline) from every codex-supplied field before it reaches stderr. The
+// events file keeps the original bytes; only the display is escaped.
+function clean(text) {
+  return String(text)
+    .replace(/\x1b\][\s\S]*?(?:\x07|\x1b\\)/g, "") // OSC ... BEL or ST
+    .replace(/\x1b[@-Z\\-_]|\x1b\[[0-?]*[ -/]*[@-~]/g, "") // Fe escapes and CSI
+    .replace(/\x1b/g, "") // any stray ESC
+    .replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, ""); // C0 controls, keep \t \n
+}
+
+// Progress is display-only. A malformed, unknown, or reshaped event prints
+// nothing and can never throw, change the exit code, or corrupt the record;
+// only the post-run event-stream read below decides exit semantics.
+function emitProgress(line) {
+  let event;
+  try {
+    event = JSON.parse(line);
+  } catch {
+    return;
+  }
+  try {
+    describeEvent(event);
+  } catch {}
+}
+
+// A reshaped event (a load-bearing field of the wrong shape) prints nothing:
+// each branch validates the fields it needs before displaying, so no branch
+// fabricates a value. Display never affects exit semantics; only the post-run
+// event-stream read below does.
+function describeEvent(event) {
+  if (!event || typeof event.type !== "string") return;
+  switch (event.type) {
+    case "thread.started":
+      if (typeof event.thread_id !== "string") return;
+      note("thread " + clean(event.thread_id));
+      return;
+    case "item.completed": {
+      const item = event.item;
+      if (!item || typeof item.type !== "string") return;
+      if (item.type === "command_execution") {
+        if (typeof item.command !== "string" || !Number.isInteger(item.exit_code)) return;
+        const command = clean(item.command).replace(/\s+/g, " ").trim();
+        note("$ " + command.slice(0, 200) + " (exit " + item.exit_code + ")");
+      } else if (item.type === "agent_message") {
+        if (typeof item.text !== "string") return;
+        process.stderr.write("codex-exec: agent:\n" + clean(item.text) + "\n");
+      } else if (item.type === "file_change") {
+        const changes = Array.isArray(item.changes) ? item.changes : [];
+        const paths = changes
+          .map((change) => change && change.path)
+          .filter((path) => typeof path === "string" && path.length > 0);
+        if (paths.length === 0) return;
+        note("files " + paths.map(clean).join(", "));
+      }
+      return;
+    }
+    case "turn.completed": {
+      const usage = event.usage;
+      if (!usage || typeof usage !== "object") return;
+      const fields = [
+        usage.input_tokens,
+        usage.output_tokens,
+        usage.cached_input_tokens,
+        usage.reasoning_output_tokens,
+      ];
+      if (fields.some((n) => typeof n !== "number")) return;
+      note(
+        "turn complete, tokens in=" + usage.input_tokens +
+          " out=" + usage.output_tokens +
+          " cached=" + usage.cached_input_tokens +
+          " reasoning=" + usage.reasoning_output_tokens
+      );
+      return;
+    }
+    case "turn.failed":
+    case "error": {
+      const reason =
+        typeof event.error === "string"
+          ? event.error
+          : event.error?.message ?? event.message;
+      if (typeof reason === "string" && reason) note(clean(reason));
+      return;
+    }
+  }
+}
+
+const decoder = new StringDecoder("utf8");
+let buffer = "";
+let lastData = startedAt;
+let stalled = false;
+
+function onStdout(chunk) {
+  // Any bytes count as liveness, so a large event streamed slowly across
+  // chunks is never killed as stalled mid-arrival.
+  lastData = Date.now();
+  eventsStream.write(chunk);
+  buffer += decoder.write(chunk);
+  let index;
+  while ((index = buffer.indexOf("\n")) !== -1) {
+    const line = buffer.slice(0, index);
+    buffer = buffer.slice(index + 1);
+    if (line.length > 0) emitProgress(line);
+  }
+}
+child.stdout.on("data", onStdout);
+child.stdout.on("end", () => {
+  buffer += decoder.end();
+  if (buffer.length > 0) emitProgress(buffer);
 });
 
 // A wedged codex sits alive at 0% CPU forever and never exits into the
-// caller's process tracking; the events file is the liveness signal.
-let lastSize = -1;
-let lastGrowth = Date.now();
-let stalled = false;
-const watchdog = setInterval(() => {
-  let size = 0;
-  try {
-    size = statSync(values.events).size;
-  } catch {}
-  if (size > lastSize) {
-    lastSize = size;
-    lastGrowth = Date.now();
-  } else if (Date.now() - lastGrowth >= STALL_MS) {
+// caller's process tracking; bytes arriving on stdout are the liveness signal.
+const stallWatchdog = setInterval(() => {
+  if (Date.now() - lastData >= STALL_MS) {
     stalled = true;
     child.kill("SIGKILL");
   }
 }, Math.min(15000, Math.max(50, Math.floor(STALL_MS / 5))));
 
+const heartbeat = setInterval(() => {
+  const idle = Date.now() - lastData;
+  if (idle >= HEARTBEAT_MS)
+    note(
+      "still running, " + Math.round((Date.now() - startedAt) / 1000) +
+        "s elapsed, last event " + Math.round(idle / 1000) + "s ago"
+    );
+}, HEARTBEAT_MS);
+
 const [status, spawnError] = await new Promise((resolve) => {
   child.on("error", (error) => resolve([1, error]));
-  child.on("close", (code) => resolve([code ?? 1, null]));
+  // exit fires when codex itself ends. close is withheld until every process
+  // holding the piped stdout fd releases it, and under danger-full-access a
+  // descendant that inherited fd 1 can hold it open forever, past a SIGKILL of
+  // codex, so completion keys on exit to keep the watchdog's kill effective.
+  child.on("exit", (code) => resolve([code ?? 1, null]));
 });
-clearInterval(watchdog);
+clearInterval(stallWatchdog);
+clearInterval(heartbeat);
+// codex has exited. Drain stdout still buffered in the pipe so the record
+// stays complete, but bound the wait: a surviving descendant holding the pipe
+// open would otherwise stall this read forever.
+if (!child.stdout.readableEnded)
+  await new Promise((resolve) => {
+    child.stdout.once("end", resolve);
+    child.stdout.once("close", resolve);
+    setTimeout(resolve, 2000).unref();
+  });
+// Detach and destroy stdout before ending the events stream. A descendant that
+// inherited fd 1 can hold the pipe open past codex's exit; without this a late
+// chunk would reach the ended stream (ERR_STREAM_WRITE_AFTER_END, which the
+// error handler turns into a SIGKILL and a nonzero exit for a finished run) and
+// the live handle would keep the event loop alive. Execution then continues
+// synchronously to the verification, so no path exits before the fail() checks.
+child.stdout.removeListener("data", onStdout);
+child.stdout.destroy();
+await new Promise((resolve) => eventsStream.end(resolve));
 if (spawnError) fail(spawnError.message);
 if (stalled)
   fail(
@@ -182,7 +345,7 @@ const reason =
     : failure?.error?.message ?? failure?.message;
 
 if (status !== 0) {
-  if (reason) process.stderr.write("codex-exec: " + reason + "\n");
+  if (reason) process.stderr.write("codex-exec: " + clean(reason) + "\n");
   process.exit(status);
 }
 
@@ -195,13 +358,13 @@ if (values.resume) {
   if (started.thread_id !== values.resume)
     fail(
       "resume of thread " + values.resume + " started a new session " +
-        started.thread_id + " instead; the thread no longer exists and the forked session may have modified the worktree, re-dispatch fresh"
+        clean(started.thread_id) + " instead; the thread no longer exists and the forked session may have modified the worktree, re-dispatch fresh"
     );
 }
 if (!events.some((event) => event.type === "turn.completed"))
   fail(
     "codex exited 0 without a turn.completed event; the run did not finish" +
-      (reason ? " (last failure event: " + reason + ")" : "")
+      (reason ? " (last failure event: " + clean(reason) + ")" : "")
   );
 
 // -o and --output-schema both survive resume, so every clean exit must have

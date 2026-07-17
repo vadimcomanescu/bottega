@@ -2,8 +2,8 @@
 // invocation, and --dry-run exposes the assembly for pinning. The two resume
 // traps (resume drops -s and -C silently) are the reason this script exists;
 // both are asserted here.
-import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { spawn, spawnSync } from "node:child_process";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
@@ -121,7 +121,80 @@ const resumed = args[1] === "resume" ? args[2] : null;
 const mode = process.env.CODEX_STUB_MODE ?? "ok";
 const threadId = mode === "fork" ? "t-forked" : (resumed ?? "t-fresh");
 const emit = (event) => process.stdout.write(JSON.stringify(event) + "\\n");
+const okOut = () => writeFileSync(out, '{"word":"ok"}');
+const okUsage = { input_tokens: 1, output_tokens: 1, cached_input_tokens: 0, reasoning_output_tokens: 0 };
 if (mode === "hang") setTimeout(() => {}, 60000);
+else if (mode === "raw") {
+  // Emit a caller-supplied byte sequence verbatim, then a valid final message.
+  process.stdout.write(process.env.CODEX_STUB_RAW ?? "");
+  okOut();
+  process.exit(0);
+}
+else if (mode === "descendant") {
+  // Spawn a detached descendant that inherits fd 1, outlives codex, and writes
+  // a late line to the shared pipe after codex has exited.
+  emit({ type: "thread.started", thread_id: threadId });
+  emit({ type: "item.completed", item: { type: "agent_message", text: "done" } });
+  emit({ type: "turn.completed", usage: okUsage });
+  okOut();
+  const { spawn } = require("node:child_process");
+  const grandchild = spawn(
+    process.execPath,
+    ["-e", "setTimeout(() => { try { require('fs').writeSync(1, 'LATE-LINE-SHOULD-NOT-APPEAR\\\\n'); } catch {} }, 4000)"],
+    { detached: true, stdio: ["ignore", 1, "ignore"] },
+  );
+  grandchild.unref();
+  process.exit(0);
+}
+else if (mode === "reshaped") {
+  // Load-bearing events with a missing field, followed by a valid pair so the
+  // run still verifies as finished.
+  emit({ type: "thread.started" });
+  emit({ type: "item.completed", item: { type: "command_execution", exit_code: 0 } });
+  emit({ type: "item.completed", item: { type: "command_execution", command: "ls", exit_code: "]0;x" } });
+  emit({ type: "turn.completed" });
+  emit({ type: "item.completed", item: { type: "agent_message", text: "ok" } });
+  emit({ type: "turn.completed", usage: okUsage });
+  okOut();
+  process.exit(0);
+}
+else if (mode === "ansi") {
+  // agent text carrying an OSC title sequence and an SGR color sequence; the
+  // JSON serializer escapes the ESC and BEL bytes on the wire.
+  const esc = String.fromCharCode(27);
+  const bel = String.fromCharCode(7);
+  emit({ type: "thread.started", thread_id: threadId });
+  emit({ type: "item.completed", item: { type: "agent_message", text: esc + "]0;pwned" + bel + esc + "[31mRED" + esc + "[0m" } });
+  emit({ type: "turn.completed", usage: okUsage });
+  okOut();
+  process.exit(0);
+}
+else if (mode === "progress") {
+  emit({ type: "thread.started", thread_id: threadId });
+  emit({ type: "item.completed", item: { type: "command_execution", command: "npm test", exit_code: 0 } });
+  emit({ type: "item.completed", item: { type: "agent_message", text: "working on it" } });
+  emit({ type: "item.completed", item: { type: "file_change", changes: [{ path: "a.ts" }, { path: "b.ts" }] } });
+  emit({ type: "turn.completed", usage: { input_tokens: 100, cached_input_tokens: 10, output_tokens: 5, reasoning_output_tokens: 0 } });
+  okOut();
+  process.exit(0);
+}
+else if (mode === "error-progress") {
+  emit({ type: "thread.started", thread_id: threadId });
+  emit({ type: "error", message: "sandbox denied the write" });
+  emit({ type: "turn.completed", usage: {} });
+  okOut();
+  process.exit(0);
+}
+else if (mode === "slow") {
+  // Emit one line, then a gap longer than the heartbeat interval.
+  emit({ type: "thread.started", thread_id: threadId });
+  setTimeout(() => {
+    emit({ type: "item.completed", item: { type: "agent_message", text: "done" } });
+    emit({ type: "turn.completed", usage: {} });
+    okOut();
+    process.exit(0);
+  }, 500);
+}
 else {
   emit({ type: "thread.started", thread_id: threadId });
   if (mode === "fail") {
@@ -131,7 +204,7 @@ else {
   emit({ type: "item.completed", item: { type: "agent_message", text: "done" } });
   if (mode !== "no-turn-completed") emit({ type: "turn.completed", usage: {} });
   if (mode === "bad-json") writeFileSync(out, "not json");
-  else if (mode !== "empty-out") writeFileSync(out, '{"word":"ok"}');
+  else if (mode !== "empty-out") okOut();
   process.exit(0);
 }
 `;
@@ -143,7 +216,14 @@ else {
 
   function runStubbed(
     mode: string,
-    options: { schema?: boolean; resume?: string; staleOut?: string; stallMs?: number } = {},
+    options: {
+      schema?: boolean;
+      resume?: string;
+      staleOut?: string;
+      stallMs?: number;
+      heartbeatMs?: number;
+      raw?: string;
+    } = {},
   ) {
     const dir = mkdtempSync(join(tmpdir(), "codex-exec-test-"));
     dirs.push(dir);
@@ -164,15 +244,18 @@ else {
       args.push("--schema", join(dir, "schema.json"));
     }
     if (options.resume) args.push("--resume", options.resume);
-    return spawnSync("node", [SCRIPT, ...args], {
+    const result = spawnSync("node", [SCRIPT, ...args], {
       encoding: "utf-8",
       env: {
         ...process.env,
         PATH: `${dir}:${process.env.PATH}`,
         CODEX_STUB_MODE: mode,
+        CODEX_STUB_RAW: options.raw ?? "",
         CODEX_EXEC_STALL_MS: String(options.stallMs ?? 300000),
+        CODEX_EXEC_HEARTBEAT_MS: String(options.heartbeatMs ?? 60000),
       },
     });
+    return Object.assign(result, { dir });
   }
 
   it("passes a clean run, fresh and resumed", () => {
@@ -215,9 +298,130 @@ else {
     expect(result.stderr).toMatch(/usage limit reached/);
   });
 
-  it("kills a run whose events file stops growing and reports the stall", () => {
+  it("kills a run that emits no stdout line for the stall window and reports the stall", () => {
     const result = runStubbed("hang", { stallMs: 400 });
     expect(result.status).toBe(1);
     expect(result.stderr).toMatch(/without event activity/);
+  });
+
+  // stdout is piped through the parent: every raw line is appended to the
+  // events file verbatim, and each line is also parsed for a progress line on
+  // stderr. Progress is display-only and never changes exit semantics.
+  it("prints a progress line to stderr for each event kind", () => {
+    const result = runStubbed("progress");
+    expect(result.status).toBe(0);
+    expect(result.stderr).toMatch(/codex-exec: thread t-fresh/);
+    expect(result.stderr).toMatch(/codex-exec: \$ npm test \(exit 0\)/);
+    expect(result.stderr).toMatch(/codex-exec: agent:/);
+    expect(result.stderr).toMatch(/working on it/);
+    expect(result.stderr).toMatch(/codex-exec: files a\.ts, b\.ts/);
+    expect(result.stderr).toMatch(/codex-exec: turn complete, tokens in=100 out=5 cached=10 reasoning=0/);
+  });
+
+  it("prints the turn.failed/error progress line, distinct from the post-run reason writer", () => {
+    // Exit 0 so the post-run reason writer (status !== 0) stays silent: the
+    // reason on stderr can only come from the display-only error progress
+    // branch, so a broken or emptied branch fails this test.
+    const result = runStubbed("error-progress");
+    expect(result.status).toBe(0);
+    expect(result.stderr).toMatch(/codex-exec: sandbox denied the write/);
+  });
+
+  it("writes the events file byte-identical to the stub's stdout, malformed and unknown lines included", () => {
+    const raw =
+      '{"type":"thread.started","thread_id":"t-fresh"}\n' +
+      "this is not valid json\n" +
+      '{"type":"mystery.event","n":1}\n' +
+      '{"type":"item.completed","item":{"type":"agent_message","text":"OK"}}\n' +
+      '{"type":"turn.completed","usage":{"input_tokens":1,"cached_input_tokens":0,"output_tokens":2,"reasoning_output_tokens":0}}\n';
+    const result = runStubbed("raw", { raw });
+    expect(result.status).toBe(0);
+    expect(readFileSync(join(result.dir, "events.jsonl"), "utf8")).toBe(raw);
+  });
+
+  it("exits 0 on a stream of only unknown and malformed events with a valid turn.completed", () => {
+    const raw =
+      '{"type":"wibble"}\n' +
+      '{"type":"wobble","data":123}\n' +
+      "not even json\n" +
+      '{"type":"turn.completed","usage":{}}\n';
+    const result = runStubbed("raw", { raw });
+    expect(result.status).toBe(0);
+  });
+
+  it("emits a heartbeat when no stdout line arrives within the interval", () => {
+    const result = runStubbed("slow", { heartbeatMs: 100 });
+    expect(result.status).toBe(0);
+    expect(result.stderr).toMatch(/codex-exec: still running, \d+s elapsed, last event \d+s ago/);
+  });
+
+  it("exits 0 when a descendant inherits fd 1, outlives codex, and writes a late line", () => {
+    // The descendant holds the pipe open past codex's exit, so the drain waits
+    // its bound and then detaches and destroys stdout. codex-exec must exit 0
+    // (not hang, not fail by write-after-end) and the late line must not reach
+    // the record.
+    const result = runStubbed("descendant");
+    expect(result.status).toBe(0);
+    const events = readFileSync(join(result.dir, "events.jsonl"), "utf8");
+    expect(events).toMatch(/"type":"turn.completed"/);
+    expect(events).not.toMatch(/LATE-LINE-SHOULD-NOT-APPEAR/);
+  });
+
+  it("prints nothing for reshaped load-bearing events and still exits 0", () => {
+    const result = runStubbed("reshaped");
+    expect(result.status).toBe(0);
+    expect(result.stderr).not.toMatch(/undefined/);
+    expect(result.stderr).not.toMatch(/codex-exec: thread\b/); // thread.started with no id
+    expect(result.stderr).not.toMatch(/codex-exec: \$/); // command_execution with no command
+    expect(result.stderr).not.toMatch(/in=0 out=0 cached=0 reasoning=0/); // no zeroed usage
+    expect(result.stderr).toMatch(/turn complete, tokens in=1/); // the valid turn.completed prints
+  });
+
+  it("sanitizes ANSI/OSC control sequences on stderr while the events file keeps the bytes", () => {
+    const result = runStubbed("ansi");
+    expect(result.status).toBe(0);
+    // No raw ESC byte reaches the terminal, and the OSC payload is gone.
+    const esc = String.fromCharCode(27);
+    expect(result.stderr).not.toContain(esc);
+    expect(result.stderr).not.toContain("pwned");
+    expect(result.stderr).toMatch(/agent:\nRED/); // the visible text survives
+    // The events file preserves codex's original bytes (the stub JSON
+    // serializes ESC as the six characters backslash u 0 0 1 b).
+    const events = readFileSync(join(result.dir, "events.jsonl"), "utf8");
+    expect(events).toContain("\\u001b");
+  });
+
+  it("keeps its exit semantics when the stderr destination is closed early", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "codex-exec-test-"));
+    dirs.push(dir);
+    writeFileSync(join(dir, "codex"), STUB, { mode: 0o755 });
+    writeFileSync(join(dir, "brief.md"), "the brief");
+    const args = [
+      "--model", "gpt-5.6-sol",
+      "--effort", "high",
+      "--sandbox", "read-only",
+      "--cwd", dir,
+      "--brief", join(dir, "brief.md"),
+      "--out", join(dir, "out.txt"),
+      "--events", join(dir, "events.jsonl"),
+    ];
+    const child = spawn("node", [SCRIPT, ...args], {
+      env: {
+        ...process.env,
+        PATH: `${dir}:${process.env.PATH}`,
+        CODEX_STUB_MODE: "progress",
+        CODEX_EXEC_STALL_MS: "300000",
+        CODEX_EXEC_HEARTBEAT_MS: "60000",
+      },
+      stdio: ["ignore", "ignore", "pipe"],
+    });
+    // Close the read end so every progress write on the parent's stderr hits a
+    // broken pipe. The installed error listener swallows the EPIPE and the run
+    // finishes with its normal exit code.
+    child.stderr.destroy();
+    const status = await new Promise<number | null>((resolve) =>
+      child.on("exit", (code) => resolve(code)),
+    );
+    expect(status).toBe(0);
   });
 });
