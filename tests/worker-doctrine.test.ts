@@ -174,6 +174,7 @@ describe("worker doctrine boundaries", () => {
     expect(reviewDoc).toMatch(/host neutrality/i);
     expect(reviewDoc).toMatch(/frozen/i);
     expect(reviewDoc).toContain("scripts/pr-threads");
+    expect(reviewDoc).toContain("scripts/pr-claim");
     const agents = read("AGENTS.md");
     expect(agents).toContain("## Review guidelines");
     expect(agents).toMatch(/read root `REVIEW\.md` first/i);
@@ -204,6 +205,7 @@ describe("worker doctrine boundaries", () => {
 
   it("keeps the land skill carrying the GitHub surface, stops, and merge policy", () => {
     expect(land).toMatch(/Run every reply and resolution through `scripts\/pr-threads`/i);
+    expect(land).toMatch(/session claim through `scripts\/pr-claim`/i);
     expect(land).toMatch(/converged/i);
     expect(land).toMatch(/round 3 stops the review/i);
     expect(land).toMatch(/two failed fixes stops that repair/i);

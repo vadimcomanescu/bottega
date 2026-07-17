@@ -8,6 +8,8 @@ argument-hint: "<PR number, ref range, or integrated worktree>"
 
 The cross-family review gate. It freezes the target, invokes the vendored autoreview helper as a two-family panel, adjudicates the findings, and routes every repair. Two callers reach it: a run at its Review phase, and a land taking an open PR to verified-mergeable (merged only when the request armed it). The helper runs the review engines and returns one JSON report; this gate owns the frozen SHAs, the house model routing line, adjudication, the caps, and the routing of fixes. It never restates helper method: `skills/autoreview/SKILL.md` is the runtime doctrine for the invocation, verbatim, and this gate defers to it by path.
 
+A standalone `/bottega:review` of a PR acquires the per-PR session claim through `scripts/pr-claim` at entry and releases it at exit; a held claim reports the holder and stops. Invoked by land or by a run, this gate touches no claim: the caller owns it. A ref-range target has no claim.
+
 ## Freeze the target
 
 Fix base, head, and tree SHAs after the host gates pass and before the panel round, and review against them. For a PR target, create a worktree at the PR head and review that, never the user's checkout. The base ref must resolve locally before the invocation; the helper never fetches.
