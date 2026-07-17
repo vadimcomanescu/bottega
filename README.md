@@ -63,11 +63,11 @@ Agent definitions say who enters an isolated context: the role, authority, prohi
 ## Repo layout
 
 ```
-skills/         run, review, land, implementing, autoreview (vendored), codebase-design, panel
+skills/         run, improve, setup, review, land, implementing, autoreview (vendored), codebase-design, panel
 agents/         Claude identities for builder, QA, panelist, and panel judge
-scripts/        codex-exec (the one place a codex invocation is assembled), pr-threads (PR review-thread calls), and pr-claim (the PR session-claim comment)
+scripts/        codex-exec (the one place a codex invocation is assembled), pr-threads (PR review-thread calls), pr-claim (the PR session-claim comment), and issue-claim (the issue session-claim comment, label, and assignment)
 hooks/          route guard (model routing) and entry guard (points prose at /bottega:run)
-tests/          unit tests for the hooks, the codex-exec, pr-threads, and pr-claim scripts, the worker doctrine, and the vendored autoreview tree's integrity
+tests/          unit tests for the hooks, the codex-exec, pr-threads, pr-claim, and issue-claim scripts, the worker doctrine, and the vendored autoreview tree's integrity
 docs/specs/     closed records of delivered runs
 docs/research/  primary-source notes supporting worker doctrine
 ```

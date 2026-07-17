@@ -1,0 +1,5 @@
+source: https://github.com/mattpocock/skills
+path: skills/engineering/domain-modeling/CONTEXT-FORMAT.md, skills/engineering/domain-modeling/ADR-FORMAT.md
+commit: 9603c1cc8118d08bc1b3bf34cf714f62178dea3b
+vendored: 2026-07-17
+rule: never edit vendored files; update by re-copying from upstream at a new pin and diff-reviewing.

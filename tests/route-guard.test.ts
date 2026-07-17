@@ -470,7 +470,9 @@ describe("entry-guard", () => {
     const withRun = repoWithRun(OWNER);
     const bare = mkdtempSync(join(tmpdir(), "bottega-guard-bare-"));
     cleanups.push(bare);
-    expect(run(ENTRY_GUARD, { cwd: withRun, prompt: "/bottega:run it" })).toBe("");
+    for (const command of ["/bottega:run it", "/bottega:setup", "/bottega:improve"]) {
+      expect(run(ENTRY_GUARD, { cwd: withRun, prompt: command })).toBe("");
+    }
     expect(run(ENTRY_GUARD, { cwd: bare, prompt: "run bottega now" })).toBe("");
     expect(run(ENTRY_GUARD, { cwd: withRun, prompt: "fix the flaky test" })).toBe("");
     expect(run(ENTRY_GUARD, "not json")).toBe("");
