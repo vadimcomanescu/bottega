@@ -2,7 +2,7 @@
 // invocation, and --dry-run exposes the assembly for pinning. The two resume
 // traps (resume drops -s and -C silently) are the reason this script exists;
 // both are asserted here.
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -122,10 +122,49 @@ const mode = process.env.CODEX_STUB_MODE ?? "ok";
 const threadId = mode === "fork" ? "t-forked" : (resumed ?? "t-fresh");
 const emit = (event) => process.stdout.write(JSON.stringify(event) + "\\n");
 const okOut = () => writeFileSync(out, '{"word":"ok"}');
+const okUsage = { input_tokens: 1, output_tokens: 1, cached_input_tokens: 0, reasoning_output_tokens: 0 };
 if (mode === "hang") setTimeout(() => {}, 60000);
 else if (mode === "raw") {
   // Emit a caller-supplied byte sequence verbatim, then a valid final message.
   process.stdout.write(process.env.CODEX_STUB_RAW ?? "");
+  okOut();
+  process.exit(0);
+}
+else if (mode === "descendant") {
+  // Spawn a detached descendant that inherits fd 1, outlives codex, and writes
+  // a late line to the shared pipe after codex has exited.
+  emit({ type: "thread.started", thread_id: threadId });
+  emit({ type: "item.completed", item: { type: "agent_message", text: "done" } });
+  emit({ type: "turn.completed", usage: okUsage });
+  okOut();
+  const { spawn } = require("node:child_process");
+  const grandchild = spawn(
+    process.execPath,
+    ["-e", "setTimeout(() => { try { require('fs').writeSync(1, 'LATE-LINE-SHOULD-NOT-APPEAR\\\\n'); } catch {} }, 4000)"],
+    { detached: true, stdio: ["ignore", 1, "ignore"] },
+  );
+  grandchild.unref();
+  process.exit(0);
+}
+else if (mode === "reshaped") {
+  // Load-bearing events with a missing field, followed by a valid pair so the
+  // run still verifies as finished.
+  emit({ type: "thread.started" });
+  emit({ type: "item.completed", item: { type: "command_execution", exit_code: 0 } });
+  emit({ type: "turn.completed" });
+  emit({ type: "item.completed", item: { type: "agent_message", text: "ok" } });
+  emit({ type: "turn.completed", usage: okUsage });
+  okOut();
+  process.exit(0);
+}
+else if (mode === "ansi") {
+  // agent text carrying an OSC title sequence and an SGR color sequence; the
+  // JSON serializer escapes the ESC and BEL bytes on the wire.
+  const esc = String.fromCharCode(27);
+  const bel = String.fromCharCode(7);
+  emit({ type: "thread.started", thread_id: threadId });
+  emit({ type: "item.completed", item: { type: "agent_message", text: esc + "]0;pwned" + bel + esc + "[31mRED" + esc + "[0m" } });
+  emit({ type: "turn.completed", usage: okUsage });
   okOut();
   process.exit(0);
 }
@@ -313,5 +352,75 @@ else {
     const result = runStubbed("slow", { heartbeatMs: 100 });
     expect(result.status).toBe(0);
     expect(result.stderr).toMatch(/codex-exec: still running, \d+s elapsed, last event \d+s ago/);
+  });
+
+  it("exits 0 when a descendant inherits fd 1, outlives codex, and writes a late line", () => {
+    // The descendant holds the pipe open past codex's exit, so the drain waits
+    // its bound and then detaches and destroys stdout. codex-exec must exit 0
+    // (not hang, not fail by write-after-end) and the late line must not reach
+    // the record.
+    const result = runStubbed("descendant");
+    expect(result.status).toBe(0);
+    const events = readFileSync(join(result.dir, "events.jsonl"), "utf8");
+    expect(events).toMatch(/"type":"turn.completed"/);
+    expect(events).not.toMatch(/LATE-LINE-SHOULD-NOT-APPEAR/);
+  });
+
+  it("prints nothing for reshaped load-bearing events and still exits 0", () => {
+    const result = runStubbed("reshaped");
+    expect(result.status).toBe(0);
+    expect(result.stderr).not.toMatch(/undefined/);
+    expect(result.stderr).not.toMatch(/codex-exec: thread\b/); // thread.started with no id
+    expect(result.stderr).not.toMatch(/codex-exec: \$/); // command_execution with no command
+    expect(result.stderr).not.toMatch(/in=0 out=0 cached=0 reasoning=0/); // no zeroed usage
+    expect(result.stderr).toMatch(/turn complete, tokens in=1/); // the valid turn.completed prints
+  });
+
+  it("sanitizes ANSI/OSC control sequences on stderr while the events file keeps the bytes", () => {
+    const result = runStubbed("ansi");
+    expect(result.status).toBe(0);
+    // No raw ESC byte reaches the terminal, and the OSC payload is gone.
+    const esc = String.fromCharCode(27);
+    expect(result.stderr).not.toContain(esc);
+    expect(result.stderr).not.toContain("pwned");
+    expect(result.stderr).toMatch(/agent:\nRED/); // the visible text survives
+    // The events file preserves codex's original bytes (the stub JSON
+    // serializes ESC as the six characters backslash u 0 0 1 b).
+    const events = readFileSync(join(result.dir, "events.jsonl"), "utf8");
+    expect(events).toContain("\\u001b");
+  });
+
+  it("keeps its exit semantics when the stderr destination is closed early", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "codex-exec-test-"));
+    dirs.push(dir);
+    writeFileSync(join(dir, "codex"), STUB, { mode: 0o755 });
+    writeFileSync(join(dir, "brief.md"), "the brief");
+    const args = [
+      "--model", "gpt-5.6-sol",
+      "--effort", "high",
+      "--sandbox", "read-only",
+      "--cwd", dir,
+      "--brief", join(dir, "brief.md"),
+      "--out", join(dir, "out.txt"),
+      "--events", join(dir, "events.jsonl"),
+    ];
+    const child = spawn("node", [SCRIPT, ...args], {
+      env: {
+        ...process.env,
+        PATH: `${dir}:${process.env.PATH}`,
+        CODEX_STUB_MODE: "progress",
+        CODEX_EXEC_STALL_MS: "300000",
+        CODEX_EXEC_HEARTBEAT_MS: "60000",
+      },
+      stdio: ["ignore", "ignore", "pipe"],
+    });
+    // Close the read end so every progress write on the parent's stderr hits a
+    // broken pipe. The installed error listener swallows the EPIPE and the run
+    // finishes with its normal exit code.
+    child.stderr.destroy();
+    const status = await new Promise<number | null>((resolve) =>
+      child.on("exit", (code) => resolve(code)),
+    );
+    expect(status).toBe(0);
   });
 });
