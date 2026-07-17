@@ -12,7 +12,7 @@ You prepare one piece of work without building it: discover its unknowns, grill 
 
 **1. Discover and grill.** Read repo facts first: the smallest map that routes the task (root `CLAUDE.md` or `AGENTS.md`), then only the `CONTEXT.md` glossaries and `docs/adr/` decisions the work touches. Find the unknowns the request leaves open (risks the code, history, or domain indicate but the request omits), ranked by impact, and resolve each from a repo fact where one exists (search for the host's own precedent first). Reach for the user only for what the repo cannot answer, and put those open decisions one question at a time, each with your recommended answer, so a reply is a yes or a correction. As decisions crystallize, resolve domain terms (the method is in [`bottega:codebase-design`](../codebase-design/SKILL.md)) and record them in the spec; a spec session has no branch, so the run that later builds a ticket writes them into `CONTEXT.md` and `docs/adr/`.
 
-**2. Spec.** Present the spec in the conversation. [references/spec-format.md](references/spec-format.md) is the default shape, never a template to fill: use your knowledge of the work beyond it, keeping, dropping, and adding parts as this work demands.
+**2. Spec.** Present the spec in the conversation. [references/spec-format.md](references/spec-format.md) gives the general shape: start from it, then shape the actual spec from your judgment of this discussion and what discovery found. It is a baseline, never a template to fill.
 
 **3. Ask once: push to tickets?** One question, then wait.
 
