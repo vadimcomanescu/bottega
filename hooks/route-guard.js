@@ -7,7 +7,7 @@
 // nadia-0001 run, 103 of 132 dispatches went through general-purpose agents
 // the old guard never saw):
 //
-//   1. Named bottega worker agents (builder, reviewer, QA), always checked, run
+//   1. Named bottega worker agents (builder and QA), always checked, run
 //      or no run: a dispatch that omits `model` inherits the dispatching
 //      session's model (from the orchestrator that is a silent escalation to
 //      fable), fable never runs a worker agent, and each named worker has
@@ -72,10 +72,9 @@ const OPUS = /^(?:claude-)?opus(?:[-.][a-z0-9]+)*$/i;
 // The Claude column of the routing table (skills/run/SKILL.md). Codex
 // workers run through `codex exec`, never the Agent tool, so every Claude
 // dispatch of a named worker is fully checkable here: the Claude builder
-// (user-facing slices), reviewer, and QA worker all run on opus.
+// (user-facing slices) and QA worker both run on opus.
 const WORKER_MODEL = {
   builder: OPUS,
-  reviewer: OPUS,
   qa: OPUS,
 };
 const ROLES = Object.keys(WORKER_MODEL).join("|");
@@ -83,19 +82,23 @@ const ROLES = Object.keys(WORKER_MODEL).join("|");
 // bottega:<role>; a bare role name resolves to nothing in the harness and, if
 // it did, could be a host repo's own agent, which this guard never routes.
 const WORKER_AGENT = new RegExp("^bottega:(" + ROLES + ")$");
+// A deleted plugin seat must not fall through as if it belonged to the host.
+// Keep this separate from WORKER_MODEL: it has no valid route.
+const REMOVED_ROLE = "reviewer";
+const UNKNOWN_SEAT = new RegExp("^bottega:(" + REMOVED_ROLE + ")$");
 
 const DENY_UNROUTED =
   "the dispatch was rejected because it names no model. An omitted model " +
   "inherits the dispatching session's own model, which from the orchestrator " +
   "silently escalates the worker to fable; re-issue the same dispatch with an " +
   "explicit model from the routing table in skills/run/SKILL.md (Claude " +
-  "workers, builder, reviewer, and QA, run on opus).";
+  "workers, builder and QA, run on opus).";
 
 const DENY_FABLE =
   "the dispatch was rejected because it routes a worker agent to fable. " +
-  "Fable is not a builder, reviewer, or QA worker; re-issue from " +
+  "Fable is not a builder or QA worker; re-issue from " +
   "the routing table in skills/run/SKILL.md (Claude workers, builder, " +
-  "reviewer, and QA, run on opus), and if you believe this work genuinely needs " +
+  "and QA, run on opus), and if you believe this work genuinely needs " +
   "fable-tier judgment, do that part yourself in your own turns instead of " +
   "dispatching it.";
 
@@ -103,9 +106,16 @@ function denyMisrouted(role, model) {
   return (
     "the dispatch was rejected because it routes the " + role + " agent to '" +
     model + "'. The routing table in skills/run/SKILL.md gives each named " +
-    "Claude worker exactly one model family (builder, reviewer, and QA: opus); re-issue " +
+    "Claude worker exactly one model family (builder and QA: opus); re-issue " +
     "with the table's model, and treat wanting a different one as a " +
     "routing-table change to propose, never a per-dispatch override."
+  );
+}
+
+function denyUnknownSeat(role) {
+  return (
+    "the dispatch was rejected because it claims the unknown bottega seat '" +
+    role + "'. This seat is not present in the routing table or installed agents."
   );
 }
 
@@ -199,7 +209,10 @@ function agentCalls(script) {
 // regexes run on the call's options object only, never on prompt prose.
 const MODEL_LITERAL = /\bmodel\s*:\s*(['"])([^'"]*)\1/;
 const WORKFLOW_WORKER = new RegExp(
-  "\\bagentType\\s*:\\s*['\"]bottega:(" + ROLES + ")['\"]"
+  "\\bagentType\\s*:\\s*['\"`]bottega:(" + ROLES + ")['\"`]"
+);
+const WORKFLOW_UNKNOWN_SEAT = new RegExp(
+  "\\bagentType\\s*:\\s*['\"`]bottega:(" + REMOVED_ROLE + ")['\"`]"
 );
 
 // The options object of one agent() call: the last top-level `{ ... }` in
@@ -271,6 +284,9 @@ const model = input.model;
 const routed = typeof model === "string" && model.length > 0;
 
 // Scope 1: named bottega worker agents, unconditional.
+const unknownSeat = typeof agentType === "string" ? agentType.match(UNKNOWN_SEAT) : null;
+if (unknownSeat) deny(denyUnknownSeat(unknownSeat[1]));
+
 const workerMatch = typeof agentType === "string" ? agentType.match(WORKER_AGENT) : null;
 if (workerMatch) {
   const role = workerMatch[1];
@@ -283,13 +299,24 @@ if (workerMatch) {
 // Scope 2: everything else, only from a session that owns a live run here.
 const cwd =
   typeof event.cwd === "string" && event.cwd.length > 0 ? event.cwd : process.cwd();
+const isWorkflow = event.tool_name === "Workflow";
+const script = isWorkflow ? workflowScript(input, cwd) : null;
+const calls = script === null ? null : agentCalls(script);
+
+// Removed plugin seats fail closed in workflows even outside a run. The rest
+// of workflow routing remains fenced to the session that owns a live run.
+if (calls) {
+  for (const call of calls) {
+    const removed = optionsText(call).match(WORKFLOW_UNKNOWN_SEAT);
+    if (removed) deny(denyUnknownSeat(removed[1]));
+  }
+}
+
 const session = typeof event.session_id === "string" ? event.session_id : "";
 if (!session || !liveOwners(cwd).has(session)) process.exit(0); // not a run's session
 
 // Scope 3: workflow scripts, checked statically.
-if (event.tool_name === "Workflow") {
-  const script = workflowScript(input, cwd);
-  const calls = script === null ? null : agentCalls(script);
+if (isWorkflow) {
   if (calls === null) deny(DENY_WORKFLOW_UNCHECKED_RUN);
   for (const call of calls) {
     const options = optionsText(call);

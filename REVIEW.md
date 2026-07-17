@@ -1,6 +1,6 @@
 # REVIEW
 
-Review guidance specific to this repository. The reviewer method is `skills/reviewing`, the design doctrine is `skills/codebase-design`, and the working agreement is `AGENTS.md`; this file adds only the risks a reviewer without prior Bottega context tends to miss.
+Review guidance specific to this repository. The review gate is `skills/review`, which invokes the vendored `skills/autoreview` helper; the design doctrine is `skills/codebase-design`, and the working agreement is `AGENTS.md`. This file adds only the risks a reviewer without prior Bottega context tends to miss.
 
 ## Plugin packaging and host neutrality
 
@@ -10,9 +10,9 @@ Bottega runs as an installed plugin inside arbitrary host repositories. Bottega 
 
 The orchestrator makes every judgment call; workers return finished answers and never coordinate with each other. Routing lives in one place, the table in `skills/run/SKILL.md`, enforced by `hooks/route-guard.js`. Reject a change that moves a judgment call into a worker, pins a model or effort in an agent file, adds a second routing authority, or copies a shared skill into an agent.
 
-## Frozen target and schema identity
+## Frozen target and the vendored helper
 
-The review gate (`skills/review`) freezes base, head, and tree SHAs before round 1, and every reviewer reports against `skills/reviewing/references/report.schema.json`, whichever family it is from. Reject a change that lets a reviewer see a moving target, accepts a report whose SHAs or reviewer identity differ from the dispatch, or gives one family a different report contract than the other.
+The review gate (`skills/review`) freezes base, head, and tree SHAs before the panel round, then invokes the vendored autoreview helper against the frozen base; the helper runs both families and returns one JSON report, the report contract for both. Reject a change that lets the review see a moving target, writes the helper's `--json-output` or `--output` inside the reviewed repo, alters the fixed invocation flags, wraps the helper instead of calling it, or restates the helper's own method in the gate rather than deferring to `skills/autoreview/SKILL.md` by path.
 
 ## Review and QA ordering
 

@@ -16,7 +16,6 @@ function phase(text: string, number: number): string {
 
 const run = read("skills/run/SKILL.md");
 const implementing = read("skills/implementing/SKILL.md");
-const reviewing = read("skills/reviewing/SKILL.md");
 const design = read("skills/codebase-design/SKILL.md");
 const panelSkill = read("skills/panel/SKILL.md");
 const panelWorkflow = read("skills/panel/panel.js");
@@ -33,7 +32,6 @@ describe("worker doctrine boundaries", () => {
       "panel-judge.md",
       "panelist.md",
       "qa.md",
-      "reviewer.md",
     ]);
     expect(
       readdirSync(join(ROOT, "skills"), { withFileTypes: true })
@@ -41,22 +39,19 @@ describe("worker doctrine boundaries", () => {
         .map((entry) => entry.name)
         .sort(),
     ).toEqual([
+      "autoreview",
       "codebase-design",
       "implementing",
       "land",
       "panel",
       "review",
-      "reviewing",
       "run",
       "writing-great-skills",
     ]);
 
     expect(read("agents/builder.md")).toContain("bottega:implementing");
-    expect(read("agents/reviewer.md")).toContain("bottega:reviewing");
-    expect(read("agents/reviewer.md")).toContain("bottega:codebase-design");
     expect(codexDispatch).toContain("skills/implementing/SKILL.md");
-    expect(codexDispatch).toContain("skills/reviewing/SKILL.md");
-    expect(codexDispatch).toContain("skills/codebase-design/SKILL.md");
+    expect(codexDispatch).not.toMatch(/reviewer|skills\/reviewing/i);
 
     expect(existsSync(join(ROOT, "skills/panel/SKILL.md"))).toBe(true);
     expect(existsSync(join(ROOT, "agents/panelist.md"))).toBe(true);
@@ -69,7 +64,7 @@ describe("worker doctrine boundaries", () => {
   });
 
   it("keeps internal methods model-loadable and out of the user command list", () => {
-    for (const skill of [implementing, reviewing, design, panelSkill, writingSkill]) {
+    for (const skill of [implementing, design, panelSkill, writingSkill]) {
       const frontmatter = skill.split("---")[1];
       expect(frontmatter).toContain("user-invocable: false");
       expect(frontmatter).not.toContain("disable-model-invocation: true");
@@ -124,10 +119,9 @@ describe("worker doctrine boundaries", () => {
   });
 
   it("separates independent architecture verification, Fable acceptance, and product QA", () => {
-    expect(reviewing).toMatch(/Review the fixed tree independently/i);
-    expect(reviewing).toMatch(/Apply the supplied codebase-design doctrine/i);
-    expect(reviewing).toMatch(/architecture` verdict: `conforms`, `finding`, or `blocked`/i);
-    expect(phase(run, 6)).toMatch(/Reviewers verify conformance/i);
+    expect(reviewDispatch).toMatch(/review engines.*report/i);
+    expect(reviewDispatch).toMatch(/Fable performs this reconciliation/i);
+    expect(phase(run, 6)).toMatch(/review engines verify conformance/i);
     expect(phase(run, 6)).toMatch(/Fable performs the final architecture step/i);
     expect(phase(run, 6)).toMatch(/not the only verifier of the design it authored/i);
 
@@ -142,7 +136,6 @@ describe("worker doctrine boundaries", () => {
     expect(panelSkill).toContain("skills/panel/panel.js");
     expect(panelSkill).toMatch(/The panel does not vote or decide/i);
     expect(panelWorkflow).toContain("--model gpt-5.6-sol --effort max");
-    expect(reviewDispatch).toContain("skills/reviewing/assets/review-dispatch.js");
     expect(existsSync(join(ROOT, "skills/run/references/panel.md"))).toBe(false);
     expect(existsSync(join(ROOT, "skills/run/assets/panel.js"))).toBe(false);
   });
@@ -164,13 +157,16 @@ describe("worker doctrine boundaries", () => {
     expect(phase(run, 6)).toMatch(/bottega:review/);
     expect(phase(run, 6)).not.toContain("references/review.md");
 
-    expect(reviewDispatch).toContain("skills/reviewing/assets/review-dispatch.js");
-    expect(reviewDispatch).toContain("skills/run/references/codex-dispatch.md");
-    expect(reviewDispatch).toMatch(/one reviewer from each model family/i);
+    expect(reviewDispatch).toMatch(/`skills\/autoreview\/SKILL\.md` is the runtime doctrine/i);
+    expect(reviewDispatch).toContain("--reviewers codex,claude");
+    expect(reviewDispatch).toContain("--model codex=gpt-5.6-sol  --thinking codex=high");
+    expect(reviewDispatch).toContain("--model claude=claude-opus-4-8 --thinking claude=xhigh");
+    expect(reviewDispatch).not.toMatch(/agentType|bottega:reviewer|review-dispatch/i);
+    expect(reviewDispatch).not.toMatch(
+      /\b(?:dispatch(?:es|ed|ing)?|agent)\b.{0,40}\breviewer\b|\breviewer\b.{0,40}\b(?:dispatch(?:es|ed|ing)?|agent)\b/i,
+    );
     expect(reviewDispatch).toMatch(/two failed fixes stops the repair/i);
     expect(reviewDispatch).toMatch(/round 3 stops the review/i);
-    expect(reviewDispatch).toMatch(/No frozen brief/);
-    expect(reviewDispatch).toMatch(/doctrine-only/);
   });
 
   it("routes repository review work to the root REVIEW.md", () => {
@@ -181,13 +177,6 @@ describe("worker doctrine boundaries", () => {
     const agents = read("AGENTS.md");
     expect(agents).toContain("## Review guidelines");
     expect(agents).toMatch(/read root `REVIEW\.md` first/i);
-  });
-
-  it("has every reviewer read the host's root REVIEW.md when present", () => {
-    expect(reviewing).toMatch(/root `REVIEW\.md`/);
-    expect(reviewing).toMatch(/applies in every round/i);
-    expect(read("agents/reviewer.md")).toContain("bottega:reviewing");
-    expect(codexDispatch).toContain("skills/reviewing/SKILL.md");
   });
 
   it("runs the docs sweep before the review freeze and keeps Deliver free of tracked edits", () => {
@@ -214,15 +203,33 @@ describe("worker doctrine boundaries", () => {
   });
 
   it("keeps the land skill carrying the GitHub surface, stops, and merge policy", () => {
-    expect(land).toContain("scripts/pr-threads");
-    expect(land).toMatch(/never auto-merged/i);
+    expect(land).toMatch(/Run every reply and resolution through `scripts\/pr-threads`/i);
     expect(land).toMatch(/converged/i);
     expect(land).toMatch(/round 3 stops the review/i);
     expect(land).toMatch(/two failed fixes stops that repair/i);
     expect(land).toMatch(/two fix cycles without convergence/i);
     expect(land).toMatch(/exceed the PR's stated intent/i);
-    expect(land).toMatch(/size-gated/);
     expect(land).toMatch(/gates-red/);
+    expect(land).toMatch(/never decides to merge/i);
+    expect(land).toMatch(/armed merging in their own words|armed it in their own words/i);
+    expect(land).toMatch(/risk-path PR.*never merged by land/i);
+    expect(land).toContain("gh pr checks <PR> --required --watch");
+    expect(land).toMatch(/Confirm the PR is not a draft/i);
+    expect(land).toMatch(/live head SHA equals the head SHA the final review round was frozen at/i);
+    expect(land).toMatch(/target base SHA still equals the base the review was frozen at/i);
+    expect(land).toMatch(/--match-head-commit` pins only the head/i);
+    expect(land).toContain("gh pr merge <PR> --squash --match-head-commit <reviewed-head-sha>");
+    expect(land).toMatch(/Confirm the PR state is MERGED/i);
+    expect(land).toMatch(/delete the remote branch.*remove the worktree.*run state/i);
+    expect(reviewDispatch).toMatch(/commit status on the reviewed head, naming the base/i);
+    expect(reviewDispatch).toMatch(/never as a PR comment/i);
+    expect(reviewDispatch).toContain('-f context=bottega/review');
+    expect(reviewDispatch).toContain('reviewed against base <reviewed-base-sha>');
+    expect(land).toMatch(/status is green.*creator is the identity.*description names the base SHA/is);
+    expect(land).toMatch(/Treat it as absent/i);
+    expect(land).toMatch(/earlier commit of the PR: round 1 reviews the delta, `--base` that SHA/i);
+    expect(land).toMatch(/Unresolved threads enter round 1 whatever the marker says/i);
+    expect(phase(run, 8)).toMatch(/post the `bottega\/review` success status on the accepted head, naming the reviewed base/i);
     expect(land).toMatch(/already on the PR when land starts.*enter round 1 as claimed findings/i);
     expect(land).toMatch(/three brief lines from `skills\/run`.*name every test you edit.*verbatim/i);
   });

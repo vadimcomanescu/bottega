@@ -74,24 +74,18 @@ describe("route-guard: bottega worker agents (always checked)", () => {
     expect(denialOf(out)).toMatch(/names no model/);
   });
 
-  it("denies a fable-routed worker dispatch", () => {
-    const out = run(ROUTE_GUARD, {
-      cwd: repoWithRun(OWNER),
-      tool_input: {
-        subagent_type: "bottega:reviewer",
-        model: "fable",
-        prompt: "review the integrated diff",
-      },
-    });
-    expect(denialOf(out)).toMatch(/routes a worker agent to fable/);
-  });
-
-  it("allows a routed worker dispatch on the table's model", () => {
-    const out = run(ROUTE_GUARD, {
-      cwd: repoWithRun(OWNER),
-      tool_input: { subagent_type: "bottega:reviewer", model: "opus", prompt: "review" },
-    });
-    expect(out).toBe("");
+  it("denies the removed reviewer seat as unknown, whatever model it claims", () => {
+    for (const model of [undefined, "opus", "fable"]) {
+      const out = run(ROUTE_GUARD, {
+        cwd: repoWithRun(),
+        tool_input: {
+          subagent_type: "bottega:reviewer",
+          model,
+          prompt: "review the integrated diff",
+        },
+      });
+      expect(denialOf(out)).toMatch(/unknown bottega seat.*reviewer/i);
+    }
   });
 
   it("denies a misrouted worker dispatch: the builder runs on opus, never sonnet", () => {
@@ -99,7 +93,7 @@ describe("route-guard: bottega worker agents (always checked)", () => {
       cwd: repoWithRun(OWNER),
       tool_input: { subagent_type: "bottega:builder", model: "sonnet", prompt: "build" },
     });
-    expect(denialOf(out)).toMatch(/builder, reviewer, and QA: opus/);
+    expect(denialOf(out)).toMatch(/builder and QA: opus/);
   });
 
   it("allows a routed builder dispatch on opus", () => {
@@ -118,7 +112,7 @@ describe("route-guard: bottega worker agents (always checked)", () => {
     for (const model of ["sonnet", "not-opus"]) {
       expect(
         denialOf(run(ROUTE_GUARD, { cwd, tool_input: { subagent_type: "bottega:qa", model } })),
-      ).toMatch(/builder, reviewer, and QA: opus/);
+      ).toMatch(/builder and QA: opus/);
     }
     for (const model of ["opus", "claude-opus-4-8"]) {
       expect(run(ROUTE_GUARD, { cwd, tool_input: { subagent_type: "bottega:qa", model } })).toBe(
@@ -179,6 +173,7 @@ describe("route-guard: all other dispatches, gated on a live run", () => {
   it("denies any fable-routed dispatch during a run: fable is the orchestrator, never a dispatch", () => {
     const cwd = repoWithRun(OWNER);
     for (const tool_input of [
+      { subagent_type: "bottega:builder", model: "fable", prompt: "build" },
       { subagent_type: "Explore", model: "claude-fable-5", prompt: "map territory" },
       {
         subagent_type: "general-purpose",
@@ -188,7 +183,7 @@ describe("route-guard: all other dispatches, gated on a live run", () => {
       },
     ]) {
       expect(denialOf(run(ROUTE_GUARD, { cwd, session_id: OWNER, tool_input }))).toMatch(
-        /routes fable/,
+        /routes (?:a worker agent to )?fable/,
       );
     }
   });
@@ -303,25 +298,33 @@ const r = await agent('the doc prefers model: opus for this, summarize findings'
     expect(denialOf(run(ROUTE_GUARD, workflowEvent({ script })))).toMatch(/names no model/);
   });
 
-  it("applies the worker routing table to named workers inside workflow scripts", () => {
-    const script = `export const meta = { name: 'sweep', description: 'x', phases: [] }
+  it("denies a workflow that claims the removed reviewer seat in any run state", () => {
+    const scripts = [
+      `export const meta = { name: 'sweep', description: 'x', phases: [] }
 const r = await agent('review the diff', { agentType: 'bottega:reviewer', model: 'sonnet' })
-`;
-    expect(denialOf(run(ROUTE_GUARD, workflowEvent({ script })))).toMatch(/routes the reviewer agent/);
-
-    const routed = `export const meta = { name: 'sweep', description: 'x', phases: [] }
-const r = await agent('review the diff', { agentType: 'bottega:reviewer', model: 'opus' })
-`;
-    expect(run(ROUTE_GUARD, workflowEvent({ script: routed }))).toBe("");
+`,
+      "export const meta = { name: 'sweep', description: 'x', phases: [] }\n" +
+        "const r = await agent('review the diff', { agentType: `bottega:reviewer`, model: 'opus' })\n",
+    ];
+    for (const script of scripts) {
+      for (const event of [
+        workflowEvent({ script }),
+        workflowEvent({ script }, OWNER, null),
+      ]) {
+        expect(denialOf(run(ROUTE_GUARD, event))).toMatch(
+        /unknown bottega seat.*reviewer/i,
+        );
+      }
+    }
   });
 
   it("reads routing from the options object, never from prompt prose", () => {
     // A model literal in the prompt must not shadow the real pin.
     const masked = `export const meta = { name: 'sweep', description: 'x', phases: [] }
-const r = await agent("the table gives reviewers model: 'opus'; review it", { agentType: 'bottega:reviewer', model: 'sonnet' })
+const r = await agent("the table gives builders model: 'opus'; review it", { agentType: 'bottega:builder', model: 'sonnet' })
 `;
     expect(denialOf(run(ROUTE_GUARD, workflowEvent({ script: masked })))).toMatch(
-      /routes the reviewer agent/,
+      /routes the builder agent/,
     );
 
     // A worker agentType quoted in prose must not arm the table on a
@@ -330,6 +333,17 @@ const r = await agent("the table gives reviewers model: 'opus'; review it", { ag
 const r = await agent("note agentType: 'bottega:builder' is used elsewhere; summarize", { model: 'sonnet' })
 `;
     expect(run(ROUTE_GUARD, workflowEvent({ script: prose }))).toBe("");
+  });
+
+  it("enforces worker routing for a static backtick agentType", () => {
+    const script = (model: string) =>
+      "export const meta = { name: 'sweep', description: 'x', phases: [] }\n" +
+      `const r = await agent('build', { agentType: \`bottega:builder\`, model: '${model}' })\n`;
+
+    expect(
+      denialOf(run(ROUTE_GUARD, workflowEvent({ script: script("sonnet") }))),
+    ).toMatch(/routes the builder agent/);
+    expect(run(ROUTE_GUARD, workflowEvent({ script: script("opus") }))).toBe("");
   });
 
   it("treats a template-literal model as unpinned", () => {

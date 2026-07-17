@@ -63,7 +63,7 @@ describe("codex-exec assembly", () => {
     expect(argv).not.toContain("-C");
   });
 
-  it("adds --output-schema for reviewer dispatches", () => {
+  it("adds --output-schema for schema-constrained dispatches", () => {
     const { argv } = dryRun("--schema", "/abs/report.schema.json");
     expect(argv).toContain("--output-schema");
     expect(argv![argv!.indexOf("--output-schema") + 1]).toBe("/abs/report.schema.json");

@@ -5,8 +5,8 @@ import { describe, expect, it } from "vitest";
 // Executes the shipped workflow scripts the way the Workflow runtime does:
 // the body wrapped in an async function with the harness hooks as arguments.
 // A real run passed args as a JSON-encoded string and every panelist received
-// the task "undefined"; these tests pin that both scripts normalize a string
-// args value and refuse to dispatch when a required field is missing.
+// the task "undefined"; these tests pin that every shipped script normalizes a
+// string args value and refuses to dispatch when a required field is missing.
 
 const ROOT = join(import.meta.dirname, "..");
 
@@ -57,7 +57,6 @@ async function runScript(
 }
 
 const PANEL = "skills/panel/panel.js";
-const REVIEW = "skills/reviewing/assets/review-dispatch.js";
 const PANEL_ARGS = {
   task: "Pick the storage engine.",
   cwd: "/tmp/example-repo",
@@ -105,25 +104,6 @@ describe("workflow args normalization", () => {
     );
   });
 
-  it("review dispatch sends the brief from object args", async () => {
-    const { calls } = await runScript(REVIEW, { brief: "Review this diff." });
-    expect(calls).toHaveLength(1);
-    expect(calls[0]?.prompt).toBe("Review this diff.");
-  });
-
-  it("review dispatch accepts args as a JSON-encoded string", async () => {
-    const { calls } = await runScript(
-      REVIEW,
-      JSON.stringify({ brief: "Review this diff." }),
-    );
-    expect(calls).toHaveLength(1);
-    expect(calls[0]?.prompt).toBe("Review this diff.");
-  });
-
-  it("review dispatch refuses a missing brief", async () => {
-    await expect(runScript(REVIEW, {})).rejects.toThrow("args.brief is required");
-  });
-
   it("every bundled workflow script normalizes string args", () => {
     // Discovery by the meta marker, not a hardcoded list: a future workflow
     // script that skips normalization re-ships the undefined-args bug.
@@ -133,7 +113,8 @@ describe("workflow args normalization", () => {
       .filter((path) =>
         readFileSync(join(ROOT, "skills", path), "utf8").includes("export const meta"),
       );
-    expect(scripts.length).toBeGreaterThanOrEqual(2);
+    expect(scripts.length).toBeGreaterThanOrEqual(1);
+    expect(scripts).toContain("panel/panel.js");
     for (const path of scripts) {
       expect(
         readFileSync(join(ROOT, "skills", path), "utf8"),
