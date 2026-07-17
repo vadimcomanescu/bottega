@@ -197,9 +197,9 @@ function describeEvent(event) {
       const item = event.item;
       if (!item || typeof item.type !== "string") return;
       if (item.type === "command_execution") {
-        if (typeof item.command !== "string") return;
+        if (typeof item.command !== "string" || !Number.isInteger(item.exit_code)) return;
         const command = clean(item.command).replace(/\s+/g, " ").trim();
-        note("$ " + command.slice(0, 200) + " (exit " + (item.exit_code ?? "?") + ")");
+        note("$ " + command.slice(0, 200) + " (exit " + item.exit_code + ")");
       } else if (item.type === "agent_message") {
         if (typeof item.text !== "string") return;
         process.stderr.write("codex-exec: agent:\n" + clean(item.text) + "\n");

@@ -151,6 +151,7 @@ else if (mode === "reshaped") {
   // run still verifies as finished.
   emit({ type: "thread.started" });
   emit({ type: "item.completed", item: { type: "command_execution", exit_code: 0 } });
+  emit({ type: "item.completed", item: { type: "command_execution", command: "ls", exit_code: "]0;x" } });
   emit({ type: "turn.completed" });
   emit({ type: "item.completed", item: { type: "agent_message", text: "ok" } });
   emit({ type: "turn.completed", usage: okUsage });
