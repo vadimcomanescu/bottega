@@ -266,6 +266,25 @@ function withIgnored(output, ignored) {
   return output;
 }
 
+// Elect one winner from a set of live claims: the earliest by created_at, ties
+// broken by the lower comment id. Two racers see the same comments and the same
+// ids, so both compute the same winner.
+function electWinner(claims) {
+  let best = null;
+  for (const c of claims) {
+    if (!best) {
+      best = c;
+      continue;
+    }
+    const ct = Date.parse(c.createdAt);
+    const bt = Date.parse(best.createdAt);
+    if (ct < bt || (ct === bt && Number(c.commentId) < Number(best.commentId))) {
+      best = c;
+    }
+  }
+  return best;
+}
+
 if (subcommand === "acquire") {
   requireFlags(["repo", "pr", "session", "skill"]);
   requirePositiveInt("pr");
@@ -320,6 +339,25 @@ if (subcommand === "acquire") {
     process.stderr.write("pr-claim: posted claim comment has no id\n");
     process.exit(1);
   }
+
+  // Post-write election. Two sessions can both find no fresh claim, both pass
+  // the checks above, and both post. Re-read every claim and elect one winner
+  // deterministically. If our just-posted claim is not that winner, another
+  // session's claim landed earlier: report held and exit 3, leaving our comment
+  // in place as a dead contender the winner already beat.
+  const after = ghJson(listCommentsArgv(owner, name, values.pr));
+  if (!Array.isArray(after)) {
+    process.stderr.write("pr-claim: gh comment list was not an array\n");
+    process.exit(1);
+  }
+  const settled = classifyClaims(after, self, session, staleHours);
+  const winner = electWinner([settled.own, ...settled.fresh].filter(Boolean));
+  if (!winner || String(winner.commentId) !== String(posted.id)) {
+    const holders = settled.fresh.map(({ host: h, skill: s, createdAt, ageHours }) => ({ host: h, skill: s, createdAt, ageHours }));
+    process.stdout.write(JSON.stringify(withIgnored({ state: "held", holders }, ignored)) + "\n");
+    process.exit(3);
+  }
+
   const state = replaced.length > 0 ? "replaced-stale" : "acquired";
   const output = { state, commentId: posted.id };
   if (replaced.length > 0) {

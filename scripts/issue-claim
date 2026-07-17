@@ -1,0 +1,438 @@
+#!/usr/bin/env node
+
+// Deterministic advisory session claim for a GitHub issue. One place assembles
+// every `gh api` call for the structured claim comment, the agent:working label,
+// and the self-assignment a bottega session leaves on an issue, the same way
+// scripts/pr-claim is the one place a PR claim call is built and
+// scripts/codex-exec is the one place a `codex exec` invocation is built.
+// Skills never call gh for this surface.
+//
+//   issue-claim ensure-label --repo <owner/name>
+//   issue-claim acquire --repo <owner/name> --issue <n> --agent <id> [--ttl-minutes 60]
+//   issue-claim refresh --repo <owner/name> --issue <n> --agent <id> --duration-minutes <m> [--buffer-minutes 5]
+//   issue-claim release --repo <owner/name> --issue <n> --agent <id> [--abandon]
+//
+// Every agent authenticates as the same GitHub account, so assignment alone
+// cannot arbitrate who holds an issue: two sessions assigning the same login are
+// indistinguishable. A claim is a machine-readable comment carrying the session
+// identity and an expiry:
+//
+//   agent-claim: <agent>@<host> <created-utc-iso> expires:<expiry-utc-iso>
+//
+// A claim is live while its expiry is in the future and dead once it has passed.
+// The winner among the live claims is the earliest by created time, ties broken
+// by the lower comment id, which every session computes identically from the
+// same comment list. First live claimant holds the issue; once its claim expires
+// the earliest of the claims posted after it takes over.
+//
+// ensure-label gets or creates the agent:working label and reads it back.
+//
+// acquire posts one contender comment, then re-reads every live claim and elects
+// the winner. Only the winner ensures agent:working exists, adds it, and assigns
+// @me, then re-reads the projected issue state before reporting success. A loser
+// leaves assignment and the label untouched (the winner may share this GitHub
+// login) and exits 3 with the winner identified.
+//
+// refresh posts a new claim comment whose expiry clears the declared duration of
+// the next tracked operation plus a buffer, extending the hold. It elects
+// nothing and polls nothing.
+//
+// release removes agent:working (and, with --abandon, the self-assignment) only
+// when a read-back elects this session's claim as the winner. If another live
+// claim wins, release changes nothing and exits 3.
+//
+// Every subcommand runs one or more gh calls; a required gh call that fails is
+// loud and exits nonzero. --dry-run prints the statically assembled gh
+// invocations as a JSON array and runs nothing; calls that depend on fetched
+// data (which comment won, whether the label must be created) are omitted.
+//
+// Exit codes: 0 success, 2 usage error, 3 held (acquire or release loser), 1 a
+// gh call failed or returned output this script could not parse.
+
+import { spawnSync } from "node:child_process";
+import { hostname } from "node:os";
+import { parseArgs } from "node:util";
+
+const SUBCOMMANDS = new Set(["ensure-label", "acquire", "refresh", "release"]);
+const LABEL = "agent:working";
+
+let values, positionals;
+try {
+  ({ values, positionals } = parseArgs({
+    allowPositionals: true,
+    options: {
+      repo: { type: "string" },
+      issue: { type: "string" },
+      agent: { type: "string" },
+      "ttl-minutes": { type: "string", default: "60" },
+      "duration-minutes": { type: "string" },
+      "buffer-minutes": { type: "string", default: "5" },
+      abandon: { type: "boolean", default: false },
+      "dry-run": { type: "boolean", default: false },
+    },
+  }));
+} catch (error) {
+  process.stderr.write(String(error.message) + "\n");
+  process.exit(2);
+}
+
+const subcommand = positionals[0];
+if (!SUBCOMMANDS.has(subcommand)) {
+  process.stderr.write("issue-claim: subcommand must be ensure-label, acquire, refresh, or release\n");
+  process.exit(2);
+}
+
+function fail(message) {
+  process.stderr.write("issue-claim: " + message + "\n");
+  process.exit(2);
+}
+
+function requireFlags(names) {
+  for (const name of names) {
+    if (!values[name]) {
+      fail("--" + name + " is required");
+    }
+  }
+}
+
+// A positive integer: one or more digits, no leading zero, no sign, nothing
+// else. Rejects 0, negatives, "abc", and injection before the value reaches a
+// gh invocation.
+function requirePositiveInt(name) {
+  if (!/^[1-9][0-9]*$/.test(values[name])) {
+    fail("--" + name + " must be a positive integer");
+  }
+}
+
+// A positive number (integer or decimal), so callers can shorten a window in
+// tests without editing the script. Returns the parsed number.
+function requirePositiveNumber(name) {
+  if (!/^[0-9]+(\.[0-9]+)?$/.test(values[name]) || Number(values[name]) <= 0) {
+    fail("--" + name + " must be a positive number");
+  }
+  return Number(values[name]);
+}
+
+// --repo must be exactly two nonempty segments, owner/name, with no third.
+function requireRepo() {
+  const parts = String(values.repo).split("/");
+  if (parts.length !== 2 || !parts[0] || !parts[1]) {
+    fail("--repo must be owner/name");
+  }
+  return parts;
+}
+
+// Agent ids are written into the claim marker line and matched back out of it.
+// Restrict to characters that cannot corrupt that one line (no @, no spaces).
+function requireAgent() {
+  if (!/^[A-Za-z0-9._-]+$/.test(values.agent)) {
+    fail("--agent must be one or more of A-Z a-z 0-9 . _ -");
+  }
+  return values.agent;
+}
+
+const CLAIM_TAG = "agent-claim:";
+const CLAIM_RE = /agent-claim:\s+([^\s@]+)@(\S+)\s+(\S+)\s+expires:(\S+)/;
+
+function claimBody(agent, host, createdIso, expiresIso) {
+  const marker = "agent-claim: " + agent + "@" + host + " " + createdIso + " expires:" + expiresIso;
+  return marker + "\nBottega agent " + agent + " on host " + host + " holds this issue until " + expiresIso + ".";
+}
+
+// gh invocation builders. Each returns the argv array for one `gh` call. A POST
+// is implied by the presence of -f (gh switches to POST automatically), so no
+// --method flag is needed to create a comment, add a label, or add an assignee.
+function userArgv() {
+  return ["api", "user"];
+}
+function listCommentsArgv(owner, name, issue) {
+  return ["api", "--paginate", "repos/" + owner + "/" + name + "/issues/" + issue + "/comments"];
+}
+function postCommentArgv(owner, name, issue, body) {
+  return ["api", "repos/" + owner + "/" + name + "/issues/" + issue + "/comments", "-f", "body=" + body];
+}
+function getLabelArgv(owner, name) {
+  return ["api", "repos/" + owner + "/" + name + "/labels/" + encodeURIComponent(LABEL)];
+}
+function createLabelArgv(owner, name) {
+  return [
+    "api",
+    "repos/" + owner + "/" + name + "/labels",
+    "-f",
+    "name=" + LABEL,
+    "-f",
+    "color=ededed",
+    "-f",
+    "description=Claimed by an autonomous agent session",
+  ];
+}
+function addLabelArgv(owner, name, issue) {
+  return ["api", "repos/" + owner + "/" + name + "/issues/" + issue + "/labels", "-f", "labels[]=" + LABEL];
+}
+function removeLabelArgv(owner, name, issue) {
+  return ["api", "--method", "DELETE", "repos/" + owner + "/" + name + "/issues/" + issue + "/labels/" + encodeURIComponent(LABEL)];
+}
+function addAssigneeArgv(owner, name, issue, loginName) {
+  return ["api", "repos/" + owner + "/" + name + "/issues/" + issue + "/assignees", "-f", "assignees[]=" + loginName];
+}
+function removeAssigneeArgv(owner, name, issue, loginName) {
+  return ["api", "--method", "DELETE", "repos/" + owner + "/" + name + "/issues/" + issue + "/assignees", "-f", "assignees[]=" + loginName];
+}
+function getIssueArgv(owner, name, issue) {
+  return ["api", "repos/" + owner + "/" + name + "/issues/" + issue];
+}
+
+function dryRun(invocations) {
+  process.stdout.write(JSON.stringify(invocations.map((argv) => ({ command: "gh", argv }))) + "\n");
+  process.exit(0);
+}
+
+// Run one gh call. On spawn failure or (when required) a nonzero exit, print the
+// failure and exit 1. Returns { status, stdout, stderr }.
+function gh(argv, { required = true } = {}) {
+  const result = spawnSync("gh", argv, { encoding: "utf8" });
+  if (result.error) {
+    process.stderr.write("issue-claim: " + result.error.message + "\n");
+    process.exit(1);
+  }
+  if (required && result.status !== 0) {
+    process.stderr.write("issue-claim: gh " + argv.join(" ") + " failed: " + (result.stderr || "").trim() + "\n");
+    process.exit(1);
+  }
+  return result;
+}
+
+function ghJson(argv) {
+  const result = gh(argv);
+  try {
+    return JSON.parse(result.stdout);
+  } catch (error) {
+    process.stderr.write("issue-claim: unexpected gh output for " + argv.join(" ") + ": " + String(error.message) + "\n");
+    process.exit(1);
+  }
+}
+
+function login() {
+  const user = ghJson(userArgv());
+  if (typeof user.login !== "string" || user.login === "") {
+    process.stderr.write("issue-claim: gh api user returned no login\n");
+    process.exit(1);
+  }
+  return user.login;
+}
+
+// Get or create the agent:working label and read it back. Returns true when it
+// was created. A 404 read triggers a create; any other read failure is loud.
+// GitHub's add-label call does not create a missing label (it returns 422), so
+// acquire calls this before it labels an issue.
+function ensureLabel(owner, name) {
+  const got = gh(getLabelArgv(owner, name), { required: false });
+  let created = false;
+  if (got.status !== 0) {
+    if (!/\b404\b|not found/i.test(got.stderr || "")) {
+      process.stderr.write("issue-claim: gh label read failed: " + (got.stderr || "").trim() + "\n");
+      process.exit(1);
+    }
+    gh(createLabelArgv(owner, name));
+    created = true;
+  }
+  const label = ghJson(getLabelArgv(owner, name));
+  if (label.name !== LABEL) {
+    process.stderr.write("issue-claim: label read-back did not return " + LABEL + "\n");
+    process.exit(1);
+  }
+  return created;
+}
+
+// Parse the issue's comments into live claims and ignored (foreign-author or
+// malformed) claim markers. A comment with no claim tag is not a claim and is
+// skipped silently; only agent-claim markers that are foreign-author or
+// malformed are reported. A claim is live while its expiry is in the future.
+// Every claim is authored by the shared GitHub login, so a claim by a different
+// login is foreign-author and never honored.
+function classifyClaims(comments, self) {
+  const now = Date.now();
+  const live = [];
+  const ignored = [];
+  for (const c of comments) {
+    const body = typeof c.body === "string" ? c.body : "";
+    if (!body.includes(CLAIM_TAG)) {
+      continue;
+    }
+    const author = c.user && typeof c.user.login === "string" ? c.user.login : null;
+    if (author !== self) {
+      ignored.push({ commentId: c.id, reason: "foreign-author" });
+      continue;
+    }
+    const match = body.match(CLAIM_RE);
+    if (!match || Number.isNaN(Date.parse(match[3])) || Number.isNaN(Date.parse(match[4]))) {
+      ignored.push({ commentId: c.id, reason: "malformed" });
+      continue;
+    }
+    const entry = {
+      commentId: c.id,
+      agent: match[1],
+      host: match[2],
+      createdAt: match[3],
+      expiresAt: match[4],
+    };
+    if (Date.parse(entry.expiresAt) > now) {
+      live.push(entry);
+    }
+  }
+  return { live, ignored };
+}
+
+// Elect one winner from a set of live claims: the earliest by created time, ties
+// broken by the lower comment id. Every session sees the same comments and the
+// same ids, so every session elects the same winner.
+function electWinner(claims) {
+  let best = null;
+  for (const c of claims) {
+    if (!best) {
+      best = c;
+      continue;
+    }
+    const ct = Date.parse(c.createdAt);
+    const bt = Date.parse(best.createdAt);
+    if (ct < bt || (ct === bt && Number(c.commentId) < Number(best.commentId))) {
+      best = c;
+    }
+  }
+  return best;
+}
+
+function withIgnored(output, ignored) {
+  if (ignored.length > 0) {
+    output.ignored = ignored;
+  }
+  return output;
+}
+
+function listComments(owner, name, issue) {
+  const comments = ghJson(listCommentsArgv(owner, name, issue));
+  if (!Array.isArray(comments)) {
+    process.stderr.write("issue-claim: gh comment list was not an array\n");
+    process.exit(1);
+  }
+  return comments;
+}
+
+if (subcommand === "ensure-label") {
+  requireFlags(["repo"]);
+  const [owner, name] = requireRepo();
+
+  if (values["dry-run"]) {
+    dryRun([getLabelArgv(owner, name)]);
+  }
+
+  const created = ensureLabel(owner, name);
+  process.stdout.write(JSON.stringify({ state: created ? "label-created" : "label-present", name: LABEL }) + "\n");
+  process.exit(0);
+} else if (subcommand === "acquire") {
+  requireFlags(["repo", "issue", "agent"]);
+  requirePositiveInt("issue");
+  const [owner, name] = requireRepo();
+  const agent = requireAgent();
+  const ttlMinutes = requirePositiveNumber("ttl-minutes");
+  const host = hostname();
+  const createdIso = new Date().toISOString();
+  const expiresIso = new Date(Date.now() + ttlMinutes * 60000).toISOString();
+  const body = claimBody(agent, host, createdIso, expiresIso);
+
+  if (values["dry-run"]) {
+    dryRun([userArgv(), listCommentsArgv(owner, name, values.issue), postCommentArgv(owner, name, values.issue, body)]);
+  }
+
+  const self = login();
+  // Post one contender, then re-read every claim and elect the winner. If our
+  // just-posted claim is not the winner, another session's live claim is
+  // earlier: report held and exit 3, leaving assignment and the label untouched.
+  const posted = ghJson(postCommentArgv(owner, name, values.issue, body));
+  if (typeof posted.id !== "number" && typeof posted.id !== "string") {
+    process.stderr.write("issue-claim: posted claim comment has no id\n");
+    process.exit(1);
+  }
+
+  const { live, ignored } = classifyClaims(listComments(owner, name, values.issue), self);
+  const winner = electWinner(live);
+  if (!winner || String(winner.commentId) !== String(posted.id)) {
+    const holder = winner ? { agent: winner.agent, host: winner.host, createdAt: winner.createdAt, expiresAt: winner.expiresAt } : null;
+    process.stdout.write(JSON.stringify(withIgnored({ state: "held", winner: holder }, ignored)) + "\n");
+    process.exit(3);
+  }
+
+  // We are the elected winner. Guarantee agent:working exists (add-label does
+  // not create a missing label), add it, then assign @me. Labeling before
+  // assigning means a label failure cannot leave a dangling self-assignment.
+  // Then re-read the issue and confirm both landed before reporting success.
+  ensureLabel(owner, name);
+  gh(addLabelArgv(owner, name, values.issue));
+  gh(addAssigneeArgv(owner, name, values.issue, self));
+  const issue = ghJson(getIssueArgv(owner, name, values.issue));
+  const assignees = Array.isArray(issue.assignees) ? issue.assignees.map((a) => a && a.login) : [];
+  const labels = Array.isArray(issue.labels) ? issue.labels.map((l) => (typeof l === "string" ? l : l && l.name)) : [];
+  if (!assignees.includes(self) || !labels.includes(LABEL)) {
+    process.stderr.write("issue-claim: projected issue state missing assignment or label after acquire\n");
+    process.exit(1);
+  }
+  process.stdout.write(JSON.stringify(withIgnored({ state: "acquired", commentId: posted.id, expiresAt: expiresIso }, ignored)) + "\n");
+  process.exit(0);
+} else if (subcommand === "refresh") {
+  requireFlags(["repo", "issue", "agent", "duration-minutes"]);
+  requirePositiveInt("issue");
+  const [owner, name] = requireRepo();
+  const agent = requireAgent();
+  const durationMinutes = requirePositiveNumber("duration-minutes");
+  const bufferMinutes = requirePositiveNumber("buffer-minutes");
+  const host = hostname();
+  const createdIso = new Date().toISOString();
+  const expiresIso = new Date(Date.now() + (durationMinutes + bufferMinutes) * 60000).toISOString();
+  const body = claimBody(agent, host, createdIso, expiresIso);
+
+  if (values["dry-run"]) {
+    dryRun([postCommentArgv(owner, name, values.issue, body)]);
+  }
+
+  const posted = ghJson(postCommentArgv(owner, name, values.issue, body));
+  if (typeof posted.id !== "number" && typeof posted.id !== "string") {
+    process.stderr.write("issue-claim: posted claim comment has no id\n");
+    process.exit(1);
+  }
+  process.stdout.write(JSON.stringify({ state: "refreshed", commentId: posted.id, expiresAt: expiresIso }) + "\n");
+  process.exit(0);
+} else {
+  // release
+  requireFlags(["repo", "issue", "agent"]);
+  requirePositiveInt("issue");
+  const [owner, name] = requireRepo();
+  const agent = requireAgent();
+  const host = hostname();
+
+  if (values["dry-run"]) {
+    const calls = [userArgv(), listCommentsArgv(owner, name, values.issue), removeLabelArgv(owner, name, values.issue)];
+    if (values.abandon) {
+      calls.push(removeAssigneeArgv(owner, name, values.issue, "@me"));
+    }
+    dryRun(calls);
+  }
+
+  const self = login();
+  const { live, ignored } = classifyClaims(listComments(owner, name, values.issue), self);
+  const winner = electWinner(live);
+  // Remove the label (and, with --abandon, the assignment) only when a read-back
+  // elects this session's own claim as the winner. If another live claim wins,
+  // that session (possibly the same GitHub login) still holds: change nothing.
+  if (!winner || winner.agent !== agent || winner.host !== host) {
+    const holder = winner ? { agent: winner.agent, host: winner.host, createdAt: winner.createdAt, expiresAt: winner.expiresAt } : null;
+    process.stdout.write(JSON.stringify(withIgnored({ state: "held", winner: holder }, ignored)) + "\n");
+    process.exit(3);
+  }
+
+  gh(removeLabelArgv(owner, name, values.issue), { required: false });
+  if (values.abandon) {
+    gh(removeAssigneeArgv(owner, name, values.issue, self), { required: false });
+  }
+  process.stdout.write(JSON.stringify(withIgnored({ state: values.abandon ? "abandoned" : "released", commentId: winner.commentId }, ignored)) + "\n");
+  process.exit(0);
+}

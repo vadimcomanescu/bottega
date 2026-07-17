@@ -1,6 +1,6 @@
 ---
 name: codebase-design
-description: Shared architecture doctrine for defining or checking a Bottega domain model, ownership, interfaces, dependencies, and change scope.
+description: Shared architecture doctrine for defining or checking a Bottega domain model, ownership, interfaces, dependencies, change scope, and the documentation architecture (one home per fact, maps route to it).
 user-invocable: false
 ---
 
@@ -11,8 +11,18 @@ Model the domain before arranging files. Architecture should make the required b
 ## Domain model
 
 - Define the concepts, states, relationships, and invariants that the change depends on. Resolve overloaded or conflicting terms with concrete scenarios and current code.
-- Use one term for one concept across the spec, glossary, interfaces, implementation, errors, and tests. `CONCEPTS.md` records domain meaning, not implementation structure.
+- Use one term for one concept across the spec, glossary, interfaces, implementation, errors, and tests.
+- `CONTEXT.md` is the per-context glossary of the ubiquitous language: domain meaning only, never implementation. Add an `_Avoid_` synonym line only for a synonym that caused real ambiguity. `CONTEXT-MAP.md` at the root exists only for a multi-context repo, naming each bounded context and its relationships. `docs/adr/` holds append-only dated decisions, written only when the decision is hard to reverse, surprising without context, and the result of a real trade-off. Create each lazily, only when there is something to write.
+- Writing any of these files, an existing file's format wins; a new file or entry follows the vendored format references: [CONTEXT-FORMAT.md](references/CONTEXT-FORMAT.md) and [ADR-FORMAT.md](references/ADR-FORMAT.md).
 - Put behavior with the state and rules it protects. A file boundary or existing class is evidence, not authority, when it conflicts with the model.
+
+## Documentation architecture
+
+- Every normative fact has exactly one authoritative home. `CLAUDE.md` and `AGENTS.md` are maps that route to those homes and never restate their contents.
+- A document's path shows its authority: living truth, decisions under `docs/adr/`, open plans, and archive. Living docs never cite archived docs.
+- Read the smallest map that routes the task, then only the contexts and ADRs the task touches.
+- A change to covered behavior updates the owning living doc in the same change.
+- Line budgets are reflection prompts, not gates, setup checks, or review findings.
 
 ## Design the current change
 
@@ -46,3 +56,4 @@ The brief is complete when a builder can implement without inventing domain mean
 - Is every new abstraction earning its cost for the current requirement?
 - Do tests cross the same interfaces as callers and survive internal refactoring?
 - Would the next change to the same rule be local, or would it require scattered edits?
+- Does the change keep every normative fact in its one home, and do the living docs it touches stay true?

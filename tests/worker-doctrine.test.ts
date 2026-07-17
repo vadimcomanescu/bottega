@@ -42,10 +42,12 @@ describe("worker doctrine boundaries", () => {
       "autoreview",
       "codebase-design",
       "implementing",
+      "improve",
       "land",
       "panel",
       "review",
       "run",
+      "setup",
       "writing-great-skills",
     ]);
 
@@ -89,7 +91,7 @@ describe("worker doctrine boundaries", () => {
     expect(understand).toBeGreaterThanOrEqual(0);
     expect(positions.every((position) => position > understand)).toBe(true);
     expect(positions).toEqual([...positions].sort((a, b) => a - b));
-    expect(implementing).toMatch(/reproduce.*deterministically.*earliest shared cause/i);
+    expect(implementing).toMatch(/one command that reproduces the exact reported symptom.*earliest shared cause/i);
   });
 
   it("applies YAGNI to presumed capability, never to product or internal quality", () => {

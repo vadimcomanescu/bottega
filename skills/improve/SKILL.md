@@ -1,0 +1,21 @@
+---
+name: improve
+argument-hint: "<optional area or direction>"
+description: Find the single strongest improvement in a codebase, agree it in the conversation, then open a tracker issue and take it through a run. Invoke via /bottega:improve when the user wants the codebase scanned for what to improve next. Never invoke proactively; it opens a run, which costs hours of autonomous agent work.
+---
+
+# Improve
+
+You find the single strongest improvement to this codebase, agree it with the user, open a tracker issue for it, and hand that issue to [`bottega:run`](../run/SKILL.md). Improve scopes and proposes; run does the build, review, QA, and delivery.
+
+**Read.** Start with the smallest map that routes you (root `CLAUDE.md` or `AGENTS.md`), then read only what the scan needs: the relevant `CONTEXT.md` glossaries, the `docs/adr/` decisions covering the code you will touch, the doc the repository names as its documentation authority, and the tracker's labelling conventions.
+
+**Scope.** Scope by evidence before you scan, and apply YAGNI to the scan itself. The user's named direction wins: scope to it. Without one, walk the commit history for hot spots (the files and modules that churn) and bias the scan there; a change scattered across the history widens the net.
+
+**Scan.** Read the scoped code for friction against [`bottega:codebase-design`](../codebase-design/SKILL.md): shallow modules the deletion test exposes (removing the wrapper makes the complexity disappear rather than return to callers), rules split from the state they protect, ownership that has leaked across an interface, callers that are hard to trace, and documentation-architecture drift (facts restated outside their home, living docs citing the archive, glossary terms the code contradicts). ADRs constrain the scan; do not re-litigate them. Surface a conflict with an ADR only when the friction justifies reopening it.
+
+**Collisions.** Check open issues and PRs before proposing. An improvement already tracked or already in flight is not a finding.
+
+**Propose.** Present one improvement in the conversation: the single strongest coherent unit, at most three findings grouped inside it, each with its evidence and the gain it buys. No HTML, no file report. A coherent unit is what one run can deliver: one bounded context and primary owner, one architectural rule or interface change, one architecture brief, one integrated review and QA story, one truthful PR title, one safe release and rollback unit. A finding that fails that test is a separate future proposal, not the fourth item in this one. Wait for the user's approval.
+
+**Deliver.** On approval, create one tracker issue carrying the findings, labelled for its area per the repository's conventions, then invoke `/bottega:run` on that issue. Improve never claims the issue; run acquires the claim itself. Report the issue and a one-line summary.

@@ -16,14 +16,21 @@ const LOGIN = "botlogin";
 
 // One gh stub, configured per run through PR_CLAIM_STUB. It dispatches on argv
 // to the same call shapes pr-claim assembles, logs each invocation, and returns
-// the configured payload. deleteHttp lets a test force a 404; failOn forces a
-// chosen call to fail so failure propagation can be checked.
+// the configured payload. The stub is stateful through a state file so a
+// re-read after a post or delete reflects the write, which the post-write
+// election depends on: a posted comment appears in the next comment list, and a
+// deleted comment does not. deleteHttp lets a test force a 404; failOn forces a
+// chosen call to fail so failure propagation can be checked. raceComment models
+// a second session that posts concurrently: it appears in the comment list only
+// after this run has posted, never in the first read.
 const STUB = `#!/usr/bin/env node
 const fs = require("fs");
 const cfg = JSON.parse(process.env.PR_CLAIM_STUB || "{}");
 const argv = process.argv.slice(2);
 if (cfg.logFile) fs.appendFileSync(cfg.logFile, JSON.stringify(argv) + "\\n");
 function out(v){ process.stdout.write(typeof v === "string" ? v : JSON.stringify(v)); process.exit(0); }
+function state(){ try { return JSON.parse(fs.readFileSync(cfg.stateFile, "utf8")); } catch { return { posts: [], deleted: [] }; } }
+function save(s){ if (cfg.stateFile) fs.writeFileSync(cfg.stateFile, JSON.stringify(s)); }
 const joined = argv.join(" ");
 if (cfg.failOn && joined.includes(cfg.failOn)) {
   process.stderr.write(cfg.failStderr || "gh: request failed\\n");
@@ -35,12 +42,29 @@ const method = methodIdx >= 0 ? argv[methodIdx + 1] : null;
 if (argv[0] === "api" && argv[1] === "user") out(cfg.user || { login: "${LOGIN}" });
 if (method === "DELETE") {
   const http = cfg.deleteHttp || 204;
-  if (http === 204) process.exit(0);
+  if (http === 204) {
+    const m = path.match(/comments\\/(\\d+)$/);
+    if (m) { const s = state(); s.deleted.push(Number(m[1])); save(s); }
+    process.exit(0);
+  }
   process.stderr.write("gh: HTTP " + http + "\\n");
   process.exit(1);
 }
-if (argv.includes("--paginate")) out(cfg.comments || []);
-if (argv.includes("-f") && /\\/issues\\/\\d+\\/comments$/.test(path)) out(cfg.created || { id: cfg.createdId || 9001 });
+if (argv.includes("-f") && /\\/issues\\/\\d+\\/comments$/.test(path)) {
+  const id = cfg.createdId || 9001;
+  const body = (argv[argv.indexOf("-f") + 1] || "").replace(/^body=/, "");
+  const s = state();
+  s.posts.push({ id, user: { login: "${LOGIN}" }, created_at: new Date().toISOString(), body });
+  save(s);
+  out(cfg.created || { id });
+}
+if (argv.includes("--paginate")) {
+  const s = state();
+  const deleted = new Set(s.deleted);
+  const all = [...(cfg.comments || []), ...s.posts];
+  if (cfg.raceComment && s.posts.length > 0) all.push(cfg.raceComment);
+  out(all.filter((c) => !deleted.has(c.id)));
+}
 process.stderr.write("gh stub: unhandled: " + joined + "\\n");
 process.exit(1);
 `;
@@ -51,6 +75,7 @@ type StubConfig = {
   created?: { id: number | string };
   createdId?: number;
   deleteHttp?: number;
+  raceComment?: unknown;
   failOn?: string;
   failStatus?: number;
   failStderr?: string;
@@ -69,11 +94,12 @@ type RunResult = {
 function withStub(cfg: StubConfig, args: string[]): RunResult {
   const dir = mkdtempSync(join(tmpdir(), "pr-claim-gh-stub-"));
   const logFile = join(dir, "calls.log");
+  const stateFile = join(dir, "state.json");
   try {
     writeFileSync(join(dir, "gh"), STUB, { mode: 0o755 });
     const result = spawnSync("node", [SCRIPT, ...args], {
       encoding: "utf-8",
-      env: { ...process.env, PATH: dir + ":" + process.env.PATH, PR_CLAIM_STUB: JSON.stringify({ ...cfg, logFile }) },
+      env: { ...process.env, PATH: dir + ":" + process.env.PATH, PR_CLAIM_STUB: JSON.stringify({ ...cfg, logFile, stateFile }) },
     });
     const calls = existsSync(logFile)
       ? readFileSync(logFile, "utf-8").trim().split("\n").filter(Boolean).map((line) => JSON.parse(line))
@@ -267,6 +293,30 @@ describe("pr-claim acquire", () => {
     expect(res.status).toBe(0);
     expect(res.raw.state).toBe("replaced-stale");
     expect(deleted(res.calls)).toHaveLength(1);
+  });
+
+  it("post-write election: loses the race when a concurrent claim lands earlier, reports held", () => {
+    // Both sessions read no claim and post. The concurrent session's claim
+    // (same GitHub login, different session) carries an earlier created_at, so
+    // it wins the election and this run reports held even though it posted.
+    const racer = claimComment(500, "racer", "racer-host", "review", iso(1 * HOURS));
+    const res = withStub({ comments: [], createdId: 6001, raceComment: racer }, base);
+    expect(res.status).toBe(3);
+    const held = JSON.parse(res.stdout);
+    expect(held.state).toBe("held");
+    expect(held.holders).toHaveLength(1);
+    expect(held.holders[0]).toMatchObject({ host: "racer-host", skill: "review" });
+    expect(posted(res.calls)).toBe(true);
+  });
+
+  it("post-write election: wins the race when its own claim is the earliest live contender", () => {
+    // The concurrent claim lands with a later created_at than ours, so our
+    // just-posted claim remains the earliest live contender and we acquire.
+    const racer = claimComment(500, "racer", "racer-host", "review", iso(-1 * HOURS));
+    const res = withStub({ comments: [], createdId: 6002, raceComment: racer }, base);
+    expect(res.status).toBe(0);
+    expect(res.raw.state).toBe("acquired");
+    expect(res.raw.commentId).toBe(6002);
   });
 
   it("propagates a gh failure (comment list) as a hard exit, not a held or acquired result", () => {
