@@ -48,7 +48,7 @@ The vendored skill directories are symlinked from `.claude/skills` and `.agents/
 ## Developing bottega
 
 - Every change to this repo is delivered through `/bottega:run` on this repo. The run executes the installed version of the method while producing the next. There is no manual path; trivial work scales down inside a run, never outside one (`docs/adr/0001-deliver-through-run.md`).
-- A release is a run whose PR also bumps `version` in `.claude-plugin/plugin.json`, syncs the README inventories (the entry-point commands and the repo layout), and titles the release commit `bottega X.Y.Z: <headline> (#PR)`.
+- Every merge to main is a release, enforced by the release gate (`.github/workflows/release-gate.yml`): the PR bumps `version` in `.claude-plugin/plugin.json` above the base, syncs the README inventories (the entry-point commands and the repo layout), and the release commit is titled `bottega X.Y.Z: <headline> (#PR)`.
 
 ## Review guidelines
 
