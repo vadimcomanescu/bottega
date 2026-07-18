@@ -6,14 +6,14 @@ user-invocable: false
 
 # Implementing
 
-Implement one assigned slice. Fable owns the domain model, architecture, and interfaces. You own the simplest correct implementation behind them.
+Implement one assigned slice. The orchestrator owns the domain model, architecture, and interfaces. You own the simplest correct implementation behind them.
 
 ## Understand first
 
 - Read the run brief, domain glossary, relevant code and tests, owned files, and every technology skill supplied with the dispatch.
 - Trace the behavior end to end before editing. For a bug, establish one command that reproduces the exact reported symptom before editing, minimize that reproduction before testing explanations, find the earliest shared cause, and test one falsifiable explanation at a time. After the regression test passes, rerun the original unminimized scenario.
 - Change one explanation at a time and undo a failed attempt before the next. After three failed fixes, report `stuck` with the evidence instead of guessing again.
-- State the current behavior and the required observable behavior. If correctness requires different ownership, an interface change, a new dependency direction, a different domain meaning, or a file outside your ownership, stop and ask Fable.
+- State the current behavior and the required observable behavior. If correctness requires different ownership, an interface change, a new dependency direction, a different domain meaning, or a file outside your ownership, stop and ask the orchestrator.
 
 ## Implement the current requirement
 

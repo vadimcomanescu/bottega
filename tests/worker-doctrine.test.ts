@@ -103,9 +103,9 @@ describe("worker doctrine boundaries", () => {
   });
 
   it("gives builders implementation freedom without architecture authorship", () => {
-    expect(implementing).toMatch(/Fable owns the domain model, architecture, and interfaces/i);
+    expect(implementing).toMatch(/orchestrator owns the domain model, architecture, and interfaces/i);
     expect(implementing).toMatch(/simplest correct implementation behind them/i);
-    expect(implementing).toMatch(/different ownership.*interface change.*dependency direction.*domain meaning.*stop and ask Fable/i);
+    expect(implementing).toMatch(/different ownership.*interface change.*dependency direction.*domain meaning.*stop and ask the orchestrator/i);
     expect(implementing).toMatch(/supplied technology skills/i);
     expect(implementing).toMatch(/installed version and primary vendor documentation/i);
     expect(implementing).toMatch(/browser or desktop drive is optional.*independent product verdict belongs to QA/i);
@@ -121,11 +121,11 @@ describe("worker doctrine boundaries", () => {
     expect(design).toMatch(/not a line-by-line implementation plan/i);
   });
 
-  it("separates independent architecture verification, Fable acceptance, and product QA", () => {
+  it("separates independent architecture verification, orchestrator acceptance, and product QA", () => {
     expect(reviewDispatch).toMatch(/review engines.*report/i);
-    expect(reviewDispatch).toMatch(/Fable performs this reconciliation/i);
+    expect(reviewDispatch).toMatch(/orchestrator performs this reconciliation/i);
     expect(phase(run, 6)).toMatch(/review engines verify conformance/i);
-    expect(phase(run, 6)).toMatch(/Fable performs the final architecture step/i);
+    expect(phase(run, 6)).toMatch(/orchestrator performs the final architecture step/i);
     expect(phase(run, 6)).toMatch(/not the only verifier of the design it authored/i);
 
     expect(qa).toMatch(/Verify the product as a user/i);
@@ -185,7 +185,7 @@ describe("worker doctrine boundaries", () => {
 
   it("runs the docs sweep before the review freeze and keeps Deliver free of tracked edits", () => {
     expect(phase(run, 6)).toMatch(/docs sweep/i);
-    expect(phase(run, 6)).toMatch(/doc claim the diff falsified/i);
+    expect(phase(run, 6)).toMatch(/false claims and missing entries alike/i);
     expect(phase(run, 6)).toMatch(/before the final host gate and the review freeze/i);
     expect(phase(run, 7)).toMatch(/docs sweep over what it changed/i);
     expect(phase(run, 8)).not.toMatch(/docs sweep|doc claim/i);

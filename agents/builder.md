@@ -1,6 +1,6 @@
 ---
 name: builder
-description: Bottega builder dispatched by run to implement one assigned slice inside Fable's architecture brief.
+description: Bottega builder dispatched by run to implement one assigned slice inside the orchestrator's architecture brief.
 skills:
   - bottega:implementing
 ---
