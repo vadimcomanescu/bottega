@@ -6,70 +6,62 @@ disable-model-invocation: true
 
 # Setup
 
-You reconcile one host repo with bottega's methodology, once. This is prompt-driven, not a script: explore what the repo already has, present the findings, walk the decisions one at a time, show the exact edits, and apply only what the user approves.
-
-## What setup installs
-
-Setup makes the host repo conform to the domain-doc contract and documentation architecture that [`bottega:codebase-design`](../codebase-design/SKILL.md) defines: the per-context `CONTEXT.md` glossaries, a root `CONTEXT-MAP.md` for a multi-context repo, `docs/adr/` for the decisions that qualify, and the map-and-homes rule that `CLAUDE.md` and `AGENTS.md` route to each fact's one home and never restate it. Read that doctrine; setup reconciles a repo to it rather than restating it. An empty glossary, a decision-free ADR scaffold, and an owner doc with nothing concrete to say are all nothing to write, so setup creates none of them. On a repo that has none of these yet, setup writes only the map plus the docs that carry real content.
+You bring one host repo to the shape `bottega:codebase-design` defines, once: a map that routes (`CLAUDE.md` or `AGENTS.md`), per-context `CONTEXT.md` glossaries, `docs/adr/` for qualifying decisions, and tracker conventions. Read that doctrine first; it owns the shape, this skill owns the reconciliation. Prompt-driven, not a script: discover what the repo has, propose the exact edits that close the gap, apply what the user approves.
 
 ## Method
 
-### 1. Explore
+### 1. Discover what the repo already has
 
-Resolve symlinks first, then read what exists; never assume:
+Resolve symlinks first, then read; never assume, and never search by a fixed list of filenames. For each part of the shape, find where it lives today, whatever it is called and wherever it sits:
 
-- The root maps `CLAUDE.md` and `AGENTS.md`, whether one symlinks the other, and whether either already carries a `bottega:setup` managed block.
-- `CONTEXT.md`, `CONTEXT-MAP.md`, and every per-context `CONTEXT.md`.
-- `docs/adr/` and any per-context ADR directory.
-- Any legacy `CONCEPTS.md`.
-- Existing tracker and agent docs (for example `docs/internal/issue-tracker.md`, `docs/agents/*.md`), so a reusable home is known before a new one is proposed.
-- The GitHub remote, its labels, and whether `gh` is authenticated with issue and label permissions.
-- The host gate command (test, lint, typecheck, build).
-- `.gitignore`.
+- The map: the root agent docs, whether one symlinks the other, and any existing `bottega:setup` managed block.
+- Domain terms: whatever currently defines the repo's vocabulary, in any file or doc section.
+- Decisions: wherever design decisions are recorded today, including prose sections of README-class docs.
+- Tracker conventions, the GitHub remote, its labels, and whether `gh` is authenticated with issue and label permissions.
+- The host gate command (test, lint, typecheck, build) and `.gitignore`.
 - Any skill-farm contract the repo declares.
+
+Complete when every part of the shape has either a located current home or a stated "nowhere".
 
 ### 2. Decide, one at a time
 
-Present the findings, then walk the decisions the repo cannot answer for you, one per exchange, waiting for each answer before the next. Ask only what cannot be derived:
+Present the findings, then walk only the decisions the repo cannot answer, one per exchange, waiting for each answer:
 
-- **Canonical map**: which of `CLAUDE.md` and `AGENTS.md` is the map. Ask only when both exist as independent files (neither symlinks the other). When one symlinks the other, its target is the map. When neither exists, default to `CLAUDE.md` (the Claude Code convention), flag it for a one-read veto, and create only that file. Never create the competing file.
-- **Tracker location**, only when there is no git remote or the remote does not settle it: where issues live. A single GitHub remote settles it (GitHub Issues on that remote). The `open` to `agent:working` to `closed` state vocabulary is fixed by the `agent:working` label setup writes, so it is doctrine, never a question.
-- **Area labels**, only when the repo has more than one bounded context whose names the tree does not settle: which `area:*` labels to create. A single-context repo has none; derive the set from the context decomposition and confirm only the names you could not.
-- **Single vs multi context**: confirm the count when the code suggests more than one bounded context.
+- **Canonical map**: which of `CLAUDE.md` and `AGENTS.md` is the map. Ask only when both exist as independent files. When one symlinks the other, its target is the map. When neither exists, default to `CLAUDE.md`, flag it for a one-read veto, and never create the competing file.
+- **Tracker location**, only when no remote settles it. A single GitHub remote settles it (GitHub Issues on that remote).
+- **Area labels**, only when the repo has more than one bounded context whose names the tree does not settle. A single-context repo has none.
+- **Context count**, when the code suggests more than one bounded context.
 
-### 3. Show, then apply
+### 3. Propose the edits
 
-Show the exact file edits and the exact GitHub label mutations, wait for approval, and apply only what was approved.
+For every gap between the found state and the shape, show the exact edit that closes it. Content moves; nothing is invented: a term or decision you did not find is not written, and an empty glossary, a decision-free ADR scaffold, or an owner doc with nothing concrete to say is nothing to write.
 
-## Writes (only after approval)
+- **The managed block** in the canonical map, delimited by versioned markers (`<!-- bottega:setup v1 begin -->` and `<!-- bottega:setup v1 end -->`) so a rerun updates only its own block. It routes to each fact's home and never restates it, and it records that the non-map file symlinks the map.
+- **Migrations**: discovered term definitions move into the relevant `CONTEXT.md`; discovered decision records that meet the ADR bar move into `docs/adr/`; two files claiming the same authority merge into one home; every reference updates in the same change. Formats follow `bottega:codebase-design` and its references. When a source and its target both hold material, put the merge to the user before writing.
+- **Owner docs** for tracker conventions, always reusing an existing equivalent home instead of creating a second one.
+- **A `.bottega/` entry in `.gitignore`** when missing.
+- **The `agent:working` label** through `scripts/issue-claim ensure-label`, and the approved `area:*` labels, each get-or-create with read-back; never rename or delete an existing label.
 
-- **One managed block in the canonical map**, delimited by versioned markers (`<!-- bottega:setup v1 begin -->` and `<!-- bottega:setup v1 end -->`) so a rerun or a later version updates only its own block in place. The block routes to the owner docs and never restates them, and it records that the non-map file (`AGENTS.md` when `CLAUDE.md` is the map) symlinks the map rather than duplicating it.
-- **Owner docs** for the domain layout and the tracker conventions. Default them to `docs/agents/*.md`, but always reuse an existing equivalent home (for example `docs/internal/issue-tracker.md`) instead of creating a second one. The managed block is the authority-routing surface; write a separate documentation-authority doc only when there is a real ownership decision the map cannot express.
-- **A `.bottega/` entry in `.gitignore`** when it is missing.
-- **The `agent:working` label** through `scripts/issue-claim ensure-label`, the one place that call is assembled: it gets or creates the label and reads it back.
-- **The approved `area:*` labels**, each through get-or-create with read-back: create only what is absent, confirm each exists afterward, and never rename or delete an existing label.
-- **The legacy `CONCEPTS.md` migration**: move its content into the relevant `CONTEXT.md` atomically and update every reference in the same change. When both `CONCEPTS.md` and the target `CONTEXT.md` hold material, stop and put the merge to the user before writing. The migrated entries follow the format rule in [`bottega:codebase-design`](../codebase-design/SKILL.md).
+### 4. Apply
 
-## Verifies (findings, never mutations)
+Apply only what was approved, exactly as shown. Complete when every proposed edit is applied or explicitly declined, and a rerun on the resulting repo would propose zero edits.
 
-Report each as a finding; do not fix it here.
+## Findings (the genuinely un-writable)
 
-- `gh` is authenticated with issue and label permissions on the GitHub remote.
-- Exactly one authoritative map exists.
-- No two files claim glossary authority.
-- Every `CONTEXT-MAP.md` destination exists, and each glossary is mapped exactly once.
-- No living doc cites an archived doc.
-- A host gate command is discoverable. A missing gate is a finding, never an invitation to invent one.
-- When the repo declares a skill-farm contract, broken links in it are findings. Never create or normalize a farm.
+Report these; do not fix them here:
+
+- `gh` lacks issue or label permissions on the remote.
+- No host gate command is discoverable. A missing gate is a finding, never an invitation to invent one.
+- A declared skill-farm contract has broken links. Never create or normalize a farm.
 
 ## Leaves alone
 
-CI, hooks, gate design, technology skills, MCP config, triage state machines, and empty glossary or ADR scaffolds. Setup does not touch them.
+CI, hooks, gate design, technology skills, MCP config, and triage state machines.
 
 ## Idempotency
 
-Setup reads its state from the repository; there is no installed flag. An owner doc setup created becomes repo-owned, so a rerun validates it and proposes a diff rather than overwriting it. A rerun on a conforming repo makes zero file and zero GitHub changes, and says so.
+Setup reads its state from the repository; there is no installed flag. A doc setup created becomes repo-owned: a rerun validates it and proposes a diff rather than overwriting it. A rerun on a conforming repo makes zero file and zero GitHub changes, and says so.
 
 ## Done report
 
-Report what was written, what was verified green, and the findings that remain the user's to fix.
+What was written, what was declined, and the findings that remain the user's to fix.
