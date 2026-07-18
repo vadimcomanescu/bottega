@@ -80,7 +80,7 @@ skills/         run, spec, improve, setup, review, land, implementing, autorevie
 agents/         Claude identities for builder, QA, panelist, and panel judge
 scripts/        codex-exec (the one place a codex invocation is assembled), pr-threads (PR review-thread calls), pr-claim (the PR session-claim comment), and issue-claim (the issue session-claim comment, label, and assignment)
 hooks/          route guard (model routing) and entry guard (points prose at /bottega:run)
-tests/          unit tests for the hooks, the codex-exec, pr-threads, pr-claim, and issue-claim scripts, the worker doctrine, the vendored autoreview tree's integrity, and the README's command inventory
+tests/          unit tests for the hooks, the codex-exec, pr-threads, pr-claim, and issue-claim scripts, the worker doctrine, and the vendored autoreview tree's integrity
 docs/adr/       append-only decision records
 docs/specs/     closed records of delivered runs
 docs/research/  primary-source notes supporting worker doctrine
