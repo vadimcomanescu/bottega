@@ -185,7 +185,7 @@ describe("worker doctrine boundaries", () => {
 
   it("runs the docs sweep before the review freeze and keeps Deliver free of tracked edits", () => {
     expect(phase(run, 6)).toMatch(/docs sweep/i);
-    expect(phase(run, 6)).toMatch(/doc claim the diff falsified/i);
+    expect(phase(run, 6)).toMatch(/false claims and missing entries alike/i);
     expect(phase(run, 6)).toMatch(/before the final host gate and the review freeze/i);
     expect(phase(run, 7)).toMatch(/docs sweep over what it changed/i);
     expect(phase(run, 8)).not.toMatch(/docs sweep|doc claim/i);

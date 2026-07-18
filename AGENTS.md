@@ -21,6 +21,7 @@ Autonomous issue-to-PR runs for Claude Code, built for Fable to orchestrate: one
 | `agents/` | Worker identities: builder, QA, panelist, panel judge | Changing a worker's authority or tools |
 | `scripts/` | Single assembly points for external calls: `codex-exec`, `pr-threads`, `pr-claim`, `issue-claim`; each header states its contract | Any codex launch or GitHub mutation mechanics |
 | `hooks/` | Route guard (PreToolUse) and entry guard (UserPromptSubmit); each file states its own policy | Changing what dispatches or prompts are denied |
+| `docs/adr/` | Append-only decision records | Understanding why a current rule exists before changing it |
 | `docs/specs/` | Closed records of delivered runs, kept as history | Retrieving how a past run went, never as current truth |
 | `tests/` | The verification gate's suites | Any change; the gate pins doctrine and script contracts |
 
@@ -43,6 +44,11 @@ The vendored skill directories are symlinked from `.claude/skills` and `.agents/
 - Each dispatch gives one task a fresh context and returns a finished answer. The dispatcher reads the answer, not the transcript. Workers ask the orchestrator; the orchestrator answers and resumes them. Workers do not coordinate with each other directly.
 - Keep `CLAUDE.md` symlinked to this file.
 - PR bodies contain review-relevant content only. Omit tool, model, and vendor attribution badges or footers.
+
+## Developing bottega
+
+- Every change to this repo is delivered through `/bottega:run` on this repo. The run executes the installed version of the method while producing the next. There is no manual path; trivial work scales down inside a run, never outside one (`docs/adr/0001-deliver-through-run.md`).
+- A release is a run whose PR also bumps `version` in `.claude-plugin/plugin.json`, syncs the README inventories (the entry-point commands and the repo layout), and titles the release commit `bottega X.Y.Z: <headline> (#PR)`.
 
 ## Review guidelines
 

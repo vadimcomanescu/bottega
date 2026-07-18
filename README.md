@@ -9,6 +9,19 @@ Autonomous issue-to-PR runs for Claude Code. One command takes a task, bug, or G
 /bottega:run <task, or issue URL>
 ```
 
+## Commands
+
+| Command | What it does |
+| --- | --- |
+| `/bottega:run <task, or issue URL>` | The whole pipeline: discovery, spec, build, review, QA, delivered PR |
+| `/bottega:spec <task, issue URL, or direction>` | The front half only: discover, grill the unknowns, agree the spec, file a parent issue plus dependency-ordered child tickets for later runs |
+| `/bottega:improve [area or direction]` | Find the single strongest improvement, agree it in the conversation, file it, take it through a run |
+| `/bottega:review <PR, ref range, or worktree>` | The cross-family review gate, standalone |
+| `/bottega:land <PR number>` | Take an open PR through review-fix rounds to verified-mergeable |
+| `/bottega:setup` | Once per repo: reconcile the host with bottega's methodology |
+
+Run and spec are the two operating modes of the same front half: run delivers now; spec stops at agreed tickets that any later `/bottega:run <ticket>` picks up.
+
 ## What it does
 
 `/bottega:run` turns the current Claude Code session into an orchestrator that:
@@ -63,11 +76,12 @@ Agent definitions say who enters an isolated context: the role, authority, prohi
 ## Repo layout
 
 ```
-skills/         run, spec, improve, setup, review, land, implementing, autoreview (vendored), codebase-design, panel
+skills/         run, spec, improve, setup, review, land, implementing, autoreview (vendored), codebase-design, panel, writing-great-skills (vendored)
 agents/         Claude identities for builder, QA, panelist, and panel judge
 scripts/        codex-exec (the one place a codex invocation is assembled), pr-threads (PR review-thread calls), pr-claim (the PR session-claim comment), and issue-claim (the issue session-claim comment, label, and assignment)
 hooks/          route guard (model routing) and entry guard (points prose at /bottega:run)
-tests/          unit tests for the hooks, the codex-exec, pr-threads, pr-claim, and issue-claim scripts, the worker doctrine, and the vendored autoreview tree's integrity
+tests/          unit tests for the hooks, the codex-exec, pr-threads, pr-claim, and issue-claim scripts, the worker doctrine, the vendored autoreview tree's integrity, and the README's command inventory
+docs/adr/       append-only decision records
 docs/specs/     closed records of delivered runs
 docs/research/  primary-source notes supporting worker doctrine
 ```
@@ -78,6 +92,8 @@ docs/research/  primary-source notes supporting worker doctrine
 npm install
 npm test        # vitest suites plus the vendored autoreview Python suites (needs python3 and git on PATH)
 ```
+
+Every change to this repo ships through `/bottega:run` on this repo; the procedure, including releases, is in `AGENTS.md` under "Developing bottega".
 
 ## Credits
 
