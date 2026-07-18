@@ -14,19 +14,19 @@ This method has two entry points: you, invoked directly, and a run's front half.
 
 Read the repo facts first: the smallest map that routes the task (root `CLAUDE.md` or `AGENTS.md`), then `CONTEXT-MAP.md` if present, then only the `CONTEXT.md` glossaries and `docs/adr/` decisions the work touches. Current docs only; archived and superseded ones are history.
 
-Then fan out three reader jobs, each sharply divided and under a stated budget:
+Then fan out a reader per job that applies, each sharply divided and under a stated budget:
 
 - **Codebase sweep.** How the affected area works today and the precedent it sets.
-- **Field pass.** How the wider industry solves this. Fire it only when the work touches a technology or domain the repo holds no precedent for.
-- **Skills inventory.** The technology skills in this runtime that bear on the work.
+- **Field pass.** Search the web for how the wider industry solves this. Run it only when the work touches a technology or domain the repo holds no precedent for.
+- **Skills inventory.** The technology skills in this runtime that match the work.
 
-If your harness can run reader jobs in parallel, launch one per job on a cheap tier; each returns a short dossier and nothing more. If it cannot, do the same reads yourself, inline, under the same budgets.
+If your harness can run reader jobs in parallel, launch one per applicable job on a cheap tier; each returns a short dossier and nothing more. If it cannot, do the same reads yourself, inline, under the same budgets.
 
-Read the dossiers, then read directly the files any decision hinges on. Every decision is yours. A reader returns findings, never a decision.
+Read the dossiers, then read directly the files any decision hinges on. Verify version-sensitive technology against the installed version and primary vendor docs before a decision relies on it. Every decision is yours. A reader returns findings, never a decision.
 
 ## 2. Grill
 
-List the unknowns the request leaves open: the risks the code, history, or domain point to but the request omits. Rank them by impact. Resolve each from a repo fact where one exists, searching the host's own precedent before you reach for the user. Put what remains to the user one question at a time, each with your recommended answer, so a reply is a yes or a correction.
+List the unknowns the request leaves open: the risks the code, history, or domain point to but the request omits. Rank them by impact. Resolve each from a repo fact where one exists, searching the host's own precedent before you reach for the user. Put what remains to the user one question at a time, each with your recommended answer, so a reply is a yes or a correction. Keep asking until you can predict the user's acceptance decisions.
 
 ## 3. Prototype a look-or-feel decision
 
@@ -49,7 +49,7 @@ As decisions settle, resolve the domain terms the work introduces or sharpens (t
 
 ## 5. End by entry point
 
-- Invoked directly: ask once whether to push to tickets, then wait. On yes, publish (step 6).
+- Invoked directly: ask once whether to push to tickets, then wait. On yes, publish (step 6). On no, delete any spec branch this session pushed, local and remote, before the session ends; the settled decision already lives in the spec's words.
 - A run's front half: hand back to the run's sign-off rules. Do not ask about tickets.
 
 ## 6. Publish
