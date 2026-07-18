@@ -210,7 +210,7 @@ describe("worker doctrine boundaries", () => {
     expect(phase(run, 3)).toMatch(/spec-format\.md/);
     expect(phase(run, 8)).toMatch(/required checks/i);
     expect(phase(run, 8)).toMatch(
-      /session learns the PR merged deletes.*`bottega\/spec-<slug>` branch the delivered ticket's parent issue linked/i,
+      /session learns the PR merged deletes, local and remote,.*`bottega\/spec-<slug>` branch the delivered ticket's parent issue linked/i,
     );
   });
 
