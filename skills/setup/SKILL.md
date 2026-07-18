@@ -6,13 +6,13 @@ disable-model-invocation: true
 
 # Setup
 
-You bring one host repo to the shape `bottega:codebase-design` defines (its domain-doc contract and documentation architecture), plus the tracker conventions, once. Read that doctrine first; it owns the shape, this skill owns the reconciliation. Prompt-driven, not a script: discover what the repo has, propose the exact edits that close the gap, apply what the user approves.
+Read `bottega:codebase-design` first: it defines the shape (the domain-doc contract and documentation architecture) this skill brings the host repo to, once, along with the tracker conventions. Apply only what the user approves.
 
 ## Method
 
 ### 1. Discover what the repo already has
 
-Resolve symlinks first, then read; never assume, and never search by a fixed list of filenames. For each part of the shape, find where it lives today, whatever it is called and wherever it sits:
+Resolve symlinks first, then read; never search by a fixed list of filenames. For each part of the shape, find where it lives today, whatever it is called and wherever it sits:
 
 - The map: the root agent docs, whether one symlinks the other, and any existing `bottega:setup` managed block.
 - Domain terms: whatever currently defines the repo's vocabulary, in any file or doc section.
@@ -34,7 +34,7 @@ Present the findings, then walk only the decisions the repo cannot answer, one p
 
 ### 3. Propose the edits
 
-For every gap between the found state and the shape, show the exact edit that closes it. Content moves; nothing is invented: a term or decision you did not find is not written, and an empty glossary, a decision-free ADR scaffold, or an owner doc with nothing concrete to say is nothing to write.
+For every gap between the found state and the shape, show the exact edit that closes it. Content moves; nothing is invented: an empty glossary, ADR scaffold, or owner doc is nothing to write.
 
 - **The managed block** in the canonical map, delimited by versioned markers (`<!-- bottega:setup v1 begin -->` and `<!-- bottega:setup v1 end -->`) so a rerun updates only its own block. It routes to each fact's home and never restates it, and it records that the non-map file symlinks the map.
 - **Migrations**: discovered term definitions move into the relevant `CONTEXT.md`; discovered decision records that meet the ADR bar move into `docs/adr/`; two files claiming the same authority merge into one home; every reference updates in the same change. Formats follow `bottega:codebase-design` and its references. When a source and its target both hold material, put the merge to the user before writing.

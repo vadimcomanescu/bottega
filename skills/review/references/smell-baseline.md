@@ -1,6 +1,6 @@
 # Smell baseline
 
-A fixed set of code smells (Martin Fowler, Refactoring, chapter 3) carried in every review intent file as the standards axis, after Matt Pocock's code-review baseline. Three rules bind it:
+A fixed set of code smells (Martin Fowler, Refactoring, chapter 3) carried in every review intent file as the standards axis. Three rules bind it:
 
 - The repo overrides. A documented repo standard always wins; where it endorses something the baseline would flag, suppress the smell.
 - Always a judgment call. Each smell is a labelled heuristic ("possible Feature Envy"), never a hard violation. Report the smell by name and quote the hunk.

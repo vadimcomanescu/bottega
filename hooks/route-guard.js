@@ -33,12 +33,10 @@
 //      (observed: one /code-review invocation during a run put 19 fable
 //      agents on a diff, unseen by scope 2 because none of them was an
 //      Agent dispatch). The check is static, on the script text: every
-//      agent() call must name a model, and none may name fable. The one
-//      exception: the panel's bundled script is sanctioned to route fable
-//      and passes by naming itself in its meta. A script the guard cannot
-//      read (name-only invocation, unreadable scriptPath, unparseable call)
-//      is denied, not waved through: inside the fence, unverifiable routing
-//      is unrouted routing.
+//      agent() call must name a model, and none may name fable. A script
+//      the guard cannot read (name-only invocation, unreadable scriptPath,
+//      unparseable call) is denied, not waved through: inside the fence,
+//      unverifiable routing is unrouted routing.
 //
 // The checks are mechanical, not trusted to memory.
 
@@ -129,9 +127,9 @@ const DENY_UNROUTED_RUN =
 const DENY_FABLE_RUN =
   "this session owns a live bottega run (its id is in .bottega/run/<slug>/owner) " +
   "and this dispatch routes fable. Fable is the orchestrator, not a general " +
-  "worker; the panel's bundled workflow is the sole exception. " +
-  "Re-issue from the routing table in skills/run/SKILL.md, and do fable-tier " +
-  "work in your own turns instead of dispatching it.";
+  "worker; the panel's fable seats run through the claude CLI (skills/panel), " +
+  "never a dispatch. Re-issue from the routing table in skills/run/SKILL.md, " +
+  "and do fable-tier work in your own turns instead of dispatching it.";
 
 const DENY_WORKFLOW_UNPINNED_RUN =
   "this session owns a live bottega run (its id is in .bottega/run/<slug>/owner) " +
@@ -143,9 +141,8 @@ const DENY_WORKFLOW_UNPINNED_RUN =
 
 const DENY_WORKFLOW_FABLE_RUN =
   "this session owns a live bottega run (its id is in .bottega/run/<slug>/owner) " +
-  "and this workflow script routes an agent to fable. The panel's bundled " +
-  "script is the one workflow sanctioned to route fable and passes by naming " +
-  "itself in its meta; anything else re-issues from the routing table in " +
+  "and this workflow script routes an agent to fable. Fable is the orchestrator " +
+  "seat and no workflow routes it; re-issue from the routing table in " +
   "skills/run/SKILL.md.";
 
 const DENY_WORKFLOW_UNCHECKED_RUN =
@@ -153,11 +150,6 @@ const DENY_WORKFLOW_UNCHECKED_RUN =
   "and this workflow's script cannot be read, so its model routing cannot be " +
   "checked. Re-issue with the script inline or at a readable scriptPath, with " +
   "an explicit model on every agent() call.";
-
-// Anchored to the meta literal that opens every workflow script, so a script
-// merely mentioning the panel does not pass; the sanctioned caller passes by
-// naming itself.
-const PANEL_META = /export\s+const\s+meta\s*=\s*\{\s*name\s*:\s*['"`]panel['"`]/;
 
 // The script under check: scriptPath wins over inline script, matching the
 // Workflow tool's own precedence; a name-only invocation resolves elsewhere
@@ -322,7 +314,7 @@ if (isWorkflow) {
     const options = optionsText(call);
     const pin = options.match(MODEL_LITERAL);
     if (!pin) deny(DENY_WORKFLOW_UNPINNED_RUN);
-    if (FABLE.test(pin[2]) && !PANEL_META.test(script)) deny(DENY_WORKFLOW_FABLE_RUN);
+    if (FABLE.test(pin[2])) deny(DENY_WORKFLOW_FABLE_RUN);
     // A named worker inside a workflow obeys the same routing table as a
     // direct dispatch.
     const worker = options.match(WORKFLOW_WORKER);

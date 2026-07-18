@@ -63,6 +63,18 @@ describe("codex-exec assembly", () => {
     expect(argv).not.toContain("-C");
   });
 
+  it("enables the native web_search tool with --search, fresh and on resume", () => {
+    const { status, argv } = dryRun("--search");
+    expect(status).toBe(0);
+    expect(argv).toContain("tools.web_search=true");
+
+    const resumed = dryRun("--search", "--resume", "thread-123");
+    expect(resumed.status).toBe(0);
+    expect(resumed.argv).toContain("tools.web_search=true");
+
+    expect(dryRun().argv).not.toContain("tools.web_search=true");
+  });
+
   it("adds --output-schema for schema-constrained dispatches", () => {
     const { argv } = dryRun("--schema", "/abs/report.schema.json");
     expect(argv).toContain("--output-schema");

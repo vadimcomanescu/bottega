@@ -1,6 +1,6 @@
 # bottega
 
-Autonomous issue-to-PR runs for Claude Code. `/bottega:run` takes a task, bug, or GitHub issue to a reviewed, evidence-backed pull request; spec, review, land, improve, and setup are also available on their own.
+Autonomous issue-to-PR runs for Claude Code. `/bottega:run` takes a task, bug, or GitHub issue to a reviewed, evidence-backed pull request; spec, review, land, improve, panel, and setup are also available on their own.
 
 ```
 /plugin marketplace add vadimcomanescu/bottega
@@ -18,6 +18,7 @@ Autonomous issue-to-PR runs for Claude Code. `/bottega:run` takes a task, bug, o
 | `/bottega:improve [area or direction]` | Find the single strongest improvement, agree it in the conversation, file it, take it through a run |
 | `/bottega:review <PR, ref range, or worktree>` | The cross-family review gate, standalone |
 | `/bottega:land <PR number>` | Take an open PR through review-fix rounds to verified-mergeable |
+| `/bottega:panel <the decision>` | Independent cross-family drafts and a compare-only judge on one costly decision; the caller synthesizes |
 | `/bottega:setup` | Once per repo: reconcile the host with bottega's methodology |
 
 Run and spec are the two operating modes of the same front half: run delivers now; spec stops at agreed tickets that any later `/bottega:run <ticket>` picks up.
@@ -68,7 +69,7 @@ Agent definitions say who enters an isolated context: the role, authority, prohi
 | builder | implements one assigned slice, test-first, inside the orchestrator's fixed architecture | gpt-5.6-sol (high), or opus-4.8 (xhigh) for a user-facing slice | [`skills/implementing/SKILL.md`](skills/implementing/SKILL.md) |
 | review panel | breaks the integrated diff and checks it against the orchestrator's architecture brief, via the vendored autoreview helper | gpt-5.6-sol (high) + opus-4.8 (xhigh) engines in round 1; opposite family from each fixer on deltas | [`skills/review/SKILL.md`](skills/review/SKILL.md) |
 | qa | drives the built artifact as a user, records the evidence, never edits product code | opus-4.8 (high) | [`agents/qa.md`](agents/qa.md) |
-| panelist / judge | independent recommendations on a costly decision / blinded comparison only | gpt-5.6-sol (max) + fable-5 (high); fable judge | [`skills/panel/SKILL.md`](skills/panel/SKILL.md) |
+| panel seats / judge | independent drafts on a costly decision / blinded five-angle comparison only | gpt-5.6-sol (max) + fable-5 CLI seats; fable judge | [`skills/panel/SKILL.md`](skills/panel/SKILL.md) |
 | mechanical work | worktree setup, merges, gate re-runs, bulk reads; no judgment | sonnet-5 (low) | the closed command list in its dispatch |
 
 [`skills/codebase-design`](skills/codebase-design/SKILL.md) is shared by the roles that make and judge architecture: the orchestrator uses it to model the domain and write the architecture brief; the review gate feeds that exact brief to the panel engines. Builders receive the brief and glossary as fixed input.
@@ -97,7 +98,7 @@ Every change to this repo ships through `/bottega:run` on this repo; the procedu
 
 ## Credits
 
-The discovery method (interviewing for unknowns) follows Thariq Shihipar's unknowns framework. The design vocabulary is John Ousterhout's deep modules. The builder's ordered minimum-code checks come from [Ponytail](https://github.com/DietrichGebert/ponytail); interface-level TDD and active domain language draw from [Matt Pocock's engineering skills](https://github.com/mattpocock/skills); selective technology-skill loading draws from [Addy Osmani's agent skills](https://github.com/addyosmani/agent-skills); and the exact-plan-to-implementer-to-reviewer handoff is reinforced by [Superpowers](https://github.com/obra/superpowers). The review gate runs [openclaw/agent-skills autoreview](https://github.com/openclaw/agent-skills/tree/main/skills/autoreview) itself, vendored at a pinned commit under `skills/autoreview`: the frozen bundle, engine isolation, structured findings, and "clean" as an exit state are its contract, and the gate orchestrates it. The panel (blinded frontier drafts, a judge held to structured comparison) follows OpenRouter's [Fusion](https://openrouter.ai/blog/announcements/fusion-beats-frontier/), which measured fused frontier models beating any single one; bottega deviates in one place: the judge never writes the answer, synthesis stays with the orchestrator, which holds the run context the judge never sees.
+The discovery method (interviewing for unknowns) follows Thariq Shihipar's unknowns framework. The design vocabulary is John Ousterhout's deep modules. The builder's ordered minimum-code checks come from [Ponytail](https://github.com/DietrichGebert/ponytail); interface-level TDD and active domain language draw from [Matt Pocock's engineering skills](https://github.com/mattpocock/skills); selective technology-skill loading draws from [Addy Osmani's agent skills](https://github.com/addyosmani/agent-skills); and the exact-plan-to-implementer-to-reviewer handoff is reinforced by [Superpowers](https://github.com/obra/superpowers). The review gate runs [openclaw/agent-skills autoreview](https://github.com/openclaw/agent-skills/tree/main/skills/autoreview) itself, vendored at a pinned commit under `skills/autoreview`: the frozen bundle, engine isolation, structured findings, and "clean" as an exit state are its contract, and the gate orchestrates it. The panel (blinded frontier drafts, a judge held to structured comparison) follows OpenRouter's [Fusion](https://openrouter.ai/blog/announcements/fusion-beats-frontier/), which measured fused frontier models beating any single one; bottega deviates in one place: the judge never writes the answer, synthesis stays with the caller, which holds the context the judge never sees.
 
 ## License
 

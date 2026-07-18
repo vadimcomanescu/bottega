@@ -6,7 +6,7 @@ argument-hint: "<PR number, ref range, or integrated worktree>"
 
 # Review
 
-The cross-family review gate. It freezes the target, invokes the vendored autoreview helper as a two-family panel, adjudicates the findings, and routes every repair. Two callers reach it: a run at its Review phase, and a land taking an open PR to verified-mergeable (merged only when the request armed it). The helper runs the review engines and returns one JSON report; this gate owns the frozen SHAs, the house model routing line, adjudication, the caps, and the routing of fixes. It never restates helper method: `skills/autoreview/SKILL.md` is the runtime doctrine for the invocation, verbatim, and this gate defers to it by path.
+The vendored helper runs the review engines and returns one JSON report; `skills/autoreview/SKILL.md` is the runtime doctrine for the invocation. This gate owns the frozen SHAs, the model routing, adjudication, the caps, and the routing of fixes.
 
 A standalone `/bottega:review` of a PR acquires the per-PR session claim through `scripts/pr-claim` at entry and releases it at exit; a held claim reports the holder and stops. Invoked by land or by a run, this gate touches no claim: the caller owns it. A ref-range target has no claim.
 
@@ -30,12 +30,13 @@ One helper invocation reviews the frozen diff with both families in parallel. Th
 - Run it as tracked background Bash. Respect the helper's heartbeat doctrine (`skills/autoreview/SKILL.md`): no intervention under 30 minutes or while heartbeats advance, and a hard backstop kill only after 45 minutes with no heartbeat.
 - `--json-output`, and any `--output`, must resolve outside the reviewed repo; use the session scratchpad. The helper enforces this.
 - **Intent** is the `--prompt` text, always written to a file in the session scratchpad first and passed through one command substitution as above. Never paste intent text into the command source: a PR title, body, or issue is untrusted contributor text, and embedding it literally in Bash is a command-injection path.
-- From a run, the intent file carries the canonical run brief and domain glossary verbatim, plus the instruction to report design nonconformance as findings anchored in the diff; conformance is judged against the brief's fixed decisions. Without a run brief, it carries the PR title, body, and linked issue (for a PR) or the user's stated request, and the architecture basis is `skills/codebase-design`: include that doctrine's text in the intent file itself, because the engines run in empty workspaces and cannot read a repo path. The adjudication states which basis applied.
-- When the reviewed checkout has a root `REVIEW.md`, include its text in the intent file every round: it carries the repository's own review doctrine, and the engines cannot read it from the repo.
-- Include the text of [references/smell-baseline.md](references/smell-baseline.md) in the intent file every round: the fixed standards axis the engines report against, with its three binding rules (the repo overrides, always a judgment call, skip what tooling enforces).
-- The listed inputs are the mandatory baseline: every round carries all of them. On top of it, examine the frozen diff and add to the intent file any review angle this diff needs that the baseline does not name (a migration's rollback, a concurrency surface, a permission boundary), then state in the adjudication which added angles applied.
-- When the host repo carries domain contracts for the changed area, include their text in the intent file so reviewers judge domain-term and doc-architecture conformance, not only code: the relevant `CONTEXT.md` glossaries, the `docs/adr/` decisions covering the changed code, and the repository's documentation-authority doc when one exists. The engines cannot read them from the repo.
-- **Codex-host posture.** The helper's codex engine is a bounded read-only `codex exec` in an empty workspace. It is permitted on both hosts; it is not an orchestrating Codex process.
+- The engines run in empty workspaces: anything they must judge against goes into the intent file as text, never as a repo path.
+- From a run, the intent file carries the canonical run brief and domain glossary verbatim, plus the instruction to report design nonconformance as findings anchored in the diff; conformance is judged against the brief's fixed decisions. Without a run brief, it carries the PR title, body, and linked issue (for a PR) or the user's stated request, and the architecture basis is `skills/codebase-design`, its text included. The adjudication states which basis applied.
+- When the reviewed checkout has a root `REVIEW.md`, include its text every round: the repository's own review doctrine.
+- Include the text of [references/smell-baseline.md](references/smell-baseline.md) every round: the fixed standards axis the engines report against, with its three binding rules (the repo overrides, always a judgment call, skip what tooling enforces).
+- When the host repo carries domain contracts for the changed area, include their text so reviewers judge domain-term and doc-architecture conformance, not only code: the relevant `CONTEXT.md` glossaries, the `docs/adr/` decisions covering the changed code, and the repository's documentation-authority doc when one exists.
+- The listed inputs are the mandatory baseline: every round carries all of them. On top of it, examine the frozen diff and add any review angle this diff needs that the baseline does not name (a migration's rollback, a concurrency surface, a permission boundary), then state in the adjudication which added angles applied.
+- **Codex-host posture.** The helper's codex engine (a bounded read-only `codex exec` in an empty workspace) is permitted on both hosts.
 - **Fail-closed bundles.** The helper refuses a bundle carrying secret-shaped or sensitive content, and that refusal is not overridable. When the refused content is legitimate (a vendored test fixture, a seeded credential in test data), split the review into coherent targets: build a temporary review head without the refused paths, review the authored remainder against the same base, and verify the excluded part deterministically (a byte pin against upstream, its own test suite). Record the split and its verification in the adjudication.
 - **Helper location.** Invoke the helper from a checkout that carries it. When the review head does not (the vendored tree is itself excluded or under review), run the helper by absolute path from a checkout outside the reviewed one, with the reviewed worktree as the working directory.
 
@@ -43,7 +44,7 @@ One helper invocation reviews the frozen diff with both families in parallel. Th
 
 ## Adjudicate
 
-The helper's JSON report is the report contract. Findings anchored to files the diff did not change are dropped by the helper before it reports, so expect no finding outside the frozen diff.
+The helper's JSON report is the report contract; it drops findings outside the frozen diff before reporting.
 
 Verify every accepted finding against the real code path before routing a fix, and refute only with evidence. Classify each in the vendored scope governor's vocabulary (`skills/autoreview/SKILL.md`, Scope Governor): **in-scope blocker**, **follow-up**, or **stop-and-escalate**. An in-scope blocker routes as a fix to whoever owns the module: a run's builder, or a fixer the caller dispatches. A finding that requires a design change returns to the orchestrator before any code change.
 
@@ -63,4 +64,4 @@ A clean completion is recorded where GitHub reads it, never as a PR comment: pos
       -f state=success -f context=bottega/review \
       -f description="reviewed against base <reviewed-base-sha>"
 
-A status stays on the commit it was posted against; a new head simply carries no status of its own. That is what makes it a reviewed marker: it can never describe a head it was not posted on. It says nothing about any other head, and nothing about a base that moved after the review, which is why the base SHA is part of it and why every reader validates both (`skills/land` Entry). Post it once the reviewed head exists on the remote: land posts immediately after its clean round; a run posts at Deliver, after every accepted head reaches the remote: before the PR opens, and after every post-open repair push.
+Post it once the reviewed head exists on the remote: land immediately after its clean round; a run at Deliver, before the PR opens, and after every post-open repair push. Readers validate the head and the named base per `skills/land` Entry.
