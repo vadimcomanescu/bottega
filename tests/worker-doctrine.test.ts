@@ -125,7 +125,7 @@ describe("worker doctrine boundaries", () => {
     expect(reviewDispatch).toMatch(/review engines.*report/i);
     expect(reviewDispatch).toMatch(/Fable performs this reconciliation/i);
     expect(phase(run, 6)).toMatch(/review engines verify conformance/i);
-    expect(phase(run, 6)).toMatch(/Fable performs the final architecture step/i);
+    expect(phase(run, 6)).toMatch(/orchestrator performs the final architecture step/i);
     expect(phase(run, 6)).toMatch(/not the only verifier of the design it authored/i);
 
     expect(qa).toMatch(/Verify the product as a user/i);
