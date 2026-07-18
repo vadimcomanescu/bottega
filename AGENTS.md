@@ -1,6 +1,6 @@
 # bottega
 
-Autonomous issue-to-PR runs for Claude Code: `/bottega:run` takes a task or issue to a delivered PR, and the phases it sequences are also available on their own. Read `README.md` for the model; this file is the working agreement for agents inside this repo.
+Autonomous issue-to-PR runs for Claude Code: `/bottega:run` takes a task or issue to a delivered PR, and spec, review, land, improve, and setup are also available on their own. Read `README.md` for the model; this file is the working agreement for agents inside this repo.
 
 ## Map
 

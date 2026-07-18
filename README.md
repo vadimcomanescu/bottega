@@ -1,6 +1,6 @@
 # bottega
 
-Autonomous issue-to-PR runs for Claude Code. `/bottega:run` takes a task, bug, or GitHub issue to a reviewed, evidence-backed pull request; the phases it sequences are also available on their own.
+Autonomous issue-to-PR runs for Claude Code. `/bottega:run` takes a task, bug, or GitHub issue to a reviewed, evidence-backed pull request; spec, review, land, improve, and setup are also available on their own.
 
 ```
 /plugin marketplace add vadimcomanescu/bottega
