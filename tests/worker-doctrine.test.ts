@@ -14,9 +14,16 @@ function phase(text: string, number: number): string {
   return text.slice(start, end < 0 ? undefined : end);
 }
 
+function section(text: string, heading: string): string {
+  const start = text.indexOf(`## ${heading}`);
+  const end = text.indexOf("\n## ", start + 1);
+  return text.slice(start, end < 0 ? undefined : end);
+}
+
 const run = read("skills/run/SKILL.md");
 const spec = read("skills/spec/SKILL.md");
 const specFormat = read("skills/spec/references/spec-format.md");
+const specFloor = section(specFormat, "The floor");
 const implementing = read("skills/implementing/SKILL.md");
 const design = read("skills/codebase-design/SKILL.md");
 const panelSkill = read("skills/panel/SKILL.md");
@@ -199,10 +206,11 @@ describe("worker doctrine boundaries", () => {
   it("routes run's front half to the spec skill and cleans spec branches after required checks", () => {
     expect(existsSync(join(ROOT, "skills/spec/references/spec-format.md"))).toBe(true);
     expect(phase(run, 2)).toMatch(/Explore and grill.*method in.*bottega:spec/i);
+    expect(phase(run, 3)).toMatch(/Present the spec per.*bottega:spec/i);
     expect(phase(run, 3)).toMatch(/spec-format\.md/);
     expect(phase(run, 8)).toMatch(/required checks/i);
     expect(phase(run, 8)).toMatch(
-      /parent issue linked a `bottega\/spec-<slug>` branch, delete that branch, local and remote/i,
+      /session learns the PR merged deletes.*`bottega\/spec-<slug>` branch the delivered ticket's parent issue linked/i,
     );
   });
 
@@ -225,7 +233,7 @@ describe("worker doctrine boundaries", () => {
       /Decisions.*default.*Flag every default/i,
       /Out of scope/i,
     ]) {
-      expect(specFormat).toMatch(floorPart);
+      expect(specFloor).toMatch(floorPart);
     }
     for (const proseRule of [
       /Lead with the decision/i,
