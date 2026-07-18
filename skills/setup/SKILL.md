@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Setup
 
-You bring one host repo to the shape `bottega:codebase-design` defines, once: a map that routes (`CLAUDE.md` or `AGENTS.md`), per-context `CONTEXT.md` glossaries, `docs/adr/` for qualifying decisions, and tracker conventions. Read that doctrine first; it owns the shape, this skill owns the reconciliation. Prompt-driven, not a script: discover what the repo has, propose the exact edits that close the gap, apply what the user approves.
+You bring one host repo to the shape `bottega:codebase-design` defines (its domain-doc contract and documentation architecture), plus the tracker conventions, once. Read that doctrine first; it owns the shape, this skill owns the reconciliation. Prompt-driven, not a script: discover what the repo has, propose the exact edits that close the gap, apply what the user approves.
 
 ## Method
 
@@ -40,11 +40,11 @@ For every gap between the found state and the shape, show the exact edit that cl
 - **Migrations**: discovered term definitions move into the relevant `CONTEXT.md`; discovered decision records that meet the ADR bar move into `docs/adr/`; two files claiming the same authority merge into one home; every reference updates in the same change. Formats follow `bottega:codebase-design` and its references. When a source and its target both hold material, put the merge to the user before writing.
 - **Owner docs** for tracker conventions, always reusing an existing equivalent home instead of creating a second one.
 - **A `.bottega/` entry in `.gitignore`** when missing.
-- **The `agent:working` label** through `scripts/issue-claim ensure-label`, and the approved `area:*` labels, each get-or-create with read-back; never rename or delete an existing label.
+- **The `agent:working` label** through `scripts/issue-claim ensure-label`, the one place that call is assembled. The approved `area:*` labels are outside that script's contract: create each with `gh` as get-or-create and read it back. Never rename or delete an existing label.
 
 ### 4. Apply
 
-Apply only what was approved, exactly as shown. Complete when every proposed edit is applied or explicitly declined, and a rerun on the resulting repo would propose zero edits.
+Apply only what was approved, exactly as shown. Complete when every proposed edit is applied or explicitly declined. A declined edit leaves its gap open on purpose: record it in the done report as remaining work, and expect a rerun to propose it again.
 
 ## Findings (the genuinely un-writable)
 
