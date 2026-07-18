@@ -6,7 +6,7 @@ user-invocable: false
 
 # Codebase design
 
-Model the domain before arranging files. Architecture should make the required behavior easy to express, hard to misuse, and inexpensive to change.
+Model the domain before arranging files.
 
 ## Domain model
 

@@ -11,7 +11,7 @@
     {
       "name": "bottega",
       "source": "./",
-      "description": "/bottega:run is the whole pipeline: the orchestrator reads the codebase, agrees a spec with the user in the conversation, puts costly decisions to a panel, builds with worker agents, has the integrated diff reviewed by both model families, and delivers a PR with QA evidence. The user appears twice: the spec OK and the merge; a request that waives sign-off in its own words drops the first. /bottega:spec stops at agreed tickets a later run picks up, and review, land, improve, and setup are available on their own.",
+      "description": "/bottega:run is the whole pipeline: the orchestrator reads the codebase, agrees a spec with the user in the conversation, puts costly decisions to a panel, builds with worker agents, has the integrated diff reviewed by both model families, and delivers a PR with QA evidence. The user appears twice: the spec OK and the merge; a request that waives sign-off in its own words drops the first. /bottega:spec stops at agreed tickets a later run picks up, and review, land, improve, panel, and setup are available on their own.",
       "author": {
         "name": "Vadim Comanescu"
       },

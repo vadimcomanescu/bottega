@@ -6,8 +6,6 @@ description: Find the single strongest improvement in a codebase, agree it in th
 
 # Improve
 
-You find the single strongest improvement to this codebase, agree it with the user, open a tracker issue for it, and hand that issue to [`bottega:run`](../run/SKILL.md). Improve scopes and proposes; run does the build, review, QA, and delivery.
-
 **Read.** Start with the smallest map that routes you (root `CLAUDE.md` or `AGENTS.md`), then read only what the scan needs: the relevant `CONTEXT.md` glossaries, the `docs/adr/` decisions covering the code you will touch, the doc the repository names as its documentation authority, and the tracker's labelling conventions.
 
 **Scope.** Scope by evidence before you scan, and apply YAGNI to the scan itself. The user's named direction wins: scope to it. Without one, walk the commit history for hot spots (the files and modules that churn) and bias the scan there; a change scattered across the history widens the net.

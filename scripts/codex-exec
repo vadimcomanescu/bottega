@@ -10,7 +10,11 @@
 //   codex-exec --model <model> --effort <level> \
 //              --sandbox <read-only|danger-full-access> --cwd <worktree> \
 //              --brief <file> --out <file> --events <file> \
-//              [--schema <file>] [--resume <thread-id>] [--dry-run]
+//              [--schema <file>] [--resume <thread-id>] [--search] [--dry-run]
+//
+// --search enables codex's native web_search tool; it composes with any
+// sandbox, so a read-only seat can ground itself on the web without
+// gaining write or shell network access.
 //
 // codex reads the brief file on stdin; the --json event stream lands in the
 // events file; the final message lands in the out file. A run whose events
@@ -44,6 +48,7 @@ try {
       events: { type: "string" },
       schema: { type: "string" },
       resume: { type: "string" },
+      search: { type: "boolean", default: false },
       "dry-run": { type: "boolean", default: false },
     },
   }));
@@ -95,6 +100,7 @@ if (values.resume) {
 } else {
   argv.push("-s", values.sandbox, "-C", values.cwd);
 }
+if (values.search) argv.push("-c", "tools.web_search=true");
 argv.push("--json", "-o", values.out);
 if (values.schema) argv.push("--output-schema", values.schema);
 if (values.resume) argv.push("-"); // resume's read-the-brief-from-stdin marker

@@ -18,7 +18,6 @@ const run = read("skills/run/SKILL.md");
 const implementing = read("skills/implementing/SKILL.md");
 const design = read("skills/codebase-design/SKILL.md");
 const panelSkill = read("skills/panel/SKILL.md");
-const panelWorkflow = read("skills/panel/panel.js");
 const writingSkill = read("skills/writing-great-skills/SKILL.md");
 const qa = read("agents/qa.md");
 const codexDispatch = read("skills/run/references/codex-dispatch.md");
@@ -29,8 +28,6 @@ describe("worker doctrine boundaries", () => {
   it("keeps reusable methods in skills and single-role identity in agents", () => {
     expect(readdirSync(join(ROOT, "agents")).sort()).toEqual([
       "builder.md",
-      "panel-judge.md",
-      "panelist.md",
       "qa.md",
     ]);
     expect(
@@ -57,22 +54,17 @@ describe("worker doctrine boundaries", () => {
     expect(codexDispatch).not.toMatch(/reviewer|skills\/reviewing/i);
 
     expect(existsSync(join(ROOT, "skills/panel/SKILL.md"))).toBe(true);
-    expect(existsSync(join(ROOT, "agents/panelist.md"))).toBe(true);
-    expect(existsSync(join(ROOT, "agents/panel-judge.md"))).toBe(true);
-    expect(panelWorkflow).toContain("agentType: 'bottega:panelist'");
-    expect(panelWorkflow).toContain("agentType: 'bottega:panel-judge'");
-
     expect(existsSync(join(ROOT, "agents/qa.md"))).toBe(true);
     expect(existsSync(join(ROOT, "skills/qa/SKILL.md"))).toBe(false);
   });
 
   it("keeps internal methods model-loadable and out of the user command list", () => {
-    for (const skill of [implementing, design, panelSkill, writingSkill]) {
+    for (const skill of [implementing, design, writingSkill]) {
       const frontmatter = skill.split("---")[1];
       expect(frontmatter).toContain("user-invocable: false");
       expect(frontmatter).not.toContain("disable-model-invocation: true");
     }
-    for (const entry of [run, reviewDispatch, land]) {
+    for (const entry of [run, reviewDispatch, land, panelSkill]) {
       expect(entry).not.toContain("user-invocable: false");
     }
   });
@@ -106,7 +98,7 @@ describe("worker doctrine boundaries", () => {
     expect(implementing).toMatch(/orchestrator owns the domain model, architecture, and interfaces/i);
     expect(implementing).toMatch(/simplest correct implementation behind them/i);
     expect(implementing).toMatch(/different ownership.*interface change.*dependency direction.*domain meaning.*stop and ask the orchestrator/i);
-    expect(implementing).toMatch(/supplied technology skills/i);
+    expect(implementing).toMatch(/technology skill supplied with the dispatch/i);
     expect(implementing).toMatch(/installed version and primary vendor documentation/i);
     expect(implementing).toMatch(/browser or desktop drive is optional.*independent product verdict belongs to QA/i);
     expect(implementing).not.toMatch(/recording|scenario verdict/i);
@@ -135,12 +127,22 @@ describe("worker doctrine boundaries", () => {
     expect(phase(run, 7)).toMatch(/wrong spec, domain model, interface, or architecture returns to Plan/i);
   });
 
-  it("keeps independently invoked workflows as real skills and wires their assets", () => {
-    expect(panelSkill).toContain("skills/panel/panel.js");
+  it("keeps the panel a portable skill: CLI seats, blinded drafts, a compare-only judge, caller synthesis", () => {
     expect(panelSkill).toMatch(/The panel does not vote or decide/i);
-    expect(panelWorkflow).toContain("--model gpt-5.6-sol --effort max");
-    expect(existsSync(join(ROOT, "skills/run/references/panel.md"))).toBe(false);
-    expect(existsSync(join(ROOT, "skills/run/assets/panel.js"))).toBe(false);
+    expect(panelSkill).toContain("scripts/codex-exec");
+    expect(panelSkill).toContain("--model gpt-5.6-sol --effort max");
+    expect(panelSkill).toContain("claude -p");
+    for (const angle of [
+      /consensus/i,
+      /contradictions/i,
+      /partial coverage/i,
+      /unique insights/i,
+      /blind spots/i,
+    ]) {
+      expect(panelSkill).toMatch(angle);
+    }
+    expect(panelSkill).toMatch(/Two or more drafts: proceed/i);
+    expect(panelSkill).toMatch(/Do not answer the task, merge the drafts, vote, grade, or pick one/i);
   });
 
   it("keeps attribution badges out and caps Codex routing at Sol", () => {
@@ -148,7 +150,7 @@ describe("worker doctrine boundaries", () => {
     expect(read("AGENTS.md")).toMatch(/Omit tool, model, and vendor attribution badges or footers/i);
     expect(run).toMatch(/Codex workers never use a multi-agent model tier/i);
     expect(run).toMatch(/Sol at max effort is the ceiling/i);
-    const codexModels = [...`${run}\n${panelWorkflow}`.matchAll(/gpt-5\.6-[a-z-]+/g)].map(
+    const codexModels = [...`${run}\n${panelSkill}`.matchAll(/gpt-5\.6-[a-z-]+/g)].map(
       ([model]) => model,
     );
     expect(new Set(codexModels)).toEqual(new Set(["gpt-5.6-sol"]));

@@ -6,7 +6,7 @@ description: Prepare a task or issue for delivery without building it: discover 
 
 # Spec
 
-You prepare one piece of work without building it: discover its unknowns, grill its open decisions, agree a spec with the user, then publish a parent tracker issue and cut child tickets from it. This is the cold mode: spec shapes the work and stops. A later `/bottega:run <ticket-url>` from any session picks up a ticket and does the build, review, QA, and delivery.
+A later `/bottega:run <ticket-url>` from any session does the build, review, QA, and delivery; this session stops at the tickets.
 
 ## Method
 
@@ -16,4 +16,4 @@ You prepare one piece of work without building it: discover its unknowns, grill 
 
 **3. Ask once: push to tickets?** One question, then wait.
 
-**4. Publish.** On yes, open one parent tracker issue carrying the spec, then cut a child ticket for each [coherent unit](../codebase-design/SKILL.md) one run delivers. Each ticket carries its unit's slice of the spec per [references/spec-format.md](references/spec-format.md) (that unit's what changes, acceptance criteria, and definition of done), references the parent, states its dependencies on other tickets, and is area-labelled per the host's conventions. Spec never claims a ticket; a run acquires its own claim. Report the parent and the tickets. The session is done.
+**4. Publish.** On yes, open one parent tracker issue carrying the spec, then cut a child ticket for each [coherent unit](../codebase-design/SKILL.md) one run delivers. Each ticket carries its unit's slice of the spec per [references/spec-format.md](references/spec-format.md) (that unit's what changes, acceptance criteria, and definition of done), references the parent, states its dependencies on other tickets, and is area-labelled per the host's conventions. Spec never claims a ticket; a run acquires its own claim. Report the parent and the tickets.

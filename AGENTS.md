@@ -1,6 +1,6 @@
 # bottega
 
-Autonomous issue-to-PR runs for Claude Code: `/bottega:run` takes a task or issue to a delivered PR, and spec, review, land, improve, and setup are also available on their own. Read `README.md` for the model; this file is the working agreement for agents inside this repo.
+Autonomous issue-to-PR runs for Claude Code: `/bottega:run` takes a task or issue to a delivered PR, and spec, review, land, improve, panel, and setup are also available on their own. Read `README.md` for the model; this file is the working agreement for agents inside this repo.
 
 ## Map
 
@@ -15,10 +15,10 @@ Autonomous issue-to-PR runs for Claude Code: `/bottega:run` takes a task or issu
 | `skills/autoreview` | Vendored review helper from openclaw/agent-skills; `VENDOR` pins it | Updating the vendored copy only |
 | `skills/review/SKILL.md` | `/bottega:review`, the cross-family review gate; run's Review phase and land both call it | Anything touches review inputs, adjudication, or caps |
 | `skills/land/SKILL.md` | `/bottega:land`, an open PR to verified-mergeable; owns the GitHub review surface | Anything touches PR threads, claims, stops, or merge |
-| `skills/panel` | Blinded comparison for one costly plan decision | Changing panel seats or judging |
+| `skills/panel/SKILL.md` | `/bottega:panel`, independent cross-family drafts and a compare-only judge for one costly decision; run's Plan phase calls it too | Changing panel seats or judging |
 | `skills/codebase-design` | House design doctrine: domain model, deep modules, documentation architecture | Any design, review, or setup doctrine question |
 | `skills/writing-great-skills` | Vendored skill-writing reference | Creating or editing any skill or agent file |
-| `agents/` | Worker identities: builder, QA, panelist, panel judge | Changing a worker's authority or tools |
+| `agents/` | Worker identities: builder, QA | Changing a worker's authority or tools |
 | `scripts/` | Single assembly points for external calls: `codex-exec`, `pr-threads`, `pr-claim`, `issue-claim`; each header states its contract | Any codex launch or GitHub mutation mechanics |
 | `hooks/` | Route guard (PreToolUse) and entry guard (UserPromptSubmit); each file states its own policy | Changing what dispatches or prompts are denied |
 | `docs/adr/` | Append-only decision records | Understanding why a current rule exists before changing it |

@@ -238,19 +238,6 @@ const b = await agent('run the gates', { label: 'gates', model: 'sonnet', effort
     expect(run(ROUTE_GUARD, workflowEvent({ script }))).toBe("");
   });
 
-  it("allows the shipped panel script, fable pins and all", () => {
-    const panel = join(import.meta.dirname, "..", "skills", "panel", "panel.js");
-    expect(run(ROUTE_GUARD, workflowEvent({ scriptPath: panel }))).toBe("");
-  });
-
-  it("denies fable outside the panel even when the script mentions the panel", () => {
-    const script = `export const meta = { name: 'review', description: 'like the panel', phases: [] }
-// not the panel: the meta name is what passes, never a mention
-const r = await agent('panel-style judging', { model: 'fable' })
-`;
-    expect(denialOf(run(ROUTE_GUARD, workflowEvent({ script })))).toMatch(/routes an agent to fable/);
-  });
-
   it("resolves a relative scriptPath against the event cwd", () => {
     const dir = repoWithRun(OWNER);
     writeFileSync(
