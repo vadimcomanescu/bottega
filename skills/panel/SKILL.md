@@ -13,8 +13,8 @@ Run the bundled workflow:
                        cwd: <absolute repository root>,
                        codexExec: <absolute path to scripts/codex-exec> } })
 
-The task contains the approved spec, relevant constraints, and repository pointers. Do not include Fable's preferred answer. If a panelist would need the current conversation to understand the question, complete the task prompt before dispatch.
+The task contains the approved spec, relevant constraints, and repository pointers. Do not include the orchestrator's preferred answer. If a panelist would need the current conversation to understand the question, complete the task prompt before dispatch.
 
-The workflow collects one Sol draft and one Fable draft independently, blinds their identities, and asks a compare-only judge to identify agreement, contradictions, partial coverage, unique points, and omissions. Fable reads the drafts and comparison, resolves disagreements by evidence, and makes the decision. The panel does not vote or decide.
+The workflow collects one sol draft and one fable draft independently, blinds their identities, and asks a compare-only judge to identify agreement, contradictions, partial coverage, unique points, and omissions. The orchestrator reads the drafts and comparison, resolves disagreements by evidence, and makes the decision. The panel does not vote or decide.
 
 Record the decision and any material change caused by the panel in the run brief and PR.
