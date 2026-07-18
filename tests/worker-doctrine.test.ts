@@ -16,6 +16,9 @@ function phase(text: string, number: number): string {
 
 function section(text: string, heading: string): string {
   const start = text.indexOf(`## ${heading}`);
+  if (start < 0) {
+    throw new Error(`Section not found: ${heading}`);
+  }
   const end = text.indexOf("\n## ", start + 1);
   return text.slice(start, end < 0 ? undefined : end);
 }
@@ -203,7 +206,7 @@ describe("worker doctrine boundaries", () => {
     expect(phase(run, 8)).toMatch(/changes no tracked file/i);
   });
 
-  it("routes run's front half to the spec skill and cleans spec branches after required checks", () => {
+  it("routes run's front half to the spec skill and deletes the spec branch when the PR merges", () => {
     expect(existsSync(join(ROOT, "skills/spec/references/spec-format.md"))).toBe(true);
     expect(phase(run, 2)).toMatch(/Explore and grill.*method in.*bottega:spec/i);
     expect(phase(run, 3)).toMatch(/Present the spec per.*bottega:spec/i);
