@@ -14,14 +14,14 @@ Autonomous issue-to-PR runs for Claude Code. `/bottega:run` takes a task, bug, o
 | Command | What it does |
 | --- | --- |
 | `/bottega:run <task, or issue URL>` | The whole pipeline: discovery, spec, build, review, QA, delivered PR |
-| `/bottega:spec <task, issue URL, or direction>` | The front half only: discover, grill the unknowns, agree the spec, file a parent issue plus dependency-ordered child tickets for later runs |
+| `/bottega:spec <task, issue URL, or direction>` | The shared front half, standalone: explore, grill the unknowns, agree the spec, file a parent issue plus dependency-ordered child tickets for later runs |
 | `/bottega:improve [area or direction]` | Find the single strongest improvement, agree it in the conversation, file it, take it through a run |
 | `/bottega:review <PR, ref range, or worktree>` | The cross-family review gate, standalone |
 | `/bottega:land <PR number>` | Take an open PR through review-fix rounds to verified-mergeable |
 | `/bottega:panel <the decision>` | Independent cross-family drafts and a compare-only judge on one costly decision; the caller synthesizes |
 | `/bottega:setup` | Once per repo: reconcile the host with bottega's methodology |
 
-Run and spec are the two operating modes of the same front half: run delivers now; spec stops at agreed tickets that any later `/bottega:run <ticket>` picks up.
+Run and spec are two entry points to one method (explore, grill, agree the spec), defined once in [`skills/spec`](skills/spec/SKILL.md). Run carries it through to a delivered PR; spec stops at agreed tickets that any later `/bottega:run <ticket>` picks up.
 
 ## What it does
 
