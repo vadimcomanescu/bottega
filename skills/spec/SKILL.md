@@ -12,7 +12,7 @@ This method has two entry points: you, invoked directly, and a run's front half.
 
 ## 1. Explore
 
-Read the repo facts first: the smallest map that routes the task (root `CLAUDE.md` or `AGENTS.md`), then only the `CONTEXT.md` glossaries and `docs/adr/` decisions the work touches. Current docs only; archived and superseded ones are history.
+Read the repo facts first: the smallest map that routes the task (root `CLAUDE.md` or `AGENTS.md`), then `CONTEXT-MAP.md` if present, then only the `CONTEXT.md` glossaries and `docs/adr/` decisions the work touches. Current docs only; archived and superseded ones are history.
 
 Then fan out three reader jobs, each sharply divided and under a stated budget:
 
