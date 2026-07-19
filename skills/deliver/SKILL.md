@@ -1,12 +1,12 @@
 ---
 name: deliver
-description: Closing method a run's Deliver phase routes to: confirm the accepted head, file followups, open the PR under the reader contract, watch its checks, route repairs. Not user-invocable.
+description: The closing method a run's Deliver phase routes to. Confirms the accepted head, publishes evidence, files followups, opens the PR under the reader contract, watches checks and mergeability. Not user-invocable.
 user-invocable: false
 ---
 
 # Deliver
 
-The closing method a run routes to at its Deliver phase, from the head the orchestrator accepted and QA verified to a PR that is open, readable, its checks green, and its deferred work filed. Deliver changes no tracked file in the host repo, so the PR publishes the exact head review accepted and QA verified. The GitHub review surface after the PR opens is `bottega:land`, not here.
+The closing method a run routes to at its Deliver phase, from the accepted, QA-verified head to a PR that is open, readable, its checks green, its deferred work filed, and mergeable with its base. The GitHub review surface after the PR opens is `bottega:land`, not here.
 
 ## Reader contract
 
@@ -33,8 +33,8 @@ Run these in order; a followup and its evidence must exist before the PR body li
    - how panel evidence changed the plan, when a panel ran;
    - who built and who reviewed: models, rounds, findings, verdicts, refutations;
    - the orchestrator's architecture acceptance;
-   - the QA evidence inline.
+   - the QA evidence, embedded or linked per the evidence reference.
 
    A Followups section links the issues just filed and nothing else. Keep tool, model, and vendor attribution badges and footers out.
 
-6. **Watch checks and mergeability.** After the PR opens, watch every check to completion as tracked background Bash (`gh pr checks <PR> --watch`), excluding the `bottega/review` status you posted, which is your own marker and not a host check; distinguish a PR with no checks from one with a failing check. Confirm the PR is cleanly mergeable with its base (`gh pr view <PR> --json mergeStateStatus`) when it opens and again whenever the watch ends. Two conditions are run work and take the same repair path a QA implementation failure takes (`bottega:run` Build and Review phases): a red check the diff caused, and a `CONFLICTING` merge state. The owning builder resolves it (a conflict by merging the base branch into the run branch and resolving it), gates run, a single-engine delta review from the opposite family and the orchestrator's acceptance clear the change, then the repaired head is pushed, re-marked reviewed (step 2), and its checks and mergeability re-checked. A red check outside the diff's control (infrastructure) is reported with its evidence, never guessed at. That repair runs in those phases, never as edits here. Deliver ends only when the checks are green and the PR is mergeable.
+6. **Watch checks and mergeability.** After the PR opens, watch every check to completion as tracked background Bash (`gh pr checks <PR> --watch`), excluding the `bottega/review` status you posted, which is your own marker and not a host check; distinguish a PR with no checks from one with a failing check. Confirm the PR is cleanly mergeable with its base (`gh pr view <PR> --json mergeable`) when it opens and again whenever the watch ends. Two conditions are run work: a red check the diff caused, and a `CONFLICTING` merge state. Route each through the full implementation-repair path `bottega:run` phase 7 defines (builder fix, gates, single-engine delta review from the opposite family, orchestrator acceptance, and fresh QA); a conflict's fix is the builder merging the base branch into the run branch and resolving it. Deliver's own part is the tail: the repaired, re-accepted, re-verified head is pushed, re-marked reviewed (step 2), and its checks and mergeability re-watched. A red check outside the diff's control (infrastructure) is reported with its evidence, never guessed at. That repair runs in those phases, never as edits here. Deliver ends only when the checks are green and the PR is mergeable.
