@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync, readlinkSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { parse as parseYaml } from "yaml";
 
 const ROOT = join(import.meta.dirname, "..");
 
@@ -27,7 +28,7 @@ const run = read("skills/run/SKILL.md");
 const deliver = read("skills/deliver/SKILL.md");
 const spec = read("skills/spec/SKILL.md");
 const specFormat = read("skills/spec/references/spec-format.md");
-const specFloor = section(specFormat, "The floor");
+const specSpine = section(specFormat, "The spine");
 const improve = read("skills/improve/SKILL.md");
 const implementing = read("skills/implementing/SKILL.md");
 const design = read("skills/codebase-design/SKILL.md");
@@ -237,29 +238,74 @@ describe("worker doctrine boundaries", () => {
     }
   });
 
-  it("pins the spec floor and its prose rules", () => {
-    for (const floorPart of [
-      /Problem and what changes/i,
+  it("runs the field pass unconditionally, proposes before grilling, and presents live", () => {
+    expect(spec).toMatch(/Run it on any product-shaped work/i);
+    expect(spec).toMatch(/not gated on the repo holding no precedent/i);
+    expect(spec).toMatch(/## 2\. Propose independently/);
+    expect(spec).toMatch(/Trigger, all three together/i);
+    expect(spec).toMatch(/at least two credible product directions survive/i);
+    expect(spec).toMatch(/expensive to undo or hard to notice later/i);
+    expect(spec).toContain("../panel/SKILL.md");
+    expect(spec).toMatch(/Present the spec as a live shared document/i);
+    expect(spec).toContain("references/live-review.md");
+    expect(spec).toMatch(/same review happens in the conversation/i);
+    expect(spec).toMatch(/approval may arrive as a comment in the document/i);
+  });
+
+  it("pins the spec spine, precedent rule, and prose rules", () => {
+    for (const spinePart of [
+      /Problem to solve/i,
+      /How we measure success/i,
+      /The launch post/i,
+      /Decisions.*veto any decision/i,
+      /Details/i,
       /Acceptance criteria/i,
-      /Decisions.*default.*Flag every default/i,
       /Out of scope/i,
+      /Deferred to the build/i,
     ]) {
-      expect(specFloor).toMatch(floorPart);
+      expect(specSpine).toMatch(spinePart);
     }
+    expect(specFormat).toMatch(/floor, not a template/i);
+    expect(specFormat).toMatch(/## The precedent rule/);
+    expect(specFormat).toMatch(/names the standard way the field already solves/i);
+    expect(specFormat).toMatch(/shows the searches that came up empty/i);
     for (const proseRule of [
       /Lead with the decision/i,
       /One idea per sentence/i,
-      /one sentence of intent plus at most one qualifier/i,
       /Cut hedges and intensifiers/i,
       /Prefer the verb to the nominalization/i,
       /No file paths and no code snippets.*prototype-derived snippet/i,
-      /No user-story lists/i,
+      /names whose problem it solves when the feature serves users whose problems genuinely differ/i,
     ]) {
       expect(specFormat).toMatch(proseRule);
     }
     expect(specFormat).toMatch(/announcing the finished behavior/);
     expect(specFormat).toMatch(/never a label the text does not itself define/);
     expect(improve).toMatch(/Write for a reader who was not in this session/);
+  });
+
+  it("makes the review flag hand-built solutions to solved problems", () => {
+    expect(reviewDispatch).toMatch(
+      /hand-built implementation of a problem a standard, available solution already solves/i,
+    );
+  });
+
+  it("parses every skill frontmatter under strict YAML", () => {
+    const skillDirs = readdirSync(join(ROOT, "skills"), { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name);
+    for (const dir of skillDirs) {
+      const file = join("skills", dir, "SKILL.md");
+      if (!existsSync(join(ROOT, file))) {
+        continue;
+      }
+      const text = read(file);
+      const open = text.indexOf("---");
+      const close = text.indexOf("\n---", open + 3);
+      expect(open, `${file} has no frontmatter`).toBe(0);
+      const frontmatter = text.slice(open + 3, close);
+      expect(() => parseYaml(frontmatter, { strict: true }), file).not.toThrow();
+    }
   });
 
   it("pins Deliver's reader, evidence, and follow-up contracts", () => {
