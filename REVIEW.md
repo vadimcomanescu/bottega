@@ -24,7 +24,7 @@ The order in `skills/run/SKILL.md` steps 5 to 8 is load-bearing: gates green aft
 
 ## Cleanup
 
-Run state in a host is exactly the worktree, the git-private run brief, and the gitignored owner file under `.bottega/`, all removed at delivery, plus the evidence branch deleted after merge. Reject a change that adds a new host-side artifact or drops a removal step.
+Run state in a host is the git-private run brief and the gitignored owner file under `.bottega/`; the worktree and run state are removed at delivery. The evidence branch `bottega/evidence-<slug>` is permanent: it never merges and is never deleted. Reject a change that adds any other host-side artifact or drops one of the remaining removal steps.
 
 ## Harness duplication
 

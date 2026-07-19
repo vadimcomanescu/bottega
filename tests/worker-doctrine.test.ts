@@ -24,9 +24,11 @@ function section(text: string, heading: string): string {
 }
 
 const run = read("skills/run/SKILL.md");
+const deliver = read("skills/deliver/SKILL.md");
 const spec = read("skills/spec/SKILL.md");
 const specFormat = read("skills/spec/references/spec-format.md");
 const specFloor = section(specFormat, "The floor");
+const improve = read("skills/improve/SKILL.md");
 const implementing = read("skills/implementing/SKILL.md");
 const design = read("skills/codebase-design/SKILL.md");
 const panelSkill = read("skills/panel/SKILL.md");
@@ -50,6 +52,7 @@ describe("worker doctrine boundaries", () => {
     ).toEqual([
       "autoreview",
       "codebase-design",
+      "deliver",
       "implementing",
       "improve",
       "land",
@@ -71,7 +74,7 @@ describe("worker doctrine boundaries", () => {
   });
 
   it("keeps internal methods model-loadable and out of the user command list", () => {
-    for (const skill of [implementing, design, writingSkill]) {
+    for (const skill of [deliver, implementing, design, writingSkill]) {
       const frontmatter = skill.split("---")[1];
       expect(frontmatter).toContain("user-invocable: false");
       expect(frontmatter).not.toContain("disable-model-invocation: true");
@@ -158,7 +161,7 @@ describe("worker doctrine boundaries", () => {
   });
 
   it("keeps attribution badges out and caps Codex routing at Sol", () => {
-    expect(phase(run, 8)).toMatch(/attribution badges or footers out of the PR body/i);
+    expect(deliver).toMatch(/attribution badges and footers out/i);
     expect(read("AGENTS.md")).toMatch(/Omit tool, model, and vendor attribution badges or footers/i);
     expect(run).toMatch(/Codex workers never use a multi-agent model tier/i);
     expect(run).toMatch(/Sol at max effort is the ceiling/i);
@@ -211,7 +214,10 @@ describe("worker doctrine boundaries", () => {
     expect(phase(run, 2)).toMatch(/Explore and grill.*method in.*bottega:spec/i);
     expect(phase(run, 3)).toMatch(/Present the spec per.*bottega:spec/i);
     expect(phase(run, 3)).toMatch(/spec-format\.md/);
-    expect(phase(run, 8)).toMatch(/required checks/i);
+    expect(phase(run, 8)).toMatch(/bottega:deliver/);
+    expect(deliver).toMatch(/gh pr checks <PR> --watch/);
+    expect(deliver).toMatch(/excluding the `bottega\/review` status.*own marker/i);
+    expect(deliver).not.toMatch(/--required/);
     expect(phase(run, 8)).toMatch(
       /session learns the PR merged deletes, local and remote,.*`bottega\/spec-<slug>` branch the delivered ticket's parent issue linked/i,
     );
@@ -249,6 +255,24 @@ describe("worker doctrine boundaries", () => {
     ]) {
       expect(specFormat).toMatch(proseRule);
     }
+    expect(specFormat).toMatch(/Write for a reader who was not in this session/);
+    expect(improve).toMatch(/Write for a reader who was not in this session/);
+  });
+
+  it("pins Deliver's reader, evidence, and follow-up contracts", () => {
+    expect(deliver).toMatch(/Write for a reader who was not in the run and has not read the spec/);
+    expect(deliver).toMatch(/never use a label the document does not itself define/i);
+
+    const evidencePath = "skills/deliver/references/qa-evidence.md";
+    expect(existsSync(join(ROOT, evidencePath))).toBe(true);
+    const evidence = read(evidencePath);
+    expect(evidence).toMatch(/never deleted/i);
+    expect(evidence).toMatch(/blob page/i);
+    expect(evidence).toMatch(/raw URLs/i);
+
+    expect(deliver).toMatch(/gh pr create -F/);
+    expect(deliver).toMatch(/becomes one tracker issue/i);
+    expect(section(reviewDispatch, "Adjudicate")).toMatch(/follow-up.*deliver/i);
   });
 
   it("vendors the skill-writing reference model-invocable and linked for every runtime", () => {
@@ -293,7 +317,7 @@ describe("worker doctrine boundaries", () => {
     expect(land).toMatch(/Treat it as absent/i);
     expect(land).toMatch(/earlier commit of the PR: round 1 reviews the delta, `--base` that SHA/i);
     expect(land).toMatch(/Unresolved threads enter round 1 whatever the marker says/i);
-    expect(phase(run, 8)).toMatch(/post the `bottega\/review` success status on the accepted head, naming the reviewed base/i);
+    expect(deliver).toMatch(/post the `bottega\/review` success status on the accepted head, naming the reviewed base/i);
     expect(land).toMatch(/already on the PR when land starts.*enter round 1 as claimed findings/i);
     expect(land).toMatch(/three brief lines from `skills\/run`.*name every test you edit.*verbatim/i);
   });
