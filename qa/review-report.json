@@ -1,0 +1,117 @@
+{
+  "findings": [
+    {
+      "title": "deliver's frontmatter description has an unquoted colon, so the YAML frontmatter does not parse",
+      "body": "Reviewer: claude model=claude-opus-4-8 thinking=xhigh\n\n`description: Closing method a run's Deliver phase routes to: confirm the accepted head, ...` is an unquoted YAML plain scalar containing `\": \"` (colon + space). YAML forbids that sequence inside a plain scalar: the second colon is read as a mapping indicator, and the parser either errors (\"mapping values are not allowed in this context\") or, in Claude Code's loader, silently yields empty metadata for the skill.\n\nConsequence for this release: `skills/deliver` is routed-only (`user-invocable: false`, model-invocable), so its `description` is the only thing the model matches on when run phase 8 routes to it. With the frontmatter unparsed the skill ships with no name/description metadata in plugin 0.62.0, which is exactly the surface this patch adds. `tests/worker-doctrine.test.ts` cannot catch it: the new pins are substring checks on the raw text (`skill.split(\"---\")[1]`, `toContain(\"user-invocable: false\")`), not a YAML parse.\n\nSmallest fix: quote the value (`description: \"Closing method ...\"`) or drop the colon (\"routes to. Confirm the accepted head, ...\"). No other file in the diff needs to change.\n\nReference: https://code.claude.com/docs/en/skills and https://matrix.yaml.info/details/HU3P.html (invalid mapping in plain scalar).",
+      "priority": "P1",
+      "confidence": 0.72,
+      "category": "bug",
+      "code_location": {
+        "file_path": "skills/deliver/SKILL.md",
+        "line": 3
+      }
+    },
+    {
+      "title": "New test pins the absence of the removed `--required` flag, which the brief and house rules forbid",
+      "body": "Reviewer: claude model=claude-opus-4-8 thinking=xhigh\n\n`expect(deliver).not.toMatch(/--required/);` is a guard asserting that a removed thing stays absent. Two fixed rules in this run forbid it:\n\n- Brief, Tests bullet: \"Do not pin absences of removed things.\"\n- House rules binding every edited file: \"When a decision replaces an old direction, strip the old one completely; never add a guard asserting the removed thing stays absent.\"\n\nThe replacement direction is already pinned positively on the two lines above it (`gh pr checks <PR> --watch` and the `bottega/review` exclusion), so this line adds no coverage. It also fails for the wrong reason if deliver ever names an unrelated flag containing `--required`.\n\nFix: delete line 220. Nothing else in the test depends on it.",
+      "priority": "P2",
+      "confidence": 0.83,
+      "category": "maintainability",
+      "code_location": {
+        "file_path": "tests/worker-doctrine.test.ts",
+        "line": 220
+      }
+    },
+    {
+      "title": "Run phase 8's route restates deliver's mechanism, and restates its completion gate incorrectly",
+      "body": "Reviewer: claude model=claude-opus-4-8 thinking=xhigh\n\nPhase 8 is supposed to shrink to routing plus run-state lifecycle, the same shape as phase 6's route to review, with the route not duplicating mechanism. Two problems in the new sentence:\n\n1. \"Deliver changes no tracked file, so the PR publishes the accepted reviewed head\" is a near-verbatim restatement of deliver's own opening (\"Deliver changes no tracked file in the host repo, so the PR publishes the exact head review accepted and QA verified\"), which deliver then states a third time in its step 1 (\"deliver has changed no tracked file\"). The same clause now lives in three places; it should be stated once, in deliver.\n\n2. The handoff condition is \"When deliver reports the checks green\". Per the mid-run addendum, deliver ends only when the checks are green AND the PR is mergeable. Run therefore names a weaker completion condition than the method it routes to, and a reader following run alone would tear down the worktree and run state (which the conflict repair path needs) while the PR is still CONFLICTING.\n\nSmallest fix: drop the duplicated invariant and let the route name deliver's end state, e.g. \"When deliver reports done, clean up the run state\"; keep the invariant statement only in `skills/deliver/SKILL.md`.",
+      "priority": "P2",
+      "confidence": 0.6,
+      "category": "maintainability",
+      "code_location": {
+        "file_path": "skills/run/SKILL.md",
+        "line": 51
+      }
+    },
+    {
+      "title": "No pin for the mergeability clause added by the mid-run addendum",
+      "body": "Reviewer: claude model=claude-opus-4-8 thinking=xhigh\n\nEvery other new deliver doctrine clause got a pin in this diff: the reader contract, the permanent evidence branch, the public/private embed split, `gh pr create -F`, followup filing, and the watch-all-checks change. The addendum's fixed decision (confirm `gh pr view <PR> --json mergeStateStatus` when the PR opens and again when the watch ends; a `CONFLICTING` state is run work on the same repair path as a diff-caused red check; deliver ends only when checks are green and the PR is mergeable) is the newest and least-settled clause in the file and is pinned nowhere, so a later prose edit can silently drop it while the gate stays green.\n\nSmallest fix: one added assertion beside the existing watch pins, e.g. `expect(deliver).toMatch(/mergeStateStatus/)` and `expect(deliver).toMatch(/CONFLICTING/)`.",
+      "priority": "P3",
+      "confidence": 0.42,
+      "category": "test_gap",
+      "code_location": {
+        "file_path": "tests/worker-doctrine.test.ts",
+        "line": 219
+      }
+    },
+    {
+      "title": "Re-run QA after a diff-caused check repair",
+      "body": "Reviewer: codex model=gpt-5.6-sol fallback=gpt-5.6-terra thinking=high\n\nThis repair sequence pushes the repaired head immediately after gates, delta review, and orchestrator acceptance, then resumes delivery without fresh QA. Phase 7 explicitly requires fresh QA after an implementation repair, and Deliver requires the published head to equal the QA-verified head. A CI-driven code fix can therefore publish an unverified head. Route diff-caused repairs through the complete phase-7 path, including fresh QA before pushing and re-marking the head.",
+      "priority": "P1",
+      "confidence": 0.98,
+      "category": "regression",
+      "code_location": {
+        "file_path": "skills/deliver/SKILL.md",
+        "line": 40
+      }
+    },
+    {
+      "title": "Handle the actual conflict value returned by mergeStateStatus",
+      "body": "Reviewer: codex model=gpt-5.6-sol fallback=gpt-5.6-terra thinking=high\n\n`gh pr view --json mergeStateStatus` returns GitHub's `MergeStateStatus` enum, where merge conflicts are reported as `DIRTY`; `CONFLICTING` belongs to the separate `mergeable` field. Consequently, the documented `CONFLICTING` condition never matches this command's output, so conflicted PRs do not enter the required repair path. Either recognize `DIRTY` here or query `mergeable` when checking for `CONFLICTING`.",
+      "priority": "P1",
+      "confidence": 0.99,
+      "category": "bug",
+      "code_location": {
+        "file_path": "skills/deliver/SKILL.md",
+        "line": 40
+      }
+    },
+    {
+      "title": "Do not require inline QA images for private repositories",
+      "body": "Reviewer: codex model=gpt-5.6-sol fallback=gpt-5.6-terra thinking=high\n\nThe unconditional requirement that QA evidence be inline conflicts with the new private-repository rule in `qa-evidence.md`, which says images must be blob-page links because inline rendering returns 404. Following this body checklist can reproduce the motivating private-repo failure despite step 3. State that evidence is embedded for public repositories and linked for private repositories, or defer explicitly to the evidence reference.",
+      "priority": "P1",
+      "confidence": 0.94,
+      "category": "regression",
+      "code_location": {
+        "file_path": "skills/deliver/SKILL.md",
+        "line": 36
+      }
+    },
+    {
+      "title": "Leave evidence publication exclusively to Deliver",
+      "body": "Reviewer: codex model=gpt-5.6-sol fallback=gpt-5.6-terra thinking=high\n\nPhase 7 still instructs Run to publish the evidence, while Deliver step 3 independently owns and orders that publication. This states the moved mechanism twice and allows publication during QA rather than at Deliver's prescribed point after the accepted head is pushed and marked reviewed. Keep the moved reference here for preparation guidance, but change this instruction so actual publication occurs only in Deliver.",
+      "priority": "P2",
+      "confidence": 0.96,
+      "category": "maintainability",
+      "code_location": {
+        "file_path": "skills/run/SKILL.md",
+        "line": 49
+      }
+    },
+    {
+      "title": "State the accepted-head invariant only in its owning Deliver step",
+      "body": "Reviewer: codex model=gpt-5.6-sol fallback=gpt-5.6-terra thinking=high\n\nThe introductory paragraph restates the accepted-head, QA-head, published-head, and no-tracked-edit doctrine that step 1 states again, and Run phase 8 repeats it a third time. The brief requires moved doctrine to appear exactly once and Run's route not to duplicate mechanism. Keep the normative invariant in Deliver step 1 and reduce the introduction and Run route to ownership-level summaries.",
+      "priority": "P2",
+      "confidence": 0.92,
+      "category": "maintainability",
+      "code_location": {
+        "file_path": "skills/deliver/SKILL.md",
+        "line": 9
+      }
+    },
+    {
+      "title": "Remove the forbidden absence pin for --required",
+      "body": "Reviewer: codex model=gpt-5.6-sol fallback=gpt-5.6-terra thinking=high\n\nThis negative assertion pins the absence of the removed `--required` behavior, directly violating the acceptance criterion not to pin absences of removed doctrine. The positive assertions immediately above already pin the replacement watch-all-checks contract and self-status exclusion. Remove this assertion so future valid command wording is not constrained by obsolete behavior.",
+      "priority": "P2",
+      "confidence": 1,
+      "category": "maintainability",
+      "code_location": {
+        "file_path": "tests/worker-doctrine.test.ts",
+        "line": 220
+      }
+    }
+  ],
+  "overall_correctness": "patch is incorrect",
+  "overall_explanation": "Panel review complete. claude model=claude-opus-4-8 thinking=xhigh: 4 finding(s), codex model=gpt-5.6-sol fallback=gpt-5.6-terra thinking=high: 6 finding(s).",
+  "overall_confidence": 0.97
+}

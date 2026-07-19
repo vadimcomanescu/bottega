@@ -1,0 +1,36 @@
+
+> bottega@0.1.0 test
+> vitest run && npm run test:autoreview-vendor
+
+
+ RUN  v4.1.9 /Users/vadimcomanescu/Code/bottega/.claude/worktrees/bottega+deliver-skill
+
+
+ Test Files  7 passed (7)
+      Tests  138 passed (138)
+   Start at  10:38:17
+   Duration  9.14s (transform 267ms, setup 0ms, import 449ms, tests 27.50s, environment 2ms)
+
+
+> bottega@0.1.0 test:autoreview-vendor
+> python3 tests/run-vendor-suites.py
+
+.......codex model gpt-5.6-sol is unavailable for this account; retrying with gpt-5.6-terra
+..............usage: test-review-harness [-h] [--fixture {malicious,benign}]
+                           [--engine {codex,claude,pi}]
+test-review-harness: error: argument --engine: invalid choice: 'cursor' (choose from 'codex', 'claude', 'pi')
+...................................................s...s....................s.....................................................................................................................................................
+----------------------------------------------------------------------
+Ran 247 tests in 27.095s
+
+OK (skipped=3)
+self-test fallback scope: ok
+tests exit: 0 after 0s
+tests: run tests
+tests exit: 0 after 0s
+tests: run tests
+tests exit: 0 after 0s
+tests: run tests
+tests exit: 0 after 0s
+tests: run tests
+tests exit: 0 after 0s

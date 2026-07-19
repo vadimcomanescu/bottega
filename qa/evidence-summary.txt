@@ -1,0 +1,8 @@
+HEAD: a50cb602d05040f65d12bd5a5790c7eb09734021
+
+S4 gh pr view drives:
+PR#65 (bottega merged): {"mergeStateStatus":"UNKNOWN","mergeable":"UNKNOWN"}
+PR#449 (nadicodeai conflicting): {"mergeStateStatus":"DIRTY","mergeable":"CONFLICTING"}
+
+S5 vendored diff stat (empty=unchanged):
+(end)
