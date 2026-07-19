@@ -78,9 +78,9 @@ const WORKER_MODEL = {
 const ROLES = Object.keys(WORKER_MODEL).join("|");
 // Plugin agents register as <plugin>:<agent>, so every real dispatch names
 // bottega:<role>; a bare role name resolves to nothing in the harness and, if
-// it did, could be a host repo's own agent, which this guard never routes.
+// it did, could be the project's own agent, which this guard never routes.
 const WORKER_AGENT = new RegExp("^bottega:(" + ROLES + ")$");
-// A deleted plugin seat must not fall through as if it belonged to the host.
+// A deleted plugin seat must not fall through as if it belonged to the project.
 // Keep this separate from WORKER_MODEL: it has no valid route.
 const REMOVED_ROLE = "reviewer";
 const UNKNOWN_SEAT = new RegExp("^bottega:(" + REMOVED_ROLE + ")$");

@@ -121,14 +121,14 @@ describe("route-guard: bottega worker agents (always checked)", () => {
     }
   });
 
-  it("stays silent on retired worker names: those are a host repo's own agents now", () => {
+  it("stays silent on retired worker names: those are the project's own agents now", () => {
     const cwd = repoWithRun();
     for (const subagent_type of ["bottega:mechanic", "bottega:documenter"]) {
       expect(run(ROUTE_GUARD, { cwd, tool_input: { subagent_type, prompt: "x" } })).toBe("");
     }
   });
 
-  it("stays silent on a bare role name: that is a host repo's own agent, never bottega's", () => {
+  it("stays silent on a bare role name: that is the project's own agent, never bottega's", () => {
     const out = run(ROUTE_GUARD, {
       cwd: repoWithRun(),
       tool_input: { subagent_type: "reviewer", prompt: "review" },

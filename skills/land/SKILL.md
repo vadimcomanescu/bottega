@@ -8,9 +8,9 @@ description: Take an open PR through review-fix rounds to verified-mergeable, re
 
 The review method is `bottega:review`; this skill owns the GitHub surface, the stop conditions, and the merge verification. Land never decides to merge.
 
-**Entry.** Acquire the per-PR session claim through `scripts/pr-claim` before the worktree pickup: one land or standalone PR review holds a PR at a time. A held claim is terminal: stop, reporting the holder under the stopped notify state below. Release the claim through `scripts/pr-claim` at every terminal state and on abort (a held claim: nothing to release). Then recreate the worktree from the PR branch and write a fresh owner file, the same pickup as `skills/run` step 8, never the user's checkout. Discover the host gates and run them. A red gate predates this review: fix and push it before the first round. A gate that cannot go green within the PR's stated intent ends the run as gates-red.
+**Entry.** Acquire the per-PR session claim through `scripts/pr-claim` before the worktree pickup: one land or standalone PR review holds a PR at a time. A held claim is terminal: stop, reporting the holder under the stopped notify state below. Release the claim through `scripts/pr-claim` at every terminal state and on abort (a held claim: nothing to release). Then recreate the worktree from the PR branch and write a fresh owner file, the same pickup as `skills/run` step 8, never the user's checkout. Discover the project's gates and run them. A red gate predates this review: fix and push it before the first round. A gate that cannot go green within the PR's stated intent ends the run as gates-red.
 
-**The reviewed marker.** Then read the `bottega/review` commit status to decide how much of the diff round 1 covers. It is trustworthy only when all three hold: the status is green, its creator is the identity this host reviews as, and its description names the base SHA the PR currently targets. A status failing any of the three: treat it as absent.
+**The reviewed marker.** Then read the `bottega/review` commit status to decide how much of the diff round 1 covers. It is trustworthy only when all three hold: the status is green, its creator is the identity this project reviews as, and its description names the base SHA the PR currently targets. A status failing any of the three: treat it as absent.
 
 - Trustworthy on the live head: round 1 reviews no diff. The PR's thread work below still runs.
 - Trustworthy on an earlier commit of the PR: round 1 reviews the delta, `--base` that SHA.
@@ -34,7 +34,7 @@ The review method is `bottega:review`; this skill owns the GitHub surface, the s
 
 **Merge.** Run the verification for every converged PR, in order, stopping on the first step that fails and reporting it:
 
-1. Watch the PR's required checks to green: `gh pr checks <PR> --required --watch`. A host with no required checks passes this step: distinguish gh's no-required-checks exit from a failing check before calling it a failure.
+1. Watch the PR's required checks to green: `gh pr checks <PR> --required --watch`. A project with no required checks passes this step: distinguish gh's no-required-checks exit from a failing check before calling it a failure.
 2. Confirm the PR is not a draft.
 3. Confirm the live head SHA equals the head SHA the final review round was frozen at.
 4. Confirm the PR's target base SHA still equals the base the review was frozen at. `--match-head-commit` pins only the head, so a base that advanced after the review means the merge result was never reviewed: review the delta against the new base and start the verification again.

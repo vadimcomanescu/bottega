@@ -12,13 +12,13 @@ A standalone `/bottega:review` of a PR acquires the per-PR session claim through
 
 ## Freeze the target
 
-Fix base, head, and tree SHAs after the host gates pass and before the panel round, and review against them. For a PR target, create a worktree at the PR head and review that, never the user's checkout. The base ref must resolve locally before the invocation; the helper never fetches.
+Fix base, head, and tree SHAs after the project's gates pass and before the panel round, and review against them. For a PR target, create a worktree at the PR head and review that, never the user's checkout. The base ref must resolve locally before the invocation; the helper never fetches.
 
 ## Panel round
 
 One helper invocation reviews the frozen diff with both families in parallel. This is the only place the flags are stated (wording may differ, flags may not):
 
-    # the vendored helper under the install root; .claude/... on the Claude host, .agents/... on the Codex host
+    # the vendored helper under the install root; .claude/... in the Claude runtime, .agents/... in the Codex runtime
     export AUTOREVIEW="<install root>/skills/autoreview/scripts/autoreview"
     "$AUTOREVIEW" --mode branch --base <frozen-base> \
       --reviewers codex,claude \
@@ -35,9 +35,9 @@ One helper invocation reviews the frozen diff with both families in parallel. Th
 - When the reviewed checkout has a root `REVIEW.md`, include its text every round: the repository's own review doctrine.
 - Include the text of [references/smell-baseline.md](references/smell-baseline.md) every round: the fixed standards axis the engines report against, with its three binding rules (the repo overrides, always a judgment call, skip what tooling enforces).
 - Instruct the engines to flag a hand-built implementation of a problem a standard, available solution already solves: name the standard solution and where the diff reinvents it.
-- When the host repo carries domain contracts for the changed area, include their text so reviewers judge domain-term and doc-architecture conformance, not only code: the relevant `CONTEXT.md` glossaries, the `docs/adr/` decisions covering the changed code, and the repository's documentation-authority doc when one exists.
+- When the project carries domain contracts for the changed area, include their text so reviewers judge domain-term and doc-architecture conformance, not only code: the relevant `CONTEXT.md` glossaries, the `docs/adr/` decisions covering the changed code, and the repository's documentation-authority doc when one exists.
 - The listed inputs are the mandatory baseline: every round carries all of them. On top of it, examine the frozen diff and add any review angle this diff needs that the baseline does not name (a migration's rollback, a concurrency surface, a permission boundary), then state in the adjudication which added angles applied.
-- **Codex-host posture.** The helper's codex engine (a bounded read-only `codex exec` in an empty workspace) is permitted on both hosts.
+- **Codex runtime posture.** The helper's codex engine (a bounded read-only `codex exec` in an empty workspace) is permitted in both runtimes.
 - **Fail-closed bundles.** The helper refuses a bundle carrying secret-shaped or sensitive content, and that refusal is not overridable. When the refused content is legitimate (a vendored test fixture, a seeded credential in test data), split the review into coherent targets: build a temporary review head without the refused paths, review the authored remainder against the same base, and verify the excluded part deterministically (a byte pin against upstream, its own test suite). Record the split and its verification in the adjudication.
 - **Helper location.** Invoke the helper from a checkout that carries it. When the review head does not (the vendored tree is itself excluded or under review), run the helper by absolute path from a checkout outside the reviewed one, with the reviewed worktree as the working directory.
 

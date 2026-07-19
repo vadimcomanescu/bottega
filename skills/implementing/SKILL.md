@@ -27,6 +27,6 @@ Implement one assigned slice. The orchestrator owns the domain model, architectu
 
 ## Prove and report
 
-Run focused checks while working and the host gates after the slice is complete. A browser or desktop drive is optional when it is the shortest debugging loop; the independent product verdict belongs to QA.
+Run focused checks while working and the project's gates after the slice is complete. A browser or desktop drive is optional when it is the shortest debugging loop; the independent product verdict belongs to QA.
 
-Commit only owned files. Report `green` or `stuck`, the behavior implemented, red and green evidence, host-gate results, changed tests with their authorizing requirement, files and commit, and unresolved domain or architecture conflicts.
+Commit only owned files. Report `green` or `stuck`, the behavior implemented, red and green evidence, project-gate results, changed tests with their authorizing requirement, files and commit, and unresolved domain or architecture conflicts.

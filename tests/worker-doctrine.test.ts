@@ -192,7 +192,7 @@ describe("worker doctrine boundaries", () => {
 
   it("routes repository review work to the root REVIEW.md", () => {
     const reviewDoc = read("REVIEW.md");
-    expect(reviewDoc).toMatch(/host neutrality/i);
+    expect(reviewDoc).toMatch(/portability/i);
     expect(reviewDoc).toMatch(/frozen/i);
     expect(reviewDoc).toContain("scripts/pr-threads");
     expect(reviewDoc).toContain("scripts/pr-claim");
@@ -204,7 +204,7 @@ describe("worker doctrine boundaries", () => {
   it("runs the docs sweep before the review freeze and keeps Deliver free of tracked edits", () => {
     expect(phase(run, 6)).toMatch(/docs sweep/i);
     expect(phase(run, 6)).toMatch(/false claims and missing entries alike/i);
-    expect(phase(run, 6)).toMatch(/before the final host gate and the review freeze/i);
+    expect(phase(run, 6)).toMatch(/before the final project gate and the review freeze/i);
     expect(phase(run, 7)).toMatch(/docs sweep over what it changed/i);
     expect(phase(run, 8)).not.toMatch(/docs sweep|doc claim/i);
     expect(deliver).toMatch(/deliver has changed no tracked file/i);
@@ -212,8 +212,8 @@ describe("worker doctrine boundaries", () => {
 
   it("routes run's front half to the spec skill and deletes the spec branch when the PR merges", () => {
     expect(existsSync(join(ROOT, "skills/spec/references/spec-format.md"))).toBe(true);
-    expect(phase(run, 2)).toMatch(/Explore and grill.*method in.*bottega:spec/i);
-    expect(phase(run, 3)).toMatch(/Present the spec per.*bottega:spec/i);
+    expect(phase(run, 2)).toMatch(/Invoke.*bottega:spec.*to explore and grill/i);
+    expect(phase(run, 3)).toMatch(/Invoke.*bottega:spec.*to present the spec/i);
     expect(phase(run, 3)).toMatch(/spec-format\.md/);
     expect(phase(run, 8)).toMatch(/bottega:deliver/);
     expect(deliver).toMatch(/gh pr checks <PR> --watch/);
@@ -227,8 +227,8 @@ describe("worker doctrine boundaries", () => {
   });
 
   it("keeps the shared spec method portable and forks only its ending", () => {
-    expect(spec).toMatch(/run reader jobs in parallel.*cheap tier/i);
-    expect(spec).toMatch(/If it cannot, do the same reads yourself, inline, under the same budgets/i);
+    expect(spec).toMatch(/on cheaper tiers, launch a subagent per job that applies/i);
+    expect(spec).toMatch(/a subagent returns findings, never a decision/i);
     expect(spec).toMatch(/decision hinges on how something looks or feels.*cannot answer in words/i);
     expect(spec).toMatch(/Prototype code.*never merges/i);
     expect(spec).toMatch(/Invoked directly: ask once whether to push to tickets/i);
@@ -239,10 +239,10 @@ describe("worker doctrine boundaries", () => {
   });
 
   it("runs the field pass unconditionally, proposes before grilling, and presents live", () => {
-    expect(spec).toMatch(/Run it on any product-shaped work/i);
-    expect(spec).toMatch(/the field pass answers what the standard way is/i);
+    expect(spec).toMatch(/Run the field job on any product-shaped work/i);
+    expect(spec).toMatch(/the field answers the standard way/i);
     expect(spec).toMatch(/## 2\. Propose independently/);
-    expect(spec).toMatch(/Trigger, all three together/i);
+    expect(spec).toMatch(/Run this step only when all three hold/i);
     expect(spec).toMatch(/at least two credible product directions survive/i);
     expect(spec).toMatch(/expensive to undo or hard to notice later/i);
     expect(spec).toContain("../panel/SKILL.md");

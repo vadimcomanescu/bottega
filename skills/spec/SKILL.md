@@ -6,41 +6,33 @@ description: Prepare a task or issue for delivery without building it. Explore t
 
 # Spec
 
-Shape a task into an agreed spec and tickets without building it. A later run picks up a ticket and does the build, review, QA, and delivery; this session stops at the tickets.
-
-This method has two entry points: you, invoked directly, and a run's front half. Explore, propose, grill, prototype, and present are the same for both. Only the ending forks (step 6).
+One method for shaping work into an agreed spec, two entry points, two endings. Invoked directly, it ends by asking once whether to file tickets; on yes, a later run builds from them. As a run's front half, it hands the agreed spec to the run's sign-off and never files tickets. Steps 1 through 5 are the same for both; step 6 forks by entry point.
 
 ## 1. Explore
 
 Read the repo facts first: the smallest map that routes the task (root `CLAUDE.md` or `AGENTS.md`), then `CONTEXT-MAP.md` if present, then only the `CONTEXT.md` glossaries and `docs/adr/` decisions the work touches. Current docs only; archived and superseded ones are history.
 
-Then fan out a reader per job that applies, each sharply divided and under a stated budget:
+Then, on cheaper tiers, launch a subagent per job that applies: explore how the affected area of the codebase works today and the precedent it sets; research how the field solves this problem and where it is heading; and read the technology skills in this runtime that match the work. Run the field job on any product-shaped work: the codebase answers how we already do it here, the field answers the standard way.
 
-- **Codebase sweep.** How the affected area works today and the precedent it sets.
-- **Field pass.** Search the web for how the wider industry solves this. Run it on any product-shaped work: repository precedent answers how we already do it here, and the field pass answers what the standard way is.
-- **Skills inventory.** The technology skills in this runtime that match the work.
-
-If your harness can run reader jobs in parallel, launch one per applicable job on a cheap tier; each returns a short dossier and nothing more. If it cannot, do the same reads yourself, inline, under the same budgets.
-
-Read the dossiers, then read directly the files any decision hinges on. Verify version-sensitive technology against the installed version and primary vendor docs before a decision relies on it. Every decision is yours. A reader returns findings, never a decision.
+Read what comes back, then read directly the files any decision hinges on. Verify version-sensitive technology against the installed version and primary vendor docs before a decision relies on it. Every decision is yours; a subagent returns findings, never a decision.
 
 ## 2. Propose independently
 
-Trigger, all three together: the decision shapes what the product does or means for its users; after exploring, at least two credible product directions survive, meaning two ways the product itself could go, not two models disagreeing; and picking wrong would be expensive to undo or hard to notice later.
+Run this step only when all three hold: the decision shapes what the product does or means for its users; after exploring, at least two credible product directions survive (two ways the product could go, not two models disagreeing); and picking wrong would be expensive to undo or hard to notice later.
 
-When it fires, put the same evidence to independent drafts from different model families through [`bottega:panel`](../panel/SKILL.md), each draft blind to the others. Ask each for three things: what this feature could be, which assumptions need the owner's confirmation, and what the owner should be asked. The panel returns the compare-only map of where the drafts agree, where they contradict, and what only one of them saw. Run the grilling from that map, and still write the spec yourself.
+When they hold, put the same evidence to independent drafts from different model families by invoking [`bottega:panel`](../panel/SKILL.md), each draft blind to the others. Ask each draft for three things: what this feature could be, which assumptions need the owner's confirmation, and what the owner should be asked. The panel returns a compare-only map: where the drafts agree, where they contradict, what only one saw. Grill from that map, and write the spec yourself.
 
-Do this before the grilling because the owner's answers narrow the direction, so independent proposals are worth most while the job is still making sure the right options and the right questions exist at all. Keep the panel small: a couple of seats from different companies carry nearly all the independence, because they miss different things and a draft shown another is pulled toward it.
+Run this before the grilling, because the owner's answers narrow the direction: independent proposals are worth most while the job is still finding the right options and the right questions. Keep the panel small; two seats from different companies carry nearly all the independence, because different companies miss different things.
 
 ## 3. Grill
 
-List the unknowns the request leaves open: the risks the code, history, or domain point to but the request omits. Rank them by impact. Resolve each from a repo fact where one exists, searching the host's own precedent before you reach for the user. Put what remains to the user one question at a time, each with your recommended answer, so a reply is a yes or a correction. Keep asking until you can predict the user's acceptance decisions.
+List the unknowns the request leaves open: the risks the code, history, or domain point to but the request omits. Then sweep for blind spots: the questions neither you nor the request thought to ask, strongest where the owner is furthest from the domain. Rank everything by impact, and ask earliest where the answer would change the architecture. Resolve each unknown from a repo fact where one exists, searching the project's own precedent before you reach for the user. Put what remains to the user one question at a time, each with your recommended answer, so a reply is a yes or a correction. Keep asking until you can predict the user's acceptance decisions.
 
 ## 4. Prototype a look-or-feel decision
 
 Trigger: a decision hinges on how something looks or feels, a preference the user cannot answer in words.
 
-Build a rough, real, rendered artifact and screenshot it. State the settled decision in words in the spec and attach the screenshots as evidence. Prototype code is evidence, never truth: it never merges, and the build rewrites it from the agreed spec.
+Build rough, real, rendered artifacts and screenshot them. When the choice is open, build several directions the user can react to, and show the user flow, not one frame. The user reacts before anything is wired up. State the settled decision in words in the spec and attach the screenshots as evidence. Prototype code is evidence, never truth: it never merges, and the build rewrites it from the agreed spec.
 
 Where you build it depends on the entry point:
 
@@ -68,4 +60,4 @@ As decisions settle, resolve the domain terms the work introduces or sharpens (t
 
 ## 7. Publish
 
-Open one parent tracker issue carrying the spec; it links any spec branch this session pushed. Then cut a child ticket for each [coherent unit](../codebase-design/SKILL.md) one run delivers. Each ticket carries its unit's slice of the spec per [references/spec-format.md](references/spec-format.md), references the parent, states its dependencies on the other tickets, and takes the host's area label. The spec never claims a ticket; each run claims its own. Report the parent and the tickets.
+Open one parent tracker issue carrying the spec; it links any spec branch this session pushed. Then cut a child ticket for each [coherent unit](../codebase-design/SKILL.md) one run delivers. Each ticket carries its unit's slice of the spec per [references/spec-format.md](references/spec-format.md), references the parent, states its dependencies on the other tickets, and takes the project's area label. The spec never claims a ticket; each run claims its own. Report the parent and the tickets.

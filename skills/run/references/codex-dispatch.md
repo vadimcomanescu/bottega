@@ -18,10 +18,10 @@ Builders take `--sandbox danger-full-access`; consultation reads take `--sandbox
 ## What every brief carries
 
 - The three brief lines from `skills/run` (the safety rule, no piped test commands, name every test you edit), verbatim.
-- The canonical run brief verbatim and the host domain glossary by absolute path. A summary or reconstruction is a different input and is rejected before dispatch.
+- The canonical run brief verbatim and the project's domain glossary by absolute path. A summary or reconstruction is a different input and is rejected before dispatch.
 - Role and technology skills by absolute path. A builder gets `skills/implementing/SKILL.md` and each directly relevant technology skill. Omit an unavailable technology skill. `$CLAUDE_PLUGIN_ROOT`, slash commands, and subagents do not exist for a codex worker; a brief naming any of them stalls the worker. Bulk work a Claude worker would fan out to subagents, a codex brief chunks inline.
 - The gate commands verbatim. The worker runs its own gate, including anything that binds (dev server, integration suite), and watches it pass. Green stays something the worker saw itself.
-- A role-specific output contract ending in a JSON code block, so the `-o` message is parsed instead of hand-read as prose. A builder's fields mirror the report in `skills/implementing`: status, behavior implemented, RED and GREEN evidence, host gates, files and commit, and unresolved domain or architecture conflicts.
+- A role-specific output contract ending in a JSON code block, so the `-o` message is parsed instead of hand-read as prose. A builder's fields mirror the report in `skills/implementing`: status, behavior implemented, RED and GREEN evidence, project gates, files and commit, and unresolved domain or architecture conflicts.
 
 ## The builder brief
 

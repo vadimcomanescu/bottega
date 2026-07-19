@@ -1,12 +1,12 @@
 ---
 name: setup
-description: One-time per-repo reconciliation of a host repo with bottega's methodology, covering the domain-doc contract, documentation architecture, tracker conventions, and GitHub labels.
+description: One-time per-repo reconciliation of a project with bottega's methodology, covering the domain-doc contract, documentation architecture, tracker conventions, and GitHub labels.
 disable-model-invocation: true
 ---
 
 # Setup
 
-Read `bottega:codebase-design` first: it defines the shape (the domain-doc contract and documentation architecture) this skill brings the host repo to, once, along with the tracker conventions. Apply only what the user approves.
+Read `bottega:codebase-design` first: it defines the shape (the domain-doc contract and documentation architecture) this skill brings the project to, once, along with the tracker conventions. Apply only what the user approves.
 
 ## Method
 
@@ -18,7 +18,7 @@ Resolve symlinks first, then read; never search by a fixed list of filenames. Fo
 - Domain terms: whatever currently defines the repo's vocabulary, in any file or doc section.
 - Decisions: wherever design decisions are recorded today, including prose sections of README-class docs.
 - Tracker conventions, the GitHub remote, its labels, and whether `gh` is authenticated with issue and label permissions.
-- The host gate command (test, lint, typecheck, build) and `.gitignore`.
+- The project's gate command (test, lint, typecheck, build) and `.gitignore`.
 - Any skill-farm contract the repo declares.
 
 Complete when every part of the shape has either a located current home or a stated "nowhere".
@@ -51,7 +51,7 @@ Apply only what was approved, exactly as shown. Complete when every proposed edi
 Report these; do not fix them here:
 
 - `gh` lacks issue or label permissions on the remote.
-- No host gate command is discoverable. A missing gate is a finding, never an invitation to invent one.
+- No project gate command is discoverable. A missing gate is a finding, never an invitation to invent one.
 - A declared skill-farm contract has broken links. Never create or normalize a farm.
 
 ## Leaves alone
