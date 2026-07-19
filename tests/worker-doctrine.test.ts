@@ -240,7 +240,7 @@ describe("worker doctrine boundaries", () => {
 
   it("runs the field pass unconditionally, proposes before grilling, and presents live", () => {
     expect(spec).toMatch(/Run it on any product-shaped work/i);
-    expect(spec).toMatch(/not gated on the repo holding no precedent/i);
+    expect(spec).toMatch(/the field pass answers what the standard way is/i);
     expect(spec).toMatch(/## 2\. Propose independently/);
     expect(spec).toMatch(/Trigger, all three together/i);
     expect(spec).toMatch(/at least two credible product directions survive/i);

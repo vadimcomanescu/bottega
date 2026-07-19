@@ -3,7 +3,7 @@
   "name": "bottega",
   "displayName": "Bottega",
   "version": "0.63.0",
-  "description": "Autonomous issue-to-PR runs for Claude Code. /bottega:run takes a task to a delivered PR: discovery, a spec agreed in the conversation, a panel on costly decisions, parallel builders, cross-family review of the integrated diff always, QA evidence in the PR. /bottega:spec shapes work into agreed tickets instead, and review, land, improve, panel, and setup are available on their own.",
+  "description": "Autonomous issue-to-PR runs for Claude Code. /bottega:run takes a task to a delivered PR: discovery, a spec agreed on a live shared document with the conversation as fallback, a panel on costly decisions, parallel builders, cross-family review of the integrated diff always, QA evidence in the PR. /bottega:spec shapes work into agreed tickets instead, and review, land, improve, panel, and setup are available on their own.",
   "author": {
     "name": "Vadim Comanescu"
   },

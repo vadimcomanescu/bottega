@@ -17,7 +17,7 @@ Read the repo facts first: the smallest map that routes the task (root `CLAUDE.m
 Then fan out a reader per job that applies, each sharply divided and under a stated budget:
 
 - **Codebase sweep.** How the affected area works today and the precedent it sets.
-- **Field pass.** Search the web for how the wider industry solves this. Run it on any product-shaped work: repository precedent answers how we already do it here, not what the standard way is, so this pass is not gated on the repo holding no precedent.
+- **Field pass.** Search the web for how the wider industry solves this. Run it on any product-shaped work: repository precedent answers how we already do it here, and the field pass answers what the standard way is.
 - **Skills inventory.** The technology skills in this runtime that match the work.
 
 If your harness can run reader jobs in parallel, launch one per applicable job on a cheap tier; each returns a short dossier and nothing more. If it cannot, do the same reads yourself, inline, under the same budgets.
@@ -51,9 +51,9 @@ If nothing can render, and only then, draw a wireframe in the spec body: layout 
 
 ## 5. Present
 
-Present the spec as a live shared document: the owner reads it rendered, on any device, and comments on the text directly. [references/live-review.md](references/live-review.md) has the mechanics; load it here. Reply inside each comment thread, saying whether you agree and why, and make any resulting change as a tracked edit the owner accepts or rejects. Threads resolve as they settle, on the one living document, through every round. The local markdown file stays the single source of truth: mirror the agreed state back to it, and it is what the ticket carries.
+The shared editor is hosted, so the spec passes through its operator's servers. Offer it to the owner first; an owner who cannot accept that declines it, and the same review happens in the conversation, the spec presented as text. The publish mechanics below are for an owner who accepts.
 
-The shared editor is hosted, so the spec passes through its operator's servers. An owner who cannot accept that declines it, and the same review happens in the conversation, the spec presented as text.
+Present the spec as a live shared document: the owner reads it rendered, on any device, and comments on the text directly. [references/live-review.md](references/live-review.md) has the mechanics; load it here. Reply inside each comment thread, saying whether you agree and why, and make any resulting change as a tracked edit the owner accepts or rejects. Threads resolve as they settle, on the one living document, through every round. The local markdown file stays the single source of truth: mirror the agreed state back to it, and it is what the ticket carries.
 
 The owner's approval may arrive as a comment in the document, in their own words; that is the go signal, the same as a reply in the conversation.
 

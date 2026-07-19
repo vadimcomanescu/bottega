@@ -19,7 +19,7 @@ Domain terms the work introduces or sharpens go where the spec first uses them, 
 
 ## The precedent rule
 
-Every choice of approach names the standard way the field already solves the same problem: the approach, a source that describes it, and whether the spec follows it or the one-line reason it deviates. When no standard way exists, the decision says so and shows the searches that came up empty. Why this is a required line and not a suggestion: the observed failure is a model inventing a bespoke mechanism where a well-known one exists, and only a required check per decision catches it before the direction is committed. The move is proven elsewhere: the Rust project accepts a change proposal only if a required section answers how other languages solve the same problem, and Amazon's press-release method requires naming what customers use today and why this is better.
+Every choice of approach names the standard way the field already solves the same problem: the approach, a link to where it is described, and whether the spec follows it or the one-line reason it deviates. When no standard way exists, the decision says so and shows the searches that came up empty. Why this is a required line and not a suggestion: the observed failure is a model inventing a bespoke mechanism where a well-known one exists, and only a required check per decision catches it before the direction is committed. The move is proven elsewhere: the Rust project accepts a change proposal only if a required section answers how other languages solve the same problem, and Amazon's press-release method requires naming what customers use today and why this is better.
 
 ## Prose rules
 
@@ -32,3 +32,5 @@ These govern the spec, every ticket, and every question you put to the user.
 - No file paths and no code snippets. One exception: a prototype-derived snippet that pins a decision more precisely than prose can (a state machine, a schema, a type shape), trimmed to the decision.
 - A requirement names whose problem it solves when the feature serves users whose problems genuinely differ. When one kind of user is served, skip persona phrasing. No story grammar is required, and none is banned.
 - Product language. Write as if announcing the finished behavior to the people who will use it: the user's words for the user's actions, the domain's terms for the domain's concepts, no implementation vocabulary, no session shorthand, and never a label the text does not itself define.
+
+Anchors: lead-with-the-decision follows Google's change-description guidance, product language follows Amazon's working-backwards method, and the no-paths-and-no-snippets rule with its prototype exception follows Matt Pocock's published spec skill. The rest (one idea per sentence, cut hedges, prefer the verb, and the actor rule) are house rules kept because their absence produced observed failures: skimmed decisions, filler prose, and specs that read as insider shorthand.
