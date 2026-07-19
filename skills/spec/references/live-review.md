@@ -55,6 +55,7 @@ Mirror the agreed state to the local file byte-for-byte: fetch state failing clo
       || { echo "state fetch failed"; rm -f "$STATE_TMP"; exit 1; }
     [ "$(jq -r 'if (.markdown | type) == "string" then "ok" else "bad" end' "$STATE_TMP")" = "ok" ] \
       || { echo "no markdown string in state"; rm -f "$STATE_TMP"; exit 1; }
-    TMP="${LOCAL}.proof-sync.$$"
-    jq -jr '.markdown' "$STATE_TMP" > "$TMP" && mv "$TMP" "$LOCAL"
-    rm "$STATE_TMP"
+    TMP=$(mktemp "${LOCAL}.proof-sync.XXXXXX")
+    jq -jr '.markdown' "$STATE_TMP" > "$TMP" || { echo "markdown write failed"; rm -f "$TMP" "$STATE_TMP"; exit 1; }
+    mv "$TMP" "$LOCAL" || { echo "rename failed"; rm -f "$TMP" "$STATE_TMP"; exit 1; }
+    rm -f "$STATE_TMP" || true
