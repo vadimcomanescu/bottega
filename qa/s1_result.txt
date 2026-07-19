@@ -1,0 +1,14 @@
+OK skills/autoreview/SKILL.md keys=['name', 'description']
+OK skills/codebase-design/SKILL.md keys=['name', 'description', 'user-invocable']
+OK skills/deliver/SKILL.md keys=['name', 'description', 'user-invocable']
+OK skills/implementing/SKILL.md keys=['name', 'description', 'user-invocable']
+OK skills/improve/SKILL.md keys=['name', 'argument-hint', 'description']
+OK skills/land/SKILL.md keys=['name', 'argument-hint', 'description']
+OK skills/panel/SKILL.md keys=['name', 'argument-hint', 'description']
+OK skills/review/SKILL.md keys=['name', 'description', 'argument-hint']
+OK skills/run/SKILL.md keys=['name', 'description', 'argument-hint']
+OK skills/setup/SKILL.md keys=['name', 'description', 'disable-model-invocation']
+OK skills/spec/SKILL.md keys=['name', 'argument-hint', 'description']
+OK skills/writing-great-skills/SKILL.md keys=['name', 'description', 'user-invocable']
+---
+total=12 failures=0

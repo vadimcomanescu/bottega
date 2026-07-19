@@ -1,0 +1,442 @@
+# Proof Agent Docs
+
+Proof gives agents two endpoints to do almost everything: one read, one write. Targets are the
+visible text you see in the document, not opaque refs or tokens. You never send a base token.
+
+- Read:  `GET /api/agent/<slug>/v3/document`
+- Write: `POST /api/agent/<slug>/v3/edit`
+
+## If Proof Looks Wrong
+
+Use one tool call:
+
+  POST /api/bridge/report_bug
+
+If you already have a document slug, you can also call:
+
+  POST /d/<slug>/bridge/report_bug
+
+Send what you know. The server decides whether the report is complete, enriches it with server traces and document events, files a Linear issue into triage when it has enough context, and returns a `fixerBrief` you can hand directly to another agent.
+
+Include `by` (your stable agent identity, `ai:<agent-name>`). You may also include an optional `user` object (`{"name":"...","email":"..."}`) so the team can follow up with the affected human once the bug is fixed — but ask the user for permission first and only include it if they agree. Never guess or harvest contact details.
+
+### Transient failure guidance
+
+If a non-destructive read or action fails because of a timeout, slow load, or stale state, retry once. If the retry still fails, report it with raw evidence instead of a summary from memory.
+
+### Detailed issue reporting guidance
+
+If the failure looks transient:
+
+- Retry once if the action was non-destructive and the failure looked like intermittent downtime, a timeout, a slow load, or a stale read.
+- If the retry succeeds and the doc fully recovers, treat it as recovery noise unless you saw data loss, a stuck paused state, or the same failure twice on the same slug.
+- If the retry still fails, report it with raw evidence instead of summarizing it from memory.
+- Include whether the failure came from the homepage, library, shared doc HTML, the v3 read (`v3/document`), the v3 write (`v3/edit`), presence, or event polling.
+
+Report these issues right now:
+
+- A doc stays paused after refresh/reopen and blocks normal reading or writing.
+- `v3/document`, shared doc HTML, or the homepage repeatedly times out or returns 5xx for the same slug.
+- `v3/edit` writes fail after a fresh read and one safe retry.
+- The UI shows blank, stale, duplicated, or rolled-back content after the server said a request succeeded.
+- Comments, suggestions, or marks disappear, reappear, or disagree across refreshes or devices.
+- Two surfaces disagree about document status, for example the page says paused but writes still apply, or `v3/document` looks fresh while shared HTML is obviously stale.
+
+Usually report these only when they repeat:
+
+- A single slow homepage or library load that succeeds on retry.
+- A one-off timeout with no document slug and no persistent symptoms.
+- Expected retryable conflicts (`CONFLICT`, `TARGET_NOT_FOUND`, `TARGET_AMBIGUOUS`) that resolve when you retry against `error.current`.
+- Brief reconnect jitter where content, comments, and writes recover normally.
+The most useful evidence is:
+- Exact request URL, method, status, and `x-request-id`
+- The document slug, if there is one
+- Whether retry changed the outcome
+- The raw response body or console/network error text
+
+If the response says `status: "needs_more_info"`, ask the suggested questions and call the same endpoint again.
+
+If you want reference code while debugging or writing up the report, you can optionally inspect the open-source repo:
+
+  https://github.com/EveryInc/proof-sdk
+
+> **proof-sdk lags production.** It is a point-in-time open-source snapshot of this codebase — routes, error codes, and behavior may differ from the hosted product (it still contains error codes that no longer exist here). Use it as reading material only. Do not run it locally and report its behavior as a proofeditor.ai bug: verify against the hosted product first, and say so in the report if your evidence came from a local proof-sdk server.
+
+## I Just Received A Proof Link
+
+No browser automation is required. Use HTTP directly (for example, `curl` or your tool's `web_fetch`).
+
+If you received a shared link like:
+
+  https://www.proofeditor.ai/d/<slug>?token=<token>
+
+You can discover the API and read the document in one step using **content negotiation** on that same URL.
+
+Fetch JSON:
+
+  curl -H "Accept: application/json" "https://www.proofeditor.ai/d/<slug>?token=<token>"
+
+Fetch raw markdown:
+
+  curl -H "Accept: text/markdown" "https://www.proofeditor.ai/d/<slug>?token=<token>"
+
+The JSON response includes:
+- `markdown` (document content)
+- `_links` (read, edit, docs)
+- `agent.auth` hints (how to use the token)
+
+The JSON is truthful about your capabilities. If you fetch an ACTIVE `/d/<slug>` without a token, the response reports `role: null`, `canEdit`/`canComment` `false`, no mutation/event links, and an auth hint explaining how to proceed. You may still read with `GET /api/agent/<slug>/v3/document` without a token. Mutation links in the payload imply a resolved credential — if they are absent, you do not have one. This is not a lock: the same URL still opens and edits in a browser; as an agent you need a tokenized link (`?token=...`) before edits, comments, presence, or events.
+
+### Quick copy/paste flow (token already in the shared URL)
+
+```bash
+SHARE_URL='https://www.proofeditor.ai/d/<slug>?token=<token>'
+TOKEN='<token>'
+SLUG='<slug>'
+AGENT_ID='ai:your-agent'
+
+curl -H "Accept: application/json" "$SHARE_URL"
+curl -H "Authorization: Bearer $TOKEN" -H "X-Agent-Id: $AGENT_ID" "https://www.proofeditor.ai/api/agent/$SLUG/v3/document"
+```
+
+If you only have `https://www.proofeditor.ai/d/<slug>` and the share is ACTIVE, you can still read:
+
+```bash
+curl "https://www.proofeditor.ai/api/agent/<slug>/v3/document"
+```
+
+## Auth: Token From URL
+
+If a URL contains `?token=`, treat it as an access token:
+
+- Preferred: `Authorization: Bearer <token>`
+- Also accepted: `x-share-token: <token>`
+- Also accepted: the same `?token=<token>` query string on the request URL
+
+All three placements are honored on every document surface — the `/api/agent/<slug>/...` endpoints and the `/d/<slug>` share URL alike — and the JSON read echoes how it read the token in `agent.auth.tokenSource`. Prefer the `Authorization: Bearer` header; the query string is convenient when you already hold a tokenized link.
+
+Bearer/share tokens authenticate document access. Presence identity is separate: send `X-Agent-Id: ai:<your-agent>` when joining the doc or posting presence. `by` records authorship on every write.
+
+Authenticate with `Authorization: Bearer <token>` or `x-share-token: <token>`.
+
+## Read The Document
+
+Use:
+
+  GET /api/agent/<slug>/v3/document
+
+One call returns everything you need: document text plus comment and suggestion state. ACTIVE shared docs can be read without a token; add `Authorization: Bearer <token>` when you have one so Proof can also attribute presence and unlock capability-bearing routes.
+
+  curl -H "Authorization: Bearer <token>" -H "X-Agent-Id: ai:your-agent" \
+    "https://www.proofeditor.ai/api/agent/<slug>/v3/document"
+
+Response shape:
+
+```json
+{
+  "ok": true,
+  "revision": 12,
+  "title": "My Document",
+  "markdown": "# Heading\n\nVisible document text...",
+  "comments": [
+    {
+      "id": "comment-123",
+      "quote": "the text the comment is anchored to",
+      "resolved": false,
+      "body": "Root comment body",
+      "messages": [
+        { "by": "human:reviewer", "text": "Root comment body", "root": true },
+        { "by": "ai:your-agent", "text": "Fixed in this reply.", "resolvedHere": true }
+      ]
+    }
+  ],
+  "suggestions": [
+    { "id": "mark-456", "kind": "replace", "quote": "old text", "content": "new text", "status": "pending" }
+  ]
+}
+```
+
+Comment threads are read from `comments[]`, and pending track-changes proposals from `suggestions[]`.
+Each comment's `messages[]` is the chronological thread, with the root comment as `messages[0]` and
+replies after it; a reply that resolved the thread carries `resolvedHere: true`. The top-level
+`resolved` flag reflects the thread's current state. Use a comment's `id` as the reply/resolve target.
+
+`revision` is an integer that increases on every change. It is optional input to the write endpoint
+(see `baseRevision` below); you never need to read or send a base token. The read also returns
+`mutationReady`: on a rare degraded read where the authoritative base is not yet resolved it is `false`
+and `revision` is `null` — treat that as "revision unknown", omit `baseRevision`, and re-read shortly.
+
+## Edit The Document
+
+Use:
+
+  POST /api/agent/<slug>/v3/edit
+
+Send a `by` plus an `operations` array. The server resolves every target against the live document, so
+you do not send a base token. `baseRevision` (the integer from `v3/document`) is optional — include it
+only when you want a conflict guard. `Idempotency-Key` is optional.
+
+```bash
+curl -X POST "https://www.proofeditor.ai/api/agent/<slug>/v3/edit" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -H "X-Agent-Id: ai:your-agent" \
+  -d '{
+    "by": "ai:your-agent",
+    "operations": [
+      { "op": "replace", "find": "old visible text", "with": "new text" },
+      { "op": "insert", "after": "heading:Background", "markdown": "## Scope\n\nNew section." },
+      { "op": "comment", "on": "text to anchor on", "body": "Is this still accurate?" }
+    ]
+  }'
+```
+
+On a settled success the response echoes the post-edit document so you can chain without re-reading:
+
+```json
+{
+  "ok": true,
+  "applied": 3,
+  "results": [ { "ok": true, "kind": "content", "applied": 2 }, { "ok": true, "kind": "comment", "id": "comment-789" } ],
+  "revision": 13,
+  "markdown": "...post-edit document...",
+  "comments": [],
+  "suggestions": []
+}
+```
+
+### Operations
+
+One `operations` array carries both content and review ops. Content ops apply first as one atomic batch;
+review ops then apply in array order.
+
+Content:
+- `replace` — `{ find, with, occurrence?, before?, after? }`
+- `insert` — `{ after | before, markdown }` where the anchor is a visible-text quote, `heading:Title`, `section:Title` (before/after a whole section, subsections included), `"start"`, or `"end"`
+- `delete` — `{ find }`
+- `set_document` — `{ markdown }` replaces the whole document, applied as a minimal block diff and safe with live collaborators
+
+Review:
+- `comment` — `{ on, body }`
+- `reply` — `{ comment, body, resolve? }`
+- `resolve` — `{ comment }`
+- `unresolve` — `{ comment }`
+- `suggest` text — `{ kind: "insert" | "delete" | "replace", find, with? }` (`with` is required for `insert`/`replace`, omitted for `delete`)
+- `suggest` table structure — `{ command: "table.add_row_after" | "table.delete_row" | "table.add_column_after" | "table.delete_column", target: { table?, row, column? } }`
+- `suggest` atom — `{ kind: "insert" | "delete" | "replace", target: { node: "image" | "hr" | "hardbreak" | "footnote_reference", occurrence?, attrs? }, position?, with? }`; atom inserts require `position: "before" | "after"`, and inserts/replacements use `with: { node, attrs }`
+- `suggest` formatting — `{ command: "format.add" | "format.remove" | "format.set", mark: "bold" | "italic" | "strikethrough" | "code" | "link", find, occurrence?, before?, after?, attrs? }`; links require `attrs.href` when added or set
+- `suggest` node update — `{ command: "node.update", target: { node, find?, occurrence?, attrs? }, with: { node?, attrs? } }` for supported headings, paragraphs, list items, code blocks, images, and table cells/headers
+- `modify_suggestion` — `{ suggestion, with }` replaces the proposed content of a pending untyped insert/replace suggestion while preserving its id; typed command/atom/table/format/node proposals must be rejected and recreated
+- `accept` — `{ suggestion }`
+- `reject` — `{ suggestion }`
+
+Structural suggestions fail closed while a connected editor uses an older suggestion reader. Retry
+after that editor reconnects or upgrades; there is no separate capability field to negotiate.
+
+`find` and `on` match the **visible text** in `markdown`, not raw markdown syntax (no `**bold**`
+markers or list bullets). Disambiguate a repeated phrase with `occurrence` (a number, `"first"`, or
+`"last"`) or with `before`/`after` context.
+
+Table coordinates are 0-based in the current committed document; `table` and `column` default to
+`0`, and header rows count as row `0`. Atom targets fail closed when multiple nodes match unless
+`occurrence` is supplied. Match identity-bearing attrs such as image `src` or footnote `label`.
+
+Structural limits are deliberate:
+
+- A generic structural suggestion owns one contiguous subtree; disjoint ranges require separate
+  suggestions.
+- A pending table structural suggestion owns the whole table. Finalize it before creating another
+  structural proposal in that table.
+- Typed `node.update` supports paragraphs, headings, list items, code blocks, images, table cells,
+  and table headers. Use generic subtree replacement for supported containers such as blockquotes
+  and lists.
+- Typed command, atom, table, formatting, and node proposals cannot be modified in place; reject and
+  recreate them.
+- Atom replacements must remain inline-to-inline or block-to-block.
+- Frontmatter, raw HTML, and unknown extensions are opaque. Partial suggestions return a
+  non-retryable `CONFLICT` without changing the document.
+- One request accepts at most 100 operations. `set_document` accepts at most 2 MiB of Markdown.
+
+### Errors
+
+Every failure uses one envelope:
+
+```json
+{ "ok": false, "error": { "code": "CONFLICT", "message": "...", "retryable": true, "opIndex": 0, "target": "...", "candidates": [], "current": { "...": "fresh document" } } }
+```
+
+`code` is one of a closed set: `AUTH`, `NOT_FOUND`, `INVALID_REQUEST`, `TARGET_NOT_FOUND`,
+`TARGET_AMBIGUOUS`, `CONFLICT`, `TOO_LARGE`, `BUSY`, `PENDING`, `INTERNAL`.
+
+- `retryable: false` (e.g. `AUTH`, `NOT_FOUND`, `INVALID_REQUEST`, `TOO_LARGE`) — fix the request; do not blindly retry.
+- `retryable: true` (e.g. `TARGET_NOT_FOUND`, `TARGET_AMBIGUOUS`, `CONFLICT`) — the response embeds the fresh document as `error.current`; re-resolve your targets against it and retry in one shot.
+- `BUSY` — the authoritative base is settling; back off briefly and retry.
+- `opIndex` points at the failing operation; `target` echoes the quote/anchor that did not resolve.
+- `TARGET_AMBIGUOUS` (and an out-of-range `occurrence`) include `error.candidates` — an array of `{ occurrence, snippet }` whose snippet marks the match with «guillemets». Pick one with `occurrence` (0-based) or `before`/`after` context.
+- A mixed request applies content ops first (one atomic batch), then review ops in order. If a review op fails *after* content already committed, the response is `ok: false` with `partial: true`, `applied` (count committed), and `results` (the committed ops) alongside `error`. Re-read, then retry only the failed op — do not blindly resend the whole request (a same-`Idempotency-Key` retry safely replays this response instead of re-applying).
+
+A `202` (`PENDING` semantics) means the write committed but convergence or the final coherent read
+is still settling. The body includes `pending: true`; when the coherent read is unavailable it
+deliberately omits `revision`, `markdown`, `comments`, and `suggestions` instead of returning
+placeholder values. Re-read `v3/document` before chaining another edit.
+
+## Update Title Metadata
+
+Use:
+
+  PUT /api/documents/<slug>/title
+
+Example:
+
+  curl -X PUT "https://www.proofeditor.ai/api/documents/<slug>/title" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer <token>" \
+    -d '{"title":"Updated document title"}'
+
+Authenticate with `Authorization: Bearer <token>` or `x-share-token: <token>`.
+
+The managed Library document keeps the title `Your Library`. Attempts to rename it return `403` with `code: "DOCUMENT_TITLE_FORBIDDEN"` and do not emit a title-update event. Do not retry with a different title.
+
+If Proof cannot verify Library registration, the endpoint returns retryable `503` code `DOCUMENT_TITLE_CHECK_UNAVAILABLE` with `retryAfterMs` and `Retry-After`. Wait at least that long, then retry with bounded exponential backoff.
+
+## Credential Roles And Ownership Claims
+
+Document creation returns two credentials with different jobs:
+
+- `accessToken` — your everyday bearer for all agent API calls (read, edit, presence, events). Use it for everything except owner-level operations.
+- `ownerSecret` — owner authority only (delete and other owner-level operations). Never use it as your everyday bearer, and store the `accessToken` separately: the `ownerSecret` can be permanently revoked.
+
+A document created without an owner account is ownerless. A signed-in Every user holding an editor-level credential — an editor share token, or the document's `ownerSecret` — can claim an ownerless ACTIVE document from the document UI (account menu → Claim ownership). Claiming sets the owner account and permanently revokes the creation `ownerSecret`. Claims are a human, browser-only flow; they are not available through the agent API.
+
+After a claim:
+
+- Your `accessToken` keeps working — reads and edits via the agent API continue unchanged.
+- Requests presenting the old `ownerSecret` fail with `401`.
+- Owner-level operations (such as delete) belong to the owner's Every account; ask the owner instead of retrying with the revoked secret.
+
+## Delete A Document
+
+Use the lifecycle endpoint only when you hold an owner credential:
+
+  DELETE /api/documents/<slug>
+
+Any one of these authorizes a delete:
+
+- The `ownerSecret` returned by document creation, sent as `x-share-token: <ownerSecret>` (works from anywhere).
+- An authenticated Every owner session, sent as `Authorization: Bearer <every-session-token>`. This works from any origin for the account that owns the document — it is how an agent acting for the signed-in owner deletes a Library doc without the original `ownerSecret`.
+- A same-origin browser request carrying the owner's Every session cookie.
+
+Viewer, commenter, and editor access tokens cannot delete documents. A successful delete returns `shareState: "DELETED"`; future reads return `410`.
+
+A `403` with `code: "DOCUMENT_DELETE_FORBIDDEN"` includes a `reason`:
+
+- `CREDENTIAL_NOT_OWNER` — the credential you sent is valid but is not this document's owner credential. If the document was claimed by a human owner, the creation `ownerSecret` has been permanently revoked; delete with the owner's Every session, or ask the document owner to delete it.
+- `DOCUMENT_HAS_NO_OWNER` — the document has no owner account, so only the original `ownerSecret` can delete it; an account session cannot. A signed-in Every user holding an editor-level credential can claim the document in the browser and become its owner (see Credential Roles And Ownership Claims above) — recreation is no longer the only path to attributed ownership.
+
+Examples:
+
+  # owner secret (any origin)
+  curl -X DELETE "https://www.proofeditor.ai/api/documents/<slug>" \
+    -H "x-share-token: <ownerSecret>"
+
+  # authenticated Every owner (any origin)
+  curl -X DELETE "https://www.proofeditor.ai/api/documents/<slug>" \
+    -H "Authorization: Bearer <every-session-token>"
+
+## Presence And Event Polling
+
+Presence and events are how a long-lived agent shows activity and notices changes. They are optional
+for one-shot read/edit flows.
+
+Show presence (identity via `X-Agent-Id`):
+
+  curl -X POST "https://www.proofeditor.ai/api/agent/<slug>/presence" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer <token>" \
+    -H "X-Agent-Id: ai:your-agent" \
+    -d '{"agentId":"your-agent","status":"reading","summary":"Joining the doc"}'
+
+Presence identity can be supplied as `X-Agent-Id`, `agentId`, or `agent.id`. `by` is not used for presence.
+
+Poll for changes:
+
+  GET /api/agent/<slug>/events/pending?after=<cursor>&limit=100
+
+Subscribe to new live events:
+
+  GET /api/agent/<slug>/events/stream
+
+Pass `after=<cursor>` or `Last-Event-ID: <cursor>` only when you intentionally want replay. Without a cursor, the stream starts with new events created after connection.
+Event frames include `id:`, `event: <type>`, and JSON `data:`. The stream sends heartbeat comments and closes periodically; planned closes include an id-only `event: cursor` frame so clients can reconnect with the last seen `id`.
+`text.settled` means visible text changed through live collaboration and the persisted state has settled. Treat it as a prompt to re-read `v3/document` and decide whether to act; it does not carry the edited text. Events are an activity signal, not the source of comment thread text — read `comments[]` from `v3/document` for that.
+Comment and suggestion lifecycle events: `comment.added`, `comment.replied`, `comment.resolved`, `comment.unresolved`, `comment.deleted`, `suggestion.<kind>.added` (`insert`/`delete`/`replace`), `suggestion.accepted`, `suggestion.rejected`, and `suggestion.deleted`. The deletion events carry the `markId` — the same `id` you saw in `comments[]`/`suggestions[]` — so drop that thread from local state when you see one. `suggestion.deleted` means a pending suggestion was removed without a server-observed verdict — usually a discard, but a verdict applied while the server was not watching (e.g. offline) can look the same, so re-read `v3/document` before assuming the proposal was dropped. Suggestions whose accept/reject the server observed emit their terminal event instead.
+
+Ack processed events (editor/owner):
+
+  POST /api/agent/<slug>/events/ack
+  Body: {"upToId": <cursor>, "by": "ai:your-agent"}
+
+## Create A New Shared Doc
+
+If you need to create a share from scratch, use:
+
+  POST /share/markdown
+
+This is the canonical public create route.
+
+```bash
+curl -X POST "https://www.proofeditor.ai/share/markdown" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"My Document","markdown":"# Hello\n\nFirst draft."}'
+```
+
+Save `slug`, `accessToken`, `ownerSecret`, `shareUrl`, and `tokenUrl` from the response. Store the `accessToken` separately from the `ownerSecret`: the `accessToken` is your everyday bearer, while the `ownerSecret` is permanently revoked if a human claims the document (see Credential Roles And Ownership Claims). Documents created through this public route are ownerless until a signed-in Every user claims them.
+
+Always hand the human the tokenized link (`tokenUrl`), never a bare `/d/<slug>` URL: the editor token doubles as their claim capability if the document is ownerless.
+
+## Recommended Workflow: Changing An Existing Doc
+
+1. Read once with `GET /api/agent/<slug>/v3/document`. Note the `markdown` you want to change.
+2. Send one `POST /api/agent/<slug>/v3/edit` with the operations you need. Quote the visible text exactly.
+3. A settled `200` returns the post-edit document — inspect it instead of re-reading. For `202`,
+   re-read `v3/document` before chaining another edit.
+4. If you get a retryable error, re-resolve against `error.current` and retry once.
+
+## Troubleshooting
+
+### `web_fetch` / `WebFetch` cannot access `proofeditor.ai`
+
+If your tool reports a blocked or disallowed domain, ask the user to allow `proofeditor.ai` in the assistant's **Capabilities** settings (Web access allowed domains), then retry the same request.
+
+### `TARGET_NOT_FOUND` or `TARGET_AMBIGUOUS`
+
+Your `find`/anchor quote must match the visible text in `markdown`. Re-read `v3/document` (or use the
+`error.current` already in the response), copy the exact visible text, and disambiguate repeats with
+`occurrence` or `before`/`after`.
+
+### `CONFLICT`
+
+A targeted region changed under you. The fresh document is in `error.current`; re-resolve your targets
+against it and retry. You do not need a base token.
+
+The `error.message` and `retryable` flag distinguish these remedies:
+
+- **A connected editor has an older suggestion reader (`retryable: true`).** Proof enables structural
+  writers only after every connected editor uses the current reader. Retry after those clients
+  reconnect or upgrade; do not flatten the proposal to plain text.
+- **The operation crosses opaque or unsupported content.** Headings, blockquotes, lists and task
+  items, tables, fenced code and Mermaid, hard breaks, links/formatting, images, and horizontal rules
+  are supported. Frontmatter, raw HTML, and unknown extensions must be targeted as an opaque whole
+  block or left unchanged; Proof will not silently approximate them.
+- **A sibling pending suggestion no longer anchors** to the current document (its target text was
+  since rewritten). Inspect `error.current.suggestions[]` and verify a sibling's `quote` is truly
+  absent from the markdown before rejecting it; then retry your `suggest`. Do not reject pending
+  suggestions on suspicion — verify first.
+
+An `accept` conflict can also mean the pending suggestion no longer has document-native ownership.
+Re-read the document. Metadata cannot recreate proposed content; reject the stale suggestion or
+create a new proposal against the current document.
+
+### `BUSY`
+
+The authoritative base is briefly unavailable while collaboration settles. Retry with a short backoff.
