@@ -206,7 +206,7 @@ describe("worker doctrine boundaries", () => {
     expect(phase(run, 6)).toMatch(/before the final host gate and the review freeze/i);
     expect(phase(run, 7)).toMatch(/docs sweep over what it changed/i);
     expect(phase(run, 8)).not.toMatch(/docs sweep|doc claim/i);
-    expect(phase(run, 8)).toMatch(/changes no tracked file/i);
+    expect(deliver).toMatch(/deliver has changed no tracked file/i);
   });
 
   it("routes run's front half to the spec skill and deletes the spec branch when the PR merges", () => {
@@ -217,7 +217,9 @@ describe("worker doctrine boundaries", () => {
     expect(phase(run, 8)).toMatch(/bottega:deliver/);
     expect(deliver).toMatch(/gh pr checks <PR> --watch/);
     expect(deliver).toMatch(/excluding the `bottega\/review` status.*own marker/i);
-    expect(deliver).not.toMatch(/--required/);
+    expect(deliver).toMatch(/gh pr view <PR> --json mergeable/);
+    expect(deliver).toMatch(/CONFLICTING/);
+    expect(deliver).toMatch(/checks are green and the PR is mergeable/i);
     expect(phase(run, 8)).toMatch(
       /session learns the PR merged deletes, local and remote,.*`bottega\/spec-<slug>` branch the delivered ticket's parent issue linked/i,
     );
