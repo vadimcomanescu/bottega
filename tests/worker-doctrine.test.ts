@@ -257,7 +257,8 @@ describe("worker doctrine boundaries", () => {
     ]) {
       expect(specFormat).toMatch(proseRule);
     }
-    expect(specFormat).toMatch(/Write for a reader who was not in this session/);
+    expect(specFormat).toMatch(/announcing the finished behavior/);
+    expect(specFormat).toMatch(/never a label the text does not itself define/);
     expect(improve).toMatch(/Write for a reader who was not in this session/);
   });
 

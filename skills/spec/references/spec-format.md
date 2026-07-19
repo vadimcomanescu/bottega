@@ -30,4 +30,4 @@ These govern the spec, every ticket, and every question you put to the user.
 - Prefer the verb to the nominalization.
 - No file paths and no code snippets. One exception: a prototype-derived snippet that pins a decision more precisely than prose can (a state machine, a schema, a type shape), trimmed to the decision.
 - No user-story lists.
-- Write for a reader who was not in this session: define or link every non-standard term, and never use a label the text does not itself define.
+- Product language. Write as if announcing the finished behavior to the people who will use it: the user's words for the user's actions, the domain's terms for the domain's concepts, no implementation vocabulary, no session shorthand, and never a label the text does not itself define.
