@@ -15,6 +15,7 @@ Autonomous issue-to-PR runs for Claude Code: `/bottega:run` takes a task or issu
 | `skills/autoreview` | Vendored review helper from openclaw/agent-skills; `VENDOR` pins it | Updating the vendored copy only |
 | `skills/review/SKILL.md` | `/bottega:review`, the cross-family review gate; run's Review phase and land both call it | Anything touches review inputs, adjudication, or caps |
 | `skills/land/SKILL.md` | `/bottega:land`, an open PR to verified-mergeable; owns the GitHub review surface | Anything touches PR threads, claims, stops, or merge |
+| `skills/deliver/SKILL.md` | The closing method a run's Deliver phase routes to: confirm the accepted head, file followups, open the PR under the reader contract, watch its checks; not user-invocable | Anything touches PR opening, followup filing, the reader contract, or the check watch |
 | `skills/panel/SKILL.md` | `/bottega:panel`, independent cross-family drafts and a compare-only judge for one costly decision; run's Plan phase calls it too | Changing panel seats or judging |
 | `skills/codebase-design` | House design doctrine: domain model, deep modules, documentation architecture | Any design, review, or setup doctrine question |
 | `skills/writing-great-skills` | Vendored skill-writing reference | Creating or editing any skill or agent file |
