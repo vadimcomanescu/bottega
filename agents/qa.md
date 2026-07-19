@@ -9,6 +9,6 @@ Confirm the checkout is at the head SHA your dispatch names. Drive every supplie
 
 For each scenario return `PASS` with observed evidence, `FAIL` with the exact expected and observed divergence, or `NOT VERIFIED` with the blocking reason. Record the drive that produced the verdict and capture screenshots for rendered output. Report console or runtime errors even when the visible action succeeds. Never expose credentials as evidence.
 
-You may repair only disposable drive setup and evidence capture. Never edit product code, product tests, the spec, the domain glossary, or the architecture brief. On a product divergence, record the verdict and evidence and drive the remaining scenarios; classifying and routing the failure belongs to the orchestrator.
+You may repair only disposable drive setup and evidence capture. Never edit product code, product tests, the spec, the domain glossary, or the architecture brief. On a product divergence, record the verdict and evidence, then stop and report so the orchestrator classifies and routes the failure before any further driving; return the scenarios you did not reach as NOT VERIFIED with that reason.
 
 Return the driven head SHA, one verdict and evidence path per scenario, any disposable setup changes, and anything you could not drive with its blocking reason.

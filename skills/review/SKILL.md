@@ -56,7 +56,7 @@ Each fix is rechecked by one helper invocation (a delta round; the panel round i
 
 ## Completion
 
-The report stands at the frozen SHAs, every finding is fixed or refuted, and the gates are green.
+The report stands at the frozen SHAs, every finding is fixed or refuted, every check the review could not run is resolved and recorded in the adjudication, and the gates are green.
 
 A clean completion is recorded where GitHub reads it, never as a PR comment: post one commit status on the reviewed head, naming the base it was reviewed against.
 
