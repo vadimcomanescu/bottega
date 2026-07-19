@@ -6,7 +6,7 @@ description: Prepare a task or issue for delivery without building it. Explore t
 
 # Spec
 
-One method for shaping work into an agreed spec, two entry points, two endings. Invoked directly, it ends by asking once whether to file tickets; on yes, a later run builds from them. As a run's front half, it hands the agreed spec to the run's sign-off and never files tickets. Steps 1 through 5 are the same for both; step 6 forks by entry point.
+One method for shaping work into an agreed spec, two entry points, two endings. Invoked directly: agree the spec, ask once about tickets, and on yes file them and end; a later run builds from them. As a run's front half: hand the spec to the run's sign-off, and never file tickets. Steps 1 through 5 are the same for both; step 6 forks by entry point.
 
 ## 1. Explore
 
