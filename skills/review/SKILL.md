@@ -46,7 +46,7 @@ One helper invocation reviews the frozen diff with both families in parallel. Th
 
 The helper's JSON report is the report contract; it drops findings outside the frozen diff before reporting.
 
-Verify every accepted finding against the real code path before routing a fix, and refute only with evidence. Classify each in the vendored scope governor's vocabulary (`skills/autoreview/SKILL.md`, Scope Governor): **in-scope blocker**, **follow-up**, or **stop-and-escalate**. An in-scope blocker routes as a fix to whoever owns the module: a run's builder, or a fixer the caller dispatches. A finding that requires a design change returns to the orchestrator before any code change.
+Verify every accepted finding against the real code path before routing a fix, and refute only with evidence. Classify each in the vendored scope governor's vocabulary (`skills/autoreview/SKILL.md`, Scope Governor): **in-scope blocker**, **follow-up**, or **stop-and-escalate**. An in-scope blocker routes as a fix to whoever owns the module: a run's builder, or a fixer the caller dispatches. A follow-up in a run becomes one filed issue at Deliver (`bottega:deliver`); a standalone review reports its follow-ups to the caller. A finding that requires a design change returns to the orchestrator before any code change.
 
 Reconcile the reported design findings against the applicable basis: the brief's fixed decisions for a run, `skills/codebase-design` doctrine without a brief. Missing coverage or unresolved nonconformance blocks acceptance. The orchestrator performs this reconciliation; the review engines only report.
 

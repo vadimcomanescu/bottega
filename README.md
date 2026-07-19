@@ -43,7 +43,7 @@ The user appears exactly twice: agreeing to the spec, and merging the PR.
 - Claude Code running on the strongest available Claude model. The orchestrator role needs it, and the skill says so instead of proceeding silently on a lower tier.
 - The [codex CLI](https://github.com/openai/codex), logged in. Cross-model review is never dropped (see below), so bottega checks for it before any run and fails loudly if it's missing.
 
-Nothing else is assumed about the host repo. A run leaves nothing behind but the PR: working state is the worktree, one git-private run brief, and one gitignored owner file, all removed at delivery.
+Nothing else is assumed about the host repo. A run leaves nothing behind but the PR and the permanent branch holding its QA evidence: working state is the worktree, one git-private run brief, and one gitignored owner file, all removed at delivery.
 
 ## Design decisions
 
@@ -55,7 +55,7 @@ Nothing else is assumed about the host repo. A run leaves nothing behind but the
 
 **The spec is a conversation.** The spec is presented in the session and approved with a reply, per the [shared spec format](skills/spec/references/spec-format.md). The proof the user consumes is the review plus the QA recording.
 
-**QA owns the product drive.** Builders prove their slice through code and tests. Reviewers inspect the integrated code and architecture. Only after the orchestrator accepts the review evidence does a fresh QA worker drive the accepted head and record the verdict; QA never edits product code. The orchestrator reads a failure before routing it: environment and evidence failures stay in QA setup, implementation defects go to the builder that owns the module, and a wrong spec, domain model, or architecture returns to planning. Any product-code repair gets fresh review, orchestrator acceptance, and QA. Evidence is read on github.com, never in local folders: walkthrough gifs and screenshots embed inline in the PR body from a never-merged evidence branch, which is deleted after merge.
+**QA owns the product drive.** Builders prove their slice through code and tests. Reviewers inspect the integrated code and architecture. Only after the orchestrator accepts the review evidence does a fresh QA worker drive the accepted head and record the verdict; QA never edits product code. The orchestrator reads a failure before routing it: environment and evidence failures stay in QA setup, implementation defects go to the builder that owns the module, and a wrong spec, domain model, or architecture returns to planning. Any product-code repair gets fresh review, orchestrator acceptance, and QA. Evidence is read on github.com, never in local folders: from a permanent evidence branch, walkthrough gifs and screenshots embed inline in a public repo's PR body and link to their blob pages in a private one, where GitHub's image proxy cannot authenticate.
 
 **The PR is the only path to trunk.** Every run builds on its own branch in its own worktree; the user's checkout is never touched, and the merge click is the only human action that lands code. Why: an autonomous system should be unable to change what you run, only to propose it.
 

@@ -39,7 +39,7 @@ Inline method in an agent only when all four are true: one kind of task for that
 | `agents/panel-judge` | Stable compare-only perspective inside the panel workflow | Keep as identity. It compares drafts and never chooses the architecture. |
 | `skills/run/references/codex-dispatch.md` | Codex launch and resume mechanics used by run | Keep as a reference. It is supporting runtime detail, not a user or model-invoked capability. |
 | `skills/review/SKILL.md` | Frozen-target, round, and repair routing details for Review | Promoted from a run phase reference to the independently invoked gate with two callers (run, land). |
-| `skills/run/references/qa-evidence.md` | Publication mechanics needed after QA has evidence | Keep as a phase reference. |
+| `skills/deliver/references/qa-evidence.md` | Publication mechanics needed after QA has evidence | Keep as a phase reference. |
 | `skills/reviewing/assets/review-dispatch.js` | Schema-enforced Claude reviewer launch | Keep as workflow code and invoke it from the Review reference. |
 | `skills/panel/panel.js` | Independent drafts and blinded comparison | Keep with the panel skill. |
 | route guard, report schema, and tests | Routing, output shape, and invariant enforcement | Keep in code. Do not restate their mechanics as worker ceremony. |
