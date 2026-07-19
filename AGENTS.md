@@ -8,7 +8,7 @@ Autonomous issue-to-PR runs for Claude Code: `/bottega:run` takes a task or issu
 | --- | --- | --- |
 | `.claude-plugin/` | Plugin and marketplace manifests | Changing install or release metadata |
 | `skills/run/SKILL.md` | `/bottega:run`, the orchestrator's whole method and the routing table | Anything touches a run's phases, routing, or state |
-| `skills/spec/SKILL.md` | The one spec method (explore, grill, present) with two entry points: `/bottega:spec` and a run's front half; run's Discover and Spec phases route here, and `references/spec-format.md` sets the document shape | Anything touches the spec method, exploration, grilling, prototypes, or ticket push |
+| `skills/spec/SKILL.md` | The one spec method (explore, propose independently, grill, present) with two entry points: `/bottega:spec` and a run's front half; run's Discover and Spec phases route here, `references/spec-format.md` sets the document shape, and `references/live-review.md` carries the live-document review mechanics | Anything touches the spec method, exploration, independent proposals, grilling, prototypes, live review, or ticket push |
 | `skills/improve/SKILL.md` | `/bottega:improve`, one agreed improvement filed as an issue and handed to run | Changing how improvements are found or handed off |
 | `skills/setup/SKILL.md` | `/bottega:setup`, one-time reconciliation of a host repo with the methodology | Changing what setup writes or verifies |
 | `skills/implementing` | Builder method shared by Claude and Codex workers | Changing how builders work a slice |

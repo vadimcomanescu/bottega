@@ -1,6 +1,6 @@
 ---
 name: setup
-description: One-time per-repo reconciliation of a host repo with bottega's methodology: the domain-doc contract, documentation architecture, tracker conventions, and GitHub labels.
+description: One-time per-repo reconciliation of a host repo with bottega's methodology, covering the domain-doc contract, documentation architecture, tracker conventions, and GitHub labels.
 disable-model-invocation: true
 ---
 
