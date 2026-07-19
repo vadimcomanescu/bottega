@@ -14,7 +14,19 @@ function phase(text: string, number: number): string {
   return text.slice(start, end < 0 ? undefined : end);
 }
 
+function section(text: string, heading: string): string {
+  const start = text.indexOf(`## ${heading}`);
+  if (start < 0) {
+    throw new Error(`Section not found: ${heading}`);
+  }
+  const end = text.indexOf("\n## ", start + 1);
+  return text.slice(start, end < 0 ? undefined : end);
+}
+
 const run = read("skills/run/SKILL.md");
+const spec = read("skills/spec/SKILL.md");
+const specFormat = read("skills/spec/references/spec-format.md");
+const specFloor = section(specFormat, "The floor");
 const implementing = read("skills/implementing/SKILL.md");
 const design = read("skills/codebase-design/SKILL.md");
 const panelSkill = read("skills/panel/SKILL.md");
@@ -194,10 +206,49 @@ describe("worker doctrine boundaries", () => {
     expect(phase(run, 8)).toMatch(/changes no tracked file/i);
   });
 
-  it("routes run's Spec phase to the spec skill's format reference and watches required checks before Deliver", () => {
+  it("routes run's front half to the spec skill and deletes the spec branch when the PR merges", () => {
     expect(existsSync(join(ROOT, "skills/spec/references/spec-format.md"))).toBe(true);
+    expect(phase(run, 2)).toMatch(/Explore and grill.*method in.*bottega:spec/i);
+    expect(phase(run, 3)).toMatch(/Present the spec per.*bottega:spec/i);
     expect(phase(run, 3)).toMatch(/spec-format\.md/);
     expect(phase(run, 8)).toMatch(/required checks/i);
+    expect(phase(run, 8)).toMatch(
+      /session learns the PR merged deletes, local and remote,.*`bottega\/spec-<slug>` branch the delivered ticket's parent issue linked/i,
+    );
+  });
+
+  it("keeps the shared spec method portable and forks only its ending", () => {
+    expect(spec).toMatch(/run reader jobs in parallel.*cheap tier/i);
+    expect(spec).toMatch(/If it cannot, do the same reads yourself, inline, under the same budgets/i);
+    expect(spec).toMatch(/decision hinges on how something looks or feels.*cannot answer in words/i);
+    expect(spec).toMatch(/Prototype code.*never merges/i);
+    expect(spec).toMatch(/Invoked directly: ask once whether to push to tickets/i);
+    expect(spec).toMatch(/run's front half: hand back to the run's sign-off rules/i);
+    for (const file of [spec, specFormat]) {
+      expect(file).not.toMatch(/sonnet|opus|gpt-5/i);
+    }
+  });
+
+  it("pins the spec floor and its prose rules", () => {
+    for (const floorPart of [
+      /Problem and what changes/i,
+      /Acceptance criteria/i,
+      /Decisions.*default.*Flag every default/i,
+      /Out of scope/i,
+    ]) {
+      expect(specFloor).toMatch(floorPart);
+    }
+    for (const proseRule of [
+      /Lead with the decision/i,
+      /One idea per sentence/i,
+      /one sentence of intent plus at most one qualifier/i,
+      /Cut hedges and intensifiers/i,
+      /Prefer the verb to the nominalization/i,
+      /No file paths and no code snippets.*prototype-derived snippet/i,
+      /No user-story lists/i,
+    ]) {
+      expect(specFormat).toMatch(proseRule);
+    }
   });
 
   it("vendors the skill-writing reference model-invocable and linked for every runtime", () => {

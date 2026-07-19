@@ -1,0 +1,3 @@
+# Tickets are canonical; a spec's prototype lives on a branch that never merges
+
+A spec session answers a look-or-feel decision by building a rough prototype, but the spec and its tickets stay the only canonical record: they state each decision in words, and the prototype is evidence attached to them, never truth. The prototype is built on a `bottega/spec-<slug>` branch that the parent tracker issue links, and it never merges into trunk because the build rewrites it from the agreed spec. That branch has no merge event, so the run's merged-branch sweep cannot reclaim it: the run that delivers a ticket deletes the spec branch its parent linked, and a run that builds a prototype inside its own worktree adds no branch to clean up.
