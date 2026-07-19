@@ -37,11 +37,10 @@ One helper invocation reviews the frozen diff with both families in parallel. Th
 - Instruct the engines to flag a hand-built implementation of a problem a standard, available solution already solves: name the standard solution and where the diff reinvents it.
 - When the project carries domain contracts for the changed area, include their text so reviewers judge domain-term and doc-architecture conformance, not only code: the relevant `CONTEXT.md` glossaries, the `docs/adr/` decisions covering the changed code, and the repository's documentation-authority doc when one exists.
 - The listed inputs are the mandatory baseline: every round carries all of them. On top of it, examine the frozen diff and add any review angle this diff needs that the baseline does not name (a migration's rollback, a concurrency surface, a permission boundary), then state in the adjudication which added angles applied.
-- **Codex runtime posture.** The helper's codex engine (a bounded read-only `codex exec` in an empty workspace) is permitted in both runtimes.
 - **Fail-closed bundles.** The helper refuses a bundle carrying secret-shaped or sensitive content, and that refusal is not overridable. When the refused content is legitimate (a vendored test fixture, a seeded credential in test data), split the review into coherent targets: build a temporary review head without the refused paths, review the authored remainder against the same base, and verify the excluded part deterministically (a byte pin against upstream, its own test suite). Record the split and its verification in the adjudication.
 - **Helper location.** Invoke the helper from a checkout that carries it. When the review head does not (the vendored tree is itself excluded or under review), run the helper by absolute path from a checkout outside the reviewed one, with the reviewed worktree as the working directory.
 
-**Trivial-diff exception.** For a PR target under 150 changed lines that touches no risk path, review with a single engine from the family opposite the head author; record that choice. A single-engine invocation always pins its model and thinking, never relying on the helper's defaults or the environment: `--engine codex --model gpt-5.6-sol --thinking high`, or `--engine claude --model claude-opus-4-8 --thinking xhigh`. The helper's claude default is fable, which is fenced to the orchestrator seat. A risk path is authentication, money, permissions, persisted data, or a destructive operation. When the head author's family is unknown (a human PR or unknown authorship) the exception does not apply and both families review. A run's integrated review always takes both families and is never eligible.
+**Trivial-diff exception.** For a PR target under 150 changed lines that touches no risk path, review with a single engine from the family opposite the head author; record that choice. A single-engine invocation always pins its model and thinking, never relying on the helper's defaults or the environment: `--engine codex --model gpt-5.6-sol --thinking high`, or `--engine claude --model claude-opus-4-8 --thinking xhigh`. The helper's claude default is fable, which runs only in the orchestrator's own turns, never as a review engine. A risk path is authentication, money, permissions, persisted data, or a destructive operation. When the head author's family is unknown (a human PR or unknown authorship) the exception does not apply and both families review. A run's integrated review always takes both families and is never eligible.
 
 ## Adjudicate
 
@@ -53,11 +52,11 @@ Reconcile the reported design findings against the applicable basis: the brief's
 
 ## Delta rounds
 
-Each fix is rechecked by one helper invocation, single engine, the family opposite the fixer, `--mode branch --base <last-reviewed-head>`, scoped to the open findings and the fix range, with the model and thinking pinned exactly as the trivial-diff exception states them. The same finding still open after two failed fixes stops the repair. Round 3 stops the review.
+Each fix is rechecked by one helper invocation (a delta round; the panel round is round 1), single engine, the family opposite the fixer, `--mode branch --base <last-reviewed-head>`, scoped to the open findings and the fix range, with the model and thinking pinned exactly as the trivial-diff exception states them. The same finding still open after two failed fixes stops the repair. Round 3 stops the review.
 
 ## Completion
 
-The report stands at the frozen SHAs, every finding is fixed or refuted, every blocked check is resolved, and the gates are green.
+The report stands at the frozen SHAs, every finding is fixed or refuted, and the gates are green.
 
 A clean completion is recorded where GitHub reads it, never as a PR comment: post one commit status on the reviewed head, naming the base it was reviewed against.
 
@@ -65,4 +64,4 @@ A clean completion is recorded where GitHub reads it, never as a PR comment: pos
       -f state=success -f context=bottega/review \
       -f description="reviewed against base <reviewed-base-sha>"
 
-Post it once the reviewed head exists on the remote: land immediately after its clean round; a run at Deliver, before the PR opens, and after every post-open repair push. Readers validate the head and the named base per `skills/land` Entry.
+Post it once the reviewed head exists on the remote. Land posts it immediately after its clean round; a run posts it at Deliver before the PR opens, and again after every post-open repair push. Readers validate the head and the named base per the reviewed-marker rules in `skills/land`.

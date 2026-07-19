@@ -100,7 +100,7 @@ describe("worker doctrine boundaries", () => {
     expect(understand).toBeGreaterThanOrEqual(0);
     expect(positions.every((position) => position > understand)).toBe(true);
     expect(positions).toEqual([...positions].sort((a, b) => a - b));
-    expect(implementing).toMatch(/one command that reproduces the exact reported symptom.*earliest shared cause/i);
+    expect(implementing).toMatch(/one command that reproduces the exact reported symptom.*earliest cause in the failing path/i);
   });
 
   it("applies YAGNI to presumed capability, never to product or internal quality", () => {
@@ -134,7 +134,7 @@ describe("worker doctrine boundaries", () => {
     expect(reviewDispatch).toMatch(/orchestrator performs this reconciliation/i);
     expect(phase(run, 6)).toMatch(/review engines verify conformance/i);
     expect(phase(run, 6)).toMatch(/orchestrator performs the final architecture step/i);
-    expect(phase(run, 6)).toMatch(/not the only verifier of the design it authored/i);
+    expect(phase(run, 6)).toMatch(/accepting or rejecting the reviewed head is the orchestrator's call/i);
 
     expect(qa).toMatch(/Verify the product as a user/i);
     expect(qa).toMatch(/You may repair only disposable drive setup and evidence capture/i);
@@ -157,14 +157,14 @@ describe("worker doctrine boundaries", () => {
     ]) {
       expect(panelSkill).toMatch(angle);
     }
-    expect(panelSkill).toMatch(/Two or more drafts: proceed/i);
+    expect(panelSkill).toMatch(/With two or more drafts, proceed/i);
     expect(panelSkill).toMatch(/Do not answer the task, merge the drafts, vote, grade, or pick one/i);
   });
 
   it("keeps attribution badges out and caps Codex routing at Sol", () => {
     expect(deliver).toMatch(/attribution badges and footers out/i);
     expect(read("AGENTS.md")).toMatch(/Omit tool, model, and vendor attribution badges or footers/i);
-    expect(run).toMatch(/Codex workers never use a multi-agent model tier/i);
+    expect(run).toMatch(/No codex worker gets a tier built to orchestrate its own subagents/i);
     expect(run).toMatch(/Sol at max effort is the ceiling/i);
     const codexModels = [...`${run}\n${panelSkill}`.matchAll(/gpt-5\.6-[a-z-]+/g)].map(
       ([model]) => model,
@@ -344,7 +344,7 @@ describe("worker doctrine boundaries", () => {
     expect(land).toMatch(/converged/i);
     expect(land).toMatch(/round 3 stops the review/i);
     expect(land).toMatch(/two failed fixes stops that repair/i);
-    expect(land).toMatch(/two fix cycles without convergence/i);
+    expect(land).toMatch(/two rounds of fixes without convergence/i);
     expect(land).toMatch(/exceed the PR's stated intent/i);
     expect(land).toMatch(/gates-red/);
     expect(land).toMatch(/never decides to merge/i);
@@ -362,10 +362,10 @@ describe("worker doctrine boundaries", () => {
     expect(reviewDispatch).toMatch(/never as a PR comment/i);
     expect(reviewDispatch).toContain('-f context=bottega/review');
     expect(reviewDispatch).toContain('reviewed against base <reviewed-base-sha>');
-    expect(land).toMatch(/status is green.*creator is the identity.*description names the base SHA/is);
+    expect(land).toMatch(/status is green.*creator is the GitHub identity.*description names the base SHA/is);
     expect(land).toMatch(/Treat it as absent/i);
     expect(land).toMatch(/earlier commit of the PR: round 1 reviews the delta, `--base` that SHA/i);
-    expect(land).toMatch(/Unresolved threads enter round 1 whatever the marker says/i);
+    expect(land).toMatch(/Unresolved review threads already on the PR when land starts.*enter round 1 as claimed findings/i);
     expect(deliver).toMatch(/post the `bottega\/review` success status on the accepted head, naming the reviewed base/i);
     expect(land).toMatch(/already on the PR when land starts.*enter round 1 as claimed findings/i);
     expect(land).toMatch(/three brief lines from `skills\/run`.*name every test you edit.*verbatim/i);

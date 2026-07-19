@@ -22,7 +22,6 @@ Model the domain before arranging files.
 - A document's path shows its authority: living truth, decisions under `docs/adr/`, open plans, and archive. Living docs never cite archived docs.
 - Read the smallest map that routes the task, then only the contexts and ADRs the task touches.
 - A change to covered behavior updates the owning living doc in the same change.
-- Line budgets are reflection prompts, not gates, setup checks, or review findings.
 
 ## Design the current change
 
@@ -33,7 +32,7 @@ Model the domain before arranging files.
 - Apply YAGNI to presumptive capabilities and flexibility. Do not use it to avoid refactoring, tests, clear names, validation, security, accessibility, or data safety. Those keep evolutionary design viable.
 - A current change may justify refactoring when it removes duplication, restores ownership, or makes the required behavior clear. Do not create abstractions for unrequested variants.
 - A coherent unit is what one run can deliver: one bounded context and primary owner, one architectural rule or interface change, one brief, one integrated review and QA story, one truthful PR title, one safe release and rollback unit. A change that fails this test is more than one unit.
-- For a consequential choice without a strong repository precedent, compare a credible alternative and use the panel when reversing the choice after merge would be expensive.
+- For a consequential choice without a strong repository precedent, compare a credible alternative and, when reversing the choice after merge would be expensive, put it to [`bottega:panel`](../panel/SKILL.md).
 
 ## Architecture brief
 

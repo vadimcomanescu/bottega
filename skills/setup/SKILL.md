@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Setup
 
-Read `bottega:codebase-design` first: it defines the shape (the domain-doc contract and documentation architecture) this skill brings the project to, once, along with the tracker conventions. Apply only what the user approves.
+Read `bottega:codebase-design` first: it defines the shape this skill brings the project to, once (the domain docs and the documentation architecture).
 
 ## Method
 
@@ -19,7 +19,7 @@ Resolve symlinks first, then read; never search by a fixed list of filenames. Fo
 - Decisions: wherever design decisions are recorded today, including prose sections of README-class docs.
 - Tracker conventions, the GitHub remote, its labels, and whether `gh` is authenticated with issue and label permissions.
 - The project's gate command (test, lint, typecheck, build) and `.gitignore`.
-- Any skill-farm contract the repo declares.
+- Any index the repo declares for its own agent skills.
 
 Complete when every part of the shape has either a located current home or a stated "nowhere".
 
@@ -27,16 +27,16 @@ Complete when every part of the shape has either a located current home or a sta
 
 Present the findings, then walk only the decisions the repo cannot answer, one per exchange, waiting for each answer:
 
-- **Canonical map**: which of `CLAUDE.md` and `AGENTS.md` is the map. Ask only when both exist as independent files. When one symlinks the other, its target is the map. When neither exists, default to `CLAUDE.md`, flag it for a one-read veto, and never create the competing file.
+- **Canonical map**: which of `CLAUDE.md` and `AGENTS.md` is the map. Ask only when both exist as independent files. When one symlinks the other, its target is the map. When neither exists, default to `CLAUDE.md`, present the choice so the user can veto it in one read, and never create the competing file.
 - **Tracker location**, only when no remote settles it. A single GitHub remote settles it (GitHub Issues on that remote).
-- **Area labels**, only when the repo has more than one bounded context whose names the tree does not settle. A single-context repo has none.
 - **Context count**, when the code suggests more than one bounded context.
+- **Area labels**, only when the repo has more than one bounded context whose names the tree does not settle. A single-context repo has none.
 
 ### 3. Propose the edits
 
 For every gap between the found state and the shape, show the exact edit that closes it. Content moves; nothing is invented: an empty glossary, ADR scaffold, or owner doc is nothing to write.
 
-- **The managed block** in the canonical map, delimited by versioned markers (`<!-- bottega:setup v1 begin -->` and `<!-- bottega:setup v1 end -->`) so a rerun updates only its own block. It routes to each fact's home and never restates it, and it records that the non-map file symlinks the map.
+- **The managed block** in the canonical map, delimited by versioned markers (`<!-- bottega:setup v1 begin -->` and `<!-- bottega:setup v1 end -->`) so a rerun updates only its own block. It routes to each fact's home and never restates it, and records the symlink when the non-map file links the map.
 - **Migrations**: discovered term definitions move into the relevant `CONTEXT.md`; discovered decision records that meet the ADR bar move into `docs/adr/`; two files claiming the same authority merge into one home; every reference updates in the same change. Formats follow `bottega:codebase-design` and its references. When a source and its target both hold material, put the merge to the user before writing.
 - **Owner docs** for tracker conventions, always reusing an existing equivalent home instead of creating a second one.
 - **A `.bottega/` entry in `.gitignore`** when missing.
@@ -52,7 +52,7 @@ Report these; do not fix them here:
 
 - `gh` lacks issue or label permissions on the remote.
 - No project gate command is discoverable. A missing gate is a finding, never an invitation to invent one.
-- A declared skill-farm contract has broken links. Never create or normalize a farm.
+- An index the repo declares for its own agent skills has broken links. Never create such an index or rewrite its shape.
 
 ## Leaves alone
 
@@ -60,7 +60,7 @@ CI, hooks, gate design, technology skills, MCP config, and triage state machines
 
 ## Idempotency
 
-Setup reads its state from the repository; there is no installed flag. A doc setup created becomes repo-owned: a rerun validates it and proposes a diff rather than overwriting it. A rerun on a conforming repo makes zero file and zero GitHub changes, and says so.
+Setup reads its state from the repository. A doc setup created becomes repo-owned: a rerun validates it and proposes a diff rather than overwriting it. A rerun on a conforming repo makes zero file and zero GitHub changes, and says so.
 
 ## Done report
 
