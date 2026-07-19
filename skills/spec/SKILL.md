@@ -6,7 +6,7 @@ description: Prepare a task or issue for delivery without building it. Explore t
 
 # Spec
 
-One method for shaping work into an agreed spec, two entry points, two endings. Invoked directly: agree the spec, ask once about tickets, and on yes file them and end; a later run builds from them. As a run's front half: hand the spec to the run's sign-off, and never file tickets. Steps 1 through 5 are the same for both; step 6 forks by entry point.
+Produce a spec the owner approves, without implementing the task. Whether the user invoked `/bottega:spec` directly or a run is using this skill to prepare its spec ahead of the run's own sign-off, you explore the task, gather independent proposals when needed, grill the open decisions, prototype what hinges on look or feel, and present the spec to the owner. After a direct invocation, ask once whether to file tracker tickets; if the owner says yes, file them, and a later run builds the work from them. Inside a run, hand the spec back to the run's sign-off and leave the tracker unchanged.
 
 ## 1. Explore
 
