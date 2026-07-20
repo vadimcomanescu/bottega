@@ -1,12 +1,14 @@
 ---
 name: spec
 argument-hint: "<task, issue URL, or direction>"
-description: Prepare a task or issue for delivery without building it. Explore the codebase and the field, grill the open decisions, agree a spec, then commit it on a work branch a later run continues; one tracker issue points at the branch. Invoke via /bottega:spec when the user wants work shaped into an agreed spec rather than delivered now. Never invoke proactively; it runs a full discovery and grilling session and files an issue on the tracker.
+description: Prepare a task for delivery without building it. Explore the codebase and the field, grill the open decisions, agree a spec, and leave it agreed on a work branch a later run continues. Invoke via /bottega:spec when the user wants work shaped into an agreed spec rather than delivered now. Never invoke proactively; it runs a full discovery and grilling session.
 ---
 
 # Spec
 
-Produce a spec the owner approves, without implementing the task. Whether the user invoked `/bottega:spec` directly or a run is using this skill to prepare its spec ahead of the run's own sign-off, you explore the task, gather independent proposals when needed, grill the open decisions, prototype what hinges on look or feel, and present the spec to the owner. After a direct invocation, ask once whether to file the issue a later run picks up; on yes, commit the spec on its branch and file it. Inside a run, hand the spec back to the run's sign-off and leave the tracker unchanged.
+Produce a spec the owner approves, without implementing the task. Whether the user invoked `/bottega:spec` directly or a run is using this skill to prepare its spec ahead of the run's own sign-off, you explore the task, gather independent proposals when needed, grill the open decisions, prototype what hinges on look or feel, and present the spec to the owner.
+
+When the branch already carries a spec file, start there: show the owner what you found and confirm it is the work to do, then run the same method to refine it against the current codebase. An agreed mark never skips this; the code has moved since it was written.
 
 ## 1. Explore
 
@@ -49,7 +51,7 @@ Present the spec as a live shared document: the owner reads it rendered, on any 
 
 The owner's approval may arrive as a comment in the document, in their own words; that is the go signal, the same as a reply in the conversation.
 
-On approval, commit the spec as `docs/specs/<YYYY-MM-DD>-<slug>.md` (dated the day it was agreed), with any prototype screenshots it embeds: inside a run, on the run's branch; invoked directly, on branch `bottega/<slug>` (created now when none exists). This file on its branch is the agreed spec; no other artifact is.
+On approval, set the spec's status line to agreed ([references/spec-format.md](references/spec-format.md)) and commit it as `docs/specs/<YYYY-MM-DD>-<slug>.md` (dated the day it was agreed), with any prototype screenshots it embeds: inside a run, on the run's branch; invoked directly, on branch `bottega/<slug>` (created now when none exists). This file is the spec; no other artifact is.
 
 [references/spec-format.md](references/spec-format.md) gives the document's shape and prose rules: start from that floor and let the discussion and your findings drive the rest. It is a floor, never a template to fill.
 
@@ -57,11 +59,9 @@ As decisions settle, resolve the domain terms the work introduces or sharpens (t
 
 ## 6. End by entry point
 
-- Invoked directly: ask once whether to file the issue, then wait. On yes, publish (step 7). On no, delete the branch this session pushed, local and remote, before the session ends; the settled decision already lives in the spec's words.
-- A run's front half: hand back to the run's sign-off rules. Do not ask about the issue.
+- Invoked directly: ask once whether to push the branch, then wait. On yes, publish (step 7). On no, delete the branch this session created, local and remote if pushed, before the session ends; the settled decision already lives in the spec's words.
+- A run's front half: hand back to the run's sign-off rules.
 
 ## 7. Publish
 
-Push the branch. It is the work branch: a later run continues it, builds on it, and its PR merges the spec to trunk with the code that fulfils it (`docs/adr/0005-spec-on-the-work-branch.md`).
-
-Open one tracker issue that names the branch and states the work's scope in the spec's language, under the prose rules of [references/spec-format.md](references/spec-format.md), with the project's area label. The run claims the issue itself. Report the issue and the branch.
+Push the branch and report it. It is the work branch: a later run continues it, builds on it, and its PR merges the spec to trunk with the code that fulfils it (`docs/adr/0006-spec-status-in-the-file.md`).

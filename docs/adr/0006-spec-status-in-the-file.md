@@ -1,0 +1,5 @@
+# The spec records its own status, and the branch is the whole handoff
+
+ADR 0005 put the standalone spec on the work branch a run continues, but still had the spec session file a tracker issue as the pointer, and had the run infer agreement from commit provenance. Both jobs move into artifacts that already exist. The spec file opens with a status line (`Status: draft`, then `Status: agreed YYYY-MM-DD` on the owner's approval), so the document states what it is and no inference is needed. The handoff is the pushed branch alone: the owner points a later run at it, so no pointer artifact is needed, and spec sessions file nothing on the tracker. Tracker issues remain the owner's own task tracking; handed to a run, an issue is task input, never a spec.
+
+The agreed mark informs and never authorizes. A run starting from a found spec always confirms with the owner that it is the work to do and refines it against the current codebase, because the code has moved since the mark was set; approval at the end of that refinement is the same sign-off a fresh spec gets. There is therefore one spec flow, not two, and no routing logic anywhere reads approval state.
