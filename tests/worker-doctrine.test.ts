@@ -238,18 +238,20 @@ describe("portable worker doctrine", () => {
   });
 
   it("keeps skill openings imperative and oriented", () => {
-    // This rejects the declarative and step-label opener forms that have
-    // actually drifted in: a heading with no orienting sentence, a bold step
-    // label ("**Read.**" or "__Read.__"), a persona ("You are"), a first word
-    // that is an article/demonstrative/pronoun, or a first word ending in "s"
-    // (a plural-noun subject or third-person verb: "Skills describe...",
-    // "Provides..."). A verb/noun-ambiguous first word ("Research", "Model")
-    // cannot be judged from the word alone; imperative mood proper stays a
-    // review concern. The test pins the drift it can, not the whole grammar.
-    const DECLARATIVE_OPENERS = new Set([
+    // A merge gate must be sound: it may never fail a legitimate opening. So
+    // this rejects only the opener forms that cannot be imperative: a heading
+    // with no orienting sentence, a bold step label ("**Read.**" / "__Read.__"),
+    // a persona ("You are"), and a first word that is a function word an
+    // imperative verb never starts with (article, demonstrative, pronoun,
+    // possessive). A noun-subject declarative ("Skills describe...",
+    // "Research shows...") is not caught, because its first word is lexically a
+    // verb too ("Assess...", "Process..." are valid imperatives ending in s);
+    // no first-word rule separates them without failing real verbs. Imperative
+    // mood proper stays a review concern; the test pins the sound subset.
+    const NON_IMPERATIVE_OPENERS = new Set([
       "the", "a", "an", "this", "that", "these", "those",
-      "it", "there", "they", "we", "i", "you",
-      "he", "she", "his", "her",
+      "it", "its", "there", "they", "we", "you", "your", "i",
+      "he", "she", "his", "her", "their",
     ]);
     const vendored = new Set(["autoreview", "writing-great-skills"]);
     const skillDirectories = readdirSync(join(ROOT, "skills"), { withFileTypes: true })
@@ -275,7 +277,7 @@ describe("portable worker doctrine", () => {
       expect(/^you are\b/i.test(opening), `skills/${name} opens with an agent persona`).toBe(false);
       const firstWord = (opening.match(/[A-Za-z]+/)?.[0] ?? "").toLowerCase();
       expect(
-        DECLARATIVE_OPENERS.has(firstWord) || firstWord.endsWith("s"),
+        NON_IMPERATIVE_OPENERS.has(firstWord),
         `skills/${name} opens declaratively ("${firstWord} ..."); use an imperative verb`,
       ).toBe(false);
     }
