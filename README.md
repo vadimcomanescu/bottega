@@ -151,10 +151,10 @@ Every change to this repo ships through `/bottega:maestro` on this repo; the pro
 
 ### Copied into this repo
 
-These files are other people's work, copied as they were written and used unchanged. Both projects are MIT licensed, and their notices travel with the copies:
+These files are other people's work, copied as they were written and used unchanged. Each copy carries its upstream license file:
 
-- `skills/autoreview/` from [openclaw/agent-skills](https://github.com/openclaw/agent-skills). Copyright (c) 2026 openclaw. MIT: permission is granted free of charge to any person obtaining a copy to use, copy, modify, merge, publish, distribute, sublicense, and sell copies, subject to including this notice; the software is provided as is, without warranty of any kind.
-- `skills/codebase-design/references/CONTEXT-FORMAT.md` and `ADR-FORMAT.md` from [mattpocock/skills](https://github.com/mattpocock/skills). Copyright (c) 2026 Matt Pocock. Same MIT terms as above.
+- `skills/autoreview/` from [openclaw/agent-skills](https://github.com/openclaw/agent-skills), under `skills/autoreview/LICENSE` (MIT, Copyright (c) 2026 openclaw).
+- `skills/codebase-design/references/CONTEXT-FORMAT.md` and `ADR-FORMAT.md` from [mattpocock/skills](https://github.com/mattpocock/skills), under `skills/codebase-design/references/LICENSE` (MIT, Copyright (c) 2026 Matt Pocock).
 
 Edit either upstream, not here. Bringing in a newer version means copying it again and reading the diff.
 
