@@ -146,7 +146,7 @@ describe("portable worker doctrine", () => {
 
     const fable = models.find((model) => model.id === "fable-5");
     expect(fable, "routing registry must define fable-5").toBeDefined();
-    expect(fable!.work).toEqual(["orchestrator"]);
+    expect([...fable!.work].sort()).toEqual(["orchestrator", "panel"]);
   });
 
   it("keeps every AGENTS map path live", () => {

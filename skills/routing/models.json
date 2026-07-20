@@ -8,9 +8,10 @@
     "work": [
       "build",
       "review",
-      "panel"
+      "panel",
+      "orchestrator"
     ],
-    "notes": "OpenAI reasoning worker; run at xhigh when reviewing the other family's code. Costs and context are anchored to the GPT-5 family; the sol version's exact per-Mtok rate is unconfirmed."
+    "notes": "OpenAI reasoning worker; run at xhigh when reviewing the other family's code. Costs and context are anchored to the GPT-5 family; the sol version's exact per-Mtok rate is unconfirmed. Qualified as orchestrator at xhigh or above."
   },
   {
     "id": "opus-4.8",
@@ -45,9 +46,10 @@
     "cost_out": 75,
     "context": 1000000,
     "work": [
-      "orchestrator"
+      "orchestrator",
+      "panel"
     ],
-    "notes": "Orchestrator seat only, never dispatched as a worker. Pricing is not published; the Opus-tier figures here are a placeholder, treat as top-tier cost."
+    "notes": "Orchestrator seat, plus the panel's CLI seats; never a worker dispatch. Pricing is not published; the Opus-tier figures here are a placeholder, treat as top-tier cost."
   },
   {
     "id": "kimi-k3",

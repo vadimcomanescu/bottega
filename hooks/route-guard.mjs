@@ -150,7 +150,12 @@ try {
 }
 
 if (!event || typeof event !== "object") process.exit(0);
-const cwd = typeof event.cwd === "string" && event.cwd.length > 0 ? event.cwd : null;
+const cwd =
+  typeof event.cwd === "string" && event.cwd.length > 0
+    ? event.cwd
+    : Array.isArray(event.workspace_roots) && typeof event.workspace_roots[0] === "string"
+      ? event.workspace_roots[0]
+      : process.env.CURSOR_PROJECT_DIR || process.cwd();
 const session =
   typeof event.session_id === "string"
     ? event.session_id

@@ -1,6 +1,5 @@
 // The pr-threads script: one place assembles every `gh api graphql` call for a
 // PR's review threads, and --dry-run exposes the assembly for pinning. The same
-// pattern as scripts/codex-exec, so the assertions mirror codex-exec.test.ts.
 // Each subcommand pins the full { command, argv } object so a mutated query,
 // missing flag, or swapped field fails, not just a substring probe.
 import { spawnSync } from "node:child_process";

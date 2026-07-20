@@ -4,7 +4,7 @@
     "preToolUse": [
       {
         "matcher": "Agent|Task|Workflow",
-        "command": "node \"${CURSOR_PLUGIN_ROOT}/hooks/route-guard.mjs\""
+        "command": "node \"__BOTTEGA_ROOT__/hooks/route-guard.mjs\""
       }
     ]
   }

@@ -19,7 +19,7 @@ Use a cheap model only when all four hold:
 
 Use a strong model otherwise.
 
-Never pick the orchestrator's own model for a worker.
+Never pick the orchestrator's own model for a worker. One exemption: the review gate's engines run their fixed cross-family models even when one matches the orchestrator's; the gate is mandatory and its models are pinned in skills/review.
 
 Effort follows the same call: a strong pick runs at high effort (xhigh for a reviewer of the other family's code), a cheap pick at the model's default.
 

@@ -1,31 +1,12 @@
-# REVIEW
+# Reviewing bottega
 
-Review guidance specific to this repository. The review gate is `skills/review`, which invokes the vendored `skills/autoreview` helper; the design doctrine is `skills/codebase-design`, and the working agreement is `AGENTS.md`. This file adds only the risks a reviewer without prior Bottega context tends to miss.
+Bottega is a method in markdown; most defects are false claims, drifted duplicates, and register violations, not crashing code.
 
-## Plugin packaging and portability
-
-Bottega runs as an installed plugin inside arbitrary projects. Bottega asset paths handed to a worker (skills, scripts, schemas) must resolve under the install root (`$CLAUDE_PLUGIN_ROOT` when installed, this repo when working inside it); a hard-coded path that exists only in this checkout breaks every installed project. Reject a change that assumes a specific project language, framework, or layout.
-
-## Role and routing boundaries
-
-The orchestrator makes every judgment call; workers return finished answers and never coordinate with each other. Routing lives in one place, the table in `skills/maestro/SKILL.md`, enforced by `hooks/route-guard.js`. Reject a change that moves a judgment call into a worker, pins a model or effort in an agent file, adds a second routing authority, or copies a shared skill into an agent.
-
-## Frozen target and the vendored helper
-
-The review gate (`skills/review`) freezes base, head, and tree SHAs before the panel round, then invokes the vendored autoreview helper against the frozen base; the helper runs both families and returns one JSON report, the report contract for both. Reject a change that lets the review see a moving target, writes the helper's `--json-output` or `--output` inside the reviewed repo, alters the fixed invocation flags, wraps the helper instead of calling it, or restates the helper's own method in the gate rather than deferring to `skills/autoreview/SKILL.md` by path.
-
-## Review and QA ordering
-
-The order in `skills/maestro/SKILL.md` steps 4 to 7 is load-bearing: gates green after every integrated slice, the docs sweep before the review freeze, QA only on an accepted head, and a Close step that changes no tracked file, so the PR publishes the accepted reviewed head. Reject a change that lets any tracked edit reach the PR without passing the gate and review path first. The integrated cross-family review is the one step never dropped.
-
-## GitHub thread handling
-
-`scripts/pr-threads` is the one place a review-thread call is assembled, `scripts/pr-claim` the one place a PR's session-claim comment call is assembled, and `scripts/codex-exec` the one place a codex invocation is assembled. Reject a second assembly point for any of them. Merging stays with the user; only an explicitly armed `/bottega:land` may auto-merge a converged non-risk PR, per `skills/land/SKILL.md`.
-
-## Cleanup
-
-Run state in a project is the git-private run brief and the gitignored owner file under `.bottega/`; the worktree and run state are removed at delivery. The evidence branch `bottega/evidence-<slug>` is permanent: it never merges and is never deleted. Reject a change that adds any other project-side artifact or drops one of the remaining removal steps.
-
-## Harness duplication
-
-Reject orchestration machinery: a polling loop, a hand-written scheduler, or an instruction line that restates a harness capability (tracked dispatches, tracked background Bash, workflows), whichever file it lands in.
+- Model selection lives in `skills/routing` (the rule plus `models.json`). A skill that restates the rule or pins a model outside the registry is a defect; callers say "invoke bottega:routing".
+- Enforcement is one rule in `hooks/route-guard.mjs`: a session owning a live run names a model on every worker start, never fable. Enforcement is verified on Claude Code; the Codex and Cursor registrations are installed by setup and are best effort. Guard changes need `tests/route-guard.test.ts` to still pass against real event shapes.
+- There are no agent identity files. Worker method arrives per dispatch from skills (`implementing`, `qa`).
+- The skills tree is the product and must stay harness-portable: nothing in `skills/` may assume slash commands, subagents, or a plugin root exists, except where a harness is named.
+- The panel's seats are fresh CLI contexts (including fable drafts); they are not worker dispatches and the guard does not police them. The registry records this as fable's `panel` qualification.
+- The integrated review always runs both families through the vendored autoreview helper; the codex CLI is a hard requirement for it.
+- Every claim in AGENTS.md, README.md, and skill cross-references must be true of the tree in the same diff that changes the tree.
+- Register: plain engineering English, no em dashes, no "bearing"/"ledger", one route verb ("invoke").
