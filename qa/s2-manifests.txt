@@ -1,0 +1,73 @@
+===== claude .claude-plugin/plugin.json =====
+version: 0.66.0
+has hooks field: true -> "./hooks/hooks.json"
+skills: "./skills/"
+full: {
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "bottega",
+  "displayName": "Bottega",
+  "version": "0.66.0",
+  "description": "Autonomous issue-to-PR runs for Claude Code, Codex, and Cursor.",
+  "author": {
+    "name": "Vadim Comanescu"
+  },
+  "repository": "https://github.com/vadimcomanescu/bottega",
+  "license": "MIT",
+  "keywords": [
+    "autonomous",
+    "agents",
+    "orchestration",
+    "code-review",
+    "qa"
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json"
+}
+===== codex .codex-plugin/plugin.json =====
+version: 0.66.0
+has hooks field: false -> undefined
+skills: "./skills/"
+full: {
+  "name": "bottega",
+  "version": "0.66.0",
+  "description": "Autonomous issue-to-PR runs for Claude Code, Codex, and Cursor.",
+  "author": {
+    "name": "Vadim Comanescu"
+  },
+  "homepage": "https://github.com/vadimcomanescu/bottega",
+  "repository": "https://github.com/vadimcomanescu/bottega",
+  "license": "MIT",
+  "keywords": [
+    "autonomous",
+    "agents",
+    "orchestration",
+    "code-review",
+    "qa"
+  ],
+  "skills": "./skills/"
+}
+===== cursor .cursor-plugin/plugin.json =====
+version: 0.66.0
+has hooks field: true -> "./hooks/hooks-cursor.json"
+skills: "./skills/"
+full: {
+  "name": "bottega",
+  "displayName": "Bottega",
+  "version": "0.66.0",
+  "description": "Autonomous issue-to-PR runs for Claude Code, Codex, and Cursor.",
+  "author": {
+    "name": "Vadim Comanescu"
+  },
+  "homepage": "https://github.com/vadimcomanescu/bottega",
+  "repository": "https://github.com/vadimcomanescu/bottega",
+  "license": "MIT",
+  "keywords": [
+    "autonomous",
+    "agents",
+    "orchestration",
+    "code-review",
+    "qa"
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks-cursor.json"
+}

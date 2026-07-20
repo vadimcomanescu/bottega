@@ -1,0 +1,42 @@
+===== (a) owning session, Agent, no model -> expect DENY unpinned =====
+--- stdin JSON ---
+{"tool_name":"Agent","session_id":"sess-owner-123","cwd":"/var/folders/lp/6s3b71_j04j8wyj0n061587c0000gn/T/tmp.Y7oEDxWW7l","tool_input":{"prompt":"do x"}}
+--- raw stdout ---
+{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"This live run dispatch names no model. Choose an explicit model using skills/routing and retry."}}
+--- exit code: 0 ---
+
+===== (b) owning session, Agent, model fable-5 -> expect DENY fable =====
+--- stdin JSON ---
+{"tool_name":"Agent","session_id":"sess-owner-123","cwd":"/var/folders/lp/6s3b71_j04j8wyj0n061587c0000gn/T/tmp.Y7oEDxWW7l","tool_input":{"model":"fable-5","prompt":"do x"}}
+--- raw stdout ---
+{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"This live run dispatch routes to Fable. Choose a non-Fable model using skills/routing and retry."}}
+--- exit code: 0 ---
+
+===== (c) owning session, Agent, model opus-4.8 -> expect PASS (silent, exit 0) =====
+--- stdin JSON ---
+{"tool_name":"Agent","session_id":"sess-owner-123","cwd":"/var/folders/lp/6s3b71_j04j8wyj0n061587c0000gn/T/tmp.Y7oEDxWW7l","tool_input":{"model":"opus-4.8","prompt":"do x"}}
+--- raw stdout ---
+
+--- exit code: 0 ---
+
+===== (d) non-owning session, Agent, no model -> expect PASS =====
+--- stdin JSON ---
+{"tool_name":"Agent","session_id":"no-such-session","cwd":"/var/folders/lp/6s3b71_j04j8wyj0n061587c0000gn/T/tmp.Y7oEDxWW7l","tool_input":{"prompt":"do x"}}
+--- raw stdout ---
+
+--- exit code: 0 ---
+
+===== (e) malformed JSON on stdin -> expect PASS =====
+--- stdin JSON ---
+{ this is not valid json 
+--- raw stdout ---
+
+--- exit code: 0 ---
+
+===== (f) owning session, Workflow with agent('x') no model -> expect DENY workflow unpinned =====
+--- stdin JSON ---
+{"tool_name":"Workflow","session_id":"sess-owner-123","cwd":"/var/folders/lp/6s3b71_j04j8wyj0n061587c0000gn/T/tmp.Y7oEDxWW7l","tool_input":{"script":"const r = agent('x', { prompt: 'go' });"}}
+--- raw stdout ---
+{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"This live run workflow has an agent() call that names no literal model. Choose an explicit model using skills/routing and retry."}}
+--- exit code: 0 ---
+

@@ -1,0 +1,37 @@
+
+> bottega@0.1.0 test
+> vitest run && npm run test:autoreview-vendor
+
+
+ RUN  v4.1.9 /Users/vadimcomanescu/Code/bottega-wt-cross-harness
+
+
+ Test Files  6 passed (6)
+      Tests  85 passed (85)
+   Start at  16:55:32
+   Duration  6.58s (transform 230ms, setup 0ms, import 363ms, tests 14.96s, environment 1ms)
+
+
+> bottega@0.1.0 test:autoreview-vendor
+> python3 tests/run-vendor-suites.py
+
+.......codex model gpt-5.6-sol is unavailable for this account; retrying with gpt-5.6-terra
+..............usage: test-review-harness [-h] [--fixture {malicious,benign}]
+                           [--engine {codex,claude,pi}]
+test-review-harness: error: argument --engine: invalid choice: 'cursor' (choose from 'codex', 'claude', 'pi')
+...................................................s...s....................s.....................................................................................................................................................
+----------------------------------------------------------------------
+Ran 247 tests in 25.999s
+
+OK (skipped=3)
+self-test fallback scope: ok
+tests exit: 0 after 0s
+tests: run tests
+tests exit: 0 after 0s
+tests: run tests
+tests exit: 0 after 0s
+tests: run tests
+tests exit: 0 after 0s
+tests: run tests
+tests exit: 0 after 0s
+EXIT CODE: 0
