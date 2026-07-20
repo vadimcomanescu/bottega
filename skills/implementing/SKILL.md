@@ -6,7 +6,7 @@ user-invocable: false
 
 # Implementing
 
-Implement one assigned slice. The orchestrator owns the domain model, architecture, and interfaces. You own the simplest correct implementation behind them.
+Implement one assigned slice: the simplest correct implementation behind the domain model, architecture, and interfaces the orchestrator owns.
 
 ## Understand first
 

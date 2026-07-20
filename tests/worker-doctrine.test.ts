@@ -236,4 +236,95 @@ describe("portable worker doctrine", () => {
       }
     }
   });
+
+  it("keeps skill openings imperative and oriented", () => {
+    // A merge gate must be sound: it may never fail a legitimate opening. So
+    // this rejects only the opener forms that cannot be imperative: a heading
+    // with no orienting sentence, a bold step label ("**Read.**" / "__Read.__"),
+    // a persona ("You are"), and a first word that is a function word an
+    // imperative verb never starts with (article, demonstrative, pronoun,
+    // possessive). A noun-subject declarative ("Skills describe...",
+    // "Research shows...") is not caught, because its first word is lexically a
+    // verb too ("Assess...", "Process..." are valid imperatives ending in s);
+    // no first-word rule separates them without failing real verbs. Imperative
+    // mood proper stays a review concern; the test pins the sound subset.
+    const NON_IMPERATIVE_OPENERS = new Set([
+      "the", "a", "an", "this", "that", "these", "those",
+      "it", "there", "they", "we", "you", "i", "he", "she",
+      // the seven possessive determiners: none can begin an imperative verb
+      "my", "your", "his", "her", "its", "our", "their",
+    ]);
+    const vendored = new Set(["autoreview", "writing-great-skills"]);
+    const skillDirectories = readdirSync(join(ROOT, "skills"), { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && !vendored.has(entry.name))
+      .map((entry) => entry.name);
+
+    for (const name of skillDirectories) {
+      const body = read(`skills/${name}/SKILL.md`).replace(
+        /^---\r?\n[\s\S]*?\r?\n---\r?\n/,
+        "",
+      );
+      const lines = body.split(/\r?\n/).map((line) => line.trim());
+      const title = lines.findIndex((line) => line.startsWith("# "));
+      const opening = lines.slice(title + 1).find((line) => line.length > 0) ?? "";
+      expect(
+        opening.startsWith("#"),
+        `skills/${name} needs an orienting sentence before its first section`,
+      ).toBe(false);
+      expect(
+        opening.startsWith("**") || opening.startsWith("__"),
+        `skills/${name} opens with a bold step label, not an orienting sentence`,
+      ).toBe(false);
+      expect(/^you are\b/i.test(opening), `skills/${name} opens with an agent persona`).toBe(false);
+      const firstWord = (opening.match(/[A-Za-z]+/)?.[0] ?? "").toLowerCase();
+      expect(
+        NON_IMPERATIVE_OPENERS.has(firstWord),
+        `skills/${name} opens declaratively ("${firstWord} ..."); use an imperative verb`,
+      ).toBe(false);
+    }
+  });
+
+  it("pins the review interlock and its quantifiers", () => {
+    const maestro = read("skills/maestro/SKILL.md");
+    expect(maestro).toContain("every fixed decision in the plan");
+    expect(maestro).toContain("bottega:review");
+
+    const review = read("skills/review/SKILL.md");
+    expect(review).toContain("every finding is fixed or refuted");
+    expect(review).toContain("routes as a fix");
+    expect(review).toContain("Round 3 stops the review.");
+  });
+
+  it("keeps every lesson enforced somewhere that exists", () => {
+    const lessons = filesUnder("docs/lessons", ".md");
+    expect(lessons.length).toBeGreaterThan(0);
+
+    const testSources = filesUnder("tests", ".ts")
+      .map((path) => read(path))
+      .join("\n");
+
+    for (const lesson of lessons) {
+      const source = read(lesson);
+      const enforced = source.match(/^Enforced: (.+)$/m);
+      expect(enforced, `${lesson} must name where its rule is enforced`).not.toBeNull();
+      if (!enforced) continue;
+
+      const line = enforced[1] ?? "";
+      const refs = [...line.matchAll(/[\w./-]+\.(?:md|mjs|ts)/g)].map((match) => match[0]);
+      expect(refs.length, `${lesson} names no enforcement file`).toBeGreaterThan(0);
+      const refSources = refs
+        .filter((ref) => existsSync(join(ROOT, ref)))
+        .map((ref) => read(ref))
+        .join("\n");
+      for (const ref of refs) {
+        expect(existsSync(join(ROOT, ref)), `${lesson} points at missing file ${ref}`).toBe(true);
+      }
+      for (const [, quoted] of line.matchAll(/"([^"]+)"/g)) {
+        expect(
+          refSources.includes(quoted ?? "") || testSources.includes(quoted ?? ""),
+          `${lesson} quotes a rule its enforcement home does not carry: ${quoted}`,
+        ).toBe(true);
+      }
+    }
+  });
 });

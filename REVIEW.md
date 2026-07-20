@@ -10,3 +10,4 @@ Bottega is a method in markdown; most defects are false claims, drifted duplicat
 - The integrated review always runs both families through the vendored autoreview helper; the codex CLI is a hard requirement for it.
 - Every claim in AGENTS.md, README.md, and skill cross-references must be true of the tree in the same diff that changes the tree.
 - Register: plain engineering English, no em dashes, no "bearing"/"ledger", one route verb ("invoke").
+- `docs/lessons/` carries the repository's failure records. Two carry review checks, and a violation of either is a finding: a capability the diff adopts ships either its working verification or a tracking issue (neither present is the finding), and a delivered design does not contradict the spec's own research record.

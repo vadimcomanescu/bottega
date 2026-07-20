@@ -6,6 +6,8 @@ description: Find the single strongest improvement in a codebase, agree it in th
 
 # Improve
 
+Find the single strongest improvement in the codebase, agree it with the user in the conversation, then file it and hand it to a run.
+
 **Read.** Start with the smallest map that routes you (root `CLAUDE.md` or `AGENTS.md`), then read only what the scan needs: the relevant `CONTEXT.md` glossaries, the `docs/adr/` decisions covering the code you will touch, the doc the repository names as its documentation authority, and the tracker's labelling conventions.
 
 **Scope.** Scope by evidence before you scan. The user's named direction wins: scope to it. Without one, walk the commit history for hot spots (the files and modules that churn) and bias the scan there; a change scattered across the history widens the net.

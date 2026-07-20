@@ -6,7 +6,7 @@ argument-hint: "<PR number, ref range, or integrated worktree>"
 
 # Review
 
-The vendored helper runs the review engines and returns one JSON report; `skills/autoreview/SKILL.md` is the runtime doctrine for the invocation. This gate owns the frozen SHAs, the model routing, adjudication, the caps, and the routing of fixes.
+Review an integrated diff through the cross-family gate: freeze the target, run both engines once, adjudicate every finding, and complete only at the bar the Completion section sets. The vendored helper runs the review engines and returns one JSON report; `skills/autoreview/SKILL.md` is the runtime doctrine for the invocation. This gate owns the frozen SHAs, the model routing, adjudication, the caps, and the routing of fixes.
 
 A standalone `/bottega:review` of a PR acquires the per-PR session claim through `scripts/pr-claim` at entry and releases it at exit; a held claim reports the holder and stops. Invoked by land or by a run, this gate touches no claim: the caller owns it. A ref-range target has no claim.
 

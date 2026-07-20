@@ -10,7 +10,7 @@ Produce a spec the owner approves, without implementing the task. Whether the us
 
 ## 1. Explore
 
-Read the repo facts first: the smallest map that routes the task (root `CLAUDE.md` or `AGENTS.md`), then `CONTEXT-MAP.md` if present, then only the `CONTEXT.md` glossaries and `docs/adr/` decisions the work touches. Current docs only; archived and superseded ones are history.
+Read the repo facts first: the smallest map that routes the task (root `CLAUDE.md` or `AGENTS.md`), then `CONTEXT-MAP.md` if present, then only the `CONTEXT.md` glossaries, `docs/adr/` decisions, and `docs/lessons/` records the work touches. Current docs only; archived and superseded ones are history.
 
 Then, on cheaper tiers, launch a subagent per job that applies: explore how the affected area of the codebase works today and the precedent it sets; research how the field solves this problem and where it is heading; and read the technology skills in this runtime that match the work. Run the field job on any product-shaped work: the codebase answers how we already do it here, the field answers the standard way.
 
@@ -26,7 +26,7 @@ Run this before the grilling, because the owner's answers narrow the direction: 
 
 ## 3. Grill
 
-List the unknowns the request leaves open: the risks the code, history, or domain point to but the request omits. Then sweep for blind spots: the questions neither you nor the request thought to ask, strongest where the owner is furthest from the domain. Rank everything by impact, and ask earliest where the answer would change the architecture. Resolve each unknown from a repo fact where one exists, searching the project's own precedent before you reach for the user. Put what remains to the user one question at a time, each with your recommended answer, so a reply is a yes or a correction. Keep asking until you can predict the user's acceptance decisions.
+List the unknowns the request leaves open: the risks the code, history, or domain point to but the request omits. Then sweep for blind spots: the questions neither you nor the request thought to ask, strongest where the owner is furthest from the domain. Rank everything by impact, and ask earliest where the answer would change the architecture. Resolve each unknown from a repo fact where one exists, searching the project's own precedent before you reach for the user. Put what remains to the user one question at a time, each with your recommended answer, so a reply is a yes or a correction. Keep asking until you can predict the user's acceptance decisions. A decision that reverses an earlier verdict names that verdict and the evidence that changed the call, in the spec.
 
 ## 4. Prototype a look-or-feel decision
 
