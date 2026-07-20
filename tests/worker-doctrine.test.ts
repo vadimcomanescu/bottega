@@ -172,6 +172,11 @@ describe("portable worker doctrine", () => {
 
     expect(manifests.get(".codex-plugin/plugin.json")!.skills).toBe("./skills/");
     expect(manifests.get(".cursor-plugin/plugin.json")!.skills).toBe("./skills/");
+
+    // Claude Code auto-loads the standard hooks/hooks.json, so the manifest must
+    // not re-declare it; a manifest hooks key points only at a non-standard file.
+    expect(manifests.get(".claude-plugin/plugin.json")!.hooks).toBeUndefined();
+    expect(manifests.get(".cursor-plugin/plugin.json")!.hooks).toBe("./hooks/hooks-cursor.json");
     expect(manifests.get(".claude-plugin/plugin.json")!.version).toMatch(
       /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/,
     );
