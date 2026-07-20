@@ -24,8 +24,8 @@ function section(text: string, heading: string): string {
   return text.slice(start, end < 0 ? undefined : end);
 }
 
-const run = read("skills/run/SKILL.md");
 const deliver = read("skills/deliver/SKILL.md");
+const close = read("skills/close/SKILL.md");
 const spec = read("skills/spec/SKILL.md");
 const specFormat = read("skills/spec/references/spec-format.md");
 const specSpine = section(specFormat, "The spine");
@@ -35,7 +35,7 @@ const design = read("skills/codebase-design/SKILL.md");
 const panelSkill = read("skills/panel/SKILL.md");
 const writingSkill = read("skills/writing-great-skills/SKILL.md");
 const qa = read("agents/qa.md");
-const codexDispatch = read("skills/run/references/codex-dispatch.md");
+const codexDispatch = read("skills/deliver/references/codex-dispatch.md");
 const reviewDispatch = read("skills/review/SKILL.md");
 const land = read("skills/land/SKILL.md");
 
@@ -52,6 +52,7 @@ describe("worker doctrine boundaries", () => {
         .sort(),
     ).toEqual([
       "autoreview",
+      "close",
       "codebase-design",
       "deliver",
       "implementing",
@@ -59,7 +60,6 @@ describe("worker doctrine boundaries", () => {
       "land",
       "panel",
       "review",
-      "run",
       "setup",
       "spec",
       "writing-great-skills",
@@ -75,12 +75,12 @@ describe("worker doctrine boundaries", () => {
   });
 
   it("keeps internal methods model-loadable and out of the user command list", () => {
-    for (const skill of [deliver, implementing, design, writingSkill]) {
+    for (const skill of [close, implementing, design, writingSkill]) {
       const frontmatter = skill.split("---")[1];
       expect(frontmatter).toContain("user-invocable: false");
       expect(frontmatter).not.toContain("disable-model-invocation: true");
     }
-    for (const entry of [run, reviewDispatch, land, panelSkill]) {
+    for (const entry of [deliver, reviewDispatch, land, panelSkill]) {
       expect(entry).not.toContain("user-invocable: false");
     }
   });
@@ -132,15 +132,15 @@ describe("worker doctrine boundaries", () => {
   it("separates independent architecture verification, orchestrator acceptance, and product QA", () => {
     expect(reviewDispatch).toMatch(/review engines.*report/i);
     expect(reviewDispatch).toMatch(/orchestrator performs this reconciliation/i);
-    expect(phase(run, 6)).toMatch(/review engines verify conformance/i);
-    expect(phase(run, 6)).toMatch(/orchestrator performs the final architecture step/i);
-    expect(phase(run, 6)).toMatch(/accepting or rejecting the reviewed head is the orchestrator's call/i);
+    expect(phase(deliver, 5)).toMatch(/review engines verify conformance/i);
+    expect(phase(deliver, 5)).toMatch(/orchestrator performs the final architecture step/i);
+    expect(phase(deliver, 5)).toMatch(/accepting or rejecting the reviewed head is the orchestrator's call/i);
 
     expect(qa).toMatch(/Verify the product as a user/i);
     expect(qa).toMatch(/You may repair only disposable drive setup and evidence capture/i);
     expect(qa).toMatch(/Never edit product code, product tests, the spec, the domain glossary, or the architecture brief/i);
-    expect(phase(run, 7)).toMatch(/implementation defect.*builder that owns/i);
-    expect(phase(run, 7)).toMatch(/wrong spec, domain model, interface, or architecture returns to Plan/i);
+    expect(phase(deliver, 6)).toMatch(/implementation defect.*builder that owns/i);
+    expect(phase(deliver, 6)).toMatch(/wrong spec, domain model, interface, or architecture returns to Plan/i);
   });
 
   it("keeps the panel a portable skill: CLI seats, blinded drafts, a compare-only judge, caller synthesis", () => {
@@ -162,21 +162,20 @@ describe("worker doctrine boundaries", () => {
   });
 
   it("keeps attribution badges out and caps Codex routing at Sol", () => {
-    expect(deliver).toMatch(/attribution badges and footers out/i);
+    expect(close).toMatch(/attribution badges and footers out/i);
     expect(read("AGENTS.md")).toMatch(/Omit tool, model, and vendor attribution badges or footers/i);
-    expect(run).toMatch(/No codex worker gets a tier built to orchestrate its own subagents/i);
-    expect(run).toMatch(/Sol at max effort is the ceiling/i);
-    const codexModels = [...`${run}\n${panelSkill}`.matchAll(/gpt-5\.6-[a-z-]+/g)].map(
+    expect(deliver).toMatch(/No codex worker gets a tier built to orchestrate its own subagents/i);
+    expect(deliver).toMatch(/Sol at max effort is the ceiling/i);
+    const codexModels = [...`${deliver}\n${panelSkill}`.matchAll(/gpt-5\.6-[a-z-]+/g)].map(
       ([model]) => model,
     );
     expect(new Set(codexModels)).toEqual(new Set(["gpt-5.6-sol"]));
   });
 
-  it("relocates the review gate into skills/review and points run step 6 at it", () => {
-    expect(existsSync(join(ROOT, "skills/run/references/review.md"))).toBe(false);
-    expect(phase(run, 6)).toContain("../review/SKILL.md");
-    expect(phase(run, 6)).toMatch(/bottega:review/);
-    expect(phase(run, 6)).not.toContain("references/review.md");
+  it("keeps the review gate in skills/review and points the Review phase at it", () => {
+    expect(phase(deliver, 5)).toContain("../review/SKILL.md");
+    expect(phase(deliver, 5)).toMatch(/bottega:review/);
+    expect(phase(deliver, 5)).not.toContain("references/review.md");
 
     expect(reviewDispatch).toMatch(/`skills\/autoreview\/SKILL\.md` is the runtime doctrine/i);
     expect(reviewDispatch).toContain("--reviewers codex,claude");
@@ -201,29 +200,30 @@ describe("worker doctrine boundaries", () => {
     expect(agents).toMatch(/read root `REVIEW\.md` first/i);
   });
 
-  it("runs the docs sweep before the review freeze and keeps Deliver free of tracked edits", () => {
-    expect(phase(run, 6)).toMatch(/docs sweep/i);
-    expect(phase(run, 6)).toMatch(/false claims and missing entries alike/i);
-    expect(phase(run, 6)).toMatch(/before the final project gate and the review freeze/i);
-    expect(phase(run, 7)).toMatch(/docs sweep over what it changed/i);
-    expect(phase(run, 8)).not.toMatch(/docs sweep|doc claim/i);
-    expect(deliver).toMatch(/deliver has changed no tracked file/i);
+  it("runs the docs sweep before the review freeze and keeps Close free of tracked edits", () => {
+    expect(phase(deliver, 5)).toMatch(/docs sweep/i);
+    expect(phase(deliver, 5)).toMatch(/false claims and missing entries alike/i);
+    expect(phase(deliver, 5)).toMatch(/before the final project gate and the review freeze/i);
+    expect(phase(deliver, 6)).toMatch(/docs sweep over what it changed/i);
+    expect(phase(deliver, 7)).not.toMatch(/docs sweep|doc claim/i);
+    expect(close).toMatch(/close has changed no tracked file/i);
   });
 
-  it("routes run's front half to the spec skill and deletes the spec branch when the PR merges", () => {
+  it("invokes the spec skill once and whole, gates approval on the spec-issue marker, and commits the spec to the repo", () => {
     expect(existsSync(join(ROOT, "skills/spec/references/spec-format.md"))).toBe(true);
-    expect(phase(run, 2)).toMatch(/Invoke.*bottega:spec.*to explore and grill/i);
-    expect(phase(run, 3)).toMatch(/Invoke.*bottega:spec.*to present the spec/i);
-    expect(phase(run, 3)).toMatch(/spec-format\.md/);
-    expect(phase(run, 8)).toMatch(/bottega:deliver/);
-    expect(deliver).toMatch(/gh pr checks <PR> --watch/);
-    expect(deliver).toMatch(/excluding the `bottega\/review` status.*own marker/i);
-    expect(deliver).toMatch(/gh pr view <PR> --json mergeable/);
-    expect(deliver).toMatch(/CONFLICTING/);
-    expect(deliver).toMatch(/checks are green and the PR is mergeable/i);
-    expect(phase(run, 8)).toMatch(
-      /session learns the PR merged deletes, local and remote,.*`bottega\/spec-<slug>` branch the delivered ticket's parent issue linked/i,
+    expect(phase(deliver, 2)).toMatch(/Invoke.*bottega:spec.*once, whole/i);
+    expect(phase(deliver, 2)).toMatch(
+      /carries the user's OK only when it is a child ticket of a parent spec issue that `bottega:spec` filed/i,
     );
+    expect(phase(deliver, 2)).toMatch(/a plain issue, however detailed.*has no OK yet/i);
+    expect(phase(deliver, 2)).toMatch(/docs\/specs\/<slug>\.md/);
+    expect(phase(deliver, 7)).toMatch(/bottega:close/);
+    expect(close).toMatch(/gh pr checks <PR> --watch/);
+    expect(close).toMatch(/excluding the `bottega\/review` status.*own marker/i);
+    expect(close).toMatch(/gh pr view <PR> --json mergeable/);
+    expect(close).toMatch(/CONFLICTING/);
+    expect(close).toMatch(/checks are green and the PR is mergeable/i);
+    expect(phase(deliver, 7)).toMatch(/`bottega\/spec-<slug>` branch is permanent/i);
   });
 
   it("keeps the shared spec method portable and forks only its ending", () => {
@@ -233,6 +233,8 @@ describe("worker doctrine boundaries", () => {
     expect(spec).toMatch(/Prototype code.*never merges/i);
     expect(spec).toMatch(/Invoked directly: ask once whether to push to tickets/i);
     expect(spec).toMatch(/run's front half: hand back to the run's sign-off rules/i);
+    expect(spec).toMatch(/Commit the spec as `docs\/specs\/<slug>\.md` on branch `bottega\/spec-<slug>`/);
+    expect(spec).toMatch(/A ticket is queue state, never the spec's home/i);
     for (const file of [spec, specFormat]) {
       expect(file).not.toMatch(/sonnet|opus|gpt-5/i);
     }
@@ -309,19 +311,19 @@ describe("worker doctrine boundaries", () => {
   });
 
   it("pins Deliver's reader, evidence, and follow-up contracts", () => {
-    expect(deliver).toMatch(/Write for a reader who was not in the run and has not read the spec/);
-    expect(deliver).toMatch(/never use a label the document does not itself define/i);
+    expect(close).toMatch(/Write for a reader who was not in the run and has not read the spec/);
+    expect(close).toMatch(/never use a label the document does not itself define/i);
 
-    const evidencePath = "skills/deliver/references/qa-evidence.md";
+    const evidencePath = "skills/close/references/qa-evidence.md";
     expect(existsSync(join(ROOT, evidencePath))).toBe(true);
     const evidence = read(evidencePath);
     expect(evidence).toMatch(/never deleted/i);
     expect(evidence).toMatch(/blob page/i);
     expect(evidence).toMatch(/raw URLs/i);
 
-    expect(deliver).toMatch(/gh pr create -F/);
-    expect(deliver).toMatch(/becomes one tracker issue/i);
-    expect(section(reviewDispatch, "Adjudicate")).toMatch(/follow-up.*deliver/i);
+    expect(close).toMatch(/gh pr create -F/);
+    expect(close).toMatch(/becomes one tracker issue/i);
+    expect(section(reviewDispatch, "Adjudicate")).toMatch(/follow-up.*close/i);
   });
 
   it("vendors the skill-writing reference model-invocable and linked for every runtime", () => {
@@ -366,8 +368,8 @@ describe("worker doctrine boundaries", () => {
     expect(land).toMatch(/Treat it as absent/i);
     expect(land).toMatch(/earlier commit of the PR: round 1 reviews the delta, `--base` that SHA/i);
     expect(land).toMatch(/Unresolved review threads already on the PR when land starts.*enter round 1 as claimed findings/i);
-    expect(deliver).toMatch(/post the `bottega\/review` success status on the accepted head, naming the reviewed base/i);
+    expect(close).toMatch(/post the `bottega\/review` success status on the accepted head, naming the reviewed base/i);
     expect(land).toMatch(/already on the PR when land starts.*enter round 1 as claimed findings/i);
-    expect(land).toMatch(/three brief lines from `skills\/run`.*name every test you edit.*verbatim/i);
+    expect(land).toMatch(/three brief lines from `skills\/deliver`.*name every test you edit.*verbatim/i);
   });
 });
