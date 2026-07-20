@@ -49,6 +49,8 @@ Present the spec as a live shared document: the owner reads it rendered, on any 
 
 The owner's approval may arrive as a comment in the document, in their own words; that is the go signal, the same as a reply in the conversation.
 
+On approval, commit the spec as `docs/specs/<YYYY-MM-DD>-<slug>.md` (dated the day it was agreed), with any prototype screenshots it embeds: inside a run, on the run's branch; invoked directly, on branch `bottega/<slug>` (created now when none exists). This file on its branch is the agreed spec; no other artifact is.
+
 [references/spec-format.md](references/spec-format.md) gives the document's shape and prose rules: start from that floor and let the discussion and your findings drive the rest. It is a floor, never a template to fill.
 
 As decisions settle, resolve the domain terms the work introduces or sharpens (the method is in [`bottega:codebase-design`](../codebase-design/SKILL.md)) and record them in the spec. Write no `CONTEXT.md` or `docs/adr/` entry from this session; the run that later builds a ticket writes those after approval.
@@ -60,6 +62,6 @@ As decisions settle, resolve the domain terms the work introduces or sharpens (t
 
 ## 7. Publish
 
-Commit the spec as `docs/specs/<YYYY-MM-DD>-<slug>.md` (dated the day the spec was agreed), with any prototype screenshots it embeds, on branch `bottega/<slug>` (created now when none exists), and push it. This is the work branch: a later run continues it, builds on it, and its PR merges the spec to trunk with the code that fulfils it (`docs/adr/0005-spec-on-the-work-branch.md`).
+Push the branch. It is the work branch: a later run continues it, builds on it, and its PR merges the spec to trunk with the code that fulfils it (`docs/adr/0005-spec-on-the-work-branch.md`).
 
 Open one tracker issue that names the branch and states the work's scope in the spec's language, under the prose rules of [references/spec-format.md](references/spec-format.md), with the project's area label. The run claims the issue itself. Report the issue and the branch.

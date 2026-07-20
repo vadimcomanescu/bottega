@@ -284,12 +284,19 @@ describe("portable worker doctrine", () => {
     }
   });
 
-  it("makes the spec a repo file and never an issue", () => {
+  it("makes the spec a repo file with its naming owned by the spec skill alone", () => {
     const maestro = read("skills/maestro/SKILL.md");
-    expect(maestro).toContain("The spec is a file under `docs/specs/`, committed on the branch; nothing else is one.");
-    expect(maestro).toMatch(/No spec file on the branch means no spec exists yet, whatever any issue says/);
-    const readme = read("README.md");
-    expect(readme).toContain("The spec is that file; an issue is never a spec.");
+    expect(maestro).toContain("A spec file under `docs/specs/` on the branch is the agreed spec; nothing else is one, whatever any issue says.");
+
+    const convention = "docs/specs/<YYYY-MM-DD>-<slug>.md";
+    const owners = readdirSync(join(ROOT, "skills"), { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+      .filter((dir) => {
+        const skillFile = join(ROOT, "skills", dir, "SKILL.md");
+        return existsSync(skillFile) && readFileSync(skillFile, "utf8").includes(convention);
+      });
+    expect(owners).toEqual(["spec"]);
   });
 
   it("pins the review interlock and its quantifiers", () => {
