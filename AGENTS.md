@@ -33,7 +33,7 @@ The vendored skill directories are symlinked from `.claude/skills` and `.agents/
 ## Rules
 
 - Write plain engineering English. Standard engineering terms only: no metaphors, no invented vocabulary, no theatrical naming. This binds every file in the repo, including code comments, UI strings, and hook messages.
-- Skill bodies open with an imperative orienting sentence and read as procedure. "You are" openings belong only to an agent definition, whose body is a system prompt; there are none in this repo. Frontmatter descriptions stay third person with their Use-when triggers.
+- Skill bodies open with an imperative orienting sentence and read as procedure. "You are" openings belong only to an agent definition, whose body is a system prompt; there are none in this repo.
 - A claim about harness behavior (frontmatter keys, hooks, dispatch mechanics, model resolution) is read from the harness documentation at claim time, never from memory or another skill's prose.
 - No em dashes, anywhere. Use periods, commas, colons, or parentheses.
 - Banned tic-words, no exceptions: "bearing" (e.g. "judgment-bearing"), "ledger". Say the plain thing: "makes judgment calls", "the log".

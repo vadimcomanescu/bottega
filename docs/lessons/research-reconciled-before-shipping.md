@@ -4,4 +4,4 @@ What happened: the 0.66.0 routing skill (commit a6dfdb6) shipped a per-dispatch 
 
 The rule: before a spec is agreed, state in it how the chosen design follows from the research record; a design that contradicts its own research record is a review blocker until the contradiction is argued in the record.
 
-Enforced: REVIEW.md ("a delivered design follows the spec's own research record").
+Enforced: REVIEW.md ("a delivered design does not contradict the spec's own research record").
