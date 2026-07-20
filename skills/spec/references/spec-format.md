@@ -1,6 +1,6 @@
 # Spec format
 
-The shape a spec takes, in the conversation, on the shared review document, or in the repo's spec file. This is a floor, not a template: the sections are named and ordered below, and each appears only when it carries essential content. Omit an empty section, never fill it with placeholder prose. Precedent for a floor over a template: the model vendor's own guidance that over-prescriptive instructions degrade the output of the models that write these documents.
+The shape a spec takes, in the conversation, on the shared review document, or in the repo's spec file. The file opens with one status line: `Status: draft` while under review, `Status: agreed YYYY-MM-DD` once the owner approves. This is a floor, not a template: the sections are named and ordered below, and each appears only when it carries essential content. Omit an empty section, never fill it with placeholder prose. Precedent for a floor over a template: the model vendor's own guidance that over-prescriptive instructions degrade the output of the models that write these documents.
 
 ## The spine
 

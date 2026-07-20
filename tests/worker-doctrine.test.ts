@@ -286,7 +286,8 @@ describe("portable worker doctrine", () => {
 
   it("makes the spec a repo file with its naming owned by the spec skill alone", () => {
     const maestro = read("skills/maestro/SKILL.md");
-    expect(maestro).toContain("A spec file under `docs/specs/` on the branch is the agreed spec; nothing else is one, whatever any issue says.");
+    expect(maestro).toContain("Invoke bottega:spec once, whole; it ends with the agreed spec committed on the branch.");
+    expect(read("skills/spec/references/spec-format.md")).toContain("Status: agreed YYYY-MM-DD");
 
     const convention = "docs/specs/<YYYY-MM-DD>-<slug>.md";
     const owners = readdirSync(join(ROOT, "skills"), { withFileTypes: true })
