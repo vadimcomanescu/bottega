@@ -59,9 +59,12 @@ function tableHeader(table: string[]): string[] {
 
 describe("portable worker doctrine", () => {
   it("gives every skill matching name and description frontmatter", () => {
+    // skills/autoreview is a vendored helper directory, not a skill: no SKILL.md.
     const skillDirectories = readdirSync(join(ROOT, "skills"), {
       withFileTypes: true,
-    }).filter((entry) => entry.isDirectory());
+    }).filter(
+      (entry) => entry.isDirectory() && existsSync(join(ROOT, "skills", entry.name, "SKILL.md")),
+    );
 
     for (const directory of skillDirectories) {
       const path = `skills/${directory.name}/SKILL.md`;
@@ -311,9 +314,14 @@ describe("portable worker doctrine", () => {
     expect(maestro).toContain("bottega:review");
 
     const review = read("skills/review/SKILL.md");
-    expect(review).toContain("every finding is fixed or refuted");
+    expect(review).toContain(
+      "every finding is fixed, refuted with evidence, refiled as a follow-up, or escalated",
+    );
     expect(review).toContain("routes as a fix");
-    expect(review).toContain("Round 3 stops the review.");
+    expect(review).toContain("The cleanup sweeps ride in the panel round only.");
+    expect(review).toContain("only through its own harness's native mechanism");
+    expect(review).toContain("Two fix cycles without convergence stop the editing");
+    expect(review).toContain("the last helper exit at that head was clean");
   });
 
   it("keeps every lesson enforced somewhere that exists", () => {

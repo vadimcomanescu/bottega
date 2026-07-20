@@ -23,9 +23,7 @@ Take an open PR through review-fix rounds to verified-mergeable, resolving every
 **Stop conditions.**
 
 - Converged: a round returns no accepted findings, the gates are green, and no thread is unresolved. Convergence is the precondition to the merge verification.
-- Round 3 stops the review (the `bottega:review` cap).
-- The same finding open after two failed fixes stops that repair (the `bottega:review` cap).
-- Two rounds of fixes without convergence: stop editing and reclassify every remaining finding before any further edit.
+- Two fix cycles without convergence (the `bottega:review` rule): stop editing, reclassify every remaining finding, and escalate a blocker that will not converge as a PR comment instead of retrying it.
 - A fix that would exceed the PR's stated intent is not applied: comment it on the PR and stop that finding's repair.
 
 **Notify.** Report the terminal state in the conversation every time: verified-mergeable (verified, reported for a person to merge), merged (an armed merge ran), stopped (naming the stopping condition), or gates-red. When `BOTTEGA_NTFY_TOPIC` is set, also send it:

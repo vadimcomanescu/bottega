@@ -13,8 +13,8 @@ Autonomous issue-to-PR runs across Claude Code, Codex, and Cursor: `/bottega:mae
 | `skills/improve/SKILL.md` | `/bottega:improve`, one agreed improvement filed as an issue and handed to run | Changing how improvements are found or handed off |
 | `skills/setup/SKILL.md` | `/bottega:setup`, one-time reconciliation of a machine and repo with the methodology (harness CLIs, skill discovery, route guard, optional proxy, then the repo docs and labels) | Changing what setup writes or verifies |
 | `skills/implementing` | Builder method shared by Claude and Codex workers | Changing how builders work a slice |
-| `skills/autoreview` | Review helper copied from openclaw/agent-skills, used unchanged; see README Credits | Re-copying a newer upstream version only |
-| `skills/review/SKILL.md` | `/bottega:review`, the cross-family review gate; run's Review phase and land both call it | Anything touches review inputs, adjudication, or caps |
+| `skills/autoreview` | Runnable review helper vendored from openclaw/agent-skills: scripts, tests, and license only; the caller contract lives in `skills/review`; see README Credits | Re-copying newer upstream scripts, then reconciling upstream contract changes into `skills/review` |
+| `skills/review/SKILL.md` | `/bottega:review`, the cross-family review gate: the panel, adjudication, fix routing, and the recheck loop; run's Review phase and land both call it | Anything touches review inputs, adjudication, fix routing, or termination |
 | `skills/qa/SKILL.md` | QA method and limits: drive the shipped interface, return PASS/FAIL/NOT VERIFIED per scenario, forbidden actions; run's QA phase routes here | Anything touches QA driving, evidence, or limits |
 | `skills/land/SKILL.md` | `/bottega:land`, an open PR to verified-mergeable; owns the GitHub review surface | Anything touches PR threads, claims, stops, or merge |
 | `skills/close/SKILL.md` | The closing method a run's Close phase routes to: confirm the accepted head, file followups, open the PR under the reader contract, watch its checks; not user-invocable | Anything touches PR opening, followup filing, the reader contract, or the check watch |
