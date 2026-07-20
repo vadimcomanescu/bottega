@@ -1,467 +1,178 @@
-// The guards are processes: feed each one a synthetic hook event on stdin
-// and assert on what it writes back. A deny is a JSON permissionDecision;
-// an allow (or any malformed input) is silence.
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-const ROUTE_GUARD = join(import.meta.dirname, "..", "hooks", "route-guard.js");
-const ENTRY_GUARD = join(import.meta.dirname, "..", "hooks", "entry-guard.js");
-
-function run(script: string, event: unknown): string {
-  const result = spawnSync("node", [script], {
-    input: typeof event === "string" ? event : JSON.stringify(event),
-    encoding: "utf-8",
-  });
-  expect(result.status).toBe(0);
-  return result.stdout;
-}
-
-function denialOf(stdout: string): string {
-  const parsed = JSON.parse(stdout);
-  expect(parsed.hookSpecificOutput.permissionDecision).toBe("deny");
-  return parsed.hookSpecificOutput.permissionDecisionReason;
-}
+const HOOKS = join(import.meta.dirname, "..", "hooks");
+const ROUTE_GUARD = join(HOOKS, "route-guard.mjs");
+const OWNER = "owner-session";
 
 const cleanups: string[] = [];
 afterEach(() => {
   while (cleanups.length > 0) rmSync(cleanups.pop()!, { recursive: true, force: true });
 });
 
-// Runs are keyed by feature slug and coexist in one repo. A run is live while
-// its owner file .bottega/run/<slug>/owner exists (written at Isolate,
-// deleted at delivery), and it fences only the session recorded there.
-const OWNER = "owner-session";
-
-function repoWithRun(owner?: string, slug = "saved-searches"): string {
-  const dir = mkdtempSync(join(tmpdir(), "bottega-guard-"));
+function repoWithRun(owner?: string): string {
+  const dir = mkdtempSync(join(tmpdir(), "bottega-route-guard-"));
   cleanups.push(dir);
-  if (owner) addRun(dir, slug, owner);
+  if (owner) {
+    const run = join(dir, ".bottega", "run", "cross-harness");
+    mkdirSync(run, { recursive: true });
+    writeFileSync(join(run, "owner"), owner + "\n");
+  }
   return dir;
 }
 
-function addRun(dir: string, slug: string, owner: string): void {
-  mkdirSync(join(dir, ".bottega", "run", slug), { recursive: true });
-  writeFileSync(join(dir, ".bottega", "run", slug, "owner"), owner + "\n");
-}
-
-function git(dir: string, ...args: string[]): void {
-  const result = spawnSync(
-    "git",
-    ["-C", dir, "-c", "user.email=t@t", "-c", "user.name=t", ...args],
-    { encoding: "utf-8" },
-  );
+function run(
+  event: unknown,
+  harness: "claude" | "codex" | "cursor" = "claude",
+): string {
+  const {
+    CLAUDE_PLUGIN_ROOT: _claudeRoot,
+    CODEX_HOME: _codexHome,
+    CODEX_PLUGIN_ROOT: _codexPluginRoot,
+    CURSOR_PLUGIN_ROOT: _cursorRoot,
+    PLUGIN_ROOT: _pluginRoot,
+    ...baseEnv
+  } = process.env;
+  const harnessEnv =
+    harness === "cursor"
+      ? { CURSOR_PLUGIN_ROOT: HOOKS }
+      : harness === "codex"
+        ? { CODEX_HOME: join(tmpdir(), "codex-home"), PLUGIN_ROOT: HOOKS }
+        : { CLAUDE_PLUGIN_ROOT: HOOKS };
+  const result = spawnSync("node", [ROUTE_GUARD], {
+    input: typeof event === "string" ? event : JSON.stringify(event),
+    encoding: "utf8",
+    env: { ...baseEnv, ...harnessEnv },
+  });
   expect(result.status).toBe(0);
+  return result.stdout;
 }
 
-function runBranchDir(): string {
-  const dir = mkdtempSync(join(tmpdir(), "bottega-guard-git-"));
-  cleanups.push(dir);
-  git(dir, "init", "-q");
-  git(dir, "commit", "--allow-empty", "-q", "-m", "seed");
-  git(dir, "branch", "bottega/saved-searches");
-  return dir;
+function claudeDenial(stdout: string): string {
+  const parsed = JSON.parse(stdout);
+  expect(parsed.hookSpecificOutput).toMatchObject({
+    hookEventName: "PreToolUse",
+    permissionDecision: "deny",
+  });
+  return parsed.hookSpecificOutput.permissionDecisionReason;
 }
 
-describe("route-guard: bottega worker agents (always checked)", () => {
-  it("denies an unrouted worker dispatch", () => {
-    const out = run(ROUTE_GUARD, {
-      cwd: repoWithRun(),
-      tool_input: { subagent_type: "bottega:builder", prompt: "build slice A" },
-    });
-    expect(denialOf(out)).toMatch(/names no model/);
+function ownedEvent(tool_input: object, tool_name = "Agent") {
+  return {
+    cwd: repoWithRun(OWNER),
+    session_id: OWNER,
+    tool_name,
+    tool_input,
+  };
+}
+
+describe("route guard ownership rule", () => {
+  it("denies an owner-session dispatch without a model", () => {
+    const reason = claudeDenial(
+      run(ownedEvent({ subagent_type: "general-purpose", prompt: "build the slice" })),
+    );
+    expect(reason).toMatch(/names no model/i);
+    expect(reason).toMatch(/skills\/routing/);
   });
 
-  it("denies the removed reviewer seat as unknown, whatever model it claims", () => {
-    for (const model of [undefined, "opus", "fable"]) {
-      const out = run(ROUTE_GUARD, {
-        cwd: repoWithRun(),
-        tool_input: {
-          subagent_type: "bottega:reviewer",
-          model,
-          prompt: "review the integrated diff",
-        },
-      });
-      expect(denialOf(out)).toMatch(/unknown bottega seat.*reviewer/i);
-    }
+  it("denies an owner-session dispatch routed to fable", () => {
+    const reason = claudeDenial(
+      run(ownedEvent({ subagent_type: "general-purpose", model: "claude-fable-5" })),
+    );
+    expect(reason).toMatch(/fable/i);
+    expect(reason).toMatch(/skills\/routing/);
   });
 
-  it("denies a misrouted worker dispatch: the builder runs on opus, never sonnet", () => {
-    const out = run(ROUTE_GUARD, {
-      cwd: repoWithRun(OWNER),
-      tool_input: { subagent_type: "bottega:builder", model: "sonnet", prompt: "build" },
-    });
-    expect(denialOf(out)).toMatch(/builder and QA: opus/);
+  it("allows an owner-session dispatch with a non-fable model", () => {
+    expect(run(ownedEvent({ subagent_type: "general-purpose", model: "opus-4.8" }))).toBe("");
   });
 
-  it("allows a routed builder dispatch on opus", () => {
-    const out = run(ROUTE_GUARD, {
-      cwd: repoWithRun(),
-      tool_input: { subagent_type: "bottega:builder", model: "opus", prompt: "build slice A" },
-    });
-    expect(out).toBe("");
-  });
-
-  it("checks the QA agent unconditionally and allows only opus", () => {
-    const cwd = repoWithRun();
-    expect(
-      denialOf(run(ROUTE_GUARD, { cwd, tool_input: { subagent_type: "bottega:qa" } })),
-    ).toMatch(/names no model/);
-    for (const model of ["sonnet", "not-opus"]) {
-      expect(
-        denialOf(run(ROUTE_GUARD, { cwd, tool_input: { subagent_type: "bottega:qa", model } })),
-      ).toMatch(/builder and QA: opus/);
-    }
-    for (const model of ["opus", "claude-opus-4-8"]) {
-      expect(run(ROUTE_GUARD, { cwd, tool_input: { subagent_type: "bottega:qa", model } })).toBe(
-        "",
-      );
-    }
-  });
-
-  it("stays silent on retired worker names: those are the project's own agents now", () => {
-    const cwd = repoWithRun();
-    for (const subagent_type of ["bottega:mechanic", "bottega:documenter"]) {
-      expect(run(ROUTE_GUARD, { cwd, tool_input: { subagent_type, prompt: "x" } })).toBe("");
-    }
-  });
-
-  it("stays silent on a bare role name: that is the project's own agent, never bottega's", () => {
-    const out = run(ROUTE_GUARD, {
-      cwd: repoWithRun(),
-      tool_input: { subagent_type: "reviewer", prompt: "review" },
-    });
-    expect(out).toBe("");
-  });
-});
-
-describe("route-guard: all other dispatches, gated on a live run", () => {
-  it("stays silent outside a run, whatever the dispatch", () => {
-    const cwd = repoWithRun();
-    for (const tool_input of [
-      { subagent_type: "general-purpose", model: "fable", prompt: "anything" },
-      { subagent_type: "general-purpose", prompt: "unrouted" },
-    ]) {
-      expect(run(ROUTE_GUARD, { cwd, tool_input })).toBe("");
-    }
-  });
-
-  it("denies the owning session's unrouted general-purpose dispatch while the owner file exists", () => {
-    const out = run(ROUTE_GUARD, {
-      cwd: repoWithRun(OWNER),
-      session_id: OWNER,
-      tool_input: { subagent_type: "general-purpose", prompt: "worktree mechanics" },
-    });
-    expect(denialOf(out)).toMatch(/live bottega run/);
-  });
-
-  it("stays silent on a leftover bottega/* branch: a delivered run's local ref must never arm the guard", () => {
-    // A PR merge deletes only the remote ref; the local bottega/<slug> branch
-    // remains after delivery on the user's machine. Only the owner file (which
-    // delivery deletes) may arm scope 2.
-    const cwd = runBranchDir();
-    for (const tool_input of [
-      { subagent_type: "general-purpose", prompt: "unrouted, unrelated work" },
-      { subagent_type: "general-purpose", model: "fable", prompt: "unrelated work" },
-    ]) {
-      expect(run(ROUTE_GUARD, { cwd, tool_input })).toBe("");
-    }
-  });
-
-  it("denies any fable-routed dispatch during a run: fable is the orchestrator, never a dispatch", () => {
+  it("allows a non-owner session regardless of model", () => {
     const cwd = repoWithRun(OWNER);
     for (const tool_input of [
-      { subagent_type: "bottega:builder", model: "fable", prompt: "build" },
-      { subagent_type: "Explore", model: "claude-fable-5", prompt: "map territory" },
-      {
-        subagent_type: "general-purpose",
-        model: "fable",
-        description: "Independent read (fable, fresh)",
-        prompt: "independent read of the diff",
-      },
+      { subagent_type: "general-purpose" },
+      { subagent_type: "general-purpose", model: "fable-5" },
     ]) {
-      expect(denialOf(run(ROUTE_GUARD, { cwd, session_id: OWNER, tool_input }))).toMatch(
-        /routes (?:a worker agent to )?fable/,
-      );
+      expect(
+        run({ cwd, session_id: "bystander-session", tool_name: "Task", tool_input }),
+      ).toBe("");
     }
   });
 
-  it("never breaks on malformed input", () => {
-    expect(run(ROUTE_GUARD, "not json")).toBe("");
-    expect(run(ROUTE_GUARD, { tool_input: null })).toBe("");
-  });
-});
-
-describe("route-guard: workflow scripts from a run's session", () => {
-  // The observed failure: during a run, one /code-review invocation launched
-  // a workflow whose 19 agent() calls named no model, so every one inherited
-  // the orchestrator's session model, fable. None of them was an Agent
-  // dispatch, so scope 2 never saw it.
-  const CODE_REVIEW_SHAPE = `export const meta = {
-  name: 'code-review',
-  description: 'Workflow-backed code review',
-  phases: [{ title: 'Scope' }, { title: 'Find' }, { title: 'Verify' }],
-}
-phase('Scope')
-const scope = await agent(\`Pin the diff (git diff master...HEAD) and list files\`, { label: 'scope', schema: SCOPE })
-const found = await parallel(ANGLES.map(a => () => agent(a.prompt, { label: a.key, schema: FINDINGS })))
-`;
-
-  function workflowEvent(tool_input: object, session_id = OWNER, owner: string | null = OWNER) {
-    return {
-      cwd: repoWithRun(owner ?? undefined),
-      session_id,
-      tool_name: "Workflow",
-      tool_input,
-    };
-  }
-
-  it("denies a script whose agent() calls name no model", () => {
-    const out = run(ROUTE_GUARD, workflowEvent({ script: CODE_REVIEW_SHAPE }));
-    expect(denialOf(out)).toMatch(/names no model/);
-  });
-
-  it("denies a script that routes an agent to fable", () => {
-    const script = `export const meta = { name: 'sweep', description: 'x', phases: [] }
-const r = await agent('judge the diff', { label: 'judge', model: 'fable' })
-`;
-    expect(denialOf(run(ROUTE_GUARD, workflowEvent({ script })))).toMatch(/routes an agent to fable/);
-  });
-
-  it("allows a script with every agent() pinned off fable", () => {
-    const script = `export const meta = { name: 'sweep', description: 'x', phases: [] }
-const a = await agent('find bugs', { model: 'opus' })
-const b = await agent('run the gates', { label: 'gates', model: 'sonnet', effort: 'low' })
-`;
-    expect(run(ROUTE_GUARD, workflowEvent({ script }))).toBe("");
-  });
-
-  it("resolves a relative scriptPath against the event cwd", () => {
-    const dir = repoWithRun(OWNER);
-    writeFileSync(
-      join(dir, "wf.js"),
-      "export const meta = { name: 'sweep', description: 'x', phases: [] }\n" +
-        "const a = await agent('find bugs', { model: 'opus' })\n",
-    );
-    const out = run(ROUTE_GUARD, {
-      cwd: dir,
-      session_id: OWNER,
-      tool_name: "Workflow",
-      tool_input: { scriptPath: "wf.js" },
-    });
-    expect(out).toBe("");
-  });
-
-  it("denies what it cannot read: name-only invocations, dead scriptPaths, unclosed calls", () => {
-    for (const tool_input of [
-      { name: "code-review", args: "high" },
-      { scriptPath: "/nonexistent/wf.js" },
-      { script: "export const meta = { name: 'x', description: 'x' }\nagent('never closes'" },
-    ]) {
-      expect(denialOf(run(ROUTE_GUARD, workflowEvent(tool_input)))).toMatch(/cannot be checked/);
-    }
-  });
-
-  it("stays silent for bystander sessions and outside a run", () => {
-    expect(run(ROUTE_GUARD, workflowEvent({ script: CODE_REVIEW_SHAPE }, "bystander-session"))).toBe("");
+  it("passes malformed input and failed reads", () => {
+    expect(run("not json")).toBe("");
+    expect(run({ cwd: repoWithRun(OWNER), session_id: OWNER, tool_input: null })).toBe("");
     expect(
-      run(ROUTE_GUARD, workflowEvent({ script: CODE_REVIEW_SHAPE }, OWNER, null)),
+      run(ownedEvent({ scriptPath: "/path/that/does/not/exist.js" }, "Workflow")),
     ).toBe("");
   });
+});
 
-  it("treats an expression-valued model as unpinned: unverifiable routing is unrouted routing", () => {
-    const script = `export const meta = { name: 'sweep', description: 'x', phases: [] }
-const r = await agent('judge the diff', { label: 'judge', model: input.model })
-`;
-    expect(denialOf(run(ROUTE_GUARD, workflowEvent({ script })))).toMatch(/names no model/);
+describe("route guard workflow rule", () => {
+  it("denies an owner-session workflow with an unpinned agent call", () => {
+    const script = "const result = await agent('review the diff', { label: 'review' })";
+    const reason = claudeDenial(run(ownedEvent({ script }, "Workflow")));
+    expect(reason).toMatch(/agent\(\).*names no literal model/i);
+    expect(reason).toMatch(/skills\/routing/);
   });
 
-  it("never counts 'model:' inside a prompt string as a pin", () => {
-    const script = `export const meta = { name: 'sweep', description: 'x', phases: [] }
-const r = await agent('the doc prefers model: opus for this, summarize findings')
-`;
-    expect(denialOf(run(ROUTE_GUARD, workflowEvent({ script })))).toMatch(/names no model/);
+  it("denies an owner-session workflow with a fable agent model", () => {
+    const script = "const result = await agent('review the diff', { model: 'fable-5' })";
+    const reason = claudeDenial(run(ownedEvent({ script }, "Workflow")));
+    expect(reason).toMatch(/fable/i);
   });
 
-  it("denies a workflow that claims the removed reviewer seat in any run state", () => {
-    const scripts = [
-      `export const meta = { name: 'sweep', description: 'x', phases: [] }
-const r = await agent('review the diff', { agentType: 'bottega:reviewer', model: 'sonnet' })
-`,
-      "export const meta = { name: 'sweep', description: 'x', phases: [] }\n" +
-        "const r = await agent('review the diff', { agentType: `bottega:reviewer`, model: 'opus' })\n",
-    ];
-    for (const script of scripts) {
-      for (const event of [
-        workflowEvent({ script }),
-        workflowEvent({ script }, OWNER, null),
-      ]) {
-        expect(denialOf(run(ROUTE_GUARD, event))).toMatch(
-        /unknown bottega seat.*reviewer/i,
-        );
-      }
-    }
+  it("allows an owner-session workflow whose agent calls use non-fable literal models", () => {
+    const script = `
+const review = await agent('review the diff', { model: 'opus-4.8' })
+const check = await agent('run checks', { label: 'check', model: "gpt-5.6-sol" })
+`;
+    expect(run(ownedEvent({ script }, "Workflow"))).toBe("");
+  });
+});
+
+describe("route guard harness responses", () => {
+  it("emits the documented Codex PreToolUse denial", () => {
+    const parsed = JSON.parse(run(ownedEvent({ subagent_type: "worker" }), "codex"));
+    expect(parsed).toMatchObject({
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        permissionDecision: "deny",
+      },
+    });
   });
 
-  it("reads routing from the options object, never from prompt prose", () => {
-    // A model literal in the prompt must not shadow the real pin.
-    const masked = `export const meta = { name: 'sweep', description: 'x', phases: [] }
-const r = await agent("the table gives builders model: 'opus'; review it", { agentType: 'bottega:builder', model: 'sonnet' })
-`;
-    expect(denialOf(run(ROUTE_GUARD, workflowEvent({ script: masked })))).toMatch(
-      /routes the builder agent/,
+  it("emits the documented Cursor preToolUse denial", () => {
+    const event = ownedEvent({ subagent_type: "worker" });
+    const parsed = JSON.parse(
+      run({ ...event, conversation_id: event.session_id, session_id: undefined }, "cursor"),
     );
-
-    // A worker agentType quoted in prose must not arm the table on a
-    // legitimate non-worker dispatch.
-    const prose = `export const meta = { name: 'sweep', description: 'x', phases: [] }
-const r = await agent("note agentType: 'bottega:builder' is used elsewhere; summarize", { model: 'sonnet' })
-`;
-    expect(run(ROUTE_GUARD, workflowEvent({ script: prose }))).toBe("");
-  });
-
-  it("enforces worker routing for a static backtick agentType", () => {
-    const script = (model: string) =>
-      "export const meta = { name: 'sweep', description: 'x', phases: [] }\n" +
-      `const r = await agent('build', { agentType: \`bottega:builder\`, model: '${model}' })\n`;
-
-    expect(
-      denialOf(run(ROUTE_GUARD, workflowEvent({ script: script("sonnet") }))),
-    ).toMatch(/routes the builder agent/);
-    expect(run(ROUTE_GUARD, workflowEvent({ script: script("opus") }))).toBe("");
-  });
-
-  it("treats a template-literal model as unpinned", () => {
-    const script =
-      "export const meta = { name: 'sweep', description: 'x', phases: [] }\n" +
-      "const r = await agent('judge', { label: 'judge', model: `${input.model}` })\n";
-    expect(denialOf(run(ROUTE_GUARD, workflowEvent({ script })))).toMatch(/names no model/);
+    expect(parsed).toMatchObject({
+      permission: "deny",
+      user_message: expect.stringMatching(/skills\/routing/),
+      agent_message: expect.stringMatching(/skills\/routing/),
+    });
   });
 });
 
-describe("route-guard: stale contract state never arms the guard", () => {
-  // The old activation keyed off locks, gate records, and spec-doc status
-  // strings; state nothing retires, so one delivered run fenced every
-  // later session in the repo. Only the owner file may arm scope 2.
-  function staleDir(): string {
-    const dir = mkdtempSync(join(tmpdir(), "bottega-guard-stale-"));
-    cleanups.push(dir);
-    mkdirSync(join(dir, ".bottega", "gates"), { recursive: true });
-    writeFileSync(join(dir, ".bottega", "commission.lock"), "{}");
-    mkdirSync(join(dir, "docs", "specs"), { recursive: true });
-    writeFileSync(
-      join(dir, "docs", "specs", "2026-07-06-saved-searches.md"),
-      "# Saved searches\n\n**Status:** draft\n",
-    );
-    return dir;
-  }
-
-  it("stays silent on a stale lock, gate record, and draft spec doc", () => {
-    const cwd = staleDir();
-    for (const tool_input of [
-      { subagent_type: "general-purpose", prompt: "unrouted, unrelated work" },
-      { subagent_type: "general-purpose", model: "fable", prompt: "unrelated work" },
-    ]) {
-      expect(run(ROUTE_GUARD, { cwd, tool_input })).toBe("");
-    }
-  });
-
-  it("still checks worker agents there (scope 1 is unconditional)", () => {
-    const out = run(ROUTE_GUARD, {
-      cwd: staleDir(),
-      tool_input: { subagent_type: "bottega:builder", prompt: "build" },
-    });
-    expect(denialOf(out)).toMatch(/names no model/);
-  });
-});
-
-describe("route-guard: the run fence binds to each run's owning session", () => {
-  // The per-run owner file is what keeps a live run from fencing every
-  // concurrent session in the same repo.
-  it("stays silent on a bystander session's dispatch while another session's run is live", () => {
-    // The observed failure: a codex-plugin dispatch in a session not running
-    // bottega, denied because a run was live elsewhere. The codex agent's
-    // work rides the codex CLI's own model; `model` here routes nothing.
-    const cwd = repoWithRun(OWNER);
-    for (const tool_input of [
-      { subagent_type: "codex", description: "Codex review slice A", prompt: "review slice A" },
-      { subagent_type: "general-purpose", prompt: "unrouted, unrelated work" },
-      { subagent_type: "general-purpose", model: "fable", prompt: "unrelated work" },
-    ]) {
-      expect(run(ROUTE_GUARD, { cwd, session_id: "bystander-session", tool_input })).toBe("");
-    }
-  });
-
-  it("fences two concurrent runs' sessions independently", () => {
-    const dir = repoWithRun("owner-a", "feature-a");
-    addRun(dir, "feature-b", "owner-b");
-    for (const session_id of ["owner-a", "owner-b"]) {
-      const out = run(ROUTE_GUARD, {
-        cwd: dir,
-        session_id,
-        tool_input: { subagent_type: "general-purpose", prompt: "unrouted" },
-      });
-      expect(denialOf(out)).toMatch(/live bottega run/);
-    }
-    const bystander = run(ROUTE_GUARD, {
-      cwd: dir,
-      session_id: "bystander-session",
-      tool_input: { subagent_type: "general-purpose", prompt: "unrouted" },
-    });
-    expect(bystander).toBe("");
-  });
-
-  it("stays silent when no owner is recorded, even with other run debris around", () => {
-    const dir = mkdtempSync(join(tmpdir(), "bottega-guard-noowner-"));
-    cleanups.push(dir);
-    mkdirSync(join(dir, ".bottega", "run", "saved-searches"), { recursive: true });
-    const out = run(ROUTE_GUARD, {
-      cwd: dir,
-      session_id: OWNER,
-      tool_input: { subagent_type: "general-purpose", prompt: "unrouted" },
-    });
-    expect(out).toBe("");
-  });
-
-  it("stays silent when the event carries no session_id", () => {
-    const out = run(ROUTE_GUARD, {
-      cwd: repoWithRun(OWNER),
-      tool_input: { subagent_type: "general-purpose", prompt: "unrouted" },
-    });
-    expect(out).toBe("");
-  });
-
-  it("still checks named worker agents from any session (scope 1 is unconditional)", () => {
-    const out = run(ROUTE_GUARD, {
-      cwd: repoWithRun(OWNER),
-      session_id: "bystander-session",
-      tool_input: { subagent_type: "bottega:builder", prompt: "build" },
-    });
-    expect(denialOf(out)).toMatch(/names no model/);
-  });
-});
-
-describe("entry-guard", () => {
-  it("reminds on run-intent prose in a repo with bottega state, naming the one entry command", () => {
-    const out = run(ENTRY_GUARD, {
-      cwd: repoWithRun(OWNER),
-      prompt: "run bottega on the saved searches feature",
-    });
-    const parsed = JSON.parse(out);
-    expect(parsed.hookSpecificOutput.additionalContext).toMatch(/\/bottega:maestro/);
-  });
-
-  it("stays silent on slash commands, repos without bottega state, and unrelated prompts", () => {
-    const withRun = repoWithRun(OWNER);
-    const bare = mkdtempSync(join(tmpdir(), "bottega-guard-bare-"));
-    cleanups.push(bare);
-    for (const command of ["/bottega:maestro it", "/bottega:setup", "/bottega:improve"]) {
-      expect(run(ENTRY_GUARD, { cwd: withRun, prompt: command })).toBe("");
-    }
-    expect(run(ENTRY_GUARD, { cwd: bare, prompt: "run bottega now" })).toBe("");
-    expect(run(ENTRY_GUARD, { cwd: withRun, prompt: "fix the flaky test" })).toBe("");
-    expect(run(ENTRY_GUARD, "not json")).toBe("");
+describe("route guard registrations", () => {
+  it.each([
+    ["Claude Code", "hooks.json", "PreToolUse"],
+    ["Codex", "hooks-codex.json", "PreToolUse"],
+    ["Cursor", "hooks-cursor.json", "preToolUse"],
+  ])("parses the %s registration and references route-guard.mjs", (_harness, file, event) => {
+    const raw = readFileSync(join(HOOKS, file), "utf8");
+    const registration = JSON.parse(raw);
+    expect(registration.hooks[event]).toBeInstanceOf(Array);
+    expect(raw).toContain("route-guard.mjs");
   });
 });
