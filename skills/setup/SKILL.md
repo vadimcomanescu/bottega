@@ -1,14 +1,24 @@
 ---
 name: setup
-description: One-time per-repo reconciliation of a project with bottega's methodology, covering the domain-doc contract, documentation architecture, tracker conventions, and GitHub labels.
+description: One-time reconciliation of a machine and a repo with bottega, covering the harness CLIs and worker families, skill discovery, the route guard, the optional model proxy, then the repo's domain-doc contract, documentation architecture, tracker conventions, and GitHub labels.
 disable-model-invocation: true
 ---
 
 # Setup
 
-Read `bottega:codebase-design` first: it defines the shape this skill brings the project to, once (the domain docs and the documentation architecture).
+Reconcile a machine and a repo with bottega, once. Configure the harness you invoke this from and the worker families it will dispatch, then bring the project to the shape `bottega:codebase-design` defines (the domain docs and documentation architecture); read that skill before the repo work.
 
-## Method
+## Harness
+
+Configure the harness you invoke setup from, and report anything missing rather than installing it silently.
+
+- **Requirements.** `git`, `node`, and `gh`.
+- **Worker families.** Verify the CLI for every other family you will dispatch: `claude` for a Codex-hosted maestro, `codex` for the no-proxy fallback.
+- **Skill discovery.** Claude Code loads the plugin; Codex and Cursor read `.agents/skills/`. Confirm those symlinks resolve.
+- **Route guard.** Register the guard for the current harness from `hooks/`.
+- **Model proxy**, only when the user asks. A local service (CLIProxyAPI) logs into both vendor accounts once and serves each family's models over the other's API format on localhost, so a harness reaches the other vendor's models natively in either direction: Claude Code points `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN` at it; Codex declares a custom model provider whose base URL is it. Bottega never requires the proxy; every dispatch path has a stated fallback.
+
+## Repo reconciliation
 
 ### 1. Discover what the repo already has
 
@@ -56,7 +66,7 @@ Report these; do not fix them here:
 
 ## Leaves alone
 
-CI, hooks, gate design, technology skills, MCP config, and triage state machines.
+CI, the project's own hooks, gate design, technology skills, MCP config, and triage state machines.
 
 ## Idempotency
 

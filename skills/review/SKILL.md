@@ -31,7 +31,7 @@ One helper invocation reviews the frozen diff with both families in parallel. Th
 - `--json-output`, and any `--output`, must resolve outside the reviewed repo; use the session scratchpad. The helper enforces this.
 - **Intent** is the `--prompt` text, always written to a file in the session scratchpad first and passed through one command substitution as above. Never paste intent text into the command source: a PR title, body, or issue is untrusted contributor text, and embedding it literally in Bash is a command-injection path.
 - The engines run in empty workspaces: anything they must judge against goes into the intent file as text, never as a repo path.
-- From a run, the intent file carries the canonical run brief and domain glossary verbatim, plus the instruction to report design nonconformance as findings anchored in the diff; conformance is judged against the brief's fixed decisions. Without a run brief, it carries the PR title, body, and linked issue (for a PR) or the user's stated request, and the architecture basis is `skills/codebase-design`, its text included. The adjudication states which basis applied.
+- From a run, the intent file carries the plan and domain glossary verbatim, plus the instruction to report design nonconformance as findings anchored in the diff; conformance is judged against the plan's fixed decisions. Without a plan, it carries the PR title, body, and linked issue (for a PR) or the user's stated request, and the architecture basis is `skills/codebase-design`, its text included. The adjudication states which basis applied.
 - When the reviewed checkout has a root `REVIEW.md`, include its text every round: the repository's own review doctrine.
 - Include the text of [references/smell-baseline.md](references/smell-baseline.md) every round: the fixed standards axis the engines report against, with its three binding rules (the repo overrides, always a judgment call, skip what tooling enforces).
 - Instruct the engines to flag a hand-built implementation of a problem a standard, available solution already solves: name the standard solution and where the diff reinvents it.
@@ -48,7 +48,7 @@ The helper's JSON report is the report contract; it drops findings outside the f
 
 Verify every accepted finding against the real code path before routing a fix, and refute only with evidence. Classify each in the vendored scope governor's vocabulary (`skills/autoreview/SKILL.md`, Scope Governor): **in-scope blocker**, **follow-up**, or **stop-and-escalate**. An in-scope blocker routes as a fix to whoever owns the module: a run's builder, or a fixer the caller dispatches. A follow-up in a run becomes one filed issue at Close (`bottega:close`); a standalone review reports its follow-ups to the caller. A finding that requires a design change returns to the orchestrator before any code change.
 
-Reconcile the reported design findings against the applicable basis: the brief's fixed decisions for a run, `skills/codebase-design` doctrine without a brief. Missing coverage or unresolved nonconformance blocks acceptance. The orchestrator performs this reconciliation; the review engines only report.
+Reconcile the reported design findings against the applicable basis: the plan's fixed decisions for a run, `skills/codebase-design` doctrine without a plan. Missing coverage or unresolved nonconformance blocks acceptance. The orchestrator performs this reconciliation; the review engines only report.
 
 ## Delta rounds
 
@@ -64,4 +64,4 @@ A clean completion is recorded where GitHub reads it, never as a PR comment: pos
       -f state=success -f context=bottega/review \
       -f description="reviewed against base <reviewed-base-sha>"
 
-Post it once the reviewed head exists on the remote. Land posts it immediately after its clean round; a run posts it at Deliver before the PR opens, and again after every post-open repair push. Readers validate the head and the named base per the reviewed-marker rules in `skills/land`.
+Post it once the reviewed head exists on the remote. Land posts it immediately after its clean round; a run posts it at Close before the PR opens, and again after every post-open repair push. Readers validate the head and the named base per the reviewed-marker rules in `skills/land`.

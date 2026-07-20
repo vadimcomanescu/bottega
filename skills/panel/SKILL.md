@@ -6,7 +6,7 @@ description: Put one costly decision to independent drafts from different model 
 
 # Panel
 
-You run the whole panel yourself: frame the decision, dispatch the seats, and write the final answer. The panel does not vote or decide; it returns independent drafts and a structured comparison, and the decision stays yours.
+Run the whole panel yourself: frame the decision, dispatch the seats, and write the final answer. The panel does not vote or decide; it returns independent drafts and a structured comparison, and the decision stays yours.
 
 ## Process
 
@@ -29,10 +29,10 @@ One seat per model family, and the same `task.md` verbatim to every seat. Every 
 
 | seat | dispatch (from the repository root) |
 | --- | --- |
-| codex | `scripts/codex-exec` at the bottega install root (`$CLAUDE_PLUGIN_ROOT` when installed as a plugin), with `--model gpt-5.6-sol --effort max --sandbox read-only --search --cwd <repo> --brief task.md --out codex-draft.md --events codex-events.jsonl`, every path absolute |
+| codex | `codex exec -m gpt-5.6-sol -c model_reasoning_effort=max -s read-only -c tools.web_search=true -C <repo> < task.md > codex-draft.md`, run as tracked background Bash, every path absolute |
 | claude | `claude -p --model claude-fable-5 < task.md > claude-draft.md` |
 
-Another family's CLI installed on the machine takes a further seat under the same task, read-only with its own web search. Inside a run, the routing table in `skills/maestro/SKILL.md` governs the seat models.
+Another family's CLI installed on the machine takes a further seat under the same task, read-only with its own web search. Inside a run, invoke bottega:routing for each seat's model.
 
 ### 3. Fan out
 
@@ -55,4 +55,4 @@ Do not answer the task, merge the drafts, vote, grade, or pick one.
 
 ### 6. Synthesize
 
-You write the decision from the drafts and the comparison: build on the consensus, resolve each contradiction by the stronger evidence, keep the unique insights that survive a check against the repository, and close or explicitly flag the blind spots. Record the decision and what the panel changed wherever your context records decisions: a run puts it in the run brief and the PR; a conversation puts it in the reply.
+You write the decision from the drafts and the comparison: build on the consensus, resolve each contradiction by the stronger evidence, keep the unique insights that survive a check against the repository, and close or explicitly flag the blind spots. Record the decision and what the panel changed wherever your context records decisions: a run puts it in the plan and the PR; a conversation puts it in the reply.

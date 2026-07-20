@@ -1,27 +1,28 @@
 # bottega
 
-Autonomous issue-to-PR runs for Claude Code: `/bottega:maestro` takes a task or issue to a delivered PR, and spec, review, land, improve, panel, and setup are also available on their own. Read `README.md` for the model; this file is the working agreement for agents inside this repo.
+Autonomous issue-to-PR runs across Claude Code, Codex, and Cursor: `/bottega:maestro` takes a task or issue to a delivered PR, and spec, review, land, improve, panel, and setup are also available on their own. Read `README.md` for the model; this file is the working agreement for agents inside this repo.
 
 ## Map
 
 | Path | What it is | Read it when |
 | --- | --- | --- |
 | `.claude-plugin/` | Plugin and marketplace manifests | Changing install or release metadata |
-| `skills/maestro/SKILL.md` | `/bottega:maestro`, the orchestrator's whole method and the routing table | Anything touches a run's phases, routing, or state |
+| `skills/maestro/SKILL.md` | `/bottega:maestro`, the orchestrator's whole method | Anything touches a run's phases or state |
+| `skills/routing/` | Model and effort selection per worker dispatch: the rule and `models.json` | Anything touches which model runs a worker |
 | `skills/spec/SKILL.md` | The one spec method (explore, propose independently, grill, present) with two entry points: `/bottega:spec` and the run's Spec phase, which invokes it whole; `references/spec-format.md` sets the document shape, and `references/live-review.md` carries the live-document review mechanics | Anything touches the spec method, exploration, independent proposals, grilling, prototypes, live review, or the spec-and-ticket publish |
 | `skills/improve/SKILL.md` | `/bottega:improve`, one agreed improvement filed as an issue and handed to run | Changing how improvements are found or handed off |
-| `skills/setup/SKILL.md` | `/bottega:setup`, one-time reconciliation of a project with the methodology | Changing what setup writes or verifies |
+| `skills/setup/SKILL.md` | `/bottega:setup`, one-time reconciliation of a machine and repo with the methodology (harness CLIs, skill discovery, route guard, optional proxy, then the repo docs and labels) | Changing what setup writes or verifies |
 | `skills/implementing` | Builder method shared by Claude and Codex workers | Changing how builders work a slice |
 | `skills/autoreview` | Vendored review helper from openclaw/agent-skills; `VENDOR` pins it | Updating the vendored copy only |
 | `skills/review/SKILL.md` | `/bottega:review`, the cross-family review gate; run's Review phase and land both call it | Anything touches review inputs, adjudication, or caps |
+| `skills/qa/SKILL.md` | QA method and limits: drive the shipped interface, return PASS/FAIL/NOT VERIFIED per scenario, forbidden actions; run's QA phase routes here | Anything touches QA driving, evidence, or limits |
 | `skills/land/SKILL.md` | `/bottega:land`, an open PR to verified-mergeable; owns the GitHub review surface | Anything touches PR threads, claims, stops, or merge |
 | `skills/close/SKILL.md` | The closing method a run's Close phase routes to: confirm the accepted head, file followups, open the PR under the reader contract, watch its checks; not user-invocable | Anything touches PR opening, followup filing, the reader contract, or the check watch |
 | `skills/panel/SKILL.md` | `/bottega:panel`, independent cross-family drafts and a compare-only judge for one costly decision; run's Plan phase calls it too | Changing panel seats or judging |
 | `skills/codebase-design` | House design doctrine: domain model, deep modules, documentation architecture | Any design, review, or setup doctrine question |
-| `skills/writing-great-skills` | Vendored skill-writing reference | Creating or editing any skill or agent file |
-| `agents/` | Worker identities: builder, QA | Changing a worker's authority or tools |
-| `scripts/` | Single assembly points for external calls: `codex-exec`, `pr-threads`, `pr-claim`, `issue-claim`; each header states its contract | Any codex launch or GitHub mutation mechanics |
-| `hooks/` | Route guard (PreToolUse) and entry guard (UserPromptSubmit); each file states its own policy | Changing what dispatches or prompts are denied |
+| `skills/writing-great-skills` | Vendored skill-writing reference | Creating or editing any skill file |
+| `scripts/` | Single assembly points for GitHub mutations: `pr-threads`, `pr-claim`, `issue-claim`; each header states its contract | Any GitHub mutation mechanics |
+| `hooks/` | The route guard and its registrations for the three harnesses; the guard states its own policy | Changing what dispatches are denied |
 | `docs/adr/` | Append-only decision records | Understanding why a current rule exists before changing it |
 | `docs/specs/` | The delivered specs, versioned with the code they describe | Reading what a feature was agreed to do, or grounding a new spec |
 | `tests/` | The verification gate's suites | Any change; the gate pins doctrine and script contracts |
@@ -36,12 +37,11 @@ The vendored skill directories are symlinked from `.claude/skills` and `.agents/
 - Orchestrate with the harness primitives (subagents, tracked background Bash, workflows); the models already know them. Never add a polling loop, a hand-written scheduler, or prose that restates what the harness does.
 - Every run gets: isolation in its own worktree and branch, a build, the project's gates green after every integrated slice, one cross-family review of the integrated diff, a QA drive with recorded evidence, and a PR. The integrated review is the one thing never dropped.
 - Verification gate: `npm test` (the vitest suites plus the vendored autoreview Python suites; needs python3 and git on PATH). Never pipe test output inside a `&&` chain; redirect to a file and check the exit code.
-- Creating or editing any skill or agent file, load `skills/writing-great-skills` and evaluate the writing against it. That directory is vendored: keep its body text as imported; the style rules above govern the rest of the repo, not it.
-- Editing the skills (`skills/*`, `agents/*`), two tests per line: could the worker derive it from the repo or from competence, and would plain Fable already do it better with no instruction? Either way, cut it. The workers are frontier models; a rule that only prevents a mistake a competent engineer would not make is noise. Constrain only where a real failure was observed or the cost of the mistake is high. Then read every worker rule as the weakest-equipped worker that will receive it: a codex worker has no slash commands, no subagents, no plugin root.
+- Creating or editing any skill file, load `skills/writing-great-skills` and evaluate the writing against it. That directory is vendored: keep its body text as imported; the style rules above govern the rest of the repo, not it.
+- Editing the skills (`skills/*`), two tests per line: could the worker derive it from the repo or from competence, and would plain Fable already do it better with no instruction? Either way, cut it. The workers are frontier models; a rule that only prevents a mistake a competent engineer would not make is noise. Constrain only where a real failure was observed or the cost of the mistake is high. Then read every worker rule as the weakest-equipped worker that will receive it: a codex worker has no slash commands, no subagents, no plugin root.
 - Put durable constraints where the worker that must obey them will receive them. The orchestrator owns gates, routing, architecture, and exceptions. Do not script decisions that Fable can make from the repository and evidence.
 - When a decision replaces an old direction, strip the old one completely and stop. Never add a test, guard, or doctrine line asserting the removed thing stays absent: that keeps the dead decision alive as maintenance. Git history is the record of what was removed and why. Tests assert what the current direction requires, never the absence of a past one.
-- Use one placement rule everywhere. An agent defines a named worker in an isolated context: its perspective, authority, forbidden actions, available tools, and required result. A skill defines reusable method or an independently invoked capability. Keep a skill when it crosses roles, runtimes, or phases, or when it owns a workflow, script, schema, or other contract. A reference is supporting detail for one parent skill and is loaded only in the phase that needs it. Hooks, schemas, tests, and workflow code enforce deterministic rules.
-- A current call count is not a placement rule. Inline method in an agent only when it serves one kind of task for that role, in one runtime, with no independent invocation and no assets or contract of its own. Otherwise keep the agent thin and preload or dispatch the skill. Do not copy or summarize a shared skill into an agent.
+- Use one placement rule everywhere. A skill defines reusable method or an independently invoked capability; a worker receives it per dispatch, never as a standing identity. A reference is supporting detail for one parent skill and is loaded only in the phase that needs it. Hooks, schemas, and tests enforce deterministic rules.
 - Each dispatch gives one task a fresh context and returns a finished answer. The dispatcher reads the answer, not the transcript. Workers ask the orchestrator; the orchestrator answers and resumes them. Workers do not coordinate with each other directly.
 - Keep `CLAUDE.md` symlinked to this file.
 - PR bodies contain review-relevant content only. Omit tool, model, and vendor attribution badges or footers.
