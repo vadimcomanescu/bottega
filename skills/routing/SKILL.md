@@ -30,12 +30,12 @@ Scores run 1 to 10, higher is better; a dash is a score not yet measured. Intell
 - Review gate: both families, pinned in skills/review (claude-fable-5 and gpt-5.6-sol).
 - QA drive: the host's cheap tier at its default effort, driving with the tools skills/qa names.
 - Mechanical work and exploration (reads, searches, renames, doc sync, format conversion): the host's cheap tier at low effort.
-- Cross families to buy capability, never to save cost: reach the other vendor for sol's building or the review gate; cheap work always uses the host's own cheap tier.
+- Cross families to buy capability, never to save cost: reach the other vendor for sol's building, for opus on user-facing work, or for the review gate's engines; cheap work always uses the host's own cheap tier.
 - These are defaults, not limits. Judge the output, not the price: a worker whose result fails its requirement gets one rerun on a stronger model or higher effort after the failure is diagnosed. Never automatic, never more than one model tier or effort level at a time.
 - No worker dispatch runs on the orchestrator's own model. The review gate's engines are exempt: the gate is mandatory and cross-family, and its models are pinned in skills/review.
 
 ## Reaching the pick
 
 - Claude Code: Claude models pin per dispatch natively. GPT models arrive natively through the model proxy (bottega:setup); without the proxy, launch them through `scripts/codex-exec` as tracked background work (skills/maestro/references/codex-dispatch.md).
-- Codex: a native subagent runs one fixed model for the whole session, the configured default subagent model; set it to the cheap tier, because unset it falls back to the orchestrator's model, which no worker may run. Any other model runs through a CLI as tracked background work: `scripts/codex-exec` for GPT models; headless claude for Claude models, or the model proxy declared as a custom model provider.
+- Codex: a native subagent runs one fixed model for the whole session, the configured default subagent model; set it to the cheap tier, because unset it falls back to the orchestrator's model, which no worker may run. Any other model runs through a CLI as tracked background work: `scripts/codex-exec` for GPT models, headless claude for Claude models.
 - Cursor: both families pin per dispatch natively, and composer-2.5 is available.
