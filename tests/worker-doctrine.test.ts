@@ -320,9 +320,8 @@ describe("portable worker doctrine", () => {
     expect(review).toContain("The cleanup sweeps ride in the panel round only.");
     expect(review).toContain("only through its own harness's native mechanism");
     expect(review).toContain(
-      "continues it with a follow-up message carrying the accepted findings verbatim",
+      "the session that spawned a Claude worker continues it with a follow-up message carrying the accepted findings verbatim; a Codex thread resumes through `scripts/codex-exec --resume` with the findings as the new brief",
     );
-    expect(review).toContain("scripts/codex-exec --resume");
     expect(review).toContain("A session on a different harness than the builder never attempts resume.");
     expect(review).toContain("Two fix cycles without convergence stop the editing");
     expect(review).toContain("the last helper exit at that head was clean");

@@ -21,7 +21,7 @@ On a product divergence, record the verdict and evidence, then stop and report s
 
 ## Scope a re-drive after a repair
 
-A re-drive after a repair covers the scenarios that failed and the scenarios the repair touched, never the full table; the dispatch names both sets.
+A re-drive after a repair covers the scenarios that failed and the scenarios the repair touched; the dispatch names both sets, and their union is the whole scope.
 
 ## Stay inside QA
 
