@@ -101,7 +101,8 @@ describe("portable worker doctrine", () => {
       ...filesUnder("skills", ".md").filter(
         (path) =>
           !path.startsWith("skills/autoreview/") &&
-          !path.startsWith("skills/writing-great-skills/"),
+          !path.startsWith("skills/writing-great-skills/") &&
+          !path.startsWith("skills/codebase-design/references/"),
       ),
     ];
 

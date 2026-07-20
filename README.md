@@ -149,7 +149,18 @@ Every change to this repo ships through `/bottega:maestro` on this repo; the pro
 
 ## Credits
 
-The discovery method (interviewing for unknowns) follows Thariq Shihipar's unknowns framework. The design vocabulary is John Ousterhout's deep modules. The builder's ordered minimum-code checks come from [Ponytail](https://github.com/DietrichGebert/ponytail); interface-level TDD and active domain language draw from [Matt Pocock's engineering skills](https://github.com/mattpocock/skills); selective technology-skill loading draws from [Addy Osmani's agent skills](https://github.com/addyosmani/agent-skills); and the exact-plan-to-implementer-to-reviewer handoff is reinforced by [Superpowers](https://github.com/obra/superpowers). The review gate runs [openclaw/agent-skills autoreview](https://github.com/openclaw/agent-skills/tree/main/skills/autoreview) itself, vendored at a pinned commit under `skills/autoreview`: the frozen bundle, engine isolation, structured findings, and "clean" as an exit state are its contract, and the gate orchestrates it. The panel (blinded frontier drafts, a judge held to structured comparison) follows OpenRouter's [Fusion](https://openrouter.ai/blog/announcements/fusion-beats-frontier/), which measured fused frontier models beating any single one; bottega deviates in one place: the judge never writes the answer, synthesis stays with the caller, which holds the context the judge never sees.
+### Copied into this repo
+
+These files are other people's work, copied as they were written and used unchanged. Both projects are MIT licensed, and their notices travel with the copies:
+
+- `skills/autoreview/` from [openclaw/agent-skills](https://github.com/openclaw/agent-skills). Copyright (c) 2026 openclaw. MIT: permission is granted free of charge to any person obtaining a copy to use, copy, modify, merge, publish, distribute, sublicense, and sell copies, subject to including this notice; the software is provided as is, without warranty of any kind.
+- `skills/codebase-design/references/CONTEXT-FORMAT.md` and `ADR-FORMAT.md` from [mattpocock/skills](https://github.com/mattpocock/skills). Copyright (c) 2026 Matt Pocock. Same MIT terms as above.
+
+Edit either upstream, not here. Bringing in a newer version means copying it again and reading the diff.
+
+### Drawn on, not copied
+
+The discovery method (interviewing for unknowns) follows Thariq Shihipar's unknowns framework. The design vocabulary is John Ousterhout's deep modules. The builder's ordered minimum-code checks come from [Ponytail](https://github.com/DietrichGebert/ponytail); interface-level TDD and active domain language draw from [Matt Pocock's engineering skills](https://github.com/mattpocock/skills); selective technology-skill loading draws from [Addy Osmani's agent skills](https://github.com/addyosmani/agent-skills); and the exact-plan-to-implementer-to-reviewer handoff is reinforced by [Superpowers](https://github.com/obra/superpowers). The review gate runs openclaw's autoreview itself: the frozen bundle, engine isolation, structured findings, and "clean" as an exit state are its contract, and the gate orchestrates it. The panel (blinded frontier drafts, a judge held to structured comparison) follows OpenRouter's [Fusion](https://openrouter.ai/blog/announcements/fusion-beats-frontier/), which measured fused frontier models beating any single one; bottega deviates in one place: the judge never writes the answer, synthesis stays with the caller, which holds the context the judge never sees.
 
 ## License
 
