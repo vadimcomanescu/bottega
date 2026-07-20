@@ -108,18 +108,42 @@ describe("portable worker doctrine", () => {
       tableHeader(table).includes("model"),
     );
     expect(modelTables, "routing must have one model table").toHaveLength(1);
+    expect(tableHeader(modelTables[0]!)).toEqual([
+      "model",
+      "family",
+      "intelligence",
+      "taste",
+      "notes",
+    ]);
 
-    const ids = modelTables[0]!
-      .slice(2)
-      .map((row) => row.split("|")[1]?.trim() ?? "")
-      .filter(Boolean);
+    const FAMILIES = new Set(["anthropic", "openai", "cursor", "moonshot"]);
+    const SCORE = /^([1-9]|10|-)$/;
+    const rows = modelTables[0]!.slice(2).map((row) =>
+      row.split("|").slice(1, -1).map((cell) => cell.trim()),
+    );
+    const ids = rows.map((cells) => cells[0] ?? "").filter(Boolean);
+    for (const cells of rows) {
+      const [id = "", family = "", intelligence = "", taste = ""] = cells;
+      expect(FAMILIES.has(family), `${id} has unknown family ${family}`).toBe(true);
+      expect(SCORE.test(intelligence), `${id} intelligence must be 1-10 or -`).toBe(true);
+      expect(SCORE.test(taste), `${id} taste must be 1-10 or -`).toBe(true);
+    }
     for (const id of ["fable-5", "opus-4.8", "gpt-5.6-sol", "sonnet-5"]) {
       expect(ids, `routing table must carry ${id}`).toContain(id);
+    }
+
+    expect(routing).toContain("gpt-5.6-sol at xhigh");
+    expect(routing).toContain("pinned in skills/review");
+    for (const host of ["- Claude Code:", "- Codex:", "- Cursor:"]) {
+      expect(routing, `routing must state reach mechanics for ${host}`).toContain(host);
     }
 
     const review = read("skills/review/SKILL.md");
     expect(review).toContain("--model codex=gpt-5.6-sol");
     expect(review).toContain("--model claude=claude-fable-5");
+    expect(review, "trivial-diff exception must pin fable").toContain(
+      "--engine claude --model claude-fable-5",
+    );
   });
 
   it("keeps every AGENTS map path live", () => {
@@ -205,13 +229,7 @@ describe("portable worker doctrine", () => {
       .map((row) => row.split("|")[1]?.trim() ?? "")
       .filter(Boolean);
 
-    const tables = markdownTables(maestro);
-    const harnessReachTables = tables.filter((table) =>
-      tableHeader(table).includes("Your harness"),
-    );
-    expect(harnessReachTables, "maestro must have one harness reach table").toHaveLength(1);
-
-    for (const table of tables.filter((candidate) => candidate !== harnessReachTables[0])) {
+    for (const table of markdownTables(maestro)) {
       const rows = table.join("\n");
       for (const id of ids) {
         expect(rows, `maestro has its own routing row for ${id}`).not.toContain(id);

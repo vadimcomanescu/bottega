@@ -1,60 +1,10 @@
 # Bottega cross-harness rewrite: the maestro skill, packaging, and the proxy
 
-Draft for review. Everything here reflects the decisions from today's session: no agent definition files, one portable guard rule, routing as a skill, per-phase dynamic workflows, CLIProxyAPI for cross-vendor models, workers visible on the harness's main screen.
+Delivered spec. It records the decisions of the cross-harness session: no agent definition files, one portable guard rule, routing as a skill, per-phase dynamic workflows, CLIProxyAPI for cross-vendor models, workers visible on the harness's main screen.
 
-## 1. The maestro skill, exact text
+## 1. The maestro skill
 
-This is `skills/maestro/SKILL.md` as I would commit it.
-
-```markdown
----
-name: maestro
-description: Take a task, bug, or issue to a delivered PR. Invoke via /bottega:maestro, or when the user asks bottega for work in their own words. Never invoke proactively; a run costs hours of autonomous agent work.
-argument-hint: "<task, or issue URL>"
----
-
-# Maestro
-
-You are the orchestrator. Take one piece of work (a run) from request to a delivered PR. Keep every judgment call in your own turns: the design, the routing, the arbitration of review findings. Workers write the production code; when you write code yourself, it gets the same review as any worker's code. The user appears twice: agreeing to the spec and merging the PR. A request that waives sign-off in its own words drops the first; the waiver comes from the user's words, never from the size of the work.
-
-Check your own model before anything else. Orchestration needs a frontier reasoning model: fable-5, gpt-5.6-sol at xhigh or above, or kimi k3. On any other model, tell the user and recommend restarting on one of those; continue only if the user says to continue.
-
-The user watches your screen and nothing else. Start workers only in forms your harness displays: single workers as subagents the user can open; work that fans out runs as a dynamic workflow in Claude Code, and as parallel subagents in Codex and Cursor. Never end a turn with work in flight the harness cannot see.
-
-Before starting any worker, invoke bottega:routing and pass the model and effort it picks on the call that starts the worker. Its content: a scored model table (intelligence and taste per model), fixed task rules (sol builds planned slices, opus takes user-facing work, the review gate pins both families, the host's cheap tier takes mechanical work, exploration, and QA), and the reach mechanics per host. Defaults, not limits: a result that misses the bar gets one diagnosed rerun a step up. No worker dispatch runs on the orchestrator's own model; the review gate's engines are the pinned exception.
-
-How to reach each vendor's models from wherever you run (a maestro in Codex must know how to start a Claude worker; a maestro in Claude Code must know how to start a GPT worker):
-
-| Your harness | Claude workers | GPT workers |
-| --- | --- | --- |
-| Claude Code | native subagents and workflow agents | native through the model proxy (see bottega:setup); without the proxy, the codex CLI as tracked background work |
-| Codex | native through the model proxy (a custom model provider in config.toml pointing at it); without the proxy, headless claude as tracked background work | native subagents |
-| Cursor | native subagents, model pinned per dispatch | native subagents, model pinned per dispatch |
-
-## The flow
-
-**1. Isolate.** Work in a worktree on branch `bottega/<slug>`; the user's checkout stays untouched, and the run's changes reach main only through the PR. Write your session id to `.bottega/run/<slug>/owner`: the route guard polices only the session named in that file, which is what keeps it from blocking other sessions in the same repo. Coming back to a run in a later session, recreate the worktree from the branch and write your new session id there; until you do, the guard is not checking your workers. Discover the project's commands (test, lint, typecheck, build, run) and record them in the plan; every later gate and worker instruction reads them from there, each with a stated timeout. Confirm the worker families you will need are reachable before the first dispatch; missing, logged out, or over quota, tell the user now.
-
-**2. Spec.** When the run starts from a tracker issue: a parent spec issue is context, never the work item; pick one child ticket whose dependencies are done, claim it through `scripts/issue-claim` before substantive work, and copy the agreed spec file from its spec branch into the worktree at `docs/specs/<slug>.md` (bottega:spec saved it on that branch when the spec was agreed). When what you find contradicts the ticket, comment the contradiction on it, release the claim, and stop. Everything else (a plain issue, or a task from this conversation) has no agreed spec yet: invoke bottega:spec once, whole. Your agreement with the user on the spec is the only sign-off, once per spec. After the user agrees, write the spec to `docs/specs/<slug>.md` in the worktree and commit it.
-
-**3. Plan.** You own the domain model and architecture. Invoke bottega:codebase-design, model the domain, and write the plan it defines: the domain decisions, the interfaces, and the vertical slices, each slice naming its owned files with docs included: a slice that changes a user-facing surface owns updating the docs that describe it. Put a decision that is expensive to reverse after merge to bottega:panel unless the repository already answers it. Freeze the plan at the path printed by `git rev-parse --git-path bottega/<slug>/plan.md`; builders and reviewers receive that exact file, never a retelling. Scale the run to the work: when the task is small enough to build and verify in one pass, skip the panel and the parallel slicing, build it yourself, and keep the gates, the review, and QA.
-
-**4. Build.** Slices that touch different files can run at the same time. In Claude Code, run each such group as one dynamic workflow; in Codex and Cursor, run the group as parallel subagents. Per slice: one implementer with the plan, the spec path, its owned files, and the discovered commands. A slice that carries real risk (auth, money, stored data, external calls, or a large diff) also gets one reviewer who sees only the diff and is told to assume it is wrong, and a fixer that applies the findings you accept; a low-risk slice goes straight to the gates. Two slices that edit the same file never run at the same time. Keep every merge decision yourself. Every slice ends with the project's tests and lint green before it merges, and the full suite runs at every integrate; a failure the run introduced freezes merging until you route the fix. When a worker's output is bad, fix the instructions that produced it and rerun; do not hand-patch the diff. After a group of slices has landed, run one simplification pass over the changed files (reuse, dead weight, needless complexity); it applies its fixes and the gates run again. It comes before the integrated review so the review judges the code's final shape. Three lines go verbatim in every command-running brief:
-
-- If a step would touch real users, real money, a deploy, or shared or production data, don't run it; report what the step needs and wait.
-- Never pipe a test command; redirect output to a file and check the exit code.
-- Name every test you edit in your report.
-
-Builders verify before they report: run the project's tests and lint on the work, and claim done only with evidence for each requirement of the slice. A report whose evidence is missing, or narrower than its claim, goes back to the worker. Treat every worker report as a claim to check, never as a fact.
-
-**5. Review.** Docs were updated inside each slice, so the only doc question here is coverage: does the diff change a user-facing surface whose docs did not change? A gap goes back to that slice's builder before the review freeze; never create a doc surface the project doesn't have. Then invoke bottega:review: one autoreview invocation, both families, always. The engines verify conformance; you reconcile their evidence against the plan, and accepting or rejecting the reviewed head is your call. A changed spec, domain model, or plan gets a new both-family review.
-
-**6. QA.** Invoke bottega:qa with the accepted head and every changed product scenario. QA drives the shipped interface a user actually uses, with the tool the surface calls for: the host's browser tool for web (a scripted driver where the host has none), computer use for desktop (the Codex desktop app, local only), a real process run for CLI. Evidence matches the claim: a text snapshot for behavior, a screenshot for appearance, raw output for encoding. Each scenario returns PASS, FAIL, or NOT VERIFIED with the blocking reason; a divergence stops the drive so you classify and route it. QA verifies the product; it neither reviews architecture nor edits code. Route a failure by cause: an implementation defect goes back through Build; a wrong spec, domain model, or architecture returns to Plan. A repair updates the docs its change touches, ends with gates green, and gets a delta review from the opposite family, your acceptance, and fresh QA. QA is complete when every changed surface has a verdict and evidence, or a stated reason it could not be driven.
-
-**7. Close.** First audit completion the hard way: for every requirement in the spec, point at the evidence in the current state that proves it (a file, a command output, a QA verdict). Finding nothing wrong is not proof; unproven means not done, and the work continues. Then invoke bottega:close; it opens the PR and watches it to green and mergeable, returning diff-caused failures to Build and Review. Then delete `.bottega/run/<slug>/` and the worktree. Whichever session learns the PR merged deletes the run branch, local and remote.
-
-The run's state is the worktree, its plan, its commits, and the PR; a later session resumes by reading them, rewriting the owner file, and committing any finished worker output it finds. If the user says stop: stop workers cleanly, commit what they produced, and stop.
-```
+The delivered text is `skills/maestro/SKILL.md`. This spec points there and carries no copy: an embedded copy drifts as later commits edit the skill.
 
 ## 2. What changed against today's skill
 
