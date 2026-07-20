@@ -23,7 +23,7 @@ One helper invocation reviews the frozen diff with both families in parallel. Th
     "$AUTOREVIEW" --mode branch --base <frozen-base> \
       --reviewers codex,claude \
       --model codex=gpt-5.6-sol  --thinking codex=high \
-      --model claude=claude-opus-4-8 --thinking claude=xhigh \
+      --model claude=claude-fable-5 --thinking claude=xhigh \
       --prompt "$(cat <intent file in the session scratchpad>)" \
       --json-output <path in the session scratchpad>
 
@@ -40,7 +40,7 @@ One helper invocation reviews the frozen diff with both families in parallel. Th
 - **Fail-closed bundles.** The helper refuses a bundle carrying secret-shaped or sensitive content, and that refusal is not overridable. When the refused content is legitimate (a vendored test fixture, a seeded credential in test data), split the review into coherent targets: build a temporary review head without the refused paths, review the authored remainder against the same base, and verify the excluded part deterministically (a byte pin against upstream, its own test suite). Record the split and its verification in the adjudication.
 - **Helper location.** Invoke the helper from a checkout that carries it. When the review head does not (the vendored tree is itself excluded or under review), run the helper by absolute path from a checkout outside the reviewed one, with the reviewed worktree as the working directory.
 
-**Trivial-diff exception.** For a PR target under 150 changed lines that touches no risk path, review with a single engine from the family opposite the head author; record that choice. A single-engine invocation always pins its model and thinking, never relying on the helper's defaults or the environment: `--engine codex --model gpt-5.6-sol --thinking high`, or `--engine claude --model claude-opus-4-8 --thinking xhigh`. The helper's claude default is fable, which runs only in the orchestrator's own turns, never as a review engine. A risk path is authentication, money, permissions, persisted data, or a destructive operation. When the head author's family is unknown (a human PR or unknown authorship) the exception does not apply and both families review. A run's integrated review always takes both families and is never eligible.
+**Trivial-diff exception.** For a PR target under 150 changed lines that touches no risk path, review with a single engine from the family opposite the head author; record that choice. A single-engine invocation always pins its model and thinking, never relying on the helper's defaults or the environment: `--engine codex --model gpt-5.6-sol --thinking high`, or `--engine claude --model claude-fable-5 --thinking xhigh`. A risk path is authentication, money, permissions, persisted data, or a destructive operation. When the head author's family is unknown (a human PR or unknown authorship) the exception does not apply and both families review. A run's integrated review always takes both families and is never eligible.
 
 ## Adjudicate
 

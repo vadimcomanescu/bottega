@@ -2,7 +2,7 @@
 
 Bottega is a method in markdown; most defects are false claims, drifted duplicates, and register violations, not crashing code.
 
-- Model selection lives in `skills/routing` (the rule plus `models.json`). A skill that restates the rule or pins a model outside the registry is a defect; callers say "invoke bottega:routing".
+- Model selection lives in `skills/routing`: the model table and the task rules. A skill that restates them or pins a model elsewhere is a defect, with one sanctioned exception: the review gate's engine pins in `skills/review`. Callers say "invoke bottega:routing".
 - Enforcement is one rule in `hooks/route-guard.mjs`: a session owning a live run names a model on every worker start, never fable. Enforcement is verified on Claude Code; the Codex and Cursor registrations are installed by setup and are best effort. Guard changes need `tests/route-guard.test.ts` to still pass against real event shapes.
 - There are no agent identity files. Worker method arrives per dispatch from skills (`implementing`, `qa`).
 - The skills tree is the product and must stay harness-portable: nothing in `skills/` may assume slash commands, subagents, or a plugin root exists, except where a harness is named.

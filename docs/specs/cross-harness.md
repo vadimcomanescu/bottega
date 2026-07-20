@@ -21,7 +21,7 @@ Check your own model before anything else. Orchestration needs a frontier reason
 
 The user watches your screen and nothing else. Start workers only in forms your harness displays: single workers as subagents the user can open; work that fans out runs as a dynamic workflow in Claude Code, and as parallel subagents in Codex and Cursor. Never end a turn with work in flight the harness cannot see.
 
-Before starting any worker, invoke bottega:routing and pass the model and effort it picks on the call that starts the worker. Its rule: use a cheap model only when the task has one clearly stated right answer, a wrong result stays inside that task, redoing it costs nothing, and a test or gate rejects a wrong result on its own. Use a strong model otherwise. No worker ever runs on your own model.
+Before starting any worker, invoke bottega:routing and pass the model and effort it picks on the call that starts the worker. Its content: a scored model table (intelligence and taste per model), fixed task rules (sol builds planned slices, opus takes user-facing work, the review gate pins both families, the host's cheap tier takes mechanical work, exploration, and QA), and the reach mechanics per host. Defaults, not limits: a result that misses the bar gets one diagnosed rerun a step up. No worker dispatch runs on the orchestrator's own model; the review gate's engines are the pinned exception.
 
 How to reach each vendor's models from wherever you run (a maestro in Codex must know how to start a Claude worker; a maestro in Claude Code must know how to start a GPT worker):
 
@@ -49,7 +49,7 @@ Builders verify before they report: run the project's tests and lint on the work
 
 **5. Review.** Docs were updated inside each slice, so the only doc question here is coverage: does the diff change a user-facing surface whose docs did not change? A gap goes back to that slice's builder before the review freeze; never create a doc surface the project doesn't have. Then invoke bottega:review: one autoreview invocation, both families, always. The engines verify conformance; you reconcile their evidence against the plan, and accepting or rejecting the reviewed head is your call. A changed spec, domain model, or plan gets a new both-family review.
 
-**6. QA.** Invoke bottega:qa with the accepted head and every changed product scenario. QA drives the shipped interface a user actually uses, with the tool the surface calls for: agent-browser for web, computer use for desktop, a real process run for CLI. Evidence matches the claim: a text snapshot for behavior, a screenshot for appearance, raw output for encoding. Each scenario returns PASS, FAIL, or NOT VERIFIED with the blocking reason; a divergence stops the drive so you classify and route it. QA verifies the product; it neither reviews architecture nor edits code. Route a failure by cause: an implementation defect goes back through Build; a wrong spec, domain model, or architecture returns to Plan. A repair updates the docs its change touches, ends with gates green, and gets a delta review from the opposite family, your acceptance, and fresh QA. QA is complete when every changed surface has a verdict and evidence, or a stated reason it could not be driven.
+**6. QA.** Invoke bottega:qa with the accepted head and every changed product scenario. QA drives the shipped interface a user actually uses, with the tool the surface calls for: the host's browser tool for web (a scripted driver where the host has none), computer use for desktop (the Codex desktop app, local only), a real process run for CLI. Evidence matches the claim: a text snapshot for behavior, a screenshot for appearance, raw output for encoding. Each scenario returns PASS, FAIL, or NOT VERIFIED with the blocking reason; a divergence stops the drive so you classify and route it. QA verifies the product; it neither reviews architecture nor edits code. Route a failure by cause: an implementation defect goes back through Build; a wrong spec, domain model, or architecture returns to Plan. A repair updates the docs its change touches, ends with gates green, and gets a delta review from the opposite family, your acceptance, and fresh QA. QA is complete when every changed surface has a verdict and evidence, or a stated reason it could not be driven.
 
 **7. Close.** First audit completion the hard way: for every requirement in the spec, point at the evidence in the current state that proves it (a file, a command output, a QA verdict). Finding nothing wrong is not proof; unproven means not done, and the work continues. Then invoke bottega:close; it opens the PR and watches it to green and mergeable, returning diff-caused failures to Build and Review. Then delete `.bottega/run/<slug>/` and the worktree. Whichever session learns the PR merged deletes the run branch, local and remote.
 
@@ -58,13 +58,13 @@ The run's state is the worktree, its plan, its commits, and the PR; a later sess
 
 ## 2. What changed against today's skill
 
-* The routing table is gone; bottega:routing (new skill) selects model and effort per dispatch from a plain rule and a small registry (`models.json`: id, family, cost, context, qualified work, notes).
+* The per-seat table in the run skill is replaced by bottega:routing (new skill): a scored model table, fixed task rules, and per-host reach mechanics, all in the skill text. No separate registry file.
 
 * `agents/builder.md` and `agents/qa.md` are deleted. The builder method stays in bottega:implementing; QA's method and its forbidden actions become bottega:qa, a skill.
 
 * The Build phase runs concurrent slices as one workflow in Claude Code (parallel subagents in Codex and Cursor), with a risk-gated blind reviewer on risky slices and a simplification pass before the integrated review. Codex builders are ordinary workflow agents once the proxy resolves GPT model names.
 
-* `scripts/codex-exec` is deleted. GPT dispatch is native (proxy) or the codex CLI directly (fallback), and the codex plugin stays for interactive consults.
+* `scripts/codex-exec` stays: the single assembly point for every codex CLI launch, carrying the sandbox flags, resume traps, stall watchdog, progress streaming, and completion verification a bare CLI call loses. GPT dispatch is native (proxy) or `scripts/codex-exec` as tracked background work (fallback), and the codex plugin stays for interactive consults.
 
 * The entry guard is deleted. The route guard shrinks to one rule.
 
@@ -85,7 +85,7 @@ bottega/
     hooks.json               # Claude Code registration
     hooks-cursor.json        # Cursor registration
     hooks-codex.json         # Codex registration
-  scripts/                   # pr-threads, pr-claim, issue-claim (codex-exec deleted)
+  scripts/                   # codex-exec, pr-threads, pr-claim, issue-claim
   .claude-plugin/plugin.json # points at ./skills/, ./hooks/hooks.json
   .codex-plugin/plugin.json  # points at ./skills/
   .cursor-plugin/plugin.json # points at ./skills/

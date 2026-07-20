@@ -12,23 +12,6 @@ import { describe, expect, it } from "vitest";
 import { parse as parseYaml } from "yaml";
 
 const ROOT = join(import.meta.dirname, "..");
-const MODEL_FIELDS = [
-  "context",
-  "cost_in",
-  "cost_out",
-  "family",
-  "id",
-  "notes",
-  "work",
-];
-const WORK_KINDS = new Set([
-  "build",
-  "review",
-  "qa",
-  "panel",
-  "mechanical",
-  "orchestrator",
-]);
 
 function read(path: string): string {
   return readFileSync(join(ROOT, path), "utf8");
@@ -119,35 +102,24 @@ describe("portable worker doctrine", () => {
     expect(violations).toEqual([]);
   });
 
-  it("validates routing registry shape and cross-family review capacity", () => {
-    const models = JSON.parse(read("skills/routing/models.json")) as Array<
-      Record<string, unknown>
-    >;
-    expect(Array.isArray(models)).toBe(true);
+  it("keeps the routing model table and cross-family review pins", () => {
+    const routing = read("skills/routing/SKILL.md");
+    const modelTables = markdownTables(routing).filter((table) =>
+      tableHeader(table).includes("model"),
+    );
+    expect(modelTables, "routing must have one model table").toHaveLength(1);
 
-    for (const model of models) {
-      expect(Object.keys(model).sort(), `${String(model.id)} has the wrong fields`).toEqual(
-        MODEL_FIELDS,
-      );
-      expect(Array.isArray(model.work), `${String(model.id)} work must be an array`).toBe(true);
-      for (const work of model.work as unknown[]) {
-        expect(typeof work, `${String(model.id)} work values must be strings`).toBe("string");
-        expect(WORK_KINDS.has(work as string), `${String(model.id)} has unknown work ${String(work)}`).toBe(
-          true,
-        );
-      }
+    const ids = modelTables[0]!
+      .slice(2)
+      .map((row) => row.split("|")[1]?.trim() ?? "")
+      .filter(Boolean);
+    for (const id of ["fable-5", "opus-4.8", "gpt-5.6-sol", "sonnet-5"]) {
+      expect(ids, `routing table must carry ${id}`).toContain(id);
     }
 
-    const reviewFamilies = new Set(
-      models
-        .filter((model) => (model.work as unknown[]).includes("review"))
-        .map((model) => model.family),
-    );
-    expect(reviewFamilies.size).toBeGreaterThanOrEqual(2);
-
-    const fable = models.find((model) => model.id === "fable-5");
-    expect(fable, "routing registry must define fable-5").toBeDefined();
-    expect([...fable!.work].sort()).toEqual(["orchestrator", "panel"]);
+    const review = read("skills/review/SKILL.md");
+    expect(review).toContain("--model codex=gpt-5.6-sol");
+    expect(review).toContain("--model claude=claude-fable-5");
   });
 
   it("keeps every AGENTS map path live", () => {
@@ -224,8 +196,14 @@ describe("portable worker doctrine", () => {
 
   it("delegates routing from maestro without embedding a model table", () => {
     const maestro = read("skills/maestro/SKILL.md");
-    const models = JSON.parse(read("skills/routing/models.json")) as Array<{ id: string }>;
+    const routing = read("skills/routing/SKILL.md");
     expect(maestro).toContain("bottega:routing");
+
+    const ids = markdownTables(routing)
+      .filter((table) => tableHeader(table).includes("model"))[0]!
+      .slice(2)
+      .map((row) => row.split("|")[1]?.trim() ?? "")
+      .filter(Boolean);
 
     const tables = markdownTables(maestro);
     const harnessReachTables = tables.filter((table) =>
@@ -235,8 +213,8 @@ describe("portable worker doctrine", () => {
 
     for (const table of tables.filter((candidate) => candidate !== harnessReachTables[0])) {
       const rows = table.join("\n");
-      for (const model of models) {
-        expect(rows, `maestro has its own routing row for ${model.id}`).not.toContain(model.id);
+      for (const id of ids) {
+        expect(rows, `maestro has its own routing row for ${id}`).not.toContain(id);
       }
     }
   });

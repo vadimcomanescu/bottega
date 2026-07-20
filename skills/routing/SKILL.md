@@ -6,32 +6,36 @@ user-invocable: false
 
 # Routing
 
-Return one model and effort for the dispatch the caller is about to start. Read the registry, apply the rule, name the pick.
+Return one model and effort for the dispatch the caller is about to start: find the task's rule, take the model it names, check the host can reach it, name the pick.
 
-## The rule
+## The models
 
-Use a cheap model only when all four hold:
+Scores run 1 to 10, higher is better. Intelligence is how hard a problem the model finishes unsupervised. Taste is the quality of work a human judges by looking: UI, wording, API shape. Haiku is never dispatched.
 
-- the task has one clearly stated right answer,
-- a wrong result stays inside the task,
-- redoing it costs nothing,
-- a test or gate rejects a wrong result on its own.
+| model | family | intelligence | taste | notes |
+| --- | --- | --- | --- | --- |
+| fable-5 | anthropic | 9 | 9 | The orchestrator's seat and the claude review engine. Priciest row; spent where a wrong answer multiplies. |
+| opus-4.8 | anthropic | 8 | 8 | The user-facing worker. |
+| gpt-5.6-sol | openai | 8 | 6 | The builder. Fast and token-lean at xhigh. |
+| sonnet-5 | anthropic | 6 | 7 | Cheap tier on a Claude host: mechanical work, exploration, QA drives. |
+| gpt-5.6-terra | openai | 6 | 5 | Cheap tier on a Codex host. |
+| gpt-5.6-luna | openai | 5 | 4 | Fully specified high-volume work on a Codex host. |
+| composer-2.5 | cursor | 7 | 6 | Exists only inside Cursor; fast mechanical option there. |
+| kimi-k3 | moonshot | 8 | - | Candidate, not adopted: half sol's token price, roughly twice the tokens for the same work. |
 
-Use a strong model otherwise.
+## The rules
 
-Never pick the orchestrator's own model for a worker. One exemption: the review gate's engines run their fixed cross-family models even when one matches the orchestrator's; the gate is mandatory and its models are pinned in skills/review.
+- Build a planned slice: gpt-5.6-sol at xhigh.
+- User-facing work, which a gate cannot judge and a human judges by looking (UI, wording, API shape, spec and PR prose): opus-4.8 at high. When its output misses the bar, the orchestrator redoes that piece in its own turns, and the redo passes the same review as any worker's code.
+- Review gate: both families, pinned in skills/review (claude-fable-5 and gpt-5.6-sol).
+- QA drive: the host's cheap tier, driving with the tools skills/qa names.
+- Mechanical work and exploration (reads, searches, renames, doc sync, format conversion): the host's cheap tier at low effort.
+- Cross families to buy capability, never to save cost: reach the other vendor for sol's building or the review gate; cheap work always uses the host's own cheap tier.
+- These are defaults, not limits. Judge the output, not the price: a worker whose result misses the bar gets one rerun on a stronger model or higher effort after the failure is diagnosed. Never automatic, never more than one step.
+- No worker dispatch runs on the orchestrator's own model. The review gate's engines are exempt: the gate is mandatory and cross-family, and its models are pinned in skills/review.
 
-Effort follows the same call: a strong pick runs at high effort (xhigh for a reviewer of the other family's code), a cheap pick at the model's default.
+## Reaching the pick
 
-## Reading models.json
-
-`models.json` is a flat array, one row per callable model. Each row carries:
-
-- `id`: the name to pass on the dispatch.
-- `family`: workers whose family differs from the reviewer's give the cross-family review gate its two sides.
-- `cost_in`, `cost_out`: per-Mtok input and output price.
-- `context`: token window.
-- `work`: the task kinds the model is qualified for (build, review, qa, panel, mechanical, orchestrator).
-- `notes`: caveats, including where a figure is an estimate.
-
-Keep the rows whose `work` lists this task's kind, drop the orchestrator's own model, then pick cheap or strong by the rule. Among the rows still standing, cost and context break the tie.
+- Claude Code: Claude models pin per dispatch natively. GPT models arrive natively through the model proxy (bottega:setup); without the proxy, launch them through `scripts/codex-exec` as tracked background work (skills/maestro/references/codex-dispatch.md).
+- Codex: workers inherit the orchestrator's model, and per-dispatch pinning does not take. Set the cheap tier once as the config default subagent model; any other model runs through a CLI as tracked background work: `scripts/codex-exec` for GPT models, headless claude for Claude models.
+- Cursor: both families pin per dispatch natively, and composer-2.5 is available.

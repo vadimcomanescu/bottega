@@ -12,14 +12,14 @@ Check your own model before anything else. Orchestration needs a frontier reason
 
 The user watches your screen and nothing else. Start workers only in forms your harness displays: single workers as subagents the user can open; work that fans out runs as a dynamic workflow in Claude Code, and as parallel subagents in Codex and Cursor. Never end a turn with work in flight the harness cannot see.
 
-Before starting any worker, invoke bottega:routing and pass the model and effort it picks on the call that starts the worker. Its rule: use a cheap model only when the task has one clearly stated right answer, a wrong result stays inside that task, redoing it costs nothing, and a test or gate rejects a wrong result on its own. Use a strong model otherwise. No worker ever runs on your own model.
+Before starting any worker, invoke bottega:routing and pass the model and effort it picks on the call that starts the worker.
 
 How to reach each vendor's models from wherever you run (a maestro in Codex must know how to start a Claude worker; a maestro in Claude Code must know how to start a GPT worker):
 
 | Your harness | Claude workers | GPT workers |
 | --- | --- | --- |
-| Claude Code | native subagents and workflow agents | native through the model proxy (see bottega:setup); without the proxy, the codex CLI as tracked background work |
-| Codex | native through the model proxy (a custom model provider pointing at it); without the proxy, headless claude as tracked background work | native subagents |
+| Claude Code | native subagents and workflow agents | native through the model proxy (see bottega:setup); without the proxy, `scripts/codex-exec` as tracked background work (references/codex-dispatch.md) |
+| Codex | native through the model proxy (a custom model provider pointing at it); without the proxy, headless claude as tracked background work | native subagents inherit your model; a different GPT model runs through `scripts/codex-exec` as tracked background work |
 | Cursor | native subagents, model pinned per dispatch | native subagents, model pinned per dispatch |
 
 ## The flow
@@ -40,7 +40,7 @@ Builders verify before they report: run the project's tests and lint on the work
 
 **5. Review.** Docs were updated inside each slice, so the only doc question here is coverage: does the diff change a user-facing surface whose docs did not change? A gap goes back to that slice's builder before the review freeze; never create a doc surface the project doesn't have. Then invoke bottega:review: one autoreview invocation, both families, always. The engines verify conformance; you reconcile their evidence against the plan, and accepting or rejecting the reviewed head is your call. A changed spec, domain model, or plan gets a new both-family review.
 
-**6. QA.** Invoke bottega:qa with the accepted head and every changed product scenario. QA drives the shipped interface a user actually uses, with the tool the surface calls for: agent-browser for web, computer use for desktop, a real process run for CLI. Evidence matches the claim: a text snapshot for behavior, a screenshot for appearance, raw output for encoding. Each scenario returns PASS, FAIL, or NOT VERIFIED with the blocking reason; a divergence stops the drive so you classify and route it. QA verifies the product; it neither reviews architecture nor edits code. Route a failure by cause: an implementation defect goes back through Build; a wrong spec, domain model, or architecture returns to Plan. A repair updates the docs its change touches, ends with gates green, and gets a delta review from the opposite family, your acceptance, and fresh QA. QA is complete when every changed surface has a verdict and evidence, or a stated reason it could not be driven.
+**6. QA.** Invoke bottega:qa with the accepted head and every changed product scenario. QA drives the shipped interface a user actually uses, with the tool the surface calls for: the host's browser tool for web (a scripted driver where the host has none), computer use for desktop (the Codex desktop app, local only), a real process run for CLI. Evidence matches the claim: a text snapshot for behavior, a screenshot for appearance, raw output for encoding. Each scenario returns PASS, FAIL, or NOT VERIFIED with the blocking reason; a divergence stops the drive so you classify and route it. QA verifies the product; it neither reviews architecture nor edits code. Route a failure by cause: an implementation defect goes back through Build; a wrong spec, domain model, or architecture returns to Plan. A repair updates the docs its change touches, ends with gates green, and gets a delta review from the opposite family, your acceptance, and fresh QA. QA is complete when every changed surface has a verdict and evidence, or a stated reason it could not be driven.
 
 **7. Close.** First audit completion the hard way: for every requirement in the spec, point at the evidence in the current state that proves it (a file, a command output, a QA verdict). Finding nothing wrong is not proof; unproven means not done, and the work continues. Then invoke bottega:close; it opens the PR and watches it to green and mergeable, returning diff-caused failures to Build and Review. Then delete `.bottega/run/<slug>/` and the worktree. Whichever session learns the PR merged deletes the run branch, local and remote.
 
