@@ -12,7 +12,7 @@ A standalone `/bottega:review` of a PR acquires the per-PR session claim through
 
 ## Freeze the target
 
-Fix base, head, and tree SHAs after the project's gates pass and before the panel round. For a PR target, create a worktree at the PR head and review that, never the user's checkout. The base ref must resolve locally before the invocation; the helper never fetches.
+Fix base, head, and tree SHAs after the project's gates pass and before the panel round. Freeze the scope baseline with them: the stated intent, the owner boundary, and the changed files with their non-test line count. For a PR target, create a worktree at the PR head and review that, never the user's checkout. The base ref must resolve locally before the invocation; the helper never fetches.
 
 ## Panel round
 
@@ -65,6 +65,8 @@ An in-scope blocker routes as a fix:
 - A substantive fix goes to the builder that owns the module, resumed with its context. A worker is resumed only through its own harness's native mechanism: the session that spawned a Claude worker continues it with a follow-up message carrying the accepted findings verbatim; a Codex thread resumes through `scripts/codex-exec --resume` with the findings as the new brief. A session on a different harness than the builder never attempts resume.
 - The fallback for a dead thread, a thread near its context budget, or a cross-harness builder is a fresh dispatch carrying the accepted findings and that builder's prior report.
 - A finding no module owns goes to the caller or one designated fixer; never two writers in one file.
+
+Fixes stay inside the frozen scope baseline. Stop patching and escalate instead when a fix would turn the task into an architecture, protocol, migration, or release-process change; when the diff grows past twice the baseline's files or non-test lines without the owner agreeing to expand scope; or when the right fix is defining the canonical contract rather than another local inference. Breaking scope is justified only by active data loss, a crash, broken install or upgrade, a release blocker, or concrete security exposure. On a release or hotfix branch, fix only those; every other finding becomes a follow-up for the main branch.
 
 ## Recheck until clean
 
