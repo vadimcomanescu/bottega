@@ -53,7 +53,7 @@ Reload Cursor, invoke `/setup` once to register the Cursor hook, then start a ru
 | panel | `/bottega:panel <the decision>` | `$panel <the decision>` | `/panel <the decision>` | Produce independent cross-family drafts and a compare-only judgment |
 | setup | `/bottega:setup` | `$setup` | `/setup` | Reconcile the project and register the current harness once per repo |
 
-Maestro and spec are two entry points to one method (explore, grill, agree the spec), defined once in [`skills/spec`](skills/spec/SKILL.md) and invoked whole from either. Maestro carries it through to a delivered PR; spec stops at an agreed spec file committed on a branch, with one issue that any later `/bottega:maestro` continues. During a run, maestro also invokes the internal routing, implementing, close, and QA skills.
+Maestro and spec are two entry points to one method (explore, grill, agree the spec), defined once in [`skills/spec`](skills/spec/SKILL.md) and invoked whole from either. Maestro carries it through to a delivered PR; spec stops at an agreed spec file committed on a work branch, with one issue pointing at it, and any later `/bottega:maestro` continues the branch. The spec is that file; an issue is never a spec. During a run, maestro also invokes the internal routing, implementing, close, and QA skills.
 
 ## What it does
 
