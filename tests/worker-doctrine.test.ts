@@ -284,6 +284,14 @@ describe("portable worker doctrine", () => {
     }
   });
 
+  it("makes the spec a repo file and never an issue", () => {
+    const maestro = read("skills/maestro/SKILL.md");
+    expect(maestro).toContain("The spec is a file under `docs/specs/`, committed on the branch; nothing else is one.");
+    expect(maestro).toMatch(/No spec file on the branch means no spec exists yet, whatever any issue says/);
+    const readme = read("README.md");
+    expect(readme).toContain("The spec is that file; an issue is never a spec.");
+  });
+
   it("pins the review interlock and its quantifiers", () => {
     const maestro = read("skills/maestro/SKILL.md");
     expect(maestro).toContain("every fixed decision in the plan");
