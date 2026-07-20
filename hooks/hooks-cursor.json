@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "matcher": "Agent|Task|Workflow",
+        "command": "node \"${CURSOR_PLUGIN_ROOT}/hooks/route-guard.mjs\""
+      }
+    ]
+  }
+}
