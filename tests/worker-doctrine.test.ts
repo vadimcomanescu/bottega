@@ -236,4 +236,70 @@ describe("portable worker doctrine", () => {
       }
     }
   });
+
+  it("keeps skill openings imperative and oriented", () => {
+    const vendored = new Set(["autoreview", "writing-great-skills"]);
+    const skillDirectories = readdirSync(join(ROOT, "skills"), { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && !vendored.has(entry.name))
+      .map((entry) => entry.name);
+
+    for (const name of skillDirectories) {
+      const body = read(`skills/${name}/SKILL.md`).replace(
+        /^---\r?\n[\s\S]*?\r?\n---\r?\n/,
+        "",
+      );
+      const lines = body.split(/\r?\n/).map((line) => line.trim());
+      const title = lines.findIndex((line) => line.startsWith("# "));
+      const opening = lines.slice(title + 1).find((line) => line.length > 0) ?? "";
+      expect(
+        opening.startsWith("#"),
+        `skills/${name} needs an orienting sentence before its first section`,
+      ).toBe(false);
+      expect(/^you are\b/i.test(opening), `skills/${name} opens with an agent persona`).toBe(false);
+    }
+  });
+
+  it("pins the review interlock and its quantifiers", () => {
+    const maestro = read("skills/maestro/SKILL.md");
+    expect(maestro).toContain("every fixed decision in the plan");
+    expect(maestro).toContain("bottega:review");
+
+    const review = read("skills/review/SKILL.md");
+    expect(review).toContain("every finding is fixed or refuted");
+    expect(review).toContain("routes as a fix");
+    expect(review).toContain("Round 3 stops the review.");
+  });
+
+  it("keeps every lesson enforced somewhere that exists", () => {
+    const lessons = filesUnder("docs/lessons", ".md");
+    expect(lessons.length).toBeGreaterThan(0);
+
+    const testSources = filesUnder("tests", ".ts")
+      .map((path) => read(path))
+      .join("\n");
+
+    for (const lesson of lessons) {
+      const source = read(lesson);
+      const enforced = source.match(/^Enforced: (.+)$/m);
+      expect(enforced, `${lesson} must name where its rule is enforced`).not.toBeNull();
+      if (!enforced) continue;
+
+      const line = enforced[1] ?? "";
+      const refs = [...line.matchAll(/[\w./-]+\.(?:md|mjs|ts)/g)].map((match) => match[0]);
+      expect(refs.length, `${lesson} names no enforcement file`).toBeGreaterThan(0);
+      const refSources = refs
+        .filter((ref) => existsSync(join(ROOT, ref)))
+        .map((ref) => read(ref))
+        .join("\n");
+      for (const ref of refs) {
+        expect(existsSync(join(ROOT, ref)), `${lesson} points at missing file ${ref}`).toBe(true);
+      }
+      for (const [, quoted] of line.matchAll(/"([^"]+)"/g)) {
+        expect(
+          refSources.includes(quoted ?? "") || testSources.includes(quoted ?? ""),
+          `${lesson} quotes a rule its enforcement home does not carry: ${quoted}`,
+        ).toBe(true);
+      }
+    }
+  });
 });

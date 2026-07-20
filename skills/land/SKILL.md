@@ -6,7 +6,7 @@ description: Take an open PR through review-fix rounds to verified-mergeable, re
 
 # Land
 
-The review method is `bottega:review`; this skill owns the GitHub surface, the stop conditions, and the merge verification. Land never decides to merge.
+Take an open PR through review-fix rounds to verified-mergeable, resolving every review thread. The review method is `bottega:review`; this skill owns the GitHub surface, the stop conditions, and the merge verification. Land never decides to merge.
 
 **Entry.** Acquire the per-PR session claim through `scripts/pr-claim` before the worktree pickup: one land or standalone PR review holds a PR at a time. A held claim means stop: report who holds it, as the stopped state in Notify. Release the claim through `scripts/pr-claim` at every terminal state and on abort (a held claim: nothing to release). Then recreate the worktree from the PR branch and write a fresh owner file, the same pickup as `skills/maestro` step 7, never the user's checkout. Discover the project's gates and run them. A red gate predates this review: fix and push it before the first round. A gate that cannot go green within the PR's stated intent ends the land session as gates-red.
 

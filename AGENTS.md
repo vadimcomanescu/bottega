@@ -24,6 +24,7 @@ Autonomous issue-to-PR runs across Claude Code, Codex, and Cursor: `/bottega:mae
 | `scripts/` | Single assembly points for external calls: `codex-exec`, `pr-threads`, `pr-claim`, `issue-claim`; each header states its contract | Any codex launch or GitHub mutation mechanics |
 | `hooks/` | The route guard and its registrations for the three harnesses; the guard states its own policy | Changing what dispatches are denied |
 | `docs/adr/` | Append-only decision records | Understanding why a current rule exists before changing it |
+| `docs/lessons/` | Failure records: what happened, the rule, and where the rule is enforced | Shaping new work in spec or plan, and when a run diagnoses a failure worth keeping |
 | `docs/specs/` | The delivered specs, versioned with the code they describe | Reading what a feature was agreed to do, or grounding a new spec |
 | `tests/` | The verification gate's suites | Any change; the gate pins doctrine and script contracts |
 
@@ -32,6 +33,8 @@ The vendored skill directories are symlinked from `.claude/skills` and `.agents/
 ## Rules
 
 - Write plain engineering English. Standard engineering terms only: no metaphors, no invented vocabulary, no theatrical naming. This binds every file in the repo, including code comments, UI strings, and hook messages.
+- Skill bodies open with an imperative orienting sentence and read as procedure. "You are" openings belong only to an agent definition, whose body is a system prompt; there are none in this repo. Frontmatter descriptions stay third person with their Use-when triggers.
+- A claim about harness behavior (frontmatter keys, hooks, dispatch mechanics, model resolution) is read from the harness documentation at claim time, never from memory or another skill's prose.
 - No em dashes, anywhere. Use periods, commas, colons, or parentheses.
 - Banned tic-words, no exceptions: "bearing" (e.g. "judgment-bearing"), "ledger". Say the plain thing: "makes judgment calls", "the log".
 - Orchestrate with the harness primitives (subagents, tracked background Bash, workflows); the models already know them. Never add a polling loop, a hand-written scheduler, or prose that restates what the harness does.

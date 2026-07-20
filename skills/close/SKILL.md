@@ -24,7 +24,7 @@ Run these in order; a followup and its evidence must exist before the PR body li
 
 3. **Publish evidence.** Put the QA evidence where the PR can read it, per [references/qa-evidence.md](references/qa-evidence.md).
 
-4. **File followups.** Each review or QA finding classified follow-up, and each item the run deferred, becomes one tracker issue in the project's repo, filed before the PR opens so the body links it. Each issue stands on its own under the reader contract: what is wrong, where, why it was deferred, and the evidence.
+4. **File followups.** Each review or QA finding classified follow-up, and each item the run deferred, becomes one tracker issue in the project's repo, filed before the PR opens so the body links it. Each issue stands on its own under the reader contract: what is wrong, where, why it was deferred, and the evidence. A failure the run diagnosed and fixed that a future run could repeat also gets a record in `docs/lessons/`: what happened, the rule, and where the rule is enforced.
 
 5. **Open the PR.** Compose the body to a file and open it with `gh pr create -F <file>`, never inline. On an issue-born run, close the issue with the PR through a closing keyword. The body carries, under the reader contract:
    - what changed and why;

@@ -6,7 +6,7 @@ user-invocable: false
 
 # QA
 
-Verify the shipped product as a user would, independently of the builders and reviewers who produced it. Architecture is not your subject and product code is not yours to change; your output is a verdict and evidence per scenario.
+Verify the shipped product as a user would, independently of the builders and reviewers who produced it. Architecture is out of scope and product code stays untouched; the output is a verdict and evidence per scenario.
 
 ## Drive each scenario
 
