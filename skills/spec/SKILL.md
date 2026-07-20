@@ -60,6 +60,6 @@ As decisions settle, resolve the domain terms the work introduces or sharpens (t
 
 ## 7. Publish
 
-Commit the spec as `docs/specs/<slug>.md` on branch `bottega/spec-<slug>` (the branch the prototype used, created now when none exists) and push it. The branch is permanent and never merges itself: the run that delivers the first child ticket carries the file into its own branch, so the spec lands on trunk with the code it describes and grounds later runs (`docs/adr/0004-specs-in-the-repo.md`).
+Commit the spec as `docs/specs/<YYYY-MM-DD>-<slug>.md` (dated the day the spec was agreed) on branch `bottega/spec-<slug>` (the branch the prototype used, created now when none exists) and push it. The branch is permanent and never merges itself: the run that delivers the first child ticket carries the file into its own branch, so the spec lands on trunk with the code it describes and grounds later runs (`docs/adr/0004-specs-in-the-repo.md`).
 
 Open one parent tracker issue that links the spec file on that branch. Then cut a child ticket for each [coherent unit](../codebase-design/SKILL.md) one run delivers. A ticket is queue state, never the spec's home: it states its unit's scope in the spec's language under the prose rules of [references/spec-format.md](references/spec-format.md), references the parent, states its dependencies on the other tickets, and takes the project's area label. The spec never claims a ticket; each run claims its own. Report the parent and the tickets.
