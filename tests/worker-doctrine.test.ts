@@ -238,14 +238,18 @@ describe("portable worker doctrine", () => {
   });
 
   it("keeps skill openings imperative and oriented", () => {
-    // A declarative or step-label opener is the drift this pins against: the
-    // opening must be an imperative sentence, so its first word is a bare verb,
-    // never an article/demonstrative/pronoun that begins a description, a bold
-    // step label, a heading, or a persona ("You are").
+    // This rejects the declarative and step-label opener forms that have
+    // actually drifted in: a heading with no orienting sentence, a bold step
+    // label ("**Read.**" or "__Read.__"), a persona ("You are"), a first word
+    // that is an article/demonstrative/pronoun, or a first word ending in "s"
+    // (a plural-noun subject or third-person verb: "Skills describe...",
+    // "Provides..."). A verb/noun-ambiguous first word ("Research", "Model")
+    // cannot be judged from the word alone; imperative mood proper stays a
+    // review concern. The test pins the drift it can, not the whole grammar.
     const DECLARATIVE_OPENERS = new Set([
       "the", "a", "an", "this", "that", "these", "those",
-      "it", "its", "there", "they", "we", "i", "you", "your",
-      "he", "she", "his", "her", "their",
+      "it", "there", "they", "we", "i", "you",
+      "he", "she", "his", "her",
     ]);
     const vendored = new Set(["autoreview", "writing-great-skills"]);
     const skillDirectories = readdirSync(join(ROOT, "skills"), { withFileTypes: true })
@@ -265,13 +269,13 @@ describe("portable worker doctrine", () => {
         `skills/${name} needs an orienting sentence before its first section`,
       ).toBe(false);
       expect(
-        opening.startsWith("**"),
+        opening.startsWith("**") || opening.startsWith("__"),
         `skills/${name} opens with a bold step label, not an orienting sentence`,
       ).toBe(false);
       expect(/^you are\b/i.test(opening), `skills/${name} opens with an agent persona`).toBe(false);
       const firstWord = (opening.match(/[A-Za-z]+/)?.[0] ?? "").toLowerCase();
       expect(
-        DECLARATIVE_OPENERS.has(firstWord),
+        DECLARATIVE_OPENERS.has(firstWord) || firstWord.endsWith("s"),
         `skills/${name} opens declaratively ("${firstWord} ..."); use an imperative verb`,
       ).toBe(false);
     }
