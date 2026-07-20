@@ -36,6 +36,6 @@ Scores run 1 to 10, higher is better; a dash is a score not yet measured. Intell
 
 ## Reaching the pick
 
-- Claude Code: Claude models pin per dispatch natively. GPT models arrive natively through the model proxy (bottega:setup); without the proxy, launch them through `scripts/codex-exec` as tracked background work (skills/maestro/references/codex-dispatch.md).
-- Codex: a native subagent runs one fixed model for the whole session, the configured default subagent model; set it to the cheap tier, because unset it falls back to the orchestrator's model, which no worker may run. Any other model runs through a CLI as tracked background work: `scripts/codex-exec` for GPT models, headless claude for Claude models.
+- Claude Code: Claude models pin per dispatch natively. GPT models arrive as native subagents through the model proxy (bottega:setup), visible on the main screen like any worker; without the proxy, `scripts/codex-exec` runs them as tracked background work with live progress (skills/maestro/references/codex-dispatch.md).
 - Cursor: both families pin per dispatch natively, and composer-2.5 is available.
+- Codex: the harness cannot set a model per subagent; every native subagent runs the one default subagent model from config. Set that default to the cheap tier. Any other model is a shell-out as tracked background work: `scripts/codex-exec` for a GPT model, headless claude for a Claude model.
