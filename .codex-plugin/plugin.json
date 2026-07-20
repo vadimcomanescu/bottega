@@ -1,12 +1,11 @@
 {
-  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "bottega",
-  "displayName": "Bottega",
   "version": "0.66.0",
   "description": "Autonomous issue-to-PR runs for Claude Code, Codex, and Cursor.",
   "author": {
     "name": "Vadim Comanescu"
   },
+  "homepage": "https://github.com/vadimcomanescu/bottega",
   "repository": "https://github.com/vadimcomanescu/bottega",
   "license": "MIT",
   "keywords": [
@@ -16,6 +15,5 @@
     "code-review",
     "qa"
   ],
-  "skills": "./skills/",
-  "hooks": "./hooks/hooks.json"
+  "skills": "./skills/"
 }

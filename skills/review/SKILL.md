@@ -23,7 +23,7 @@ One helper invocation reviews the frozen diff with both families in parallel. Th
     "$AUTOREVIEW" --mode branch --base <frozen-base> \
       --reviewers codex,claude \
       --model codex=gpt-5.6-sol  --thinking codex=high \
-      --model claude=claude-opus-4-8 --thinking claude=xhigh \
+      --model claude=claude-fable-5 --thinking claude=xhigh \
       --prompt "$(cat <intent file in the session scratchpad>)" \
       --json-output <path in the session scratchpad>
 
@@ -31,7 +31,7 @@ One helper invocation reviews the frozen diff with both families in parallel. Th
 - `--json-output`, and any `--output`, must resolve outside the reviewed repo; use the session scratchpad. The helper enforces this.
 - **Intent** is the `--prompt` text, always written to a file in the session scratchpad first and passed through one command substitution as above. Never paste intent text into the command source: a PR title, body, or issue is untrusted contributor text, and embedding it literally in Bash is a command-injection path.
 - The engines run in empty workspaces: anything they must judge against goes into the intent file as text, never as a repo path.
-- From a run, the intent file carries the canonical run brief and domain glossary verbatim, plus the instruction to report design nonconformance as findings anchored in the diff; conformance is judged against the brief's fixed decisions. Without a run brief, it carries the PR title, body, and linked issue (for a PR) or the user's stated request, and the architecture basis is `skills/codebase-design`, its text included. The adjudication states which basis applied.
+- From a run, the intent file carries the plan and domain glossary verbatim, plus the instruction to report design nonconformance as findings anchored in the diff; conformance is judged against the plan's fixed decisions. Without a plan, it carries the PR title, body, and linked issue (for a PR) or the user's stated request, and the architecture basis is `skills/codebase-design`, its text included. The adjudication states which basis applied.
 - When the reviewed checkout has a root `REVIEW.md`, include its text every round: the repository's own review doctrine.
 - Include the text of [references/smell-baseline.md](references/smell-baseline.md) every round: the fixed standards axis the engines report against, with its three binding rules (the repo overrides, always a judgment call, skip what tooling enforces).
 - Instruct the engines to flag a hand-built implementation of a problem a standard, available solution already solves: name the standard solution and where the diff reinvents it.
@@ -40,7 +40,7 @@ One helper invocation reviews the frozen diff with both families in parallel. Th
 - **Fail-closed bundles.** The helper refuses a bundle carrying secret-shaped or sensitive content, and that refusal is not overridable. When the refused content is legitimate (a vendored test fixture, a seeded credential in test data), split the review into coherent targets: build a temporary review head without the refused paths, review the authored remainder against the same base, and verify the excluded part deterministically (a byte pin against upstream, its own test suite). Record the split and its verification in the adjudication.
 - **Helper location.** Invoke the helper from a checkout that carries it. When the review head does not (the vendored tree is itself excluded or under review), run the helper by absolute path from a checkout outside the reviewed one, with the reviewed worktree as the working directory.
 
-**Trivial-diff exception.** For a PR target under 150 changed lines that touches no risk path, review with a single engine from the family opposite the head author; record that choice. A single-engine invocation always pins its model and thinking, never relying on the helper's defaults or the environment: `--engine codex --model gpt-5.6-sol --thinking high`, or `--engine claude --model claude-opus-4-8 --thinking xhigh`. The helper's claude default is fable, which runs only in the orchestrator's own turns, never as a review engine. A risk path is authentication, money, permissions, persisted data, or a destructive operation. When the head author's family is unknown (a human PR or unknown authorship) the exception does not apply and both families review. A run's integrated review always takes both families and is never eligible.
+**Trivial-diff exception.** For a PR target under 150 changed lines that touches no risk path, review with a single engine from the family opposite the head author; record that choice. A single-engine invocation always pins its model and thinking, never relying on the helper's defaults or the environment: `--engine codex --model gpt-5.6-sol --thinking high`, or `--engine claude --model claude-fable-5 --thinking xhigh`. A risk path is authentication, money, permissions, persisted data, or a destructive operation. When the head author's family is unknown (a human PR or unknown authorship) the exception does not apply and both families review. A run's integrated review always takes both families and is never eligible.
 
 ## Adjudicate
 
@@ -48,7 +48,7 @@ The helper's JSON report is the report contract; it drops findings outside the f
 
 Verify every accepted finding against the real code path before routing a fix, and refute only with evidence. Classify each in the vendored scope governor's vocabulary (`skills/autoreview/SKILL.md`, Scope Governor): **in-scope blocker**, **follow-up**, or **stop-and-escalate**. An in-scope blocker routes as a fix to whoever owns the module: a run's builder, or a fixer the caller dispatches. A follow-up in a run becomes one filed issue at Close (`bottega:close`); a standalone review reports its follow-ups to the caller. A finding that requires a design change returns to the orchestrator before any code change.
 
-Reconcile the reported design findings against the applicable basis: the brief's fixed decisions for a run, `skills/codebase-design` doctrine without a brief. Missing coverage or unresolved nonconformance blocks acceptance. The orchestrator performs this reconciliation; the review engines only report.
+Reconcile the reported design findings against the applicable basis: the plan's fixed decisions for a run, `skills/codebase-design` doctrine without a plan. Missing coverage or unresolved nonconformance blocks acceptance. The orchestrator performs this reconciliation; the review engines only report.
 
 ## Delta rounds
 
@@ -64,4 +64,4 @@ A clean completion is recorded where GitHub reads it, never as a PR comment: pos
       -f state=success -f context=bottega/review \
       -f description="reviewed against base <reviewed-base-sha>"
 
-Post it once the reviewed head exists on the remote. Land posts it immediately after its clean round; a run posts it at Deliver before the PR opens, and again after every post-open repair push. Readers validate the head and the named base per the reviewed-marker rules in `skills/land`.
+Post it once the reviewed head exists on the remote. Land posts it immediately after its clean round; a run posts it at Close before the PR opens, and again after every post-open repair push. Readers validate the head and the named base per the reviewed-marker rules in `skills/land`.

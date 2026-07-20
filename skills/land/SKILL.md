@@ -16,9 +16,9 @@ The review method is `bottega:review`; this skill owns the GitHub surface, the s
 - Trustworthy on an earlier commit of the PR: round 1 reviews the delta, `--base` that SHA.
 - Otherwise: round 1 reviews the full diff.
 
-**Rounds.** Each round runs the review gate per `bottega:review` with its without-a-run-brief inputs (the PR title, body, and linked issue), over the diff the reviewed marker leaves for it.
+**Rounds.** Each round runs the review gate per `bottega:review` with its without-a-plan inputs (the PR title, body, and linked issue), over the diff the reviewed marker leaves for it.
 
-**Fixes and threads.** Each accepted finding becomes an inline review comment on the PR at the finding's `code_location`, and its implementation fix goes to a fixer dispatched per the routing in `skills/maestro`. Unresolved review threads already on the PR when land starts, from other reviewers or bots, enter round 1 as claimed findings: verify each, then fix or refute it, reply, and resolve its thread the same way as a fresh finding. When a fix lands, reply on the thread with what changed and resolve it; when you refute a finding, reply with the refuting evidence and resolve it. Run every reply and resolution through `scripts/pr-threads`. Every fixer brief carries the three brief lines from `skills/maestro` (the safety rule, no piped test commands, name every test you edit), verbatim.
+**Fixes and threads.** Each accepted finding becomes an inline review comment on the PR at the finding's `code_location`, and its implementation fix goes to a fixer dispatched per bottega:routing. Unresolved review threads already on the PR when land starts, from other reviewers or bots, enter round 1 as claimed findings: verify each, then fix or refute it, reply, and resolve its thread the same way as a fresh finding. When a fix lands, reply on the thread with what changed and resolve it; when you refute a finding, reply with the refuting evidence and resolve it. Run every reply and resolution through `scripts/pr-threads`. Every fixer brief carries the three brief lines from `skills/maestro` (the safety rule, no piped test commands, name every test you edit), verbatim.
 
 **Stop conditions.**
 

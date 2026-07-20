@@ -1,5 +1,4 @@
 {
-  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "bottega",
   "displayName": "Bottega",
   "version": "0.66.0",
@@ -7,6 +6,7 @@
   "author": {
     "name": "Vadim Comanescu"
   },
+  "homepage": "https://github.com/vadimcomanescu/bottega",
   "repository": "https://github.com/vadimcomanescu/bottega",
   "license": "MIT",
   "keywords": [
@@ -17,5 +17,5 @@
     "qa"
   ],
   "skills": "./skills/",
-  "hooks": "./hooks/hooks.json"
+  "hooks": "./hooks/hooks-cursor.json"
 }

@@ -1,5 +1,0 @@
-source: https://github.com/openclaw/agent-skills
-path: skills/autoreview
-commit: 98122a3c3148fa0697ff4225ae363c2daacdaad1
-vendored: 2026-07-16
-rule: never edit vendored files; update by re-copying from upstream at a new pin, diff-reviewing, and rerunning both vendored Python suites.

@@ -6,7 +6,7 @@ user-invocable: false
 
 # Close
 
-The closing method a run routes to at its Close phase, from the accepted, QA-verified head to a PR that is open, readable, its checks green, its deferred work filed, and mergeable with its base. The GitHub review surface after the PR opens is `bottega:land`, not here.
+Take the accepted, QA-verified head to a PR that is open, readable, its checks green, its deferred work filed, and mergeable with its base. The GitHub review surface after the PR opens is `bottega:land`, not here.
 
 ## Reader contract
 
@@ -28,7 +28,7 @@ Run these in order; a followup and its evidence must exist before the PR body li
 
 5. **Open the PR.** Compose the body to a file and open it with `gh pr create -F <file>`, never inline. On an issue-born run, close the issue with the PR through a closing keyword. The body carries, under the reader contract:
    - what changed and why;
-   - the approved spec and the architecture brief;
+   - the approved spec and the plan;
    - every decision made on the user's behalf;
    - how panel evidence changed the plan, when a panel ran;
    - who built and who reviewed: models, rounds, findings, verdicts, refutations;
