@@ -450,14 +450,14 @@ describe("entry-guard", () => {
       prompt: "run bottega on the saved searches feature",
     });
     const parsed = JSON.parse(out);
-    expect(parsed.hookSpecificOutput.additionalContext).toMatch(/\/bottega:deliver/);
+    expect(parsed.hookSpecificOutput.additionalContext).toMatch(/\/bottega:maestro/);
   });
 
   it("stays silent on slash commands, repos without bottega state, and unrelated prompts", () => {
     const withRun = repoWithRun(OWNER);
     const bare = mkdtempSync(join(tmpdir(), "bottega-guard-bare-"));
     cleanups.push(bare);
-    for (const command of ["/bottega:deliver it", "/bottega:setup", "/bottega:improve"]) {
+    for (const command of ["/bottega:maestro it", "/bottega:setup", "/bottega:improve"]) {
       expect(run(ENTRY_GUARD, { cwd: withRun, prompt: command })).toBe("");
     }
     expect(run(ENTRY_GUARD, { cwd: bare, prompt: "run bottega now" })).toBe("");

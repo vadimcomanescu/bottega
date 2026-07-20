@@ -24,7 +24,7 @@ function section(text: string, heading: string): string {
   return text.slice(start, end < 0 ? undefined : end);
 }
 
-const deliver = read("skills/deliver/SKILL.md");
+const maestro = read("skills/maestro/SKILL.md");
 const close = read("skills/close/SKILL.md");
 const spec = read("skills/spec/SKILL.md");
 const specFormat = read("skills/spec/references/spec-format.md");
@@ -35,7 +35,7 @@ const design = read("skills/codebase-design/SKILL.md");
 const panelSkill = read("skills/panel/SKILL.md");
 const writingSkill = read("skills/writing-great-skills/SKILL.md");
 const qa = read("agents/qa.md");
-const codexDispatch = read("skills/deliver/references/codex-dispatch.md");
+const codexDispatch = read("skills/maestro/references/codex-dispatch.md");
 const reviewDispatch = read("skills/review/SKILL.md");
 const land = read("skills/land/SKILL.md");
 
@@ -54,10 +54,10 @@ describe("worker doctrine boundaries", () => {
       "autoreview",
       "close",
       "codebase-design",
-      "deliver",
       "implementing",
       "improve",
       "land",
+      "maestro",
       "panel",
       "review",
       "setup",
@@ -80,7 +80,7 @@ describe("worker doctrine boundaries", () => {
       expect(frontmatter).toContain("user-invocable: false");
       expect(frontmatter).not.toContain("disable-model-invocation: true");
     }
-    for (const entry of [deliver, reviewDispatch, land, panelSkill]) {
+    for (const entry of [maestro, reviewDispatch, land, panelSkill]) {
       expect(entry).not.toContain("user-invocable: false");
     }
   });
@@ -132,15 +132,15 @@ describe("worker doctrine boundaries", () => {
   it("separates independent architecture verification, orchestrator acceptance, and product QA", () => {
     expect(reviewDispatch).toMatch(/review engines.*report/i);
     expect(reviewDispatch).toMatch(/orchestrator performs this reconciliation/i);
-    expect(phase(deliver, 5)).toMatch(/review engines verify conformance/i);
-    expect(phase(deliver, 5)).toMatch(/orchestrator performs the final architecture step/i);
-    expect(phase(deliver, 5)).toMatch(/accepting or rejecting the reviewed head is the orchestrator's call/i);
+    expect(phase(maestro, 5)).toMatch(/review engines verify conformance/i);
+    expect(phase(maestro, 5)).toMatch(/orchestrator performs the final architecture step/i);
+    expect(phase(maestro, 5)).toMatch(/accepting or rejecting the reviewed head is the orchestrator's call/i);
 
     expect(qa).toMatch(/Verify the product as a user/i);
     expect(qa).toMatch(/You may repair only disposable drive setup and evidence capture/i);
     expect(qa).toMatch(/Never edit product code, product tests, the spec, the domain glossary, or the architecture brief/i);
-    expect(phase(deliver, 6)).toMatch(/implementation defect.*builder that owns/i);
-    expect(phase(deliver, 6)).toMatch(/wrong spec, domain model, interface, or architecture returns to Plan/i);
+    expect(phase(maestro, 6)).toMatch(/implementation defect.*builder that owns/i);
+    expect(phase(maestro, 6)).toMatch(/wrong spec, domain model, interface, or architecture returns to Plan/i);
   });
 
   it("keeps the panel a portable skill: CLI seats, blinded drafts, a compare-only judge, caller synthesis", () => {
@@ -164,18 +164,18 @@ describe("worker doctrine boundaries", () => {
   it("keeps attribution badges out and caps Codex routing at Sol", () => {
     expect(close).toMatch(/attribution badges and footers out/i);
     expect(read("AGENTS.md")).toMatch(/Omit tool, model, and vendor attribution badges or footers/i);
-    expect(deliver).toMatch(/No codex worker gets a tier built to orchestrate its own subagents/i);
-    expect(deliver).toMatch(/Sol at max effort is the ceiling/i);
-    const codexModels = [...`${deliver}\n${panelSkill}`.matchAll(/gpt-5\.6-[a-z-]+/g)].map(
+    expect(maestro).toMatch(/No codex worker gets a tier built to orchestrate its own subagents/i);
+    expect(maestro).toMatch(/Sol at max effort is the ceiling/i);
+    const codexModels = [...`${maestro}\n${panelSkill}`.matchAll(/gpt-5\.6-[a-z-]+/g)].map(
       ([model]) => model,
     );
     expect(new Set(codexModels)).toEqual(new Set(["gpt-5.6-sol"]));
   });
 
   it("keeps the review gate in skills/review and points the Review phase at it", () => {
-    expect(phase(deliver, 5)).toContain("../review/SKILL.md");
-    expect(phase(deliver, 5)).toMatch(/bottega:review/);
-    expect(phase(deliver, 5)).not.toContain("references/review.md");
+    expect(phase(maestro, 5)).toContain("../review/SKILL.md");
+    expect(phase(maestro, 5)).toMatch(/bottega:review/);
+    expect(phase(maestro, 5)).not.toContain("references/review.md");
 
     expect(reviewDispatch).toMatch(/`skills\/autoreview\/SKILL\.md` is the runtime doctrine/i);
     expect(reviewDispatch).toContain("--reviewers codex,claude");
@@ -201,29 +201,29 @@ describe("worker doctrine boundaries", () => {
   });
 
   it("runs the docs sweep before the review freeze and keeps Close free of tracked edits", () => {
-    expect(phase(deliver, 5)).toMatch(/docs sweep/i);
-    expect(phase(deliver, 5)).toMatch(/false claims and missing entries alike/i);
-    expect(phase(deliver, 5)).toMatch(/before the final project gate and the review freeze/i);
-    expect(phase(deliver, 6)).toMatch(/docs sweep over what it changed/i);
-    expect(phase(deliver, 7)).not.toMatch(/docs sweep|doc claim/i);
+    expect(phase(maestro, 5)).toMatch(/docs sweep/i);
+    expect(phase(maestro, 5)).toMatch(/false claims and missing entries alike/i);
+    expect(phase(maestro, 5)).toMatch(/before the final project gate and the review freeze/i);
+    expect(phase(maestro, 6)).toMatch(/docs sweep over what it changed/i);
+    expect(phase(maestro, 7)).not.toMatch(/docs sweep|doc claim/i);
     expect(close).toMatch(/close has changed no tracked file/i);
   });
 
   it("invokes the spec skill once and whole, gates approval on the spec-issue marker, and commits the spec to the repo", () => {
     expect(existsSync(join(ROOT, "skills/spec/references/spec-format.md"))).toBe(true);
-    expect(phase(deliver, 2)).toMatch(/Invoke.*bottega:spec.*once, whole/i);
-    expect(phase(deliver, 2)).toMatch(
+    expect(phase(maestro, 2)).toMatch(/Invoke.*bottega:spec.*once, whole/i);
+    expect(phase(maestro, 2)).toMatch(
       /carries the user's OK only when it is a child ticket of a parent spec issue that `bottega:spec` filed/i,
     );
-    expect(phase(deliver, 2)).toMatch(/a plain issue, however detailed.*has no OK yet/i);
-    expect(phase(deliver, 2)).toMatch(/docs\/specs\/<slug>\.md/);
-    expect(phase(deliver, 7)).toMatch(/bottega:close/);
+    expect(phase(maestro, 2)).toMatch(/a plain issue, however detailed.*has no OK yet/i);
+    expect(phase(maestro, 2)).toMatch(/docs\/specs\/<slug>\.md/);
+    expect(phase(maestro, 7)).toMatch(/bottega:close/);
     expect(close).toMatch(/gh pr checks <PR> --watch/);
     expect(close).toMatch(/excluding the `bottega\/review` status.*own marker/i);
     expect(close).toMatch(/gh pr view <PR> --json mergeable/);
     expect(close).toMatch(/CONFLICTING/);
     expect(close).toMatch(/checks are green and the PR is mergeable/i);
-    expect(phase(deliver, 7)).toMatch(/`bottega\/spec-<slug>` branch is permanent/i);
+    expect(phase(maestro, 7)).toMatch(/`bottega\/spec-<slug>` branch is permanent/i);
   });
 
   it("keeps the shared spec method portable and forks only its ending", () => {
@@ -370,6 +370,6 @@ describe("worker doctrine boundaries", () => {
     expect(land).toMatch(/Unresolved review threads already on the PR when land starts.*enter round 1 as claimed findings/i);
     expect(close).toMatch(/post the `bottega\/review` success status on the accepted head, naming the reviewed base/i);
     expect(land).toMatch(/already on the PR when land starts.*enter round 1 as claimed findings/i);
-    expect(land).toMatch(/three brief lines from `skills\/deliver`.*name every test you edit.*verbatim/i);
+    expect(land).toMatch(/three brief lines from `skills\/maestro`.*name every test you edit.*verbatim/i);
   });
 });

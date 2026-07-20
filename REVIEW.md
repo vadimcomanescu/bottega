@@ -8,7 +8,7 @@ Bottega runs as an installed plugin inside arbitrary projects. Bottega asset pat
 
 ## Role and routing boundaries
 
-The orchestrator makes every judgment call; workers return finished answers and never coordinate with each other. Routing lives in one place, the table in `skills/deliver/SKILL.md`, enforced by `hooks/route-guard.js`. Reject a change that moves a judgment call into a worker, pins a model or effort in an agent file, adds a second routing authority, or copies a shared skill into an agent.
+The orchestrator makes every judgment call; workers return finished answers and never coordinate with each other. Routing lives in one place, the table in `skills/maestro/SKILL.md`, enforced by `hooks/route-guard.js`. Reject a change that moves a judgment call into a worker, pins a model or effort in an agent file, adds a second routing authority, or copies a shared skill into an agent.
 
 ## Frozen target and the vendored helper
 
@@ -16,7 +16,7 @@ The review gate (`skills/review`) freezes base, head, and tree SHAs before the p
 
 ## Review and QA ordering
 
-The order in `skills/deliver/SKILL.md` steps 4 to 7 is load-bearing: gates green after every integrated slice, the docs sweep before the review freeze, QA only on an accepted head, and a Close step that changes no tracked file, so the PR publishes the accepted reviewed head. Reject a change that lets any tracked edit reach the PR without passing the gate and review path first. The integrated cross-family review is the one step never dropped.
+The order in `skills/maestro/SKILL.md` steps 4 to 7 is load-bearing: gates green after every integrated slice, the docs sweep before the review freeze, QA only on an accepted head, and a Close step that changes no tracked file, so the PR publishes the accepted reviewed head. Reject a change that lets any tracked edit reach the PR without passing the gate and review path first. The integrated cross-family review is the one step never dropped.
 
 ## GitHub thread handling
 

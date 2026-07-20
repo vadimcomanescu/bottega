@@ -1,13 +1,13 @@
 # bottega
 
-Autonomous issue-to-PR runs for Claude Code: `/bottega:deliver` takes a task or issue to a delivered PR, and spec, review, land, improve, panel, and setup are also available on their own. Read `README.md` for the model; this file is the working agreement for agents inside this repo.
+Autonomous issue-to-PR runs for Claude Code: `/bottega:maestro` takes a task or issue to a delivered PR, and spec, review, land, improve, panel, and setup are also available on their own. Read `README.md` for the model; this file is the working agreement for agents inside this repo.
 
 ## Map
 
 | Path | What it is | Read it when |
 | --- | --- | --- |
 | `.claude-plugin/` | Plugin and marketplace manifests | Changing install or release metadata |
-| `skills/deliver/SKILL.md` | `/bottega:deliver`, the orchestrator's whole method and the routing table | Anything touches a run's phases, routing, or state |
+| `skills/maestro/SKILL.md` | `/bottega:maestro`, the orchestrator's whole method and the routing table | Anything touches a run's phases, routing, or state |
 | `skills/spec/SKILL.md` | The one spec method (explore, propose independently, grill, present) with two entry points: `/bottega:spec` and the run's Spec phase, which invokes it whole; `references/spec-format.md` sets the document shape, and `references/live-review.md` carries the live-document review mechanics | Anything touches the spec method, exploration, independent proposals, grilling, prototypes, live review, or the spec-and-ticket publish |
 | `skills/improve/SKILL.md` | `/bottega:improve`, one agreed improvement filed as an issue and handed to run | Changing how improvements are found or handed off |
 | `skills/setup/SKILL.md` | `/bottega:setup`, one-time reconciliation of a project with the methodology | Changing what setup writes or verifies |
@@ -33,7 +33,7 @@ The vendored skill directories are symlinked from `.claude/skills` and `.agents/
 - Write plain engineering English. Standard engineering terms only: no metaphors, no invented vocabulary, no theatrical naming. This binds every file in the repo, including code comments, UI strings, and hook messages.
 - No em dashes, anywhere. Use periods, commas, colons, or parentheses.
 - Banned tic-words, no exceptions: "bearing" (e.g. "judgment-bearing"), "ledger". Say the plain thing: "makes judgment calls", "the log".
-- Orchestrate through the harness's tracked primitives: dispatches, tracked background Bash, workflows. Never add a polling loop, a hand-written scheduler, or prose that imitates worker tracking. An instruction line that restates or replaces a harness capability is a defect.
+- Orchestrate with the harness primitives (subagents, tracked background Bash, workflows); the models already know them. Never add a polling loop, a hand-written scheduler, or prose that restates what the harness does.
 - Every run gets: isolation in its own worktree and branch, a build, the project's gates green after every integrated slice, one cross-family review of the integrated diff, a QA drive with recorded evidence, and a PR. The integrated review is the one thing never dropped.
 - Verification gate: `npm test` (the vitest suites plus the vendored autoreview Python suites; needs python3 and git on PATH). Never pipe test output inside a `&&` chain; redirect to a file and check the exit code.
 - Creating or editing any skill or agent file, load `skills/writing-great-skills` and evaluate the writing against it. That directory is vendored: keep its body text as imported; the style rules above govern the rest of the repo, not it.
@@ -48,7 +48,7 @@ The vendored skill directories are symlinked from `.claude/skills` and `.agents/
 
 ## Developing bottega
 
-- Every change to this repo is delivered through `/bottega:deliver` on this repo. The run executes the installed version of the method while producing the next. There is no manual path; trivial work scales down inside a run, never outside one (`docs/adr/0001-deliver-through-run.md`).
+- Every change to this repo is delivered through `/bottega:maestro` on this repo. The run executes the installed version of the method while producing the next. There is no manual path; trivial work scales down inside a run, never outside one (`docs/adr/0001-deliver-through-run.md`).
 - Every merge to main is a release, enforced by the release gate (`.github/workflows/release-gate.yml`): the PR bumps `version` in `.claude-plugin/plugin.json` above the base, syncs the README's command table, and the release commit is titled `bottega X.Y.Z: <headline> (#PR)`.
 
 ## Review guidelines

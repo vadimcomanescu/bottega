@@ -1,19 +1,19 @@
 # bottega
 
-Autonomous issue-to-PR runs for Claude Code. `/bottega:deliver` takes a task, bug, or GitHub issue to a reviewed, evidence-backed pull request; spec, review, land, improve, panel, and setup are also available on their own.
+Autonomous issue-to-PR runs for Claude Code. `/bottega:maestro` takes a task, bug, or GitHub issue to a reviewed, evidence-backed pull request; spec, review, land, improve, panel, and setup are also available on their own.
 
 ```
 /plugin marketplace add vadimcomanescu/bottega
 /plugin install bottega@bottega
 
-/bottega:deliver <task, or issue URL>
+/bottega:maestro <task, or issue URL>
 ```
 
 ## Commands
 
 | Command | What it does |
 | --- | --- |
-| `/bottega:deliver <task, or issue URL>` | The whole pipeline: spec, plan, build, review, QA, delivered PR |
+| `/bottega:maestro <task, or issue URL>` | The whole pipeline: spec, plan, build, review, QA, delivered PR |
 | `/bottega:spec <task, issue URL, or direction>` | The shared front half, standalone: explore, grill the unknowns, agree the spec, commit it to the repo, file a parent issue plus dependency-ordered child tickets for later runs |
 | `/bottega:improve [area or direction]` | Find the single strongest improvement, agree it in the conversation, file it, take it through a run |
 | `/bottega:review <PR, ref range, or worktree>` | The cross-family review gate, standalone |
@@ -21,11 +21,11 @@ Autonomous issue-to-PR runs for Claude Code. `/bottega:deliver` takes a task, bu
 | `/bottega:panel <the decision>` | Independent cross-family drafts and a compare-only judge on one costly decision; the caller synthesizes |
 | `/bottega:setup` | Once per repo: reconcile the project with bottega's methodology |
 
-Deliver and spec are two entry points to one method (explore, grill, agree the spec), defined once in [`skills/spec`](skills/spec/SKILL.md) and invoked whole from either. Deliver carries it through to a delivered PR; spec stops at an agreed spec file and tickets that any later `/bottega:deliver <ticket>` picks up.
+Maestro and spec are two entry points to one method (explore, grill, agree the spec), defined once in [`skills/spec`](skills/spec/SKILL.md) and invoked whole from either. Maestro carries it through to a delivered PR; spec stops at an agreed spec file and tickets that any later `/bottega:maestro <ticket>` picks up.
 
 ## What it does
 
-`/bottega:deliver` turns the current Claude Code session into an orchestrator that:
+`/bottega:maestro` turns the current Claude Code session into an orchestrator that:
 
 1. Isolates the run in its own worktree and branch, and discovers the project's test, lint, typecheck, build, and run commands.
 2. Reads the codebase and domain glossary, identifies risks omitted from the request, inventories relevant installed technology skills, and asks the user when the intent is unclear.
@@ -51,7 +51,7 @@ Nothing else is assumed about the project. A run leaves nothing behind but the P
 
 **Both-family review, always.** The integrated diff is reviewed through one panel invocation of the vendored autoreview helper: two engines, one per model family (Codex and Claude), each reading the same frozen bundle in an isolated sandbox with no builder reasoning and no view of the other's findings. Each fix is rechecked by a single-engine delta round from the family opposite the fixer. The panel prompt carries the orchestrator's exact architecture brief and instructs the engines to report design nonconformance as findings anchored in the diff. The orchestrator verifies every finding against the real code path, reconciles the evidence against every fixed decision, and accepts the reviewed head before QA. Why: a builder cannot certify the design it implemented, the orchestrator should not be the sole verifier of the design it authored, and QA cannot infer internal architecture from product behavior. The helper returns one validated JSON report per invocation, merged across engines against the same frozen bundle. The same finding open after two fix attempts stops the fixing, and round 3 stops the review.
 
-**Model routing is enforced, not suggested.** Worker roles map to fixed models (the routing table in `skills/deliver/SKILL.md`), and a PreToolUse hook (`hooks/route-guard.js`) rejects any dispatch or workflow that omits a model or routes a worker to the top-tier model. Why: a dispatch that omits a model silently inherits the orchestrator's model, the most expensive one, and in a measured run 103 of 132 dispatches did exactly that before this hook existed.
+**Model routing is enforced, not suggested.** Worker roles map to fixed models (the routing table in `skills/maestro/SKILL.md`), and a PreToolUse hook (`hooks/route-guard.js`) rejects any dispatch or workflow that omits a model or routes a worker to the top-tier model. Why: a dispatch that omits a model silently inherits the orchestrator's model, the most expensive one, and in a measured run 103 of 132 dispatches did exactly that before this hook existed.
 
 **The spec is a document the user reviews.** The spec is published to a live shared document and reviewed in comment threads, per the [shared spec format](skills/spec/references/spec-format.md): the agent replies inside each thread and makes agreed changes as tracked edits the user accepts or rejects, and the local markdown stays the single source of truth. A user who declines the hosted editor gets the same review in the conversation. Approval is a reply or a document comment. The proof the user consumes is the review plus the QA recording. The agreed spec lives in the repo at `docs/specs/`, delivered by the PR that builds it, so it diffs with the code it describes and grounds later runs; tracker tickets carry only what a tracker is good at: the claim, the dependency edges, a scope statement, and the link to the spec (`docs/adr/0004-specs-in-the-repo.md`). A plain tracker issue is input to a spec session, never an approved spec.
 
@@ -61,11 +61,11 @@ Nothing else is assumed about the project. A run leaves nothing behind but the P
 
 ## Roles
 
-Agent definitions say who enters an isolated context: the role, authority, prohibitions, available tools, and required result. Skills hold reusable methods or independently invoked capabilities. References hold phase-specific detail for one parent skill. Hooks, schemas, tests, and workflow code enforce deterministic rules. A one-call-site count alone decides nothing: method stays a skill when it crosses runtimes or roles, or owns a workflow or contract. Agent files never pin a model. The routing table lives in [`skills/deliver/SKILL.md`](skills/deliver/SKILL.md) and is enforced by the hook.
+Agent definitions say who enters an isolated context: the role, authority, prohibitions, available tools, and required result. Skills hold reusable methods or independently invoked capabilities. References hold phase-specific detail for one parent skill. Hooks, schemas, tests, and workflow code enforce deterministic rules. A one-call-site count alone decides nothing: method stays a skill when it crosses runtimes or roles, or owns a workflow or contract. Agent files never pin a model. The routing table lives in [`skills/maestro/SKILL.md`](skills/maestro/SKILL.md) and is enforced by the hook.
 
 | Role | Job | Model | Method |
 | --- | --- | --- | --- |
-| orchestrator | design, routing, review arbitration, architecture acceptance | fable-5 | [`skills/deliver/SKILL.md`](skills/deliver/SKILL.md) |
+| orchestrator | design, routing, review arbitration, architecture acceptance | fable-5 | [`skills/maestro/SKILL.md`](skills/maestro/SKILL.md) |
 | builder | implements one assigned slice, test-first, inside the orchestrator's fixed architecture | gpt-5.6-sol (high), or opus-4.8 (xhigh) for a user-facing slice | [`skills/implementing/SKILL.md`](skills/implementing/SKILL.md) |
 | review panel | breaks the integrated diff and checks it against the orchestrator's architecture brief, via the vendored autoreview helper | gpt-5.6-sol (high) + opus-4.8 (xhigh) engines in round 1; opposite family from each fixer on deltas | [`skills/review/SKILL.md`](skills/review/SKILL.md) |
 | qa | drives the built artifact as a user, records the evidence, never edits product code | opus-4.8 (high) | [`agents/qa.md`](agents/qa.md) |
@@ -94,7 +94,7 @@ npm install
 npm test        # vitest suites plus the vendored autoreview Python suites (needs python3 and git on PATH)
 ```
 
-Every change to this repo ships through `/bottega:deliver` on this repo; the procedure, including releases, is in `AGENTS.md` under "Developing bottega".
+Every change to this repo ships through `/bottega:maestro` on this repo; the procedure, including releases, is in `AGENTS.md` under "Developing bottega".
 
 ## Credits
 

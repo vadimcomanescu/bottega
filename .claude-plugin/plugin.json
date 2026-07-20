@@ -3,7 +3,7 @@
   "name": "bottega",
   "displayName": "Bottega",
   "version": "0.65.0",
-  "description": "Autonomous issue-to-PR runs for Claude Code. /bottega:deliver takes a task to a delivered PR: a spec agreed on a live shared document with the conversation as fallback and committed to the repo, a panel on costly decisions, parallel builders, cross-family review of the integrated diff always, QA evidence in the PR. /bottega:spec shapes work into an agreed repo spec and tickets instead, and review, land, improve, panel, and setup are available on their own.",
+  "description": "Autonomous issue-to-PR runs for Claude Code. /bottega:maestro takes a task to a delivered PR: a spec agreed on a live shared document with the conversation as fallback and committed to the repo, a panel on costly decisions, parallel builders, cross-family review of the integrated diff always, QA evidence in the PR. /bottega:spec shapes work into an agreed repo spec and tickets instead, and review, land, improve, panel, and setup are available on their own.",
   "author": {
     "name": "Vadim Comanescu"
   },
