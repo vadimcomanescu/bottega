@@ -250,8 +250,9 @@ describe("portable worker doctrine", () => {
     // mood proper stays a review concern; the test pins the sound subset.
     const NON_IMPERATIVE_OPENERS = new Set([
       "the", "a", "an", "this", "that", "these", "those",
-      "it", "its", "there", "they", "we", "you", "your", "i",
-      "he", "she", "his", "her", "their",
+      "it", "there", "they", "we", "you", "i", "he", "she",
+      // the seven possessive determiners: none can begin an imperative verb
+      "my", "your", "his", "her", "its", "our", "their",
     ]);
     const vendored = new Set(["autoreview", "writing-great-skills"]);
     const skillDirectories = readdirSync(join(ROOT, "skills"), { withFileTypes: true })
