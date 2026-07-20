@@ -1,12 +1,12 @@
 ---
 name: spec
 argument-hint: "<task, issue URL, or direction>"
-description: Prepare a task or issue for delivery without building it. Explore the codebase and the field, grill the open decisions, agree a spec, then file a parent tracker issue and child tickets a run picks up. Invoke via /bottega:spec when the user wants work shaped into an agreed spec and tickets rather than delivered now. Never invoke proactively; it runs a full discovery and grilling session and files issues on the tracker.
+description: Prepare a task or issue for delivery without building it. Explore the codebase and the field, grill the open decisions, agree a spec, then commit it on a branch and file one issue a later run continues. Invoke via /bottega:spec when the user wants work shaped into an agreed spec rather than delivered now. Never invoke proactively; it runs a full discovery and grilling session and files an issue on the tracker.
 ---
 
 # Spec
 
-Produce a spec the owner approves, without implementing the task. Whether the user invoked `/bottega:spec` directly or a run is using this skill to prepare its spec ahead of the run's own sign-off, you explore the task, gather independent proposals when needed, grill the open decisions, prototype what hinges on look or feel, and present the spec to the owner. After a direct invocation, ask once whether to file tracker tickets; if the owner says yes, file them, and a later run builds the work from them. Inside a run, hand the spec back to the run's sign-off and leave the tracker unchanged.
+Produce a spec the owner approves, without implementing the task. Whether the user invoked `/bottega:spec` directly or a run is using this skill to prepare its spec ahead of the run's own sign-off, you explore the task, gather independent proposals when needed, grill the open decisions, prototype what hinges on look or feel, and present the spec to the owner. After a direct invocation, ask once whether to file the issue a later run picks up; on yes, commit the spec on its branch and file it. Inside a run, hand the spec back to the run's sign-off and leave the tracker unchanged.
 
 ## 1. Explore
 
@@ -36,8 +36,8 @@ Build rough, real, rendered artifacts and screenshot them. When the choice is op
 
 Where you build it depends on the entry point:
 
-- Invoked directly: create a worktree on branch `bottega/spec-<slug>`, build there, and push the branch. Delete the local worktree when the session ends. The parent issue you file at publish links the branch.
-- Inside a run: build in the run's existing worktree. Add no branch.
+- Invoked directly: create a worktree on branch `bottega/<slug>`, the work branch a later run continues, and build there. Delete the local worktree when the session ends.
+- Inside a run: build in the run's existing worktree.
 
 If nothing can render, and only then, draw a wireframe in the spec body: layout and flow, never an image posing as the finished product.
 
@@ -55,11 +55,11 @@ As decisions settle, resolve the domain terms the work introduces or sharpens (t
 
 ## 6. End by entry point
 
-- Invoked directly: ask once whether to push to tickets, then wait. On yes, publish (step 7). On no, delete any spec branch this session pushed, local and remote, before the session ends; the settled decision already lives in the spec's words.
-- A run's front half: hand back to the run's sign-off rules. Do not ask about tickets.
+- Invoked directly: ask once whether to file the issue, then wait. On yes, publish (step 7). On no, delete the branch this session pushed, local and remote, before the session ends; the settled decision already lives in the spec's words.
+- A run's front half: hand back to the run's sign-off rules. Do not ask about the issue.
 
 ## 7. Publish
 
-Commit the spec as `docs/specs/<YYYY-MM-DD>-<slug>.md` (dated the day the spec was agreed) on branch `bottega/spec-<slug>` (the branch the prototype used, created now when none exists) and push it. The branch is permanent and never merges itself: the run that delivers the first child ticket carries the file into its own branch, so the spec lands on trunk with the code it describes and grounds later runs (`docs/adr/0004-specs-in-the-repo.md`).
+Commit the spec as `docs/specs/<YYYY-MM-DD>-<slug>.md` (dated the day the spec was agreed), with any prototype screenshots it embeds, on branch `bottega/<slug>` (created now when none exists), and push it. This is the work branch: a later run continues it, builds on it, and its PR merges the spec to trunk with the code that fulfils it (`docs/adr/0005-spec-on-the-work-branch.md`).
 
-Open one parent tracker issue that links the spec file on that branch. Then cut a child ticket for each [coherent unit](../codebase-design/SKILL.md) one run delivers. A ticket is queue state, never the spec's home: it states its unit's scope in the spec's language under the prose rules of [references/spec-format.md](references/spec-format.md), references the parent, states its dependencies on the other tickets, and takes the project's area label. The spec never claims a ticket; each run claims its own. Report the parent and the tickets.
+Open one tracker issue that names the branch and states the work's scope in the spec's language, under the prose rules of [references/spec-format.md](references/spec-format.md), with the project's area label. The run claims the issue itself. Report the issue and the branch.
