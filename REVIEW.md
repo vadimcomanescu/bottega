@@ -2,9 +2,9 @@
 
 Review guidance specific to this repository. The review gate is `skills/review`, which invokes the vendored `skills/autoreview` helper; the design doctrine is `skills/codebase-design`, and the working agreement is `AGENTS.md`. This file adds only the risks a reviewer without prior Bottega context tends to miss.
 
-## Plugin packaging and host neutrality
+## Plugin packaging and portability
 
-Bottega runs as an installed plugin inside arbitrary host repositories. Bottega asset paths handed to a worker (skills, scripts, schemas) must resolve under the install root (`$CLAUDE_PLUGIN_ROOT` when installed, this repo when working inside it); a hard-coded path that exists only in this checkout breaks every installed host. Reject a change that assumes a specific host language, framework, or layout.
+Bottega runs as an installed plugin inside arbitrary projects. Bottega asset paths handed to a worker (skills, scripts, schemas) must resolve under the install root (`$CLAUDE_PLUGIN_ROOT` when installed, this repo when working inside it); a hard-coded path that exists only in this checkout breaks every installed project. Reject a change that assumes a specific project language, framework, or layout.
 
 ## Role and routing boundaries
 
@@ -24,7 +24,7 @@ The order in `skills/run/SKILL.md` steps 5 to 8 is load-bearing: gates green aft
 
 ## Cleanup
 
-Run state in a host is the git-private run brief and the gitignored owner file under `.bottega/`; the worktree and run state are removed at delivery. The evidence branch `bottega/evidence-<slug>` is permanent: it never merges and is never deleted. Reject a change that adds any other host-side artifact or drops one of the remaining removal steps.
+Run state in a project is the git-private run brief and the gitignored owner file under `.bottega/`; the worktree and run state are removed at delivery. The evidence branch `bottega/evidence-<slug>` is permanent: it never merges and is never deleted. Reject a change that adds any other project-side artifact or drops one of the remaining removal steps.
 
 ## Harness duplication
 

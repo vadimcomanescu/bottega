@@ -25,9 +25,7 @@ Write the reply so it carries no model or vendor identity.
 
 ### 2. Seat the panel
 
-One seat per model family, and the same `task.md` verbatim to every seat. The defaults are the two families bottega runs on:
-
-Every seat is read-only in the repository and grounded twice over: it discovers the repository itself, and it searches the web itself.
+One seat per model family, and the same `task.md` verbatim to every seat. Every seat is read-only in the repository and grounded twice over: it discovers the repository itself, and it searches the web itself. The defaults are the two families bottega runs on:
 
 | seat | dispatch (from the repository root) |
 | --- | --- |
@@ -38,7 +36,7 @@ Another family's CLI installed on the machine takes a further seat under the sam
 
 ### 3. Fan out
 
-Dispatch every seat in parallel as background jobs your harness tracks, and wait for all of them. A seat that errors, times out, or returns an empty draft is recorded and the panel continues. Two or more drafts: proceed. Fewer: there is no panel; report which seats failed and answer solo, saying so, rather than comparing one draft with itself.
+Dispatch every seat in parallel and wait for all of them. A seat that errors, times out, or returns an empty draft is recorded and the panel continues. With two or more drafts, proceed. With fewer there is no panel: report which seats failed and answer solo, saying so, rather than comparing one draft with itself.
 
 ### 4. Blind
 
@@ -58,7 +56,3 @@ Do not answer the task, merge the drafts, vote, grade, or pick one.
 ### 6. Synthesize
 
 You write the decision from the drafts and the comparison: build on the consensus, resolve each contradiction by the stronger evidence, keep the unique insights that survive a check against the repository, and close or explicitly flag the blind spots. Record the decision and what the panel changed wherever your context records decisions: a run puts it in the run brief and the PR; a conversation puts it in the reply.
-
-## Why this shape
-
-Independent seats exist so no draft anchors another. The judge is held to comparison so the best-written draft cannot win by default. Synthesis stays with you because only you hold the context the seats never saw.

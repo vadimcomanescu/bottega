@@ -19,7 +19,7 @@ Autonomous issue-to-PR runs for Claude Code. `/bottega:run` takes a task, bug, o
 | `/bottega:review <PR, ref range, or worktree>` | The cross-family review gate, standalone |
 | `/bottega:land <PR number>` | Take an open PR through review-fix rounds to verified-mergeable |
 | `/bottega:panel <the decision>` | Independent cross-family drafts and a compare-only judge on one costly decision; the caller synthesizes |
-| `/bottega:setup` | Once per repo: reconcile the host with bottega's methodology |
+| `/bottega:setup` | Once per repo: reconcile the project with bottega's methodology |
 
 Run and spec are two entry points to one method (explore, grill, agree the spec), defined once in [`skills/spec`](skills/spec/SKILL.md). Run carries it through to a delivered PR; spec stops at agreed tickets that any later `/bottega:run <ticket>` picks up.
 
@@ -27,12 +27,12 @@ Run and spec are two entry points to one method (explore, grill, agree the spec)
 
 `/bottega:run` turns the current Claude Code session into an orchestrator that:
 
-1. Isolates the run in its own worktree and branch, and discovers the host's test, lint, typecheck, build, and run commands.
+1. Isolates the run in its own worktree and branch, and discovers the project's test, lint, typecheck, build, and run commands.
 2. Reads the codebase and domain glossary, identifies risks omitted from the request, inventories relevant installed technology skills, and asks the user when the intent is unclear.
 3. Presents the spec as a live shared document, following the [shared spec format](skills/spec/references/spec-format.md): the user reads it rendered on any device and reviews it in comment threads, with the agent replying in-thread and making agreed changes as tracked edits. A user who declines the hosted editor gets the same review in the conversation. The user's OK, as a reply or a document comment, is the go signal; a request that waives sign-off in its own words skips the wait, and the PR presents the spec and every decision where the OK would have gone.
 4. Models the domain, writes the orchestrator's architecture brief, plans vertical slices inside it, and puts each costly decision (where behavior or state belongs, data shape, public contracts, dependency bets) to a panel before building.
-5. Dispatches builders with one assigned slice, the fixed architecture, the glossary, and relevant technology skills. Builders work test-first and stop at the slice boundary; host gates stay green at every integrate.
-6. Syncs the host's docs to the diff, then reviews the integrated diff through one panel invocation of the vendored autoreview helper: two isolated engines, one per model family, neither seeing builder reasoning or the other's findings, each checking behavior, tests, and conformance to the orchestrator's architecture brief. The orchestrator verifies the findings and accepts one reviewed head; fixes get a single-engine delta round from the opposite family.
+5. Dispatches builders with one assigned slice, the fixed architecture, the glossary, and relevant technology skills. Builders work test-first and stop at the slice boundary; the project's gates stay green at every integrate.
+6. Syncs the project's docs to the diff, then reviews the integrated diff through one panel invocation of the vendored autoreview helper: two isolated engines, one per model family, neither seeing builder reasoning or the other's findings, each checking behavior, tests, and conformance to the orchestrator's architecture brief. The orchestrator verifies the findings and accepts one reviewed head; fixes get a single-engine delta round from the opposite family.
 7. Sends a separate QA worker through that exact head and records the product verdict. QA reports and stops. The orchestrator classifies a failure as environment, implementation, or design before routing a repair; every product change gets fresh review, orchestrator acceptance, and QA.
 8. Opens the PR carrying the spec, every decision made on the user's behalf, the review verdicts, the orchestrator's architecture acceptance, and the QA evidence. Delivery changes no tracked file, so the PR publishes the accepted reviewed head.
 
@@ -43,7 +43,7 @@ The user appears exactly twice: agreeing to the spec, and merging the PR.
 - Claude Code running on the strongest available Claude model. The orchestrator role needs it, and the skill says so instead of proceeding silently on a lower tier.
 - The [codex CLI](https://github.com/openai/codex), logged in. Cross-model review is never dropped (see below), so bottega checks for it before any run and fails loudly if it's missing.
 
-Nothing else is assumed about the host repo. A run leaves nothing behind but the PR and the permanent branch holding its QA evidence: working state is the worktree, one git-private run brief, and one gitignored owner file, all removed at delivery.
+Nothing else is assumed about the project. A run leaves nothing behind but the PR and the permanent branch holding its QA evidence: working state is the worktree, one git-private run brief, and one gitignored owner file, all removed at delivery.
 
 ## Design decisions
 

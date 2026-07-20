@@ -100,7 +100,7 @@ describe("worker doctrine boundaries", () => {
     expect(understand).toBeGreaterThanOrEqual(0);
     expect(positions.every((position) => position > understand)).toBe(true);
     expect(positions).toEqual([...positions].sort((a, b) => a - b));
-    expect(implementing).toMatch(/one command that reproduces the exact reported symptom.*earliest shared cause/i);
+    expect(implementing).toMatch(/one command that reproduces the exact reported symptom.*earliest cause in the failing path/i);
   });
 
   it("applies YAGNI to presumed capability, never to product or internal quality", () => {
@@ -134,7 +134,7 @@ describe("worker doctrine boundaries", () => {
     expect(reviewDispatch).toMatch(/orchestrator performs this reconciliation/i);
     expect(phase(run, 6)).toMatch(/review engines verify conformance/i);
     expect(phase(run, 6)).toMatch(/orchestrator performs the final architecture step/i);
-    expect(phase(run, 6)).toMatch(/not the only verifier of the design it authored/i);
+    expect(phase(run, 6)).toMatch(/accepting or rejecting the reviewed head is the orchestrator's call/i);
 
     expect(qa).toMatch(/Verify the product as a user/i);
     expect(qa).toMatch(/You may repair only disposable drive setup and evidence capture/i);
@@ -157,14 +157,14 @@ describe("worker doctrine boundaries", () => {
     ]) {
       expect(panelSkill).toMatch(angle);
     }
-    expect(panelSkill).toMatch(/Two or more drafts: proceed/i);
+    expect(panelSkill).toMatch(/With two or more drafts, proceed/i);
     expect(panelSkill).toMatch(/Do not answer the task, merge the drafts, vote, grade, or pick one/i);
   });
 
   it("keeps attribution badges out and caps Codex routing at Sol", () => {
     expect(deliver).toMatch(/attribution badges and footers out/i);
     expect(read("AGENTS.md")).toMatch(/Omit tool, model, and vendor attribution badges or footers/i);
-    expect(run).toMatch(/Codex workers never use a multi-agent model tier/i);
+    expect(run).toMatch(/No codex worker gets a tier built to orchestrate its own subagents/i);
     expect(run).toMatch(/Sol at max effort is the ceiling/i);
     const codexModels = [...`${run}\n${panelSkill}`.matchAll(/gpt-5\.6-[a-z-]+/g)].map(
       ([model]) => model,
@@ -192,7 +192,7 @@ describe("worker doctrine boundaries", () => {
 
   it("routes repository review work to the root REVIEW.md", () => {
     const reviewDoc = read("REVIEW.md");
-    expect(reviewDoc).toMatch(/host neutrality/i);
+    expect(reviewDoc).toMatch(/portability/i);
     expect(reviewDoc).toMatch(/frozen/i);
     expect(reviewDoc).toContain("scripts/pr-threads");
     expect(reviewDoc).toContain("scripts/pr-claim");
@@ -204,7 +204,7 @@ describe("worker doctrine boundaries", () => {
   it("runs the docs sweep before the review freeze and keeps Deliver free of tracked edits", () => {
     expect(phase(run, 6)).toMatch(/docs sweep/i);
     expect(phase(run, 6)).toMatch(/false claims and missing entries alike/i);
-    expect(phase(run, 6)).toMatch(/before the final host gate and the review freeze/i);
+    expect(phase(run, 6)).toMatch(/before the final project gate and the review freeze/i);
     expect(phase(run, 7)).toMatch(/docs sweep over what it changed/i);
     expect(phase(run, 8)).not.toMatch(/docs sweep|doc claim/i);
     expect(deliver).toMatch(/deliver has changed no tracked file/i);
@@ -212,8 +212,8 @@ describe("worker doctrine boundaries", () => {
 
   it("routes run's front half to the spec skill and deletes the spec branch when the PR merges", () => {
     expect(existsSync(join(ROOT, "skills/spec/references/spec-format.md"))).toBe(true);
-    expect(phase(run, 2)).toMatch(/Explore and grill.*method in.*bottega:spec/i);
-    expect(phase(run, 3)).toMatch(/Present the spec per.*bottega:spec/i);
+    expect(phase(run, 2)).toMatch(/Invoke.*bottega:spec.*to explore and grill/i);
+    expect(phase(run, 3)).toMatch(/Invoke.*bottega:spec.*to present the spec/i);
     expect(phase(run, 3)).toMatch(/spec-format\.md/);
     expect(phase(run, 8)).toMatch(/bottega:deliver/);
     expect(deliver).toMatch(/gh pr checks <PR> --watch/);
@@ -227,8 +227,8 @@ describe("worker doctrine boundaries", () => {
   });
 
   it("keeps the shared spec method portable and forks only its ending", () => {
-    expect(spec).toMatch(/run reader jobs in parallel.*cheap tier/i);
-    expect(spec).toMatch(/If it cannot, do the same reads yourself, inline, under the same budgets/i);
+    expect(spec).toMatch(/on cheaper tiers, launch a subagent per job that applies/i);
+    expect(spec).toMatch(/a subagent returns findings, never a decision/i);
     expect(spec).toMatch(/decision hinges on how something looks or feels.*cannot answer in words/i);
     expect(spec).toMatch(/Prototype code.*never merges/i);
     expect(spec).toMatch(/Invoked directly: ask once whether to push to tickets/i);
@@ -239,10 +239,10 @@ describe("worker doctrine boundaries", () => {
   });
 
   it("runs the field pass unconditionally, proposes before grilling, and presents live", () => {
-    expect(spec).toMatch(/Run it on any product-shaped work/i);
-    expect(spec).toMatch(/the field pass answers what the standard way is/i);
+    expect(spec).toMatch(/Run the field job on any product-shaped work/i);
+    expect(spec).toMatch(/the field answers the standard way/i);
     expect(spec).toMatch(/## 2\. Propose independently/);
-    expect(spec).toMatch(/Trigger, all three together/i);
+    expect(spec).toMatch(/Run this step only when all three hold/i);
     expect(spec).toMatch(/at least two credible product directions survive/i);
     expect(spec).toMatch(/expensive to undo or hard to notice later/i);
     expect(spec).toContain("../panel/SKILL.md");
@@ -344,7 +344,7 @@ describe("worker doctrine boundaries", () => {
     expect(land).toMatch(/converged/i);
     expect(land).toMatch(/round 3 stops the review/i);
     expect(land).toMatch(/two failed fixes stops that repair/i);
-    expect(land).toMatch(/two fix cycles without convergence/i);
+    expect(land).toMatch(/two rounds of fixes without convergence/i);
     expect(land).toMatch(/exceed the PR's stated intent/i);
     expect(land).toMatch(/gates-red/);
     expect(land).toMatch(/never decides to merge/i);
@@ -362,10 +362,10 @@ describe("worker doctrine boundaries", () => {
     expect(reviewDispatch).toMatch(/never as a PR comment/i);
     expect(reviewDispatch).toContain('-f context=bottega/review');
     expect(reviewDispatch).toContain('reviewed against base <reviewed-base-sha>');
-    expect(land).toMatch(/status is green.*creator is the identity.*description names the base SHA/is);
+    expect(land).toMatch(/status is green.*creator is the GitHub identity.*description names the base SHA/is);
     expect(land).toMatch(/Treat it as absent/i);
     expect(land).toMatch(/earlier commit of the PR: round 1 reviews the delta, `--base` that SHA/i);
-    expect(land).toMatch(/Unresolved threads enter round 1 whatever the marker says/i);
+    expect(land).toMatch(/Unresolved review threads already on the PR when land starts.*enter round 1 as claimed findings/i);
     expect(deliver).toMatch(/post the `bottega\/review` success status on the accepted head, naming the reviewed base/i);
     expect(land).toMatch(/already on the PR when land starts.*enter round 1 as claimed findings/i);
     expect(land).toMatch(/three brief lines from `skills\/run`.*name every test you edit.*verbatim/i);

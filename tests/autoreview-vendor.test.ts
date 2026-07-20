@@ -44,7 +44,7 @@ describe("vendored autoreview installation", () => {
     expect(vendor).toContain("98122a3c3148fa0697ff4225ae363c2daacdaad1");
   });
 
-  it("resolves both host skill links to the vendored tree", () => {
+  it("resolves both runtime skill links to the vendored tree", () => {
     for (const link of [".claude/skills/autoreview", ".agents/skills/autoreview"]) {
       const path = join(ROOT, link);
       expect(lstatSync(path).isSymbolicLink()).toBe(true);

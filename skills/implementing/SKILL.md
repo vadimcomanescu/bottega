@@ -11,7 +11,7 @@ Implement one assigned slice. The orchestrator owns the domain model, architectu
 ## Understand first
 
 - Read the run brief, domain glossary, relevant code and tests, owned files, and every technology skill supplied with the dispatch.
-- Trace the behavior end to end before editing. For a bug, establish one command that reproduces the exact reported symptom before editing, minimize that reproduction before testing explanations, find the earliest shared cause, and test one falsifiable explanation at a time, undoing a failed attempt before the next. After the regression test passes, rerun the original unminimized scenario.
+- Trace the behavior end to end before editing. For a bug, establish one command that reproduces the exact reported symptom before editing, minimize that reproduction before testing explanations, find the earliest cause in the failing path, and test one falsifiable explanation at a time, undoing a failed attempt before the next. After the regression test passes, rerun the original unminimized scenario.
 - After three failed fixes, report `stuck` with the evidence instead of guessing again.
 - State the current behavior and the required observable behavior. If correctness requires different ownership, an interface change, a new dependency direction, a different domain meaning, or a file outside your ownership, stop and ask the orchestrator.
 
@@ -27,6 +27,6 @@ Implement one assigned slice. The orchestrator owns the domain model, architectu
 
 ## Prove and report
 
-Run focused checks while working and the host gates after the slice is complete. A browser or desktop drive is optional when it is the shortest debugging loop; the independent product verdict belongs to QA.
+Run focused checks while working and the project's gates after the slice is complete. A browser or desktop drive is optional when it is the shortest debugging loop; the independent product verdict belongs to QA.
 
-Commit only owned files. Report `green` or `stuck`, the behavior implemented, red and green evidence, host-gate results, changed tests with their authorizing requirement, files and commit, and unresolved domain or architecture conflicts.
+Commit only owned files. Report `green` or `stuck`, the behavior implemented, red and green evidence, project-gate results, changed tests with their authorizing requirement, files and commit, and unresolved domain or architecture conflicts.
