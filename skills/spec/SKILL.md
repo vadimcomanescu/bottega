@@ -45,7 +45,7 @@ If nothing can render, and only then, draw a wireframe in the spec body: layout 
 
 The shared editor is hosted, so the spec passes through its operator's servers. Offer it to the owner first; an owner who cannot accept that declines it, and the same review happens in the conversation, the spec presented as text. The publish mechanics below are for an owner who accepts.
 
-Present the spec as a live shared document: the owner reads it rendered, on any device, and comments on the text directly. [references/live-review.md](references/live-review.md) has the mechanics; load it here. Reply inside each comment thread, saying whether you agree and why, and make any resulting change as a tracked edit the owner accepts or rejects. Threads resolve as they settle, on the one living document, through every round. The local markdown file stays the single source of truth: mirror the agreed state back to it, and it is what the ticket carries.
+Present the spec as a live shared document: the owner reads it rendered, on any device, and comments on the text directly. [references/live-review.md](references/live-review.md) has the mechanics; load it here. Reply inside each comment thread, saying whether you agree and why, and make any resulting change as a tracked edit the owner accepts or rejects. Threads resolve as they settle, on the one living document, through every round. The local markdown file stays the single source of truth: mirror the agreed state back to it; it is the file publish commits.
 
 The owner's approval may arrive as a comment in the document, in their own words; that is the go signal, the same as a reply in the conversation.
 
@@ -60,4 +60,6 @@ As decisions settle, resolve the domain terms the work introduces or sharpens (t
 
 ## 7. Publish
 
-Open one parent tracker issue carrying the spec; it links any spec branch this session pushed. Then cut a child ticket for each [coherent unit](../codebase-design/SKILL.md) one run delivers. Each ticket carries its unit's slice of the spec per [references/spec-format.md](references/spec-format.md), references the parent, states its dependencies on the other tickets, and takes the project's area label. The spec never claims a ticket; each run claims its own. Report the parent and the tickets.
+Commit the spec as `docs/specs/<slug>.md` on branch `bottega/spec-<slug>` (the branch the prototype used, created now when none exists) and push it. The branch is permanent and never merges itself: the run that delivers the first child ticket carries the file into its own branch, so the spec lands on trunk with the code it describes and grounds later runs (`docs/adr/0004-specs-in-the-repo.md`).
+
+Open one parent tracker issue that links the spec file on that branch. Then cut a child ticket for each [coherent unit](../codebase-design/SKILL.md) one run delivers. A ticket is queue state, never the spec's home: it states its unit's scope in the spec's language under the prose rules of [references/spec-format.md](references/spec-format.md), references the parent, states its dependencies on the other tickets, and takes the project's area label. The spec never claims a ticket; each run claims its own. Report the parent and the tickets.

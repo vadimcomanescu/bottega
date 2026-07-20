@@ -17,7 +17,7 @@ const INTENT = /(?<![./])\bbottega\b/i;
 
 const REMINDER =
   "This repo has bottega run state and the prompt reads like run intent. If " +
-  "this is bottega work, invoke /bottega:run before acting: discovery, the " +
+  "this is bottega work, invoke /bottega:maestro before acting: discovery, the " +
   "spec, and the plan all live inside it. Acting without it improvises " +
   "discovery on the expensive orchestrator model and re-derives what the " +
   "skill already carries.";

@@ -32,7 +32,7 @@ One seat per model family, and the same `task.md` verbatim to every seat. Every 
 | codex | `scripts/codex-exec` at the bottega install root (`$CLAUDE_PLUGIN_ROOT` when installed as a plugin), with `--model gpt-5.6-sol --effort max --sandbox read-only --search --cwd <repo> --brief task.md --out codex-draft.md --events codex-events.jsonl`, every path absolute |
 | claude | `claude -p --model claude-fable-5 < task.md > claude-draft.md` |
 
-Another family's CLI installed on the machine takes a further seat under the same task, read-only with its own web search. Inside a run, the routing table in `skills/run/SKILL.md` governs the seat models.
+Another family's CLI installed on the machine takes a further seat under the same task, read-only with its own web search. Inside a run, the routing table in `skills/maestro/SKILL.md` governs the seat models.
 
 ### 3. Fan out
 

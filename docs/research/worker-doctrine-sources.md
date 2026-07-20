@@ -27,7 +27,7 @@ Inline method in an agent only when all four are true: one kind of task for that
 
 | Item | Semantic use | Decision |
 | --- | --- | --- |
-| `skills/run` | Explicit user entry, executed by Fable; composes every phase | Keep as the orchestration skill. It owns gates, routing, decisions, and phase transitions, not worker programming method. |
+| `skills/maestro` | Explicit user entry, executed by Fable; composes every phase | Keep as the orchestration skill. It owns gates, routing, decisions, and phase transitions, not worker programming method. |
 | `skills/implementing` | Claude and Codex builders; initial slices and later repairs | Keep. It crosses runtimes and phases even though the role name stays builder. |
 | `skills/reviewing` | Claude and Codex reviewers; integrated and delta rounds; report schema and Claude workflow | Keep. It crosses runtimes and owns a stable report contract. |
 | `skills/codebase-design` | Fable creates the architecture brief; reviewers test the implementation against it | Keep. It is shared doctrine for design and independent verification. Builders receive the resulting brief rather than redoing the architecture. |
@@ -37,9 +37,9 @@ Inline method in an agent only when all four are true: one kind of task for that
 | `agents/qa` | One independent Claude product-verification role | Keep the small method in the agent. It has one consumer, one runtime, no independent invocation, and no skill-owned assets. |
 | `agents/panelist` | Stable independent-draft perspective inside the panel workflow | Keep as identity. The panel method remains in `skills/panel`. |
 | `agents/panel-judge` | Stable compare-only perspective inside the panel workflow | Keep as identity. It compares drafts and never chooses the architecture. |
-| `skills/run/references/codex-dispatch.md` | Codex launch and resume mechanics used by run | Keep as a reference. It is supporting runtime detail, not a user or model-invoked capability. |
+| `skills/maestro/references/codex-dispatch.md` | Codex launch and resume mechanics used by run | Keep as a reference. It is supporting runtime detail, not a user or model-invoked capability. |
 | `skills/review/SKILL.md` | Frozen-target, round, and repair routing details for Review | Promoted from a run phase reference to the independently invoked gate with two callers (run, land). |
-| `skills/deliver/references/qa-evidence.md` | Publication mechanics needed after QA has evidence | Keep as a phase reference. |
+| `skills/close/references/qa-evidence.md` | Publication mechanics needed after QA has evidence | Keep as a phase reference. |
 | `skills/reviewing/assets/review-dispatch.js` | Schema-enforced Claude reviewer launch | Keep as workflow code and invoke it from the Review reference. |
 | `skills/panel/panel.js` | Independent drafts and blinded comparison | Keep with the panel skill. |
 | route guard, report schema, and tests | Routing, output shape, and invariant enforcement | Keep in code. Do not restate their mechanics as worker ceremony. |

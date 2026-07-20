@@ -67,7 +67,7 @@ function liveOwners(cwd) {
 
 const FABLE = /fable/i;
 const OPUS = /^(?:claude-)?opus(?:[-.][a-z0-9]+)*$/i;
-// The Claude column of the routing table (skills/run/SKILL.md). Codex
+// The Claude column of the routing table (skills/maestro/SKILL.md). Codex
 // workers run through `codex exec`, never the Agent tool, so every Claude
 // dispatch of a named worker is fully checkable here: the Claude builder
 // (user-facing slices) and QA worker both run on opus.
@@ -89,13 +89,13 @@ const DENY_UNROUTED =
   "the dispatch was rejected because it names no model. An omitted model " +
   "inherits the dispatching session's own model, which from the orchestrator " +
   "silently escalates the worker to fable; re-issue the same dispatch with an " +
-  "explicit model from the routing table in skills/run/SKILL.md (Claude " +
+  "explicit model from the routing table in skills/maestro/SKILL.md (Claude " +
   "workers, builder and QA, run on opus).";
 
 const DENY_FABLE =
   "the dispatch was rejected because it routes a worker agent to fable. " +
   "Fable is not a builder or QA worker; re-issue from " +
-  "the routing table in skills/run/SKILL.md (Claude workers, builder, " +
+  "the routing table in skills/maestro/SKILL.md (Claude workers, builder, " +
   "and QA, run on opus), and if you believe this work genuinely needs " +
   "fable-tier judgment, do that part yourself in your own turns instead of " +
   "dispatching it.";
@@ -103,7 +103,7 @@ const DENY_FABLE =
 function denyMisrouted(role, model) {
   return (
     "the dispatch was rejected because it routes the " + role + " agent to '" +
-    model + "'. The routing table in skills/run/SKILL.md gives each named " +
+    model + "'. The routing table in skills/maestro/SKILL.md gives each named " +
     "Claude worker exactly one model family (builder and QA: opus); re-issue " +
     "with the table's model, and treat wanting a different one as a " +
     "routing-table change to propose, never a per-dispatch override."
@@ -122,13 +122,13 @@ const DENY_UNROUTED_RUN =
   "and this dispatch names no model. An omitted model inherits the dispatching " +
   "session's own model, which from the orchestrator silently escalates the " +
   "dispatch to fable; re-issue with an explicit model from the routing table in " +
-  "skills/run/SKILL.md.";
+  "skills/maestro/SKILL.md.";
 
 const DENY_FABLE_RUN =
   "this session owns a live bottega run (its id is in .bottega/run/<slug>/owner) " +
   "and this dispatch routes fable. Fable is the orchestrator, not a general " +
   "worker; the panel's fable seats run through the claude CLI (skills/panel), " +
-  "never a dispatch. Re-issue from the routing table in skills/run/SKILL.md, " +
+  "never a dispatch. Re-issue from the routing table in skills/maestro/SKILL.md, " +
   "and do fable-tier work in your own turns instead of dispatching it.";
 
 const DENY_WORKFLOW_UNPINNED_RUN =
@@ -137,13 +137,13 @@ const DENY_WORKFLOW_UNPINNED_RUN =
   "agent that names no model inherits the session's model, which from the " +
   "orchestrator silently escalates every such agent to fable; re-issue the " +
   "workflow with an explicit model on every agent() call, from the routing " +
-  "table in skills/run/SKILL.md.";
+  "table in skills/maestro/SKILL.md.";
 
 const DENY_WORKFLOW_FABLE_RUN =
   "this session owns a live bottega run (its id is in .bottega/run/<slug>/owner) " +
   "and this workflow script routes an agent to fable. Fable is the orchestrator " +
   "seat and no workflow routes it; re-issue from the routing table in " +
-  "skills/run/SKILL.md.";
+  "skills/maestro/SKILL.md.";
 
 const DENY_WORKFLOW_UNCHECKED_RUN =
   "this session owns a live bottega run (its id is in .bottega/run/<slug>/owner) " +
