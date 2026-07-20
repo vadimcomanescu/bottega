@@ -1,0 +1,63 @@
+[
+  {
+    "id": "gpt-5.6-sol",
+    "family": "openai",
+    "cost_in": 1.25,
+    "cost_out": 10,
+    "context": 400000,
+    "work": [
+      "build",
+      "review",
+      "panel"
+    ],
+    "notes": "OpenAI reasoning worker; run at xhigh when reviewing the other family's code. Costs and context are anchored to the GPT-5 family; the sol version's exact per-Mtok rate is unconfirmed."
+  },
+  {
+    "id": "opus-4.8",
+    "family": "anthropic",
+    "cost_in": 15,
+    "cost_out": 75,
+    "context": 1000000,
+    "work": [
+      "build",
+      "review",
+      "panel",
+      "qa"
+    ],
+    "notes": "Strong Claude worker. Priced at the Opus family rate; the 1M window is the extended-context variant, standard is 200000. Confirm the sol-vs-opus figures if a tie turns on them."
+  },
+  {
+    "id": "sonnet-5",
+    "family": "anthropic",
+    "cost_in": 3,
+    "cost_out": 15,
+    "context": 1000000,
+    "work": [
+      "qa",
+      "mechanical"
+    ],
+    "notes": "Cheaper Claude worker for tasks with a checkable right answer. Costs anchored to the Sonnet family; sonnet-5 exact rate unconfirmed."
+  },
+  {
+    "id": "fable-5",
+    "family": "anthropic",
+    "cost_in": 15,
+    "cost_out": 75,
+    "context": 1000000,
+    "work": [
+      "orchestrator"
+    ],
+    "notes": "Orchestrator seat only, never dispatched as a worker. Pricing is not published; the Opus-tier figures here are a placeholder, treat as top-tier cost."
+  },
+  {
+    "id": "kimi-k3",
+    "family": "moonshot",
+    "cost_in": 0.6,
+    "cost_out": 2.5,
+    "context": 256000,
+    "work": [
+      "orchestrator"
+    ],
+    "notes": "Candidate orchestrator model, not yet adopted. Costs and context are anchored to Kimi K2; the k3 figures are unconfirmed."
+  }
+]

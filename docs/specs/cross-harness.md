@@ -28,7 +28,7 @@ How to reach each vendor's models from wherever you run (a maestro in Codex must
 | Your harness | Claude workers | GPT workers |
 | --- | --- | --- |
 | Claude Code | native subagents and workflow agents | native through the model proxy (see bottega:setup); without the proxy, the codex CLI as tracked background work |
-| Codex | the bottega:claude-bridge skill (headless claude, JSON output) | native subagents |
+| Codex | native through the model proxy (a custom model provider in config.toml pointing at it); without the proxy, headless claude as tracked background work | native subagents |
 | Cursor | native subagents, model pinned per dispatch | native subagents, model pinned per dispatch |
 
 ## The flow
@@ -111,7 +111,7 @@ Dependency posture: bottega depends on nothing at runtime beyond the harness it 
 
 ## 5. The model proxy (CLIProxyAPI): how it works, exactly
 
-What it is: a small local HTTP service that logs into your vendor accounts (Claude subscription, ChatGPT/Codex subscription) once via OAuth, holds the tokens, and exposes one Anthropic-compatible API endpoint on localhost. When Claude Code is pointed at it, a request for `gpt-5.6-sol` is forwarded to OpenAI under your Codex subscription, and a request for an Anthropic model passes through unchanged. Claude Code cannot tell the difference; GPT models become names it can route like any other.
+What it is: a small local HTTP service that logs into your vendor accounts (Claude subscription, ChatGPT/Codex subscription) once via OAuth, holds the tokens, and exposes them over standard API formats on localhost: an Anthropic-compatible endpoint and an OpenAI-compatible endpoint, each able to serve any backed model. It works in both directions: Claude Code reaches GPT models through the Anthropic-compatible endpoint, and Codex reaches Claude models by declaring a custom model provider whose base_url is the proxy. When Claude Code is pointed at it, a request for `gpt-5.6-sol` is forwarded to OpenAI under your Codex subscription, and a request for an Anthropic model passes through unchanged. Claude Code cannot tell the difference; GPT models become names it can route like any other.
 
 Setup on your machine:
 
