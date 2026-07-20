@@ -116,7 +116,7 @@ What it is: a small local HTTP service that logs into your vendor accounts (Clau
 Setup on your machine:
 
 1. Install CLIProxyAPI (single binary; brew or release download).
-2. `cliproxy auth claude` and `cliproxy auth codex`: one browser OAuth each, tokens stored locally.
+2. Authenticate each provider once (browser OAuth; the exact login command is in the CLIProxyAPI docs); tokens are stored locally.
 3. Start the service (localhost, default port; runs as a login item or a shell service).
 4. Point Claude Code at it, in the project or user settings:
 
