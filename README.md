@@ -80,7 +80,7 @@ Nothing else is assumed about the project. A run leaves nothing behind but the P
 
 ## Model proxy (optional)
 
-[CLIProxyAPI](https://github.com/router-for-me/CLIProxyAPI) is a local service that authenticates once to Claude and ChatGPT/Codex with OAuth, holds those tokens locally, and serves backed models through both Anthropic-compatible and OpenAI-compatible endpoints. Install its single binary with Homebrew or a release download, run `cliproxy auth claude` and `cliproxy auth codex`, then start the service on localhost.
+[CLIProxyAPI](https://github.com/router-for-me/CLIProxyAPI) is a local service that authenticates once to Claude and ChatGPT/Codex with OAuth, holds those tokens locally, and serves backed models through both Anthropic-compatible and OpenAI-compatible endpoints. Install its single binary with Homebrew or a release download, run authenticate both providers (the login commands are in the CLIProxyAPI docs), then start the service on localhost.
 
 Point Claude Code at the Anthropic-compatible endpoint with exactly these two variables. Routing still chooses a model on every dispatch, so do not set `CLAUDE_CODE_SUBAGENT_MODEL`:
 
