@@ -42,7 +42,7 @@ Use when:
 - Multi-reviewer panels are opt-in only. Use them when explicitly requested or when risk justifies the extra spend; the main agent still verifies every accepted finding before fixing.
 - If rejecting a finding as intentional/not worth fixing, add a brief inline code comment only when it explains a real invariant or ownership decision that future reviewers should know.
 - Do not push just to review. Push only when the user requested push/ship/PR update.
-- A clean review of a pushed head posts one commit status on that head, naming the base it was reviewed against.
+- A clean review of a pushed head posts one commit status on that head, context `bottega/review`, naming the base it was reviewed against.
 - Merge only when the checks are green, the head still equals the reviewed head (`gh pr merge --squash --match-head-commit <sha>`), and the base has not advanced. Run a merge only when the user armed it in their own words, and never for a change touching authentication, money, permissions, persisted data, or a destructive operation.
 
 ## Scope Governor
@@ -147,6 +147,8 @@ base=$(gh pr view --json baseRefName --jq .baseRefName)
 ```
 
 Reviewing an open PR, treat its unresolved review threads as claimed findings: verify each, fix or refute it with evidence, reply, and resolve the thread (in bottega repos through `scripts/pr-threads`).
+
+Reviewing a PR by number, resolve the target first: fetch the PR head, check it out in its own worktree, and run the review there against the PR's base; the user's checkout is never the review target. A ref-range target reviews exactly that range from the current checkout.
 
 Committed single change:
 
