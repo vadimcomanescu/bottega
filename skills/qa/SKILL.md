@@ -19,6 +19,10 @@ Verify the shipped product as a user would, independently of the builders and re
 
 On a product divergence, record the verdict and evidence, then stop and report so the orchestrator classifies and routes the failure before any further driving. Return the scenarios you did not reach as `NOT VERIFIED` with that reason.
 
+## Scope a re-drive after a repair
+
+A re-drive after a repair covers the scenarios that failed and the scenarios the repair touched; the dispatch names both sets, and their union is the whole scope.
+
 ## Stay inside QA
 
 Repair only disposable drive setup and evidence capture. Never edit product code, product tests, the spec, the domain glossary, or the plan.
