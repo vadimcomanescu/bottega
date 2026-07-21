@@ -1,6 +1,6 @@
 # bottega
 
-Autonomous issue-to-PR runs across Claude Code, Codex, and Cursor: `/bottega:maestro` takes a task or issue to a delivered PR, and spec, review, land, improve, panel, and setup are also available on their own. Read `README.md` for the model; this file is the working agreement for agents inside this repo.
+Autonomous issue-to-PR runs across Claude Code and Codex: `/bottega:maestro` takes a task or issue to a delivered PR, and spec, review, land, improve, panel, and setup are also available on their own. Read `README.md` for the model; this file is the working agreement for agents inside this repo.
 
 ## Map
 
@@ -8,7 +8,7 @@ Autonomous issue-to-PR runs across Claude Code, Codex, and Cursor: `/bottega:mae
 | --- | --- | --- |
 | `.claude-plugin/` | Plugin and marketplace manifests | Changing install or release metadata |
 | `skills/maestro/SKILL.md` | `/bottega:maestro`, the orchestrator's whole method | Anything touches a run's phases or state |
-| `skills/routing/` | Model and effort selection per worker dispatch: the model table, the task rules, and how each host reaches a pick | Anything touches which model runs a worker |
+| `skills/routing/` | Model and effort selection per worker dispatch: the model table, the task rules, and how each harness reaches a pick | Anything touches which model runs a worker |
 | `skills/spec/SKILL.md` | The one spec method (explore, propose independently, grill, present) with two entry points: `/bottega:spec` and the run's Spec phase, which invokes it whole; `references/spec-format.md` sets the document shape, and `references/live-review.md` carries the live-document review mechanics | Anything touches the spec method, exploration, independent proposals, grilling, prototypes, live review, or the spec-and-ticket publish |
 | `skills/improve/SKILL.md` | `/bottega:improve`, one agreed improvement filed as an issue and handed to run | Changing how improvements are found or handed off |
 | `skills/setup/SKILL.md` | `/bottega:setup`, one-time reconciliation of a machine and repo with the methodology (harness CLIs, skill discovery, route guard, optional proxy, then the repo docs and labels) | Changing what setup writes or verifies |
@@ -20,7 +20,7 @@ Autonomous issue-to-PR runs across Claude Code, Codex, and Cursor: `/bottega:mae
 | `skills/codebase-design` | House design doctrine: domain model, deep modules, documentation architecture | Any design, review, or setup doctrine question |
 | `skills/writing-great-skills` | Vendored skill-writing reference | Creating or editing any skill file |
 | `scripts/` | Single assembly points for external calls: `codex-exec`, `pr-threads`; each header states its contract | Any codex launch or GitHub mutation mechanics |
-| `hooks/` | The route guard and its registrations for the three harnesses; the guard states its own policy | Changing what dispatches are denied |
+| `hooks/` | The route guard and its registrations for both harnesses; the guard states its own policy | Changing what dispatches are denied |
 | `docs/adr/` | Append-only decision records | Understanding why a current rule exists before changing it |
 | `docs/lessons/` | Failure records: what happened, the rule, and where the rule is enforced | Shaping new work in spec or plan, and when a run diagnoses a failure worth keeping |
 | `docs/specs/` | The delivered specs, versioned with the code they describe | Reading what a feature was agreed to do, or grounding a new spec |

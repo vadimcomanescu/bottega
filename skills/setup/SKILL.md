@@ -14,7 +14,7 @@ Configure the harness you invoke setup from, and report anything missing rather 
 
 - **Requirements.** `git`, `node`, and `gh`.
 - **Worker families.** Verify the CLI for every other family you will dispatch: `claude` for a Codex-hosted maestro, `codex` for the no-proxy fallback.
-- **Skill discovery.** Claude Code loads the plugin; Codex and Cursor read `.agents/skills/`. Confirm those symlinks resolve.
+- **Skill discovery.** Both harnesses install the plugin from this repo's marketplace (the README's install commands). Confirm the harness lists the bottega skills; when it does not, walk the user through the install commands rather than symlinking anything.
 - **Route guard.** Register the guard for the current harness from `hooks/`.
 - **Model proxy**, only when the user asks. A local service (CLIProxyAPI) logs into both vendor accounts once and serves each family's models over the other's API format on localhost, so a harness reaches the other vendor's models natively in either direction: Claude Code points `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN` at it; Codex declares a custom model provider whose base URL is it. Bottega never requires the proxy; every dispatch path has a stated fallback.
 

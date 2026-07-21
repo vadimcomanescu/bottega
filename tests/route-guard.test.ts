@@ -32,22 +32,19 @@ function repoWithRun(owner?: string): string {
 
 function run(
   event: unknown,
-  harness: "claude" | "codex" | "cursor" = "claude",
+  harness: "claude" | "codex" = "claude",
 ): string {
   const {
     CLAUDE_PLUGIN_ROOT: _claudeRoot,
     CODEX_HOME: _codexHome,
     CODEX_PLUGIN_ROOT: _codexPluginRoot,
-    CURSOR_PLUGIN_ROOT: _cursorRoot,
     PLUGIN_ROOT: _pluginRoot,
     ...baseEnv
   } = process.env;
   const harnessEnv =
-    harness === "cursor"
-      ? { CURSOR_PLUGIN_ROOT: HOOKS }
-      : harness === "codex"
-        ? { CODEX_HOME: join(tmpdir(), "codex-home"), PLUGIN_ROOT: HOOKS }
-        : { CLAUDE_PLUGIN_ROOT: HOOKS };
+    harness === "codex"
+      ? { CODEX_HOME: join(tmpdir(), "codex-home"), PLUGIN_ROOT: HOOKS }
+      : { CLAUDE_PLUGIN_ROOT: HOOKS };
   const result = spawnSync("node", [ROUTE_GUARD], {
     input: typeof event === "string" ? event : JSON.stringify(event),
     encoding: "utf8",
@@ -151,24 +148,12 @@ describe("route guard harness responses", () => {
     });
   });
 
-  it("emits the documented Cursor preToolUse denial", () => {
-    const event = ownedEvent({ subagent_type: "worker" });
-    const parsed = JSON.parse(
-      run({ ...event, conversation_id: event.session_id, session_id: undefined }, "cursor"),
-    );
-    expect(parsed).toMatchObject({
-      permission: "deny",
-      user_message: expect.stringMatching(/skills\/routing/),
-      agent_message: expect.stringMatching(/skills\/routing/),
-    });
-  });
 });
 
 describe("route guard registrations", () => {
   it.each([
     ["Claude Code", "hooks.json", "PreToolUse"],
     ["Codex", "hooks-codex.json", "PreToolUse"],
-    ["Cursor", "hooks-cursor.json", "preToolUse"],
   ])("parses the %s registration and references route-guard.mjs", (_harness, file, event) => {
     const raw = readFileSync(join(HOOKS, file), "utf8");
     const registration = JSON.parse(raw);
