@@ -137,7 +137,7 @@ Optional review context is first-class. Prompt files and datasets must be repo-r
 "$AUTOREVIEW" --mode branch --base origin/main --prompt-file review-notes.md --dataset evidence.json
 ```
 
-In a bottega maestro run the prompt carries the reviewed repository's root `REVIEW.md` when one exists and the fixed standards baseline ([references/smell-baseline.md](references/smell-baseline.md)), never the spec or the plan. Write any prompt to a file outside the reviewed repo and pass it as `--prompt "$(cat <file>)"`; never paste PR text into the command source, and keep `--json-output` outside the reviewed repo.
+In a bottega maestro run the prompt carries the reviewed repository's root `REVIEW.md` when one exists and the fixed standards baseline ([references/smell-baseline.md](references/smell-baseline.md)), never the spec or the plan. A spec the run committed on the branch arrives in the bundle as changed content and is reviewed as any file; the isolation rule governs the prompt, not the diff. Write any prompt to a file outside the reviewed repo and pass it as `--prompt "$(cat <file>)"`; never paste PR text into the command source, and keep `--json-output` outside the reviewed repo.
 
 If an open PR exists, use its actual base:
 
