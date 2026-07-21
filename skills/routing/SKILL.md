@@ -28,6 +28,7 @@ Scores run 1 to 10, higher is better; a dash is a score not yet measured. Intell
 - User-facing work, which a gate cannot judge and a human judges by looking (UI, wording, API shape, spec and PR prose): opus-4.8 at high. When a planned slice is also user-facing, this rule wins. When the output fails its requirement, the orchestrator redoes that piece in its own turns, and the redo passes the same review as any worker's code.
 - Review gate: both families, pinned in the autoreview document's run rules (claude-fable-5 and gpt-5.6-sol).
 - Spec-conformance check (a run's Review phase): gpt-5.6-sol at high under a Claude orchestrator, opus-4.8 at high under a Codex orchestrator; never the orchestrator's own model.
+- Plan strengthen pass (a run's Plan phase): gpt-5.6-sol at xhigh under a Claude orchestrator, fable-5 under a Codex orchestrator; never the orchestrator's own model.
 - QA drive: your harness's cheap tier at its default effort, driving with the tools skills/qa names.
 - Mechanical work and exploration (reads, searches, renames, doc sync, format conversion): your harness's cheap tier at low effort.
 - Cross families to buy capability, never to save cost: reach the other vendor for sol's building, for opus on user-facing work, or for the review gate's engines; cheap work always uses your harness's own cheap tier.

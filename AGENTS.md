@@ -10,6 +10,7 @@ Autonomous issue-to-PR runs across Claude Code and Codex: `/bottega:maestro` tak
 | `skills/maestro/SKILL.md` | `/bottega:maestro`, the orchestrator's whole method | Anything touches a run's phases or state |
 | `skills/routing/` | Model and effort selection per worker dispatch: the model table, the task rules, and how each harness reaches a pick | Anything touches which model runs a worker |
 | `skills/spec/SKILL.md` | The one spec method (explore, propose independently, grill, present) with two entry points: `/bottega:spec` and the run's Spec phase, which invokes it whole; `references/spec-format.md` sets the document shape, and `references/live-review.md` carries the live-document review mechanics | Anything touches the spec method, exploration, independent proposals, grilling, prototypes, live review, or the spec-and-ticket publish |
+| `skills/plan/SKILL.md` | The plan method a run's Plan phase invokes whole: model the domain, commit the plan on the run branch, strengthen it with cross-family passes until ready; not user-invocable | Anything touches how a plan is modeled, committed, or strengthened |
 | `skills/improve/SKILL.md` | `/bottega:improve`, one agreed improvement filed as an issue and handed to run | Changing how improvements are found or handed off |
 | `skills/setup/SKILL.md` | `/bottega:setup`, one-time reconciliation of a machine and repo with the methodology (harness CLIs, skill discovery, route guard, optional proxy, then the repo docs and labels) | Changing what setup writes or verifies |
 | `skills/implementing` | Builder method shared by Claude and Codex workers | Changing how builders work a slice |
@@ -24,6 +25,7 @@ Autonomous issue-to-PR runs across Claude Code and Codex: `/bottega:maestro` tak
 | `docs/adr/` | Append-only decision records | Understanding why a current rule exists before changing it |
 | `docs/lessons/` | Failure records: what happened, the rule, and where the rule is enforced | Shaping new work in spec or plan, and when a run diagnoses a failure worth keeping |
 | `docs/specs/` | The delivered specs, versioned with the code they describe | Reading what a feature was agreed to do, or grounding a new spec |
+| `docs/plans/` | The delivered plans, each carrying its slices and their landed status | Reading how a delivered change was built, or resuming a run |
 | `tests/` | The verification gate's suites | Any change; the gate pins doctrine and script contracts |
 
 The vendored skill directories are symlinked from `.claude/skills` and `.agents/skills` so every runtime loads the one copy.
