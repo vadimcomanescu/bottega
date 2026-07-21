@@ -1,6 +1,6 @@
 # bottega
 
-Autonomous issue-to-PR runs for Claude Code, Codex, and Cursor.
+Autonomous issue-to-PR runs for Claude Code and Codex.
 
 `/bottega:maestro` takes a task, bug, or GitHub issue to a reviewed, evidence-backed pull request; spec, review, land, improve, panel, and setup are also available on their own.
 
@@ -19,38 +19,25 @@ Start a run with `/bottega:maestro <task, or issue URL>`.
 
 ### Codex
 
-Codex reads user-level skills from `~/.agents/skills/`. Clone Bottega beside that directory, then add its relative skill links:
+Install from the Bottega marketplace:
 
 ```bash
-git clone https://github.com/vadimcomanescu/bottega.git "$HOME/.agents/bottega"
-mkdir -p "$HOME/.agents/skills"
-for skill in "$HOME"/.agents/bottega/skills/*; do ln -s "../bottega/skills/${skill##*/}" "$HOME/.agents/skills/${skill##*/}"; done
+codex plugin marketplace add vadimcomanescu/bottega
+codex plugin install bottega@bottega
 ```
 
-Start a new Codex session, invoke `$setup` once to register the Codex hook, then start a run with `$maestro <task, or issue URL>`.
-
-### Cursor
-
-Cursor reads the same user-level `~/.agents/skills/` tree. Clone Bottega beside it, then add its relative skill links:
-
-```bash
-git clone https://github.com/vadimcomanescu/bottega.git "$HOME/.agents/bottega"
-mkdir -p "$HOME/.agents/skills"
-for skill in "$HOME"/.agents/bottega/skills/*; do ln -s "../bottega/skills/${skill##*/}" "$HOME/.agents/skills/${skill##*/}"; done
-```
-
-Reload Cursor, invoke `/setup` once to register the Cursor hook, then start a run with `/maestro <task, or issue URL>`.
+Start a new Codex session, invoke `$setup` once to reconcile the repo, then start a run with `$maestro <task, or issue URL>`.
 
 ## Commands
 
-| Skill | Claude Code | Codex | Cursor | What it does |
-| --- | --- | --- | --- | --- |
-| maestro | `/bottega:maestro <task, or issue URL>` | `$maestro <task, or issue URL>` | `/maestro <task, or issue URL>` | The whole pipeline: spec, plan, build, review, QA, delivered PR |
-| spec | `/bottega:spec <task, issue URL, or direction>` | `$spec <task, issue URL, or direction>` | `/spec <task, issue URL, or direction>` | Explore, grill the unknowns, agree the spec, commit it, and file dependency-ordered tickets for later runs |
-| improve | `/bottega:improve [area or direction]` | `$improve [area or direction]` | `/improve [area or direction]` | Scan for deepening opportunities, agree the strongest candidate, file it, and take it through a run |
-| autoreview | `/bottega:autoreview <PR, ref range, or worktree>` | `$autoreview <PR, ref range, or worktree>` | `/autoreview <PR, ref range, or worktree>` | Run the vendored review gate on the working diff, a ref range, or a PR |
-| panel | `/bottega:panel <the decision>` | `$panel <the decision>` | `/panel <the decision>` | Produce independent cross-family drafts and a compare-only judgment |
-| setup | `/bottega:setup` | `$setup` | `/setup` | Reconcile the project and register the current harness once per repo |
+| Skill | Claude Code | Codex | What it does |
+| --- | --- | --- | --- |
+| maestro | `/bottega:maestro <task, or issue URL>` | `$maestro <task, or issue URL>` | The whole pipeline: spec, plan, build, review, QA, delivered PR |
+| spec | `/bottega:spec <task, issue URL, or direction>` | `$spec <task, issue URL, or direction>` | Explore, grill the unknowns, agree the spec, commit it, and file dependency-ordered tickets for later runs |
+| improve | `/bottega:improve [area or direction]` | `$improve [area or direction]` | Scan for deepening opportunities, agree the strongest candidate, file it, and take it through a run |
+| autoreview | `/bottega:autoreview <PR, ref range, or worktree>` | `$autoreview <PR, ref range, or worktree>` | Run the vendored review gate on the working diff, a ref range, or a PR |
+| panel | `/bottega:panel <the decision>` | `$panel <the decision>` | Produce independent cross-family drafts and a compare-only judgment |
+| setup | `/bottega:setup` | `$setup` | Reconcile the project and register the current harness once per repo |
 
 Maestro and spec are two entry points to one method (explore, grill, agree the spec), defined once in [`skills/spec`](skills/spec/SKILL.md) and invoked whole from either. Maestro carries it through to a delivered PR; spec stops at an agreed spec file committed on a work branch that any later `/bottega:maestro` continues. The spec is that file; an issue is never a spec. During a run, maestro also invokes the internal routing, implementing, close, and QA skills.
 
@@ -71,9 +58,9 @@ The user appears exactly twice: agreeing to the spec, and merging the PR.
 
 ## Requirements
 
-- Claude Code, Codex, or Cursor running one of the orchestrator models accepted by the maestro skill.
+- Claude Code or Codex running one of the orchestrator models accepted by the maestro skill.
 - Git, Node.js, and the [GitHub CLI](https://cli.github.com/).
-- The codex CLI, logged in: the integrated review always runs both model families. Under Codex or Cursor, the claude CLI as well, for the same reason.
+- The codex CLI, logged in: the integrated review always runs both model families. Under Codex, the claude CLI as well, for the same reason.
 
 Nothing else is assumed about the project. A run leaves nothing behind but the PR, the spec it commits to `docs/specs/`, and the permanent branch holding QA evidence: working state is the worktree, one git-private plan, and one gitignored owner file, all removed at delivery.
 
@@ -125,10 +112,9 @@ Skills define the reusable methods and independently invoked capabilities. Refer
 
 ```
 skills/           the canonical methods and orchestration entry points
-.agents/skills/   relative discovery links used by Codex and Cursor
+.agents/          the Codex marketplace file and in-repo skill discovery links
 .claude-plugin/   Claude Code packaging
 .codex-plugin/    Codex packaging
-.cursor-plugin/   Cursor packaging
 hooks/            one route guard and its harness registrations
 scripts/          single assembly points for GitHub mutations
 tests/            the verification gate's suites

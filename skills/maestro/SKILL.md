@@ -10,7 +10,7 @@ Take one piece of work (a run) from request to a delivered PR, as its orchestrat
 
 Check your own model before anything else. Orchestration needs a frontier reasoning model: fable-5, gpt-5.6-sol at xhigh or above, or kimi k3. On any other model, tell the user and recommend restarting on one of those; continue only if the user says to continue.
 
-The user watches your screen and nothing else. Start workers only in forms your harness displays: single workers as subagents the user can open; work that fans out runs as a dynamic workflow in Claude Code, and as parallel subagents in Codex and Cursor. Never end a turn with work in flight the harness cannot see.
+The user watches your screen and nothing else. Start workers only in forms your harness displays: single workers as subagents the user can open; work that fans out runs as a dynamic workflow in Claude Code, and as parallel subagents in Codex. Never end a turn with work in flight the harness cannot see.
 
 Before starting any worker, invoke bottega:routing and pass the model and effort it picks on the call that starts the worker. Its Reaching the pick section states how each harness reaches each vendor's models.
 

@@ -17,10 +17,9 @@ Scores run 1 to 10, higher is better; a dash is a score not yet measured. Intell
 | fable-5 | anthropic | 9 | 9 | The orchestrator's seat and the claude review engine. Priciest row; spent where a wrong answer costs the most downstream. |
 | opus-4.8 | anthropic | 8 | 8 | The user-facing worker. |
 | gpt-5.6-sol | openai | 8 | 6 | The builder. Fast and token-lean at xhigh. |
-| sonnet-5 | anthropic | 6 | 7 | Cheap tier under Claude Code and Cursor: mechanical work, exploration, QA drives. |
+| sonnet-5 | anthropic | 6 | 7 | Cheap tier under Claude Code: mechanical work, exploration, QA drives. |
 | gpt-5.6-terra | openai | 6 | 5 | Cheap tier under Codex. |
 | gpt-5.6-luna | openai | 5 | 4 | Fully specified high-volume work under Codex. |
-| composer-2.5 | cursor | 7 | 6 | Exists only inside Cursor; fast alternative for mechanical work there. |
 | kimi-k3 | moonshot | 8 | - | Candidate, not adopted: half sol's token price, roughly twice the tokens for the same work. |
 
 ## The rules
@@ -38,5 +37,4 @@ Scores run 1 to 10, higher is better; a dash is a score not yet measured. Intell
 ## Reaching the pick
 
 - Claude Code: Claude models pin per dispatch natively. GPT models arrive as native subagents through the model proxy (bottega:setup), visible on the main screen like any worker; without the proxy, `scripts/codex-exec` runs them as tracked background work with live progress (skills/maestro/references/codex-dispatch.md).
-- Cursor: both families pin per dispatch natively, and composer-2.5 is available.
 - Codex: the harness cannot set a model per subagent; every native subagent runs the one default subagent model from config. Set that default to the cheap tier. Any other model is a shell-out as tracked background work: `scripts/codex-exec` for a GPT model, headless claude for a Claude model.

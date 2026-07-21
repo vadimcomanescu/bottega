@@ -110,26 +110,7 @@ function optionsText(call) {
   return options;
 }
 
-function harness() {
-  if (process.env.CURSOR_PLUGIN_ROOT || process.env.CURSOR_HOME) return "cursor";
-  if (process.env.CODEX_HOME || process.env.CODEX_PLUGIN_ROOT || process.env.PLUGIN_ROOT) {
-    return "codex";
-  }
-  return "claude";
-}
-
 function deny(reason) {
-  if (harness() === "cursor") {
-    process.stdout.write(
-      JSON.stringify({
-        permission: "deny",
-        user_message: reason,
-        agent_message: reason,
-      }),
-    );
-    return;
-  }
-
   process.stdout.write(
     JSON.stringify({
       hookSpecificOutput: {
@@ -151,17 +132,8 @@ try {
 
 if (!event || typeof event !== "object") process.exit(0);
 const cwd =
-  typeof event.cwd === "string" && event.cwd.length > 0
-    ? event.cwd
-    : Array.isArray(event.workspace_roots) && typeof event.workspace_roots[0] === "string"
-      ? event.workspace_roots[0]
-      : process.env.CURSOR_PROJECT_DIR || process.cwd();
-const session =
-  typeof event.session_id === "string"
-    ? event.session_id
-    : typeof event.conversation_id === "string"
-      ? event.conversation_id
-      : null;
+  typeof event.cwd === "string" && event.cwd.length > 0 ? event.cwd : process.cwd();
+const session = typeof event.session_id === "string" ? event.session_id : null;
 const input = event.tool_input;
 if (!cwd || !session || !input || typeof input !== "object") process.exit(0);
 if (!ownsLiveRun(cwd, session)) process.exit(0);

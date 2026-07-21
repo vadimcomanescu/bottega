@@ -116,7 +116,7 @@ describe("portable worker doctrine", () => {
       "notes",
     ]);
 
-    const FAMILIES = new Set(["anthropic", "openai", "cursor", "moonshot"]);
+    const FAMILIES = new Set(["anthropic", "openai", "moonshot"]);
     const SCORE = /^([1-9]|10|-)$/;
     const rows = modelTables[0]!.slice(2).map((row) =>
       row.split("|").slice(1, -1).map((cell) => cell.trim()),
@@ -134,8 +134,8 @@ describe("portable worker doctrine", () => {
 
     expect(routing).toContain("gpt-5.6-sol at xhigh");
     expect(routing).toContain("pinned in the autoreview document's run rules");
-    for (const host of ["- Claude Code:", "- Codex:", "- Cursor:"]) {
-      expect(routing, `routing must state reach mechanics for ${host}`).toContain(host);
+    for (const harness of ["- Claude Code:", "- Codex:"]) {
+      expect(routing, `routing must state reach mechanics for ${harness}`).toContain(harness);
     }
 
     const review = read("skills/autoreview/SKILL.md");
@@ -166,17 +166,15 @@ describe("portable worker doctrine", () => {
       [
         ".claude-plugin/plugin.json",
         ".codex-plugin/plugin.json",
-        ".cursor-plugin/plugin.json",
       ].map((path) => [path, JSON.parse(read(path)) as Record<string, unknown>]),
     );
 
     expect(manifests.get(".codex-plugin/plugin.json")!.skills).toBe("./skills/");
-    expect(manifests.get(".cursor-plugin/plugin.json")!.skills).toBe("./skills/");
 
     // Claude Code auto-loads the standard hooks/hooks.json, so the manifest must
     // not re-declare it; a manifest hooks key points only at a non-standard file.
     expect(manifests.get(".claude-plugin/plugin.json")!.hooks).toBeUndefined();
-    expect(manifests.get(".cursor-plugin/plugin.json")!.hooks).toBe("./hooks/hooks-cursor.json");
+    expect(manifests.get(".codex-plugin/plugin.json")!.hooks).toBe("./hooks/hooks-codex.json");
     expect(manifests.get(".claude-plugin/plugin.json")!.version).toMatch(
       /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/,
     );
