@@ -13,15 +13,13 @@ Autonomous issue-to-PR runs across Claude Code, Codex, and Cursor: `/bottega:mae
 | `skills/improve/SKILL.md` | `/bottega:improve`, one agreed improvement filed as an issue and handed to run | Changing how improvements are found or handed off |
 | `skills/setup/SKILL.md` | `/bottega:setup`, one-time reconciliation of a machine and repo with the methodology (harness CLIs, skill discovery, route guard, optional proxy, then the repo docs and labels) | Changing what setup writes or verifies |
 | `skills/implementing` | Builder method shared by Claude and Codex workers | Changing how builders work a slice |
-| `skills/autoreview` | Runnable review helper vendored from openclaw/agent-skills: scripts, tests, and license only; the caller contract lives in `skills/review`; see README Credits | Re-copying newer upstream scripts, then reconciling upstream contract changes into `skills/review` |
-| `skills/review/SKILL.md` | `/bottega:review`, the cross-family review gate: the panel, adjudication, fix routing, and the recheck loop; run's Review phase and land both call it | Anything touches review inputs, adjudication, fix routing, or termination |
+| `skills/autoreview` | The one review skill: upstream's autoreview document locally adapted (its `AGENTS.md` carries the sync contract), plus the vendored helper scripts and tests; see README Credits | Anything touches review method, inputs, fix dispatch, PR threads, or merge verification |
 | `skills/qa/SKILL.md` | QA method and limits: drive the shipped interface, return PASS/FAIL/NOT VERIFIED per scenario, forbidden actions; run's QA phase routes here | Anything touches QA driving, evidence, or limits |
-| `skills/land/SKILL.md` | `/bottega:land`, an open PR to verified-mergeable; owns the GitHub review surface | Anything touches PR threads, claims, stops, or merge |
 | `skills/close/SKILL.md` | The closing method a run's Close phase routes to: confirm the accepted head, file followups, open the PR under the reader contract, watch its checks; not user-invocable | Anything touches PR opening, followup filing, the reader contract, or the check watch |
 | `skills/panel/SKILL.md` | `/bottega:panel`, independent cross-family drafts and a compare-only judge for one costly decision; run's Plan phase calls it too | Changing panel seats or judging |
 | `skills/codebase-design` | House design doctrine: domain model, deep modules, documentation architecture | Any design, review, or setup doctrine question |
 | `skills/writing-great-skills` | Vendored skill-writing reference | Creating or editing any skill file |
-| `scripts/` | Single assembly points for external calls: `codex-exec`, `pr-threads`, `pr-claim`, `issue-claim`; each header states its contract | Any codex launch or GitHub mutation mechanics |
+| `scripts/` | Single assembly points for external calls: `codex-exec`, `pr-threads`; each header states its contract | Any codex launch or GitHub mutation mechanics |
 | `hooks/` | The route guard and its registrations for the three harnesses; the guard states its own policy | Changing what dispatches are denied |
 | `docs/adr/` | Append-only decision records | Understanding why a current rule exists before changing it |
 | `docs/lessons/` | Failure records: what happened, the rule, and where the rule is enforced | Shaping new work in spec or plan, and when a run diagnoses a failure worth keeping |

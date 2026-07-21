@@ -59,11 +59,9 @@ function tableHeader(table: string[]): string[] {
 
 describe("portable worker doctrine", () => {
   it("gives every skill matching name and description frontmatter", () => {
-    // skills/autoreview is a vendored helper directory, not a skill: no SKILL.md.
-    // Every other skills/ directory must carry one; a missing file fails the read.
     const skillDirectories = readdirSync(join(ROOT, "skills"), {
       withFileTypes: true,
-    }).filter((entry) => entry.isDirectory() && entry.name !== "autoreview");
+    }).filter((entry) => entry.isDirectory());
 
     for (const directory of skillDirectories) {
       const path = `skills/${directory.name}/SKILL.md`;
@@ -135,15 +133,15 @@ describe("portable worker doctrine", () => {
     }
 
     expect(routing).toContain("gpt-5.6-sol at xhigh");
-    expect(routing).toContain("pinned in skills/review");
+    expect(routing).toContain("pinned in the autoreview document's run rules");
     for (const host of ["- Claude Code:", "- Codex:", "- Cursor:"]) {
       expect(routing, `routing must state reach mechanics for ${host}`).toContain(host);
     }
 
-    const review = read("skills/review/SKILL.md");
+    const review = read("skills/autoreview/SKILL.md");
     expect(review).toContain("--model codex=gpt-5.6-sol");
     expect(review).toContain("--model claude=claude-fable-5");
-    expect(review, "trivial-diff exception must pin fable").toContain(
+    expect(review, "single-engine reruns must pin fable").toContain(
       "--engine claude --model claude-fable-5",
     );
   });
@@ -204,7 +202,7 @@ describe("portable worker doctrine", () => {
   });
 
   it("keeps GitHub mutation scripts executable and contract-headed", () => {
-    for (const script of ["pr-threads", "pr-claim", "issue-claim"]) {
+    for (const script of ["pr-threads"]) {
       const path = join(ROOT, "scripts", script);
       expect(existsSync(path), `scripts/${script} must exist`).toBe(true);
       expect(() => accessSync(path, constants.X_OK), `scripts/${script} must be executable`).not.toThrow();
@@ -310,21 +308,22 @@ describe("portable worker doctrine", () => {
   it("pins the review interlock and its quantifiers", () => {
     const maestro = read("skills/maestro/SKILL.md");
     expect(maestro).toContain("every fixed decision in the plan");
-    expect(maestro).toContain("bottega:review");
+    expect(maestro).toContain("bottega:autoreview");
+    expect(maestro).toContain("quoting the spec line it rests on");
+    expect(maestro).toContain("run one simplification pass over the changed files");
 
-    const review = read("skills/review/SKILL.md");
+    // The vendored document is present, carries upstream's identity, and the
+    // author's own convergence rule survives verbatim.
+    const review = read("skills/autoreview/SKILL.md");
+    expect(review).toContain("name: autoreview");
+    expect(review).toContain("# Auto Review");
+    expect(review).toContain("two review-triggered patch cycles have not converged");
+    // The woven run rules: blind prompt, fresh-builder fix dispatch, rerun to clean.
+    expect(review).toContain("never the spec or the plan");
     expect(review).toContain(
-      "every finding is fixed, refuted with evidence, refiled as a follow-up, or escalated",
+      "dispatches the accepted findings to one fresh builder with the findings and the project's commands; the maestro never edits production code",
     );
-    expect(review).toContain("routes as a fix");
-    expect(review).toContain("The cleanup sweeps ride in the panel round only.");
-    expect(review).toContain("only through its own harness's native mechanism");
-    expect(review).toContain(
-      "the session that spawned a Claude worker continues it with a follow-up message carrying the accepted findings verbatim; a Codex thread resumes through `scripts/codex-exec --resume` with the findings as the new brief",
-    );
-    expect(review).toContain("A session on a different harness than the builder never attempts resume.");
-    expect(review).toContain("Two fix cycles without convergence stop the editing");
-    expect(review).toContain("the last helper exit at that head was clean");
+    expect(review).toContain("repeated until the helper exits clean at the accepted head");
   });
 
   it("keeps every lesson enforced somewhere that exists", () => {
