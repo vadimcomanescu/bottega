@@ -73,7 +73,7 @@ The user appears exactly twice: agreeing to the spec, and merging the PR.
 
 - Claude Code, Codex, or Cursor running one of the orchestrator models accepted by the maestro skill.
 - Git, Node.js, and the [GitHub CLI](https://cli.github.com/).
-- The codex CLI, logged in: the integrated review always runs both model families. On a Codex or Cursor host, the claude CLI as well, for the same reason.
+- The codex CLI, logged in: the integrated review always runs both model families. Under Codex or Cursor, the claude CLI as well, for the same reason.
 
 Nothing else is assumed about the project. A run leaves nothing behind but the PR, the spec it commits to `docs/specs/`, and the permanent branch holding QA evidence: working state is the worktree, one git-private plan, and one gitignored owner file, all removed at delivery.
 

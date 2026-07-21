@@ -19,7 +19,7 @@ Surface deepening opportunities: refactors that turn shallow modules into deep o
 - pure functions extracted for testability while the real bugs hide in how they are called;
 - tightly coupled modules leaking across their seams;
 - code untested, or hard to test through its current interface;
-- a custom mechanism for a problem the field solves with a standard solution; read that technology's documentation or its skill in this runtime to know the standard, and expect the deepening to be deletion plus adoption;
+- a custom mechanism for a problem with a standard solution; read that technology's documentation or its skill in this runtime to know the standard, and expect the deepening to be deletion plus adoption;
 - rules split from the state they protect, ownership leaked across an interface, and documentation-architecture drift: facts restated outside their home, living docs citing the archive, glossary terms the code contradicts.
 
 ADRs constrain the scan: surface a conflict with an ADR only when the friction justifies reopening it, and name the ADR.

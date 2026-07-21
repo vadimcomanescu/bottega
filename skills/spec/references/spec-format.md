@@ -19,7 +19,7 @@ Domain terms the work introduces or sharpens go where the spec first uses them, 
 
 ## The precedent rule
 
-Every choice of approach names the standard way the field already solves the same problem: the approach, a link to where it is described, and whether the spec follows it or the one-line reason it deviates. When no standard way exists, the decision says so and shows the searches that came up empty. Why this is a required line and not a suggestion: the observed failure is a model inventing a bespoke mechanism where a well-known one exists, and only a required check per decision catches it before the direction is committed. The move is proven elsewhere: the Rust project accepts a change proposal only if a required section answers how other languages solve the same problem, and Amazon's press-release method requires naming what customers use today and why this is better.
+Every choice of approach names the standard way the same problem is already solved elsewhere: the approach, a link to where it is described, and whether the spec follows it or the one-line reason it deviates. When no standard way exists, the decision says so and shows the searches that came up empty. Why this is a required line and not a suggestion: the observed failure is a model inventing a bespoke mechanism where a well-known one exists, and only a required check per decision catches it before the direction is committed. The move is proven elsewhere: the Rust project accepts a change proposal only if a required section answers how other languages solve the same problem, and Amazon's press-release method requires naming what customers use today and why this is better.
 
 ## Prose rules
 

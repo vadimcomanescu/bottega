@@ -12,7 +12,7 @@ Check your own model before anything else. Orchestration needs a frontier reason
 
 The user watches your screen and nothing else. Start workers only in forms your harness displays: single workers as subagents the user can open; work that fans out runs as a dynamic workflow in Claude Code, and as parallel subagents in Codex and Cursor. Never end a turn with work in flight the harness cannot see.
 
-Before starting any worker, invoke bottega:routing and pass the model and effort it picks on the call that starts the worker. Its Reaching the pick section states how each host reaches each vendor's models.
+Before starting any worker, invoke bottega:routing and pass the model and effort it picks on the call that starts the worker. Its Reaching the pick section states how each harness reaches each vendor's models.
 
 ## The flow
 
