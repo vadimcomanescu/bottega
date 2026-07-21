@@ -46,8 +46,8 @@ Reload Cursor, invoke `/setup` once to register the Cursor hook, then start a ru
 | Skill | Claude Code | Codex | Cursor | What it does |
 | --- | --- | --- | --- | --- |
 | maestro | `/bottega:maestro <task, or issue URL>` | `$maestro <task, or issue URL>` | `/maestro <task, or issue URL>` | The whole pipeline: spec, plan, build, review, QA, delivered PR |
-| spec | `/bottega:spec <task, issue URL, or direction>` | `$spec <task, issue URL, or direction>` | `/spec <task, issue URL, or direction>` | Explore, grill the unknowns, agree the spec, and leave it agreed on a work branch a later run continues |
-| improve | `/bottega:improve [area or direction]` | `$improve [area or direction]` | `/improve [area or direction]` | Find the strongest improvement, agree it, file it, and take it through a run |
+| spec | `/bottega:spec <task, issue URL, or direction>` | `$spec <task, issue URL, or direction>` | `/spec <task, issue URL, or direction>` | Explore, grill the unknowns, agree the spec, commit it, and file dependency-ordered tickets for later runs |
+| improve | `/bottega:improve [area or direction]` | `$improve [area or direction]` | `/improve [area or direction]` | Scan for deepening opportunities, agree the strongest candidate, file it, and take it through a run |
 | autoreview | `/bottega:autoreview <PR, ref range, or worktree>` | `$autoreview <PR, ref range, or worktree>` | `/autoreview <PR, ref range, or worktree>` | Run the vendored review gate on the working diff, a ref range, or a PR |
 | panel | `/bottega:panel <the decision>` | `$panel <the decision>` | `/panel <the decision>` | Produce independent cross-family drafts and a compare-only judgment |
 | setup | `/bottega:setup` | `$setup` | `/setup` | Reconcile the project and register the current harness once per repo |
