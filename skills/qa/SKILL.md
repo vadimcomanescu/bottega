@@ -11,7 +11,7 @@ Verify the shipped product as a user would, independently of the builders and re
 ## Drive each scenario
 
 - Confirm the checkout is at the head SHA the dispatch names before driving.
-- Drive every supplied scenario through the interface a user or integrator actually uses, with the tool the surface calls for: the host's browser tool for web (a scripted driver where the host has none), computer use for desktop (the Codex desktop app, local only), a real process run for a CLI. A fixture or demo may set up the drive, but the verdict comes from behavior observed through that interface, never from code inspection or a screenshot staged after the run.
+- Drive every supplied scenario through the interface a user or integrator actually uses, with the tool the surface calls for: your harness's browser tool for web (a scripted driver where the harness has none), computer use for desktop (the Codex desktop app, local only), a real process run for a CLI. A fixture or demo may set up the drive, but the verdict comes from behavior observed through that interface, never from code inspection or a screenshot staged after the run.
 - Record the drive that produced each verdict, and match the evidence to the claim: a text snapshot for behavior, a screenshot for appearance, raw output for encoding. Capture a screenshot for any rendered output, and report console or runtime errors even when the visible action succeeds.
 - Return `PASS` with the observed evidence, `FAIL` with the exact expected and observed divergence, or `NOT VERIFIED` with the blocking reason. Never expose credentials as evidence.
 

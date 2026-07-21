@@ -1,7 +1,7 @@
 ---
 name: spec
 argument-hint: "<task, issue URL, or direction>"
-description: Prepare a task for delivery without building it. Explore the codebase and the field, grill the open decisions, agree a spec, and leave it agreed on a work branch a later run continues. Invoke via /bottega:spec when the user wants work shaped into an agreed spec rather than delivered now. Never invoke proactively; it runs a full discovery and grilling session.
+description: Prepare a task for delivery without building it. Explore the codebase and the standard solutions, grill the open decisions, agree a spec, and leave it agreed on a work branch a later run continues. Invoke via /bottega:spec when the user wants work shaped into an agreed spec rather than delivered now. Never invoke proactively; it runs a full discovery and grilling session.
 ---
 
 # Spec
@@ -14,7 +14,7 @@ When the branch already carries a spec file, start there: show the owner what yo
 
 Read the repo facts first: the smallest map that routes the task (root `CLAUDE.md` or `AGENTS.md`), then `CONTEXT-MAP.md` if present, then only the `CONTEXT.md` glossaries, `docs/adr/` decisions, and `docs/lessons/` records the work touches. Current docs only; archived and superseded ones are history.
 
-Then, on cheaper tiers, launch a subagent per job that applies: explore how the affected area of the codebase works today and the precedent it sets; research how the field solves this problem and where it is heading; and read the technology skills in this runtime that match the work. Run the field job on any product-shaped work: the codebase answers how we already do it here, the field answers the standard way.
+Then, on your harness's cheap tier, launch a subagent per job that applies: explore how the affected area of the codebase works today and the precedent it sets; search online for how others solve this problem and where the practice is heading; and read the technology skills in this runtime that match the work. Run the search job on any product-shaped work: the codebase answers how we already do it here, the search answers the standard way.
 
 Read what comes back, then read directly the files any decision hinges on. Verify version-sensitive technology against the installed version and primary vendor docs before a decision relies on it. Every decision is yours; a subagent returns findings, never a decision.
 
