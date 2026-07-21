@@ -4,4 +4,6 @@ What happened: the 2026-07-21 run consolidating the review method produced a dif
 
 The rule: a diff that is only method prose gets one panel, its fixes, and one recheck; a finding arriving after that recheck is a follow-up by definition, filed, never another cycle. Code in the diff keeps the full until-clean loop.
 
-Enforced: tracking issue https://github.com/vadimcomanescu/bottega/issues/90 (the rule needs a doctrine sentence and a pin; adding them after this run's review closure would have re-entered review).
+As of the 575bed0 autoreview sync, the vendored review document carries this rule directly, so it is enforced in the document rather than pending a tracking issue.
+
+Enforced: skills/autoreview/SKILL.md ("Do not require autoreview for a change whose entire diff is prose-only internal notes").

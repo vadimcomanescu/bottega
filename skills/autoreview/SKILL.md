@@ -15,6 +15,8 @@ Use when:
 - after non-trivial code edits, before final/commit/ship
 - reviewing a local branch or PR branch after fixes
 
+Do not require autoreview for a change whose entire diff is prose-only internal notes or `SKILL.md` documentation. Still inspect the diff directly and run the repository's lightweight documentation validation, if any. This exception does not cover user-facing documentation, executable examples, configuration, scripts, generated files, or behavior changes.
+
 ## Contract
 
 - Treat review output as advisory. Never blindly apply it.
@@ -34,7 +36,7 @@ Use when:
 - Tools are useful in review mode. Codex receives the validated bundle in an empty workspace so ignored files and linked-worktree metadata remain unreadable; web search stays available for dependency contracts and upstream docs.
 - Security perspective is always included, but it should not cripple legitimate functionality. Report security findings only when the change creates a concrete, actionable risk or removes an important safety check.
 - Reviewer subprocesses preserve engine authentication and non-credentialed proxy variables needed by headless or restricted-network environments while stripping process-injection, Git override, and credentialed proxy values.
-- Review bundles fail closed before engine invocation when tracked or untracked paths look sensitive or patch text looks secret-like. Obvious synthetic values shaped like `<fixture-prefix>-<credential-field>` remain reviewable, such as `token: "test-token"`, without one-off allowlists. Safe large diffs are scanned in full, sent as one pass while they fit the aggregate prompt limit, then partitioned into complete bounded passes without truncation.
+- Before engine invocation, autoreview runs TruffleHog over temporary snapshots of the exact added or modified content under review. It intentionally matches TruffleHog's low-false-positive pre-commit policy (`verified,unknown`); it does not classify arbitrary password-like strings or rescan unchanged history. Install TruffleHog using its official platform-neutral instructions; autoreview fails with that link when the binary is unavailable and never auto-installs it. Repositories should also run TruffleHog in pull-request CI as a backup outside autoreview; repository-local Git hooks are optional. Review bundles still omit security-sensitive paths or files, and explicit prompt and dataset inputs remain checked before engine invocation. Safe large diffs are sent as one pass while they fit the aggregate prompt limit, then partitioned into complete bounded passes without truncation.
 - For regression provenance, keep roles separate: blamed code author, blamed PR author, PR merger/committer, current PR author, and PR/date. If no blamed PR is traceable, use the blamed commit as the provenance: commit SHA, date, and author username. Do not guess a merger or frame missing PR metadata as a separate finding.
 - Do not invoke built-in `codex review`, nested reviewers, or reviewer panels from inside the review. The helper builds one validated bundle, calls the selected engine once for normal inputs or once per complete bounded chunk for oversized inputs, validates the structured results, and stops.
 - Stop as soon as the helper exits 0 with no accepted/actionable findings. Do not run an extra review just to get a nicer "clean" line, a second opinion, or clearer closeout wording.
@@ -57,7 +59,7 @@ Before patching a finding, classify it:
 - **Follow-up**: the finding is real but belongs to an adjacent bug class, sibling surface, cleanup, or broader hardening track.
 - **Stop-and-escalate**: the finding requires a new protocol/config/storage/public API contract, a different owner boundary, a release-process change, or a design choice outside the original request.
 
-In a bottega maestro run, the maestro verifies each finding against the real code, then dispatches the accepted findings to one fresh builder with the findings and the project's commands; the maestro never edits production code. Outside a run, fix directly as this contract states.
+In a bottega maestro run, the maestro verifies each finding against the real code, then dispatches the accepted findings to one fresh builder, briefed as any builder with the implementing method, the findings, and the project's commands; the maestro never edits production code. Outside a run, fix directly as this contract states.
 
 Stop patching and report the scope break instead of continuing when:
 
