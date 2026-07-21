@@ -311,6 +311,7 @@ describe("portable worker doctrine", () => {
     expect(maestro).toContain("bottega:autoreview");
     expect(maestro).toContain("quoting the spec line it rests on");
     expect(maestro).toContain("run one simplification pass over the changed files");
+    expect(maestro).toContain("files the lesson and adds a rule");
 
     // The vendored document is present, carries upstream's identity, and the
     // author's own convergence rule survives verbatim.

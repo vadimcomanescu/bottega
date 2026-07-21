@@ -43,7 +43,7 @@ Use when:
 - If rejecting a finding as intentional/not worth fixing, add a brief inline code comment only when it explains a real invariant or ownership decision that future reviewers should know.
 - Do not push just to review. Push only when the user requested push/ship/PR update.
 - A clean review of a pushed head posts one commit status on that head, context `bottega/review`, naming the base it was reviewed against.
-- Merge only when the checks are green, the head still equals the reviewed head (`gh pr merge --squash --match-head-commit <sha>`), and the base has not advanced. Run a merge only when the user armed it in their own words, and never for a change touching authentication, money, permissions, persisted data, or a destructive operation.
+- Merge only when the checks are green, the head still equals the reviewed head (`gh pr merge <PR> --squash --match-head-commit <sha>`), and the base has not advanced. Run a merge only when the user armed it in their own words, and never for a change touching authentication, money, permissions, persisted data, or a destructive operation.
 
 ## Scope Governor
 
