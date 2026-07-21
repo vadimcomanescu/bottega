@@ -21,7 +21,7 @@ Planning is now a method of its own, invoked whole at the run's Plan phase, the 
 
 - The run's Plan phase is one invocation of the plan method, as the Spec phase is one invocation of the spec method.
 - The plan document is committed on the run branch; revisions and slice statuses are commits; the PR delivers it.
-- The strengthen pass runs before the first build dispatch, cross-family, and ends at ready or at the round cap.
+- The strengthen pass runs before the first build dispatch, cross-family, and ends at ready or at the round cap. A run scaled down to one pass skips it, along with the panel and the parallel slicing, and keeps the gates, the review, and QA.
 - The routing rules name the strengthen pass's pick under each orchestrator family.
 - The published description of a run no longer calls the plan private to the workspace and removed at delivery.
 
