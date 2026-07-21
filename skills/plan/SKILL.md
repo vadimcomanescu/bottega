@@ -1,6 +1,6 @@
 ---
 name: plan
-description: The plan method a run's Plan phase invokes whole. Model the domain, commit the plan on the run branch, and strengthen it with fresh cross-family passes until one returns ready. Not user-invocable.
+description: The plan method a run's Plan phase invokes whole. Model the domain, commit the plan on the run branch, and strengthen it with fresh cross-family passes until one returns ready or the round cap stops the loop. Not user-invocable.
 user-invocable: false
 ---
 

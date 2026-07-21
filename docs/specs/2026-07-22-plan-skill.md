@@ -16,16 +16,17 @@ Planning is now a method of its own, invoked whole at the run's Plan phase, the 
 2. The strengthen loop is verdict-gated with a round cap. Ready or blockers, nothing between; the reviewer is told an invented blocker is as much a failure as a missed one; five rounds without ready stop the loop as a signal the plan needs rethinking. Standard way: trycycle's plan-editor loop (a fresh stateless editor each round, a ready verdict, a five-round cap, the editor judged on verdict correctness); followed, minus its checkbox step-list plan format, which over-scripts frontier builders.
 3. The reviewer comes from the other model family than the orchestrator's, one seat. Standard way: council convenes every installed agent CLI on a draft plan; deviation: one cross-family seat carries most of the independence, and the integrated review already runs both families on the code.
 4. Parallelism is decided by the slicing, not at build time. Slice ownership is the concurrency map; the build runs together what the map made independent and sequences only genuine contention. No published source states this as a rule; it follows from vertical slices owning their files.
+5. The build spends that independence through the harness's own machinery: each concurrent slice in its own isolated workspace started from the run's current state, one dynamic workflow preferred for the fan-out under Claude with the review dispatch carried inside it, and subagents free to spawn their own. Standard way: the harness documentation for workflows, worktree isolation, and nested subagents; followed as stated preferences, not new mechanics.
 
 ## Acceptance criteria
 
 - The run's Plan phase is one invocation of the plan method, as the Spec phase is one invocation of the spec method.
 - The plan document is committed on the run branch; revisions and slice statuses are commits; the PR delivers it.
 - The strengthen pass runs before the first build dispatch, cross-family, and ends at ready or at the round cap. A run scaled down to one pass skips it, along with the panel and the parallel slicing, and keeps the gates, the review, and QA.
-- The routing rules name the strengthen pass's pick under each orchestrator family.
+- The routing rules name the strengthen pass's pick under a Claude orchestrator and under a Codex orchestrator, the two harnesses a run supports.
 - The published description of a run no longer calls the plan private to the workspace and removed at delivery.
 
 ## Out of scope
 
 - No working-notes or scratchpad doctrine: the harnesses already provide working notes.
-- The review gate, QA, and close methods are unchanged.
+- The review gate's method, QA, and close are unchanged; the build workflow carrying the review dispatch moves where that dispatch is issued from, not what it does.
