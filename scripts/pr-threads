@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-// Deterministic GitHub review mechanics for skills/land. One place assembles
-// every `gh api` call for a PR's review threads and inline review comments, the
-// same way scripts/codex-exec is the one place a `codex exec` invocation is
-// built.
+// Deterministic GitHub review mechanics for the autoreview skill's PR-thread
+// rule. One place assembles every `gh api` call for a PR's review threads and
+// inline review comments, the same way scripts/codex-exec is the one place a
+// `codex exec` invocation is built.
 //
 //   pr-threads list --pr <n> --repo <owner/name>
 //   pr-threads reply --thread-id <id> (--body <text> | --body-file <path>)

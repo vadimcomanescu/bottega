@@ -6,7 +6,7 @@ user-invocable: false
 
 # Close
 
-Take the accepted, QA-verified head to a PR that is open, readable, its checks green, its deferred work filed, and mergeable with its base. The GitHub review surface after the PR opens is `bottega:land`, not here.
+Take the accepted, QA-verified head to a PR that is open, readable, its checks green, its deferred work filed, and mergeable with its base. Review feedback after the PR opens is handled through `bottega:autoreview`: threads are claimed findings, and its document carries the merge verification.
 
 ## Reader contract
 
@@ -20,7 +20,7 @@ Run these in order; a followup and its evidence must exist before the PR body li
 
 1. **Confirm the head.** The head the orchestrator accepted, the head QA verified, and the head the PR will publish are one SHA, and close has changed no tracked file. A mismatch returns to the run, never patched here.
 
-2. **Push and mark reviewed.** Push the branch and post the `bottega/review` success status on the accepted head, naming the reviewed base (the Completion rule in [`bottega:review`](../review/SKILL.md)), before the PR opens, so it arrives already carrying its reviewed marker.
+2. **Push and mark reviewed.** Push the branch and post the `bottega/review` success status on the accepted head, naming the reviewed base (the commit-status rule in [`bottega:autoreview`](../autoreview/SKILL.md)), before the PR opens, so it arrives already carrying its reviewed marker.
 
 3. **Publish evidence.** Put the QA evidence where the PR can read it, per [references/qa-evidence.md](references/qa-evidence.md).
 

@@ -50,7 +50,7 @@ For every gap between the found state and the shape, show the exact edit that cl
 - **Migrations**: discovered term definitions move into the relevant `CONTEXT.md`; discovered decision records that meet the ADR bar move into `docs/adr/`; two files claiming the same authority merge into one home; every reference updates in the same change. Formats follow `bottega:codebase-design` and its references. When a source and its target both hold material, put the merge to the user before writing.
 - **Owner docs** for tracker conventions, always reusing an existing equivalent home instead of creating a second one.
 - **A `.bottega/` entry in `.gitignore`** when missing.
-- **The `agent:working` label** through `scripts/issue-claim ensure-label`, the one place that call is assembled. The approved `area:*` labels are outside that script's contract: create each with `gh` as get-or-create and read it back. Never rename or delete an existing label.
+- **The approved `area:*` labels**, each created with `gh` as get-or-create and read back. Labels organize the backlog for people; the method never reads them. Never rename or delete an existing label.
 
 ### 4. Apply
 
