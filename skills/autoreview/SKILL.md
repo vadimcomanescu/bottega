@@ -137,7 +137,7 @@ Optional review context is first-class. Prompt files and datasets must be repo-r
 "$AUTOREVIEW" --mode branch --base origin/main --prompt-file review-notes.md --dataset evidence.json
 ```
 
-In a bottega maestro run the reviewers are blind to the task: the prompt carries the reviewed repository's root `REVIEW.md` when one exists and the fixed standards baseline ([references/smell-baseline.md](references/smell-baseline.md)), never the spec or the plan. Write any prompt to a file outside the reviewed repo and pass it as `--prompt "$(cat <file>)"`; never paste PR text into the command source, and keep `--json-output` outside the reviewed repo.
+In a bottega maestro run the prompt carries the reviewed repository's root `REVIEW.md` when one exists and the fixed standards baseline ([references/smell-baseline.md](references/smell-baseline.md)), never the spec or the plan. Write any prompt to a file outside the reviewed repo and pass it as `--prompt "$(cat <file>)"`; never paste PR text into the command source, and keep `--json-output` outside the reviewed repo.
 
 If an open PR exists, use its actual base:
 
@@ -148,7 +148,7 @@ base=$(gh pr view --json baseRefName --jq .baseRefName)
 
 Reviewing an open PR, treat its unresolved review threads as claimed findings: verify each, fix or refute it with evidence, reply, and resolve the thread (in bottega repos through `scripts/pr-threads`).
 
-Reviewing a PR by number, resolve the target first: fetch the PR head, check it out in its own worktree, and run the review there against the PR's base; the user's checkout is never the review target. A ref-range target reviews exactly that range from the current checkout.
+Reviewing a PR by number, resolve the target first: fetch the PR head, check it out in its own worktree, and run the review there against the PR's base; the user's checkout is never the review target. A ref-range target reviews exactly that range from the current checkout. Resolve the base ref to its commit SHA before the first invocation and review against that SHA; reruns and the posted commit status use the same SHA, and a merge compares the PR's live base to it before running.
 
 Committed single change:
 
