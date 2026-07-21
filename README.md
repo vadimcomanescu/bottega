@@ -114,7 +114,7 @@ Skills define the reusable methods and independently invoked capabilities. Refer
 | --- | --- | --- |
 | orchestrator | design, routing, review arbitration, architecture acceptance | [`skills/maestro/SKILL.md`](skills/maestro/SKILL.md) |
 | builder | implements one assigned slice, test-first, inside the orchestrator's fixed architecture | [`skills/implementing/SKILL.md`](skills/implementing/SKILL.md) |
-| review panel | hunts defects in the integrated diff, blind to the builders and the spec | [`skills/autoreview/SKILL.md`](skills/autoreview/SKILL.md) |
+| review panel | hunts defects in the integrated diff, isolated from the builders, its prompt never carrying the spec | [`skills/autoreview/SKILL.md`](skills/autoreview/SKILL.md) |
 | qa | drives the built artifact as a user, records the evidence, never edits product code | [`skills/qa/SKILL.md`](skills/qa/SKILL.md) |
 | panel seats and judge | produce independent drafts and compare them without writing the final answer | [`skills/panel/SKILL.md`](skills/panel/SKILL.md) |
 | closer | confirms the accepted head, opens the PR, and watches checks | [`skills/close/SKILL.md`](skills/close/SKILL.md) |
