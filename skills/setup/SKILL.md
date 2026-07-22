@@ -28,7 +28,7 @@ Resolve symlinks first, then read; never search by a fixed list of filenames. Fo
 - Domain terms: whatever currently defines the repo's vocabulary, in any file or doc section.
 - Decisions: wherever design decisions are recorded today, including prose sections of README-class docs.
 - Tracker conventions, the GitHub remote, its labels, and whether `gh` is authenticated with issue and label permissions.
-- The project's gate command (test, lint, typecheck, build) and `.gitignore`.
+- The project's commands (test, lint, format, typecheck, build, run), whether the canonical map states them, and `.gitignore`.
 - Any index the repo declares for its own agent skills.
 
 Complete when every part of the shape has either a located current home or a stated "nowhere".
@@ -37,7 +37,7 @@ Complete when every part of the shape has either a located current home or a sta
 
 Present the findings, then walk only the decisions the repo cannot answer, one per exchange, waiting for each answer:
 
-- **Canonical map**: which of `CLAUDE.md` and `AGENTS.md` is the map. Ask only when both exist as independent files. When one symlinks the other, its target is the map. When neither exists, default to `CLAUDE.md`, present the choice so the user can veto it in one read, and never create the competing file.
+- **Canonical map**: which of `CLAUDE.md` and `AGENTS.md` is the map. Ask only when both exist as independent files. When one symlinks the other, its target is the map. When neither exists, default to `CLAUDE.md` and present the choice so the user can veto it in one read. The non-map filename only ever exists as a symlink to the map, so both harnesses load the one copy.
 - **Tracker location**, only when no remote settles it. A single GitHub remote settles it (GitHub Issues on that remote).
 - **Context count**, when the code suggests more than one bounded context.
 - **Area labels**, only when the repo has more than one bounded context whose names the tree does not settle. A single-context repo has none.
@@ -47,6 +47,8 @@ Present the findings, then walk only the decisions the repo cannot answer, one p
 For every gap between the found state and the shape, show the exact edit that closes it. Content moves; nothing is invented: an empty glossary, ADR scaffold, or owner doc is nothing to write.
 
 - **The managed block** in the canonical map, delimited by versioned markers (`<!-- bottega:setup v1 begin -->` and `<!-- bottega:setup v1 end -->`) so a rerun updates only its own block. It routes to each fact's home and never restates it, and records the symlink when the non-map file links the map.
+- **A commands section** in the canonical map when the map does not already state them: the project's test, lint, format, typecheck, build, and run commands. Verify each by running it once before it is written, except the run command, which is recorded as found; a non-terminating command proves nothing by being started. The map is the commands' one home; runs read them from it and fix them there when one breaks.
+- **The map symlink** when only one of `CLAUDE.md` and `AGENTS.md` exists: create the other as a symlink to it.
 - **Migrations**: discovered term definitions move into the relevant `CONTEXT.md`; discovered decision records that meet the ADR bar move into `docs/adr/`; two files claiming the same authority merge into one home; every reference updates in the same change. Formats follow `bottega:codebase-design` and its references. When a source and its target both hold material, put the merge to the user before writing.
 - **Owner docs** for tracker conventions, always reusing an existing equivalent home instead of creating a second one.
 - **A `.bottega/` entry in `.gitignore`** when missing.

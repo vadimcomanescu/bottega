@@ -116,7 +116,7 @@ describe("portable worker doctrine", () => {
       "notes",
     ]);
 
-    const FAMILIES = new Set(["anthropic", "openai", "moonshot"]);
+    const FAMILIES = new Set(["anthropic", "openai"]);
     const SCORE = /^([1-9]|10|-)$/;
     const rows = modelTables[0]!.slice(2).map((row) =>
       row.split("|").slice(1, -1).map((cell) => cell.trim()),
@@ -289,7 +289,7 @@ describe("portable worker doctrine", () => {
 
   it("makes the spec a repo file with its naming owned by the spec skill alone", () => {
     const maestro = read("skills/maestro/SKILL.md");
-    expect(maestro).toContain("Invoke bottega:spec once, whole; it ends with the agreed spec committed on the branch.");
+    expect(maestro).toContain("Invoke bottega:spec; it ends with the agreed spec committed on the branch.");
     expect(read("skills/spec/references/spec-format.md")).toContain("Status: agreed YYYY-MM-DD");
 
     const convention = "docs/specs/<YYYY-MM-DD>-<slug>.md";

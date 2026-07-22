@@ -20,7 +20,6 @@ Scores run 1 to 10, higher is better; a dash is a score not yet measured. Intell
 | sonnet-5 | anthropic | 6 | 7 | Cheap tier under Claude Code: mechanical work, exploration, QA drives. |
 | gpt-5.6-terra | openai | 6 | 5 | Cheap tier under Codex. |
 | gpt-5.6-luna | openai | 5 | 4 | Fully specified high-volume work under Codex. |
-| kimi-k3 | moonshot | 8 | - | Candidate, not adopted: half sol's token price, roughly twice the tokens for the same work. |
 
 ## The rules
 
@@ -35,7 +34,7 @@ Scores run 1 to 10, higher is better; a dash is a score not yet measured. Intell
 - These are defaults, not limits. Judge the output, not the price: a worker whose result fails its requirement gets one rerun on a stronger model or higher effort after the failure is diagnosed. Never automatic, never more than one model tier or effort level at a time.
 - No worker dispatch runs on the orchestrator's own model. The review gate's engines are exempt: the gate is mandatory and cross-family, and its models are pinned in skills/autoreview.
 
-## Reaching the pick
+## Dispatch mechanics
 
 First locate yourself: which harness you run in decides the mechanics below.
 
