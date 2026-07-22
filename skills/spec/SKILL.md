@@ -1,7 +1,7 @@
 ---
 name: spec
 argument-hint: "<task, issue URL, or direction>"
-description: Prepare a task for delivery without building it. Explore the codebase and the standard solutions, grill the open decisions, agree a spec, and leave it agreed on a work branch a later run continues. Invoke via /bottega:spec when the user wants work shaped into an agreed spec rather than delivered now. Never invoke proactively; it runs a full discovery and grilling session.
+description: Prepare a task for delivery without building it. Explore the codebase and the standard solutions, grill the open decisions, agree a spec, and leave it agreed on a work branch a later run continues. Invoke bottega:spec when the user wants work shaped into an agreed spec rather than delivered now. Never invoke proactively; it runs a full discovery and grilling session.
 ---
 
 # Spec

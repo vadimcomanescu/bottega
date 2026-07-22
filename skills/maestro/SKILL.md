@@ -1,6 +1,6 @@
 ---
 name: maestro
-description: Take a task, bug, or issue to a delivered PR. Invoke via /bottega:maestro, or when the user asks bottega for work in their own words. Never invoke proactively; a run costs hours of autonomous agent work.
+description: Take a task, bug, or issue to a delivered PR. Invoke bottega:maestro, or when the user asks bottega for work in their own words. Never invoke proactively; a run costs hours of autonomous agent work.
 argument-hint: "<task, or issue URL>"
 ---
 
