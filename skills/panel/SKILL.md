@@ -30,9 +30,9 @@ One seat per model family, and the same `task.md` verbatim to every seat. Every 
 | seat | dispatch (from the repository root) |
 | --- | --- |
 | codex | `codex exec -m gpt-5.6-sol -c model_reasoning_effort=max -s read-only -c tools.web_search=true -C <repo> < task.md > codex-draft.md`, run as tracked background Bash, every path absolute |
-| claude | `claude -p --model claude-fable-5 < task.md > claude-draft.md` |
+| claude | `claude -p --model claude-fable-5 --effort max < task.md > claude-draft.md` |
 
-Another family's CLI installed on the machine takes a further seat under the same task, read-only with its own web search. Inside a run, invoke bottega:routing for each seat's model.
+Another family's CLI installed on the machine takes a further seat under the same task, read-only with its own web search. The seats are the panel's own: a fixed cross-family instrument pins its models here, the way the review gate pins its engines.
 
 ### 3. Fan out
 

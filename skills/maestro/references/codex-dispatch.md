@@ -17,16 +17,15 @@ Builders take `--sandbox danger-full-access`; consultation reads take `--sandbox
 
 ## What every brief carries
 
-- The three brief lines from `skills/maestro` (the safety rule, no piped test commands, name every test you edit), verbatim.
-- The canonical run brief verbatim and the project's domain glossary by absolute path. A summary or reconstruction is a different input and is rejected before dispatch.
+- The dispatch inputs maestro's builder definition names, each by absolute path: the plan, the spec, the owned files, and the project's domain glossary. Pass the files themselves; a summary or reconstruction is a different input and is rejected before dispatch.
 - Role and technology skills by absolute path. A builder gets `skills/building/SKILL.md` and each directly relevant technology skill. Omit an unavailable technology skill. `$CLAUDE_PLUGIN_ROOT`, slash commands, and subagents do not exist for a codex worker; a brief naming any of them stalls the worker. Bulk work a Claude worker would fan out to subagents, a codex brief chunks inline.
 - The gate commands verbatim. The worker runs its own gate, including anything that binds (dev server, integration suite), and watches it pass. Green stays something the worker saw itself.
 - A role-specific output contract ending in a JSON code block, so the `-o` message is parsed instead of hand-read as prose. A builder's fields mirror the report in `skills/building`.
 
 ## The builder brief
 
-A Codex builder is one dispatch that owns the whole assigned slice, same as a Claude builder: read the fixed architecture, glossary, and relevant technology skills; implement test-first inside them; commit the owned files; stop. The brief carries the run's commit message format. The worktree and branch are pre-created (a sonnet dispatch, or your own shell); nothing writes implementation code for the builder.
+A Codex builder is one dispatch that owns the whole assigned job, same as a Claude builder; the brief carries the run's commit message format. The worktree and branch are pre-created (a sonnet dispatch, or your own shell); nothing writes implementation code for the builder.
 
 ## Resuming a codex thread
 
-Implementation repairs from review or QA go back to the appropriate builder with `--resume <thread-id>` when that Codex thread still owns the module; the id is the `thread_id` field of the `thread.started` event in the events file. Never codex's own `--resume` or `--last` selectors, which pick by cwd and grab the wrong session under parallel slices. The thread is context reuse, not a requirement: it lives only in that machine's `CODEX_HOME` and dies with the worker. A dead thread means a fresh dispatch with a self-contained brief carrying the check IDs, evidence, canonical run brief, and prior builder report.
+Implementation repairs from review or QA go back to the appropriate builder with `--resume <thread-id>` when that Codex thread still owns the module; the id is the `thread_id` field of the `thread.started` event in the events file. Never codex's own `--resume` or `--last` selectors, which pick by cwd and grab the wrong session under parallel slices. The thread is context reuse, not a requirement: it lives only in that machine's `CODEX_HOME` and dies with the worker. A dead thread means a fresh dispatch with a self-contained brief carrying the defect, its evidence, the dispatch inputs above, and the prior builder report.

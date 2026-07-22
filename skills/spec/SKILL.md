@@ -14,7 +14,7 @@ When the branch already carries a spec file, start there: show the owner what yo
 
 Read the repo facts first: the smallest map that routes the task (root `CLAUDE.md` or `AGENTS.md`), then `CONTEXT-MAP.md` if present, then only the `CONTEXT.md` glossaries, `docs/adr/` decisions, and `docs/lessons/` records the work touches. Current docs only; archived and superseded ones are history.
 
-Then, on your harness's cheap tier, launch a subagent per job that applies: explore how the affected area of the codebase works today and the precedent it sets; search online for how others solve this problem and where the practice is heading; and read the technology skills in this runtime that match the work. Run the search job on any product-shaped work: the codebase answers how we already do it here, the search answers the standard way.
+Then launch a subagent per job that applies (model and effort per bottega:routing): explore how the affected area of the codebase works today and the precedent it sets; search online for how others solve this problem and where the practice is heading; and read the technology skills in this runtime that match the work. Run the search job on any product-shaped work: the codebase answers how we already do it here, the search answers the standard way.
 
 Read what comes back, then read directly the files any decision hinges on. Verify version-sensitive technology against the installed version and primary vendor docs before a decision relies on it. Every decision is yours; a subagent returns findings, never a decision.
 
@@ -29,6 +29,8 @@ Run this before the grilling, because the owner's answers narrow the direction: 
 ## 3. Grill
 
 List the unknowns the request leaves open: the risks the code, history, or domain point to but the request omits. Then sweep for blind spots: the questions neither you nor the request thought to ask, strongest where the owner is furthest from the domain. Rank everything by impact, and ask earliest where the answer would change the architecture. Resolve each unknown from a repo fact where one exists, searching the project's own precedent before you reach for the user. Put what remains to the user one question at a time, each with your recommended answer, so a reply is a yes or a correction. Keep asking until you can predict the user's acceptance decisions. A decision that reverses an earlier verdict names that verdict and the evidence that changed the call, in the spec.
+
+In an autonomous run there is no owner to ask: resolve each remaining unknown the same way, the repo's precedent first, then the standard way others solve it, and record each resolution with its reason under Decisions; the PR's decisions list is where the owner vetoes later.
 
 ## 4. Prototype a look-or-feel decision
 
