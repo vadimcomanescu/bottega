@@ -8,7 +8,7 @@ This note separates three things: what the corpus argues, what bottega already d
 
 Harness engineering holds a chosen model and coding agent constant as a black box for one adoption epoch, then improves the two external levers around it, context and tools, plus the environment that curates both. Its stated purpose is to get an organization's nonfunctional requirements, the quality bar and constraints that decide whether an outcome belongs in the system, into a form the worker can retrieve. General model weights hold the visible tip of an organization's knowledge; the private, changing process data below it (current state, local ontology, quality bar, exception history, authority relationships) is what a situated job actually needs.
 
-The arguments most load-bearing for a delivery method like bottega's:
+The arguments that matter most for a delivery method like bottega's:
 
 - **Give one agent the whole job.** One primary trajectory owns decomposition, execution, integration, proof, and lifecycle closure. A separate context window earns its cost when it buys independent evidence, chiefly parallel discovery and adversarial review. Delivery is active work, not a handoff: the owner opens the pull request, waits for checks, fixes what it caused, and enters the protected merge path. An instruction to "merge" means completing that path, never an administrative bypass.
 - **Route context just in time.** Keep a large navigable store and a small active working set. A root guide is a map, not a manual. Detailed policy placed in the durable instruction channel competes for attention across the whole job; narrow rules are better surfaced by repository reads, tool output, and failing checks at the decision point.
