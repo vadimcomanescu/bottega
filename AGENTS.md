@@ -53,7 +53,7 @@ The vendored skill directories are symlinked from `.claude/skills` and `.agents/
 
 ## Developing bottega
 
-- A change to what the software does (hooks, scripts, schemas, tests, workflows) is delivered through `/bottega:maestro` on this repo; the run executes the installed version of the method while producing the next. Prose the owner has already shaped in conversation (skills, references, docs) the lead session authors and delivers directly. Either path keeps the floor: a worktree and branch, gates green, one cross-family review of the integrated diff, and a PR the owner merges (`docs/adr/0008-prose-delivers-directly.md`).
+- This repo's product is skills prose read by fable and sol, held by evals and tests. Changes are authored directly with the owner: the conversation shapes the content, the session works in a worktree and branch, `npm test` runs green, and a PR the owner merges delivers it. Review here means reading the diff against `REVIEW.md` and the skill-writing doctrine, a second model family's read when the change warrants it, never the autoreview engine for prose (its own contract exempts prose-only diffs). `/bottega:maestro` remains for changes to what the software does (hooks, scripts, schemas, workflows).
 - Every merge to main is a release, enforced by the release gate (`.github/workflows/release-gate.yml`): the PR bumps `version` in `.claude-plugin/plugin.json` above the base, syncs the README's command table, and the release commit is titled `bottega X.Y.Z: <headline> (#PR)`.
 
 ## Review guidelines
