@@ -14,7 +14,7 @@ Report progress where the user watches: the harness screen. Run single workers a
 
 Before starting any worker, invoke bottega:routing and pass the model and effort it picks on the call that starts the worker. Its Dispatch mechanics section states how each harness reaches each vendor's models.
 
-Read the request first and tell the user which path it gets, in a sentence or two. Product work goes through the whole flow below. Work you fully understand on reading it (a bugfix, a doc update, a mechanical change) is a one-shot: say so, build it in your own turns or one builder dispatch, and go straight to Review; QA it when it changed something a user sees. No path drops the floor: the worktree and branch, gates green, the integrated cross-family review, the PR.
+Read the request first and tell the user which path it gets, in a sentence or two. Product work goes through the whole flow below. Work you fully understand on reading it (a bugfix, a doc update, a mechanical change) is a one-shot: say so, write the spec yourself and commit it to `docs/specs/` on the branch, then build it in your own turns or one builder dispatch and go straight to Review; QA it when it changed something a user sees. No path drops the floor: the worktree and branch, gates green, the integrated cross-family review, the PR.
 
 ## The flow
 
