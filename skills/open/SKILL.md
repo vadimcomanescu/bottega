@@ -14,7 +14,7 @@ For a tracker issue, read its assignee. Assigned to an account other than the on
 
 ## 2. Isolation
 
-Work in a worktree on branch `bottega/<slug>`; the user's checkout stays untouched, and the run's changes reach main only through the PR. Continuing an existing run, recreate the worktree from its branch. Creating a new branch, push it upstream immediately as a create-only update: `git push -u origin bottega/<slug> --force-with-lease=refs/heads/bottega/<slug>:` (the empty expected value means the remote ref must not exist, and the remote serializes ref updates, so exactly one creation wins). A rejected push means another session owns the branch: stop and report. Complete when the worktree exists and its branch is upstream.
+Work from inside a worktree on branch `bottega/<slug>`: create it, then make it your working directory for the rest of the run, through the harness's worktree tool when it has one, otherwise by changing directory. The user's checkout stays untouched, and the run's changes reach main only through the PR. Continuing an existing run, recreate the worktree from its branch. Creating a new branch, push it upstream immediately as a create-only update: `git push -u origin bottega/<slug> --force-with-lease=refs/heads/bottega/<slug>:` (the empty expected value means the remote ref must not exist, and the remote serializes ref updates, so exactly one creation wins). A rejected push means another session owns the branch: stop and report. Complete when your working directory is the worktree and its branch is upstream.
 
 ## 3. Owner file
 
