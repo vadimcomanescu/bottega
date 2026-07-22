@@ -1,10 +1,12 @@
 # QA evidence publication
 
-Attach the QA evidence to the open PR itself. GitHub rehosts each attached file at a `user-attachments` URL independent of any branch, plays MP4, MOV, and WebM inline, and serves attachments on a private repo to every reader who can open the PR. GitHub exposes no API for this upload, so the browser drives it.
+Publish screenshots, walkthrough gifs, and full recordings from the evidence repository: one repository per GitHub owner, `<owner>/bottega-evidence`, holding every run's evidence files and nothing else. It carries no workflows, so a push builds nothing anywhere. Create it on first use (`gh repo create <owner>/bottega-evidence --public`); make it private only when the owner's projects must not expose their interfaces publicly. Commit the run's files under `<project>/<run-slug>/` on the default branch; history only grows, so a commit-pinned URL never breaks.
 
-1. With the harness browser tool, under a GitHub session that can comment on the repo, open the PR and post one evidence comment: per scenario, the verdict, a one-line caption, and the recording or screenshot attached through the comment box.
-2. Reload the PR and confirm every video renders as an inline player and every image displays; a bare filename link means the upload did not take.
+Render each scenario's walkthrough as a gif under 10 MB (split a long drive by scenario) and keep the full recording beside it.
 
-Per-file limits: images and gifs 10 MB; videos 10 MB on a free plan, 100 MB on a paid one. Split a long drive by scenario, or re-encode to fit (H.264 MP4 has the widest browser support).
+With a public evidence repository:
 
-On a machine with no GitHub-authenticated browser session, report the local evidence paths in the close report so the owner can attach them by hand.
+- Embed each gif and screenshot in the PR body with its commit-pinned raw URL and a one-line caption carrying the scenario's verdict. A gif autoplays inline, so the walkthrough plays on the PR itself.
+- Link each full recording beside its gif; GitHub does not play raw video files inline.
+
+With a private evidence repository, GitHub's anonymous image proxy cannot fetch raw URLs, so an inline embed renders for no viewer: link each file's blob page with its caption instead.

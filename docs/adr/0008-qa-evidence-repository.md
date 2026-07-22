@@ -1,0 +1,9 @@
+# QA evidence lives in a dedicated evidence repository
+
+QA evidence lived on a permanent `bottega/evidence-<slug>` branch of the project repository (`0003-permanent-evidence-and-reader-contract.md`). The branch failed in practice: every project workflow triggered on push built the evidence branch, and the never-merging branches accumulated in the project repository forever.
+
+Two replacements were tried and rejected. GitHub comment attachments are the only files GitHub renders as an inline video player, but GitHub exposes no API for that upload, so publishing would hang on a signed-in browser session at close: dead in any headless environment. A hosted walkthrough page (the pattern the hosted coding agents use: the vendor hosts, the PR links out) puts evidence behind one account's login; the owner works across several accounts, so in practice the links were unreachable.
+
+Evidence now lives in one dedicated repository per GitHub owner, `<owner>/bottega-evidence`, holding evidence files and no workflows: a push builds nothing, the project repository carries no evidence branches, and a plain git push with the token every environment already has publishes from anywhere, headless included. The PR embeds commit-pinned raw gif URLs, which autoplay inline, with full recordings linked beside them, since GitHub plays no raw video file inline. The costs: gifs are silent and split to stay under the proxy's size tolerance, and a private evidence repository degrades to linked blob pages because GitHub's anonymous image proxy cannot authenticate (the same constraint ADR 0003 recorded).
+
+This supersedes the evidence-branch half of ADR 0003; its reader contract is unchanged. Evidence branches that already exist stay, because deleting one still kills the images embedded in a delivered PR.
