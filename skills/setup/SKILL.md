@@ -47,9 +47,10 @@ Present the findings, then walk only the decisions the repo cannot answer, one p
 For every gap between the found state and the shape, show the exact edit that closes it. Content moves; nothing is invented: an empty glossary, ADR scaffold, or owner doc is nothing to write.
 
 - **The managed block** in the canonical map, delimited by versioned markers (`<!-- bottega:setup v1 begin -->` and `<!-- bottega:setup v1 end -->`) so a rerun updates only its own block. It routes to each fact's home and never restates it, and records the symlink when the non-map file links the map.
-- **A commands section** in the canonical map when the map does not already state them: the project's test, lint, format, typecheck, build, and run commands. Verify each by running it once before it is written, except the run command, which is recorded as found; a non-terminating command proves nothing by being started. The map is the commands' one home; runs read them from it and fix them there when one breaks.
+- **A commands section** in the canonical map when the map does not already state them: the project's test, lint, format, typecheck, build, and run commands. Verify each by running it once before it is written. The run command is verified from a disposable worktree: start it, watch for readiness, stop it. The map is the commands' one home; runs read them from it and fix them there when one breaks.
 - **The map symlink** when only one of `CLAUDE.md` and `AGENTS.md` exists: create the other as a symlink to it.
 - **Migrations**: discovered term definitions move into the relevant `CONTEXT.md`; discovered decision records that meet the ADR bar move into `docs/adr/`; two files claiming the same authority merge into one home; every reference updates in the same change. Formats follow `bottega:codebase-design` and its references. When a source and its target both hold material, put the merge to the user before writing.
+- **A critical-journeys doc** when the repo ships a user-facing surface and no doc names its journeys: draft the inventory from the code, one journey per user-visible capability, for the owner to correct before it lands, and route to it from the managed block. Runs read it at spec and QA, and a slice that changes a journey owns updating it.
 - **Owner docs** for tracker conventions, always reusing an existing equivalent home instead of creating a second one.
 - **A `.bottega/` entry in `.gitignore`** when missing.
 - **The approved `area:*` labels**, each created with `gh` as get-or-create and read back. Labels organize the backlog for people; the method never reads them. Never rename or delete an existing label.
@@ -64,6 +65,7 @@ Report these; do not fix them here:
 
 - `gh` lacks issue or label permissions on the remote.
 - No project gate command is discoverable. A missing gate is a finding, never an invitation to invent one.
+- The app does not boot from a fresh worktree. QA drives the shipped interface from the run's worktree, so every run inherits this gap until the project fixes it.
 - An index the repo declares for its own agent skills has broken links. Never create such an index or rewrite its shape.
 
 ## Leaves alone

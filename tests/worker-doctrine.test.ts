@@ -313,7 +313,8 @@ describe("portable worker doctrine", () => {
     const review = read("skills/code-review/SKILL.md");
     expect(review).toContain("references/autoreview.md");
     expect(review).toContain("quoting the spec line it rests on");
-    expect(review).toContain("files the lesson and adds a rule");
+    expect(review).toContain("files the lesson and lands the rule at the strongest owner");
+    expect(review).toContain("migrates its population");
 
     // The vendored document is present, carries upstream's identity, and the
     // author's own convergence rule survives verbatim.
@@ -324,7 +325,7 @@ describe("portable worker doctrine", () => {
     // The woven run rules: blind prompt, fresh-builder fix dispatch, rerun to clean.
     expect(autoreview).toContain("never the spec or the plan");
     expect(autoreview).toContain(
-      "dispatches the accepted findings to one fresh builder, briefed as any builder with the building doctrine, the findings, and the project's commands; the maestro never edits production code",
+      "dispatches the accepted findings to one fresh builder, briefed as any builder with the implementing doctrine, the findings, and the project's commands; the maestro never edits production code",
     );
     expect(autoreview).toContain("repeated until the helper exits clean at the accepted head");
   });
