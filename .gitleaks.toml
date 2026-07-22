@@ -9,8 +9,8 @@ useDefault = true
 [allowlist]
 description = "Vendored autoreview test fixtures with synthetic credentials"
 paths = [
-  '''skills/code-review/tests/test_autoreview_hardening\.py''',
-  '''skills/code-review/scripts/autoreview_test\.py''',
-  '''skills/autoreview/tests/test_autoreview_hardening\.py''',
-  '''skills/autoreview/scripts/autoreview_test\.py''',
+  '''^skills/code-review/tests/test_autoreview_hardening\.py$''',
+  '''^skills/code-review/scripts/autoreview_test\.py$''',
+  '''^skills/autoreview/tests/test_autoreview_hardening\.py$''',
+  '''^skills/autoreview/scripts/autoreview_test\.py$''',
 ]
