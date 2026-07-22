@@ -2,7 +2,7 @@
 
 Autonomous issue-to-PR runs for Claude Code and Codex.
 
-`/bottega:maestro` takes a task, bug, or GitHub issue to a reviewed, evidence-backed pull request; spec, review, land, improve, panel, and setup are also available on their own.
+`/bottega:maestro` takes a task, bug, or GitHub issue to a reviewed, evidence-backed pull request; spec, code-review, improve, panel, and setup are also available on their own.
 
 ## Install
 
@@ -35,11 +35,11 @@ Start a new Codex session, invoke `$setup` once to reconcile the repo, then star
 | maestro | `/bottega:maestro <task, or issue URL>` | `$maestro <task, or issue URL>` | The whole pipeline: spec, plan, build, review, QA, delivered PR |
 | spec | `/bottega:spec <task, issue URL, or direction>` | `$spec <task, issue URL, or direction>` | Explore, grill the unknowns, agree the spec, commit it, and file dependency-ordered tickets for later runs |
 | improve | `/bottega:improve [area or direction]` | `$improve [area or direction]` | Scan for deepening opportunities, agree the strongest candidate, file it, and take it through a run |
-| autoreview | `/bottega:autoreview <PR, ref range, or worktree>` | `$autoreview <PR, ref range, or worktree>` | Run the vendored review gate on the working diff, a ref range, or a PR |
+| code-review | `/bottega:code-review <PR, ref range, or worktree>` | `$code-review <PR, ref range, or worktree>` | Review the working diff, a ref range, or a PR through the cross-family gate |
 | panel | `/bottega:panel <the decision>` | `$panel <the decision>` | Produce independent cross-family drafts and a compare-only judgment |
 | setup | `/bottega:setup` | `$setup` | Reconcile the project and register the current harness once per repo |
 
-Maestro and spec are two entry points to one method (explore, grill, agree the spec), defined once in [`skills/spec`](skills/spec/SKILL.md) and invoked whole from either. Maestro carries it through to a delivered PR; spec stops at an agreed spec file committed on a work branch that any later `/bottega:maestro` continues. The spec is that file; an issue is never a spec. During a run, maestro also invokes the internal open, routing, plan, implementing, review, QA, and close skills.
+Maestro and spec are two entry points to one method (explore, grill, agree the spec), defined once in [`skills/spec`](skills/spec/SKILL.md) and invoked whole from either. Maestro carries it through to a delivered PR; spec stops at an agreed spec file committed on a work branch that any later `/bottega:maestro` continues. The spec is that file; an issue is never a spec. During a run, maestro also invokes the open, routing, plan, implementing, code-review, QA, and close skills; code-review is the one users also invoke directly, and the vendored autoreview document under it is the engine every review runs on.
 
 ## What it does
 
@@ -50,7 +50,7 @@ Maestro and spec are two entry points to one method (explore, grill, agree the s
 3. Presents the spec as a live shared document, following the [shared spec format](skills/spec/references/spec-format.md): the user reads it rendered on any device and reviews it in comment threads, with the agent replying in-thread and making agreed changes as tracked edits. A user who declines the hosted editor gets the same review in the conversation. The user's OK, as a reply or a document comment, is the go signal; when the user says to run autonomously, the wait is skipped and the PR presents the spec and every decision where the OK would have gone. The approved spec is committed to `docs/specs/` on the run branch, so it merges with the code it describes.
 4. Models the domain, writes the plan as a file committed on the run branch, cuts vertical slices inside it, and puts each costly decision (where behavior or state belongs, data shape, public contracts, dependency bets) to a panel before building. A fresh reviewer from the other model family then reads the spec, the plan, and the repository cold and answers ready or blockers; the plan is revised and re-read until a pass returns ready or the round cap stops the loop, and each slice's status is committed into it as slices land.
 5. Dispatches builders with one assigned slice, the fixed architecture, the glossary, and relevant technology skills. Builders work test-first and stop at the slice boundary; the project's gates stay green at every integrate.
-6. Checks that every changed user-facing surface updated its docs inside its slice, then reviews the integrated diff through the vendored autoreview skill: one panel invocation, two isolated engines, one per model family, isolated from the builders, their prompt never carrying the spec or the plan, judging against the repository's own review doctrine. A separate fresh worker checks the diff against the agreed spec, quoting the line each finding rests on. The orchestrator verifies every finding, dispatches the accepted ones to a fresh builder, and the reviewer reruns with a single engine until nothing blocking remains.
+6. Checks that every changed user-facing surface updated its docs inside its slice, then reviews the integrated diff through the vendored autoreview document: one panel invocation, two isolated engines, one per model family, isolated from the builders, their prompt never carrying the spec or the plan, judging against the repository's own review doctrine. A separate fresh worker checks the diff against the agreed spec, quoting the line each finding rests on. The orchestrator verifies every finding, dispatches the accepted ones to a fresh builder, and the reviewer reruns with a single engine until nothing blocking remains.
 7. Sends a separate QA worker through that exact head and records the product verdict. QA reports and stops. The orchestrator classifies a failure as environment, implementation, or design before routing a repair; every product change gets fresh review, orchestrator acceptance, and QA.
 8. Opens the PR carrying the spec, every decision made on the user's behalf, the review verdicts, the orchestrator's architecture acceptance, and the QA evidence. The closing step changes no tracked file, so the PR publishes the accepted reviewed head.
 
@@ -74,7 +74,7 @@ A local cross-vendor proxy (CLIProxyAPI) was adopted for this in 0.66.0 and re-d
 
 **No engine.** This repo is Markdown skills, one small guard with per-harness registrations, and GitHub scripts. There is no scheduler, queue, or state machine; orchestration uses the harness's visible subagents, workflows, and tracked background work. Why: any orchestration machinery written here would duplicate the harness and drift from it, and prompts that lean on the harness get its reliability for free.
 
-**Both-family review, always.** The integrated diff is reviewed through one panel invocation of the vendored autoreview skill: two engines, one per model family (Codex and Claude), each reading the same frozen bundle in an isolated sandbox, isolated from the builders and from each other, their prompt never carrying the spec or the plan; they judge against the repository's own review doctrine and the standards baseline. Spec conformance is a separate pass: one fresh worker from the other model family reads the diff against the agreed spec and quotes the line each finding rests on; neither pass sees the other's findings. The orchestrator verifies every finding against the real code path, dispatches the accepted ones to a fresh builder, and the reviewer reruns with a single engine until no blocker remains, under the vendored contract's own pause-and-reclassify rule ([`skills/autoreview/SKILL.md`](skills/autoreview/SKILL.md)). Why: a builder cannot certify the design it implemented, the orchestrator should not be the sole verifier of the design it authored, and a blind defect hunt cannot also certify the agreement it never saw.
+**Both-family review, always.** The integrated diff is reviewed through one panel invocation of the vendored autoreview document: two engines, one per model family (Codex and Claude), each reading the same frozen bundle in an isolated sandbox, isolated from the builders and from each other, their prompt never carrying the spec or the plan; they judge against the repository's own review doctrine and the standards baseline. Spec conformance is a separate pass: one fresh worker from the other model family reads the diff against the agreed spec and quotes the line each finding rests on; neither pass sees the other's findings. The orchestrator verifies every finding against the real code path, dispatches the accepted ones to a fresh builder, and the reviewer reruns with a single engine until no blocker remains, under the vendored contract's own pause-and-reclassify rule ([`skills/code-review/references/autoreview.md`](skills/code-review/references/autoreview.md)). Why: a builder cannot certify the design it implemented, the orchestrator should not be the sole verifier of the design it authored, and a blind defect hunt cannot also certify the agreement it never saw.
 
 **Model routing is enforced, not suggested.** [`skills/routing`](skills/routing/SKILL.md) chooses a model and effort for each worker from its model table and task rules. The route guard rejects a live run owner's worker start when it names no model, and rejects fable as a worker, and fails open when it cannot identify that owner. Why: an omitted model can silently inherit the orchestrator's model, the most expensive one, and in a measured run 103 of 132 dispatches did exactly that before this guard existed.
 
@@ -92,7 +92,7 @@ Skills define the reusable methods and independently invoked capabilities. Refer
 | --- | --- | --- |
 | orchestrator | design, routing, review arbitration, architecture acceptance | [`skills/maestro/SKILL.md`](skills/maestro/SKILL.md) |
 | builder | implements one assigned slice, test-first, inside the orchestrator's fixed architecture | [`skills/implementing/SKILL.md`](skills/implementing/SKILL.md) |
-| review panel | hunts defects in the integrated diff, isolated from the builders, its prompt never carrying the spec | [`skills/autoreview/SKILL.md`](skills/autoreview/SKILL.md) |
+| review panel | hunts defects in the integrated diff, isolated from the builders, its prompt never carrying the spec | [`skills/code-review/references/autoreview.md`](skills/code-review/references/autoreview.md) |
 | qa | drives the built artifact as a user, records the evidence, never edits product code | [`skills/qa/SKILL.md`](skills/qa/SKILL.md) |
 | panel seats and judge | produce independent drafts and compare them without writing the final answer | [`skills/panel/SKILL.md`](skills/panel/SKILL.md) |
 | closer | confirms the accepted head, opens the PR, and watches checks | [`skills/close/SKILL.md`](skills/close/SKILL.md) |
@@ -129,7 +129,7 @@ Every change to this repo ships through `/bottega:maestro` on this repo; the pro
 
 These files are other people's work, copied as they were written and used unchanged. Each copy carries its upstream license file:
 
-- `skills/autoreview/` from [openclaw/agent-skills](https://github.com/openclaw/agent-skills), under `skills/autoreview/LICENSE` (MIT, Copyright (c) 2026 openclaw).
+- the vendored autoreview engine in `skills/code-review/` (`references/autoreview.md`, `scripts/`, `tests/`) from [openclaw/agent-skills](https://github.com/openclaw/agent-skills), under `skills/code-review/LICENSE` (MIT, Copyright (c) 2026 openclaw).
 - `skills/codebase-design/references/CONTEXT-FORMAT.md` and `ADR-FORMAT.md` from [mattpocock/skills](https://github.com/mattpocock/skills), under `skills/codebase-design/references/LICENSE` (MIT, Copyright (c) 2026 Matt Pocock).
 
 Edit either upstream, not here. Bringing in a newer version means copying it again and reading the diff.

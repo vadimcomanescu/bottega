@@ -83,7 +83,8 @@ describe("portable worker doctrine", () => {
       "README.md",
       ...filesUnder("skills", ".md").filter(
         (path) =>
-          !path.startsWith("skills/autoreview/") &&
+          path !== "skills/code-review/references/autoreview.md" &&
+          !path.startsWith("skills/code-review/tests/") &&
           !path.startsWith("skills/writing-great-skills/") &&
           !path.startsWith("skills/codebase-design/references/"),
       ),
@@ -138,7 +139,7 @@ describe("portable worker doctrine", () => {
       expect(routing, `routing must state reach mechanics for ${harness}`).toContain(harness);
     }
 
-    const review = read("skills/autoreview/SKILL.md");
+    const review = read("skills/code-review/references/autoreview.md");
     expect(review).toContain("--model codex=gpt-5.6-sol");
     expect(review).toContain("--model claude=claude-fable-5");
     expect(review, "single-engine reruns must pin fable").toContain(
@@ -257,7 +258,7 @@ describe("portable worker doctrine", () => {
       // the seven possessive determiners: none can begin an imperative verb
       "my", "your", "his", "her", "its", "our", "their",
     ]);
-    const vendored = new Set(["autoreview", "writing-great-skills"]);
+    const vendored = new Set(["writing-great-skills"]);
     const skillDirectories = readdirSync(join(ROOT, "skills"), { withFileTypes: true })
       .filter((entry) => entry.isDirectory() && !vendored.has(entry.name))
       .map((entry) => entry.name);
@@ -306,17 +307,17 @@ describe("portable worker doctrine", () => {
   it("pins the review interlock and its quantifiers", () => {
     const maestro = read("skills/maestro/SKILL.md");
     expect(maestro).toContain("every fixed decision in the plan");
-    expect(maestro).toContain("bottega:review");
+    expect(maestro).toContain("bottega:code-review");
     expect(maestro).toContain("run one simplification pass over the changed files");
 
-    const review = read("skills/review/SKILL.md");
-    expect(review).toContain("bottega:autoreview");
+    const review = read("skills/code-review/SKILL.md");
+    expect(review).toContain("references/autoreview.md");
     expect(review).toContain("quoting the spec line it rests on");
     expect(review).toContain("files the lesson and adds a rule");
 
     // The vendored document is present, carries upstream's identity, and the
     // author's own convergence rule survives verbatim.
-    const autoreview = read("skills/autoreview/SKILL.md");
+    const autoreview = read("skills/code-review/references/autoreview.md");
     expect(autoreview).toContain("name: autoreview");
     expect(autoreview).toContain("# Auto Review");
     expect(autoreview).toContain("two review-triggered patch cycles have not converged");

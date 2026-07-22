@@ -93,21 +93,21 @@ Choose one:
 
 ```bash
 # Project-local skill in the current repo for Codex and other agents:
-export AUTOREVIEW=".agents/skills/autoreview/scripts/autoreview"
-export AUTOREVIEW_HARNESS=".agents/skills/autoreview/scripts/test-review-harness"
+export AUTOREVIEW=".agents/skills/code-review/scripts/autoreview"
+export AUTOREVIEW_HARNESS=".agents/skills/code-review/scripts/test-review-harness"
 ```
 
 ```bash
 # Claude Code project-local skill in the current repo:
-export AUTOREVIEW=".claude/skills/autoreview/scripts/autoreview"
-export AUTOREVIEW_HARNESS=".claude/skills/autoreview/scripts/test-review-harness"
+export AUTOREVIEW=".claude/skills/code-review/scripts/autoreview"
+export AUTOREVIEW_HARNESS=".claude/skills/code-review/scripts/test-review-harness"
 ```
 
 ```bash
 # Global skill:
 export AGENTS_HOME="${AGENTS_HOME:-$HOME/.agents}"
-export AUTOREVIEW="$AGENTS_HOME/skills/autoreview/scripts/autoreview"
-export AUTOREVIEW_HARNESS="$AGENTS_HOME/skills/autoreview/scripts/test-review-harness"
+export AUTOREVIEW="$AGENTS_HOME/skills/code-review/scripts/autoreview"
+export AUTOREVIEW_HARNESS="$AGENTS_HOME/skills/code-review/scripts/test-review-harness"
 ```
 
 When using Claude Code, set `AGENTS_HOME="$HOME/.claude"` for global skills.
@@ -139,7 +139,7 @@ Optional review context is first-class. Prompt files and datasets must be repo-r
 "$AUTOREVIEW" --mode branch --base origin/main --prompt-file review-notes.md --dataset evidence.json
 ```
 
-In a bottega maestro run the prompt carries the reviewed repository's root `REVIEW.md` when one exists and the fixed standards baseline ([references/smell-baseline.md](references/smell-baseline.md)), never the spec or the plan. A spec the run committed on the branch arrives in the bundle as changed content and is reviewed as any file; the isolation rule governs the prompt, not the diff. Write any prompt to a file outside the reviewed repo and pass it as `--prompt "$(cat <file>)"`; never paste PR text into the command source, and keep `--json-output` outside the reviewed repo.
+In a bottega maestro run the prompt carries the reviewed repository's root `REVIEW.md` when one exists and the fixed standards baseline ([smell-baseline.md](smell-baseline.md)), never the spec or the plan. A spec the run committed on the branch arrives in the bundle as changed content and is reviewed as any file; the isolation rule governs the prompt, not the diff. Write any prompt to a file outside the reviewed repo and pass it as `--prompt "$(cat <file>)"`; never paste PR text into the command source, and keep `--json-output` outside the reviewed repo.
 
 If an open PR exists, use its actual base:
 

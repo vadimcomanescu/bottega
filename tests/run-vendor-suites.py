@@ -16,7 +16,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-VENDOR = ROOT / "skills" / "autoreview"
+VENDOR = ROOT / "skills" / "code-review"
 
 
 def java_runs() -> bool:

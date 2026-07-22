@@ -1,12 +1,12 @@
 ---
-name: review
-description: "The review method a run's Review phase invokes whole: the doc-coverage check, the blind both-family autoreview panel, and the independent spec-conformance check, rerun to convergence at one head. Not user-invocable."
-user-invocable: false
+name: code-review
+description: Review a diff through the cross-family gate. Invoke via /bottega:code-review on a PR, ref range, or working diff; a run's Review phase invokes the whole method.
+argument-hint: "<PR, ref range, or worktree>"
 ---
 
-# Review
+# Code Review
 
-Judge the run's integrated diff before QA: close doc-coverage gaps, run the cross-family review, and measure the diff against the agreed spec, rerunning both until nothing blocking remains at one head. The orchestrator invokes this whole and keeps the verdict: verifying findings and accepting or rejecting the head stay its call.
+Review one diff and leave nothing blocking at its head. The engine is vendored in this package: [references/autoreview.md](references/autoreview.md) carries the whole review mechanics and the obligations on the invoking agent, and its helper lives in `scripts/`. Invoked standalone on a PR, ref range, or working diff, run that contract on the target and stop. A run's Review phase invokes the full method below, and the orchestrator keeps the verdict: verifying findings and accepting or rejecting the head stay its call.
 
 ## 1. Doc coverage
 
@@ -14,7 +14,7 @@ Docs were updated inside each slice, so the only doc question here is coverage: 
 
 ## 2. The review
 
-Invoke bottega:autoreview on the integrated diff; its document carries the whole review method: the run's both-family panel, the blind prompt, the fix dispatch to a fresh builder, and the rerun until nothing blocking remains.
+Run the review per [references/autoreview.md](references/autoreview.md) on the integrated diff; that document carries the whole review method: the run's both-family panel, the blind prompt, the fix dispatch to a fresh builder, and the rerun until nothing blocking remains.
 
 ## 3. Spec conformance
 

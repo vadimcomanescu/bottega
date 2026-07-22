@@ -6,4 +6,4 @@ The rule: a diff that is only method prose gets one panel, its fixes, and one re
 
 As of the 575bed0 autoreview sync, the vendored review document carries this rule directly, so it is enforced in the document rather than pending a tracking issue.
 
-Enforced: skills/autoreview/SKILL.md ("Do not require autoreview for a change whose entire diff is prose-only internal notes").
+Enforced: skills/code-review/references/autoreview.md ("Do not require autoreview for a change whose entire diff is prose-only internal notes").
