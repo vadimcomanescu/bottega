@@ -10,7 +10,7 @@ Review one diff and leave nothing blocking at its head. The engine is vendored i
 
 ## 1. Doc coverage
 
-Docs were updated inside each slice, so the only doc question here is coverage: does the diff change a user-facing surface whose docs did not change? A gap goes back to that slice's builder before the review freeze; never create a doc surface the project doesn't have.
+Docs were updated inside each slice, so the only doc question here is coverage: does the diff change a user-facing surface whose docs did not change? A gap is a builder dispatch before the review's base freezes; never create a doc surface the project doesn't have.
 
 ## 2. The review
 
@@ -22,4 +22,4 @@ When the review loop has converged, dispatch the spec-conformance check at that 
 
 ## When a later phase catches what this gate missed
 
-When QA or an incident catches what the review did not, the run files the lesson and adds a rule to the reviewed repository's review doctrine, stating the unsafe behavior, why it matters, and the safe path, placed near the code it governs; deterministic checks go to the project's tooling, never into review rules.
+When QA or an incident catches what the review did not, the run files the lesson and adds a rule to the reviewed repository's review doctrine where one exists, stating the unsafe behavior, why it matters, and the safe path, placed near the code it governs. A repository without a review doctrine gets the rule in the followup issue instead; a gap that keeps recurring is raised there for the owner to decide its home. Deterministic checks go to the project's tooling, never into review rules.
