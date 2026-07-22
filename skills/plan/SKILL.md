@@ -19,5 +19,3 @@ The plan is `docs/plans/<YYYY-MM-DD>-<slug>.md`, committed on the run branch. Wo
 ## 3. Strengthen
 
 Before anything is built, a fresh reviewer picked by bottega:routing reads the agreed spec, the plan, and the repository cold and returns a verdict: ready, or the blockers. Its brief carries the calibration that keeps the verdict honest: you are judged on the correctness of your verdict, not on whether you found something; an invented blocker is as much a failure as a missed one; a blocker is only what a strong maintainer, seeing the plan and your objection side by side, would clearly agree must change. Resolve the blockers you accept, commit the revision, and repeat with new fresh eyes. Ready ends the loop. Five rounds without ready means the plan needs rethinking, not another revision: stop and go back to the domain model.
-
-A run the caller scaled down to one pass skips the panel and this strengthen step; the plan still commits with the work.
