@@ -14,7 +14,7 @@ Scores run 1 to 10, higher is better; a dash is a score not yet measured. Intell
 
 | model | family | intelligence | taste | notes |
 | --- | --- | --- | --- | --- |
-| fable-5 | anthropic | 9 | 9 | The orchestrator's seat and the claude review engine. Priciest row; spent where a wrong answer costs the most downstream. |
+| fable-5 | anthropic | 9 | 9 | The orchestrator's seat, the claude review engine, and the cold plan reviewer under a Codex orchestrator. Priciest row; spent where a wrong answer costs the most downstream. |
 | opus-4.8 | anthropic | 8 | 8 | The user-facing worker. |
 | gpt-5.6-sol | openai | 8 | 6 | The builder. Fast and token-lean at xhigh. |
 | sonnet-5 | anthropic | 6 | 7 | Cheap tier under Claude Code: mechanical work, exploration, QA drives. |
@@ -28,9 +28,10 @@ Scores run 1 to 10, higher is better; a dash is a score not yet measured. Intell
 - User-facing work, which a gate cannot judge and a human judges by looking (UI, wording, API shape, spec and PR prose): opus-4.8 at high. When a planned slice is also user-facing, this rule wins. When the output fails its requirement, the orchestrator redoes that piece in its own turns, and the redo passes the same review as any worker's code.
 - Review gate: both families, pinned in the autoreview document's run rules (claude-fable-5 and gpt-5.6-sol).
 - Spec-conformance check (a run's Review phase): gpt-5.6-sol at high under a Claude orchestrator, opus-4.8 at high under a Codex orchestrator; never the orchestrator's own model.
+- Plan strengthen pass (a run's Plan phase): gpt-5.6-sol at xhigh under a Claude orchestrator, fable-5 at xhigh under a Codex orchestrator; never the orchestrator's own model.
 - QA drive: your harness's cheap tier at its default effort, driving with the tools skills/qa names.
 - Mechanical work and exploration (reads, searches, renames, doc sync, format conversion): your harness's cheap tier at low effort.
-- Cross families to buy capability, never to save cost: reach the other vendor for sol's building, for opus on user-facing work, or for the review gate's engines; cheap work always uses your harness's own cheap tier.
+- Cross families to buy capability, never to save cost: reach the other vendor for sol's building, for opus on user-facing work, for the review gate's engines, or for the cold reads on the plan and the spec; cheap work always uses your harness's own cheap tier.
 - These are defaults, not limits. Judge the output, not the price: a worker whose result fails its requirement gets one rerun on a stronger model or higher effort after the failure is diagnosed. Never automatic, never more than one model tier or effort level at a time.
 - No worker dispatch runs on the orchestrator's own model. The review gate's engines are exempt: the gate is mandatory and cross-family, and its models are pinned in skills/autoreview.
 
