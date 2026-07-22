@@ -1,0 +1,16 @@
+# Repo gitleaks config: the vendored autoreview suites carry synthetic
+# secret-like fixture values (upstream bytes, never edited here). Allowlist
+# their paths, current and historical, so history scans pass without
+# weakening detection elsewhere.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Vendored autoreview test fixtures with synthetic credentials"
+paths = [
+  '''skills/code-review/tests/.*''',
+  '''skills/code-review/scripts/.*''',
+  '''skills/autoreview/tests/.*''',
+  '''skills/autoreview/scripts/.*''',
+]
