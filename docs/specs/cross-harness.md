@@ -2,6 +2,8 @@
 
 Delivered spec. It records the decisions of the cross-harness session: no agent definition files, one portable guard rule, routing as a skill, per-phase dynamic workflows, CLIProxyAPI for cross-vendor models, workers visible on the harness's main screen.
 
+Superseded in part 2026-07-22 by `docs/adr/0007-model-proxy-re-declined.md`: the model proxy is re-declined, covering sections 5 and 6 whole, section 4's proxy step and no-proxy-fallback wording, and section 2's proxy and tracked-background dispatch paths. Cross-vendor dispatch is one foreground CLI call inside a wrapper subagent, never background work.
+
 ## 1. The maestro skill
 
 The delivered text is `skills/maestro/SKILL.md`. This spec points there and carries no copy: an embedded copy drifts as later commits edit the skill.

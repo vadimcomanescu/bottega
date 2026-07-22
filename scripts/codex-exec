@@ -18,9 +18,17 @@
 //
 // codex reads the brief file on stdin; the --json event stream lands in the
 // events file; the final message lands in the out file. A run whose events
-// file stops growing for CODEX_EXEC_STALL_MS (default five minutes) is
+// file stops growing for CODEX_EXEC_STALL_MS (default ten minutes) is
 // killed as hung. --dry-run prints the assembled invocation as JSON and runs
 // nothing.
+//
+// codex is spawned as its own process-group leader, and every kill (stall,
+// events-write failure, or a catchable signal reaching this process) targets
+// the whole group. codex spawns a node-plus-tools subtree; a kill of codex's
+// pid alone leaves that subtree running, so a cancelled dispatch would leak
+// processes. A SIGKILL of this process is not catchable: the detached group
+// then survives as an orphan, and the caller recovers it by killing the pid
+// group from the events file's thread and re-dispatching with --resume.
 
 import { spawn } from "node:child_process";
 import { createWriteStream, existsSync, openSync, readFileSync, writeFileSync } from "node:fs";
@@ -131,7 +139,7 @@ for (const name of ["cwd", "brief", ...(values.schema ? ["schema"] : [])]) {
 // at the same path must never pass verification.
 writeFileSync(values.out, "");
 
-const STALL_MS = Number(process.env.CODEX_EXEC_STALL_MS) || 300000;
+const STALL_MS = Number(process.env.CODEX_EXEC_STALL_MS) || 600000;
 const HEARTBEAT_MS = Number(process.env.CODEX_EXEC_HEARTBEAT_MS) || 60000;
 
 // stdout is piped through this process, not wired straight to the events
@@ -145,15 +153,42 @@ const startedAt = Date.now();
 const child = spawn("codex", argv, {
   cwd: values.cwd,
   stdio: [openSync(values.brief, "r"), "pipe", "inherit"],
+  // Own process group: codex spawns a node-plus-tools subtree, so every kill
+  // must target the group, not codex's pid alone, or the subtree is orphaned.
+  detached: true,
 });
 child.stdout.on("error", () => {}); // a killed child destroys the read side
+
+// Signal the whole group. Falls back to the bare child if the group send
+// fails (the leader already reaped, so the group is gone).
+function killGroup(signal) {
+  if (child.pid === undefined) return;
+  try {
+    process.kill(-child.pid, signal);
+  } catch {
+    try {
+      child.kill(signal);
+    } catch {}
+  }
+}
+
+// A signal reaching this process (the harness cancelling the foreground call,
+// or a shell timeout) must take codex and its subtree down before we exit, so
+// a cancelled dispatch leaves nothing running.
+let terminatedBySignal = false;
+for (const signal of ["SIGTERM", "SIGINT", "SIGHUP"]) {
+  process.on(signal, () => {
+    if (terminatedBySignal) return;
+    terminatedBySignal = true;
+    killGroup("SIGKILL");
+    process.exit(1);
+  });
+}
 // The events file is the run's record. If writing it fails (disk full, an I/O
 // error), the dispatch cannot be verified: kill codex so it is not orphaned
 // and fail cleanly, rather than crash the parent with an uncaught error.
 eventsStream.on("error", (error) => {
-  try {
-    child.kill("SIGKILL");
-  } catch {}
+  killGroup("SIGKILL");
   fail("events file " + values.events + " write failed: " + error.message);
 });
 
@@ -278,7 +313,7 @@ child.stdout.on("end", () => {
 const stallWatchdog = setInterval(() => {
   if (Date.now() - lastData >= STALL_MS) {
     stalled = true;
-    child.kill("SIGKILL");
+    killGroup("SIGKILL");
   }
 }, Math.min(15000, Math.max(50, Math.floor(STALL_MS / 5))));
 

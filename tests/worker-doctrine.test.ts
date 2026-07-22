@@ -134,7 +134,7 @@ describe("portable worker doctrine", () => {
 
     expect(routing).toContain("gpt-5.6-sol at xhigh");
     expect(routing).toContain("pinned in the autoreview document's run rules");
-    for (const harness of ["- Claude Code:", "- Codex:"]) {
+    for (const harness of ["In Claude Code:", "In Codex:"]) {
       expect(routing, `routing must state reach mechanics for ${harness}`).toContain(harness);
     }
 
