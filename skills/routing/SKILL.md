@@ -37,5 +37,8 @@ Scores run 1 to 10, higher is better; a dash is a score not yet measured. Intell
 
 ## Reaching the pick
 
-- Claude Code: Claude models pin per dispatch natively. GPT models arrive as native subagents through the model proxy (bottega:setup), visible on the main screen like any worker; without the proxy, `scripts/codex-exec` runs them as tracked background work with live progress (skills/maestro/references/codex-dispatch.md).
-- Codex: the harness cannot set a model per subagent; every native subagent runs the one default subagent model from config. Set that default to the cheap tier. Any other model is a shell-out as tracked background work: `scripts/codex-exec` for a GPT model, headless claude for a Claude model.
+First locate yourself: which harness you run in decides the mechanics below.
+
+- In Claude Code: Claude models pin per dispatch natively. A GPT model runs through `scripts/codex-exec`, launched from a wrapper subagent (skills/maestro/references/codex-dispatch.md).
+- In Codex: no model pins per subagent; every native subagent runs the one default subagent model from config, so set that default to the cheap tier and dispatch cheap work natively. Every other model is a CLI shell-out from a wrapper subagent: `scripts/codex-exec` for a GPT model, `claude -p "<brief>" --model <model> --effort <effort>` for a Claude model.
+- The wrapper subagent, either harness: one native subagent per worker, your harness's cheap tier at low effort. It runs the shell-out as one foreground call with an explicit timeout covering the whole run, and returns the worker's report verbatim, so the worker holds a visible row from launch to report. Never background the shell-out, from your own turn or the wrapper's: a backgrounded dispatch holds no row and, inside a subagent, never delivers its result (docs/lessons/subagent-background-work-dies-silently.md).

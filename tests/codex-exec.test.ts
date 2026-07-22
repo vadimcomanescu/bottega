@@ -3,12 +3,22 @@
 // traps (resume drops -s and -C silently) are the reason this script exists;
 // both are asserted here.
 import { spawn, spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 
 const SCRIPT = join(import.meta.dirname, "..", "scripts", "codex-exec");
+
+// A process is alive if signal 0 does not throw ESRCH.
+function alive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 const BASE = [
   "--model", "gpt-5.6-sol",
@@ -401,6 +411,63 @@ else {
     // serializes ESC as the six characters backslash u 0 0 1 b).
     const events = readFileSync(join(result.dir, "events.jsonl"), "utf8");
     expect(events).toContain("\\u001b");
+  });
+
+  it("kills codex and its subtree when a signal reaches it, leaving no orphan", async () => {
+    // codex spawns a node-plus-tools subtree; a kill of codex's pid alone
+    // orphans it. codex runs as a group leader and every kill targets the
+    // group, so a signal to codex-exec takes the whole tree down. The stub
+    // spawns a grandchild, both record their pid, both sleep unbounded; after
+    // SIGTERM reaches codex-exec, neither pid is still alive.
+    const dir = mkdtempSync(join(tmpdir(), "codex-exec-test-"));
+    dirs.push(dir);
+    const codexPidFile = join(dir, "codex.pid");
+    const grandchildPidFile = join(dir, "grandchild.pid");
+    const groupStub = `#!/usr/bin/env node
+const { writeFileSync } = require("node:fs");
+const { spawn } = require("node:child_process");
+const out = process.argv.slice(2)[process.argv.slice(2).indexOf("-o") + 1];
+writeFileSync(out, "");
+writeFileSync(${JSON.stringify(codexPidFile)}, String(process.pid));
+// A grandchild in the same process group, sleeping unbounded.
+const grandchild = spawn(process.execPath, ["-e", "setInterval(() => {}, 1e9)"], { stdio: "ignore" });
+writeFileSync(${JSON.stringify(grandchildPidFile)}, String(grandchild.pid));
+process.stdout.write(JSON.stringify({ type: "thread.started", thread_id: "t-grp" }) + "\\n");
+setInterval(() => {}, 1e9);
+`;
+    writeFileSync(join(dir, "codex"), groupStub, { mode: 0o755 });
+    writeFileSync(join(dir, "brief.md"), "the brief");
+    const child = spawn(
+      "node",
+      [
+        SCRIPT,
+        "--model", "gpt-5.6-sol",
+        "--effort", "high",
+        "--sandbox", "read-only",
+        "--cwd", dir,
+        "--brief", join(dir, "brief.md"),
+        "--out", join(dir, "out.txt"),
+        "--events", join(dir, "events.jsonl"),
+      ],
+      { env: { ...process.env, PATH: `${dir}:${process.env.PATH}` }, stdio: "ignore" },
+    );
+    // Wait until both pids are recorded (codex is up and has spawned its child).
+    const deadline = Date.now() + 10000;
+    while (Date.now() < deadline) {
+      if (existsSync(codexPidFile) && existsSync(grandchildPidFile)) break;
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    const codexPid = Number(readFileSync(codexPidFile, "utf8"));
+    const grandchildPid = Number(readFileSync(grandchildPidFile, "utf8"));
+    expect(alive(codexPid)).toBe(true);
+    expect(alive(grandchildPid)).toBe(true);
+
+    child.kill("SIGTERM");
+    await new Promise((resolve) => child.on("exit", resolve));
+    // Give the group kill a beat to propagate before checking liveness.
+    await new Promise((r) => setTimeout(r, 300));
+    expect(alive(codexPid)).toBe(false);
+    expect(alive(grandchildPid)).toBe(false);
   });
 
   it("keeps its exit semantics when the stderr destination is closed early", async () => {

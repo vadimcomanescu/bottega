@@ -64,20 +64,11 @@ The user appears exactly twice: agreeing to the spec, and merging the PR.
 
 Nothing else is assumed about the project. A run leaves nothing behind but the PR, the spec it commits to `docs/specs/`, the plan it commits to `docs/plans/`, and the permanent branch holding QA evidence: working state is the worktree and one gitignored owner file, both removed at delivery.
 
-## Model proxy (optional)
+## Cross-vendor workers
 
-[CLIProxyAPI](https://github.com/router-for-me/CLIProxyAPI) is a local service that authenticates once to Claude and ChatGPT/Codex with OAuth, holds those tokens locally, and serves backed models through both Anthropic-compatible and OpenAI-compatible endpoints. Install its single binary with Homebrew or a release download, authenticate with both providers (the login commands are in the CLIProxyAPI docs), then start the service on localhost.
+Each harness pins its own vendor's models per dispatch natively. The other vendor's models run as one foreground CLI call inside a thin wrapper subagent, one per worker, so every worker holds a visible row for its whole run: under Claude Code, [`scripts/codex-exec`](scripts/codex-exec) dispatches GPT workers; under Codex, headless claude (`claude -p --model <model> --effort <effort>`) dispatches Claude workers. Long builds are covered by raising the shell timeout ceiling in settings (`bottega:setup`); backgrounding the call inside a subagent is banned because it never delivers its result ([`docs/lessons/subagent-background-work-dies-silently.md`](docs/lessons/subagent-background-work-dies-silently.md)). A cloud run whose VM lacks the other family's CLI or login stops at the cross-family review gate and reports the missing family; the integrated review is never waived around it.
 
-Point Claude Code at the Anthropic-compatible endpoint with exactly these two variables. Routing still chooses a model on every dispatch, so do not set `CLAUDE_CODE_SUBAGENT_MODEL`:
-
-```text
-ANTHROPIC_BASE_URL=http://localhost:<port>
-ANTHROPIC_AUTH_TOKEN=<the proxy's local api key>
-```
-
-For Codex, declare a custom model provider in `config.toml` whose `base_url` is the proxy's OpenAI-compatible endpoint. Claude Code can then dispatch GPT models through its native agent UI, while Codex can dispatch Claude models through its native agent UI.
-
-The localhost proxy is unavailable to vendor cloud VMs, so cloud runs use their own family natively and the other family through an available harness fallback, or report that family missing; [spec section 6](docs/specs/cross-harness.md#6-the-honest-part-the-proxy-and-cloud-agents) records the limits and security tradeoffs.
+A local cross-vendor proxy (CLIProxyAPI) was adopted for this in 0.66.0 and re-declined before it ever ran; routing subscription credentials through a third-party client is prohibited by vendor policy and its own tracker records the account bans. [`docs/adr/0007-model-proxy-re-declined.md`](docs/adr/0007-model-proxy-re-declined.md) records the evidence.
 
 ## Design decisions
 
