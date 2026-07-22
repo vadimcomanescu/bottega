@@ -31,7 +31,7 @@ Each claim below names the part of the method that carries it, as of this releas
 - Repository-as-prompt-material is the doctrine in [`skills/codebase-design`](../../skills/codebase-design/SKILL.md): one authoritative home per fact, and the standard solution as the default over a bespoke mechanism.
 - Improving the instructions rather than the output, which the corpus calls observing and rerolling, is maestro's build rule: when a worker's output is bad, fix the instructions that produced it and rerun, never hand-patch the diff.
 - Fixing the class rather than the instance, which the corpus reaches through its account of a repair that left every sibling defect standing, is already in the review contract in [`skills/autoreview`](../../skills/autoreview/SKILL.md): an accepted finding that shows a bug class or repeated pattern requires inspecting the current scope for sibling instances before fixing, and fixing the scoped class at once where practical.
-- Separating capability from authority appears as the route guard in `hooks/`, the worker-reach check in [`skills/open`](../../skills/open/SKILL.md), and the rule that a step touching real users, money, deploys, or production data stops and reports.
+- Separating capability from authority appears as the route guard in `hooks/`, which polices which model may run a worker, the worker-reach check in [`skills/open`](../../skills/open/SKILL.md), and the rule in [`skills/maestro`](../../skills/maestro/SKILL.md) that a step touching real users, money, deploys, or shared or production data stops and reports instead of running.
 
 ## Proposed, not agreed
 
