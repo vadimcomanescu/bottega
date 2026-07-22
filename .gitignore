@@ -2,3 +2,4 @@ node_modules/
 .bottega/
 build-artifacts/
 *.tsbuildinfo
+__pycache__/
