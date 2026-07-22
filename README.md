@@ -39,7 +39,7 @@ Start a new Codex session, invoke `$setup` once to reconcile the repo, then star
 | panel | `/bottega:panel <the decision>` | `$panel <the decision>` | Produce independent cross-family drafts and a compare-only judgment |
 | setup | `/bottega:setup` | `$setup` | Reconcile the project and register the current harness once per repo |
 
-Maestro and spec are two entry points to one method (explore, grill, agree the spec), defined once in [`skills/spec`](skills/spec/SKILL.md) and invoked whole from either. Maestro carries it through to a delivered PR; spec stops at an agreed spec file committed on a work branch that any later `/bottega:maestro` continues. The spec is that file; an issue is never a spec. During a run, maestro also invokes the internal routing, implementing, close, and QA skills.
+Maestro and spec are two entry points to one method (explore, grill, agree the spec), defined once in [`skills/spec`](skills/spec/SKILL.md) and invoked whole from either. Maestro carries it through to a delivered PR; spec stops at an agreed spec file committed on a work branch that any later `/bottega:maestro` continues. The spec is that file; an issue is never a spec. During a run, maestro also invokes the internal open, routing, plan, implementing, review, QA, and close skills.
 
 ## What it does
 

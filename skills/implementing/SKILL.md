@@ -27,6 +27,6 @@ Implement one assigned slice: the simplest correct implementation behind the dom
 
 ## Prove and report
 
-Run focused checks while working and the project's gates after the slice is complete. A browser or desktop drive is optional when it is the shortest debugging loop; the independent product verdict belongs to QA.
+Run focused checks while working and the project's gates after the slice is complete. Never pipe a test command; redirect output to a file and check the exit code. If a step would touch real users, real money, a deploy, or shared or production data, don't run it; report what the step needs and wait. A browser or desktop drive is optional when it is the shortest debugging loop; the independent product verdict belongs to QA.
 
-Commit only owned files. Report `green` or `stuck`, the behavior implemented, red and green evidence, project-gate results, changed tests with their authorizing requirement, files and commit, and unresolved domain or architecture conflicts, including any architectural cause a bug exposed (a missing seam, a shallow module).
+Commit only owned files. Claim `green` only with evidence for each requirement of the slice. Report `green` or `stuck`, the behavior implemented, red and green evidence, project-gate results, changed tests with their authorizing requirement, files and commit, and unresolved domain or architecture conflicts, including any architectural cause a bug exposed (a missing seam, a shallow module).

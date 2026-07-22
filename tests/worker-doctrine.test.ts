@@ -306,23 +306,26 @@ describe("portable worker doctrine", () => {
   it("pins the review interlock and its quantifiers", () => {
     const maestro = read("skills/maestro/SKILL.md");
     expect(maestro).toContain("every fixed decision in the plan");
-    expect(maestro).toContain("bottega:autoreview");
-    expect(maestro).toContain("quoting the spec line it rests on");
+    expect(maestro).toContain("bottega:review");
     expect(maestro).toContain("run one simplification pass over the changed files");
-    expect(maestro).toContain("files the lesson and adds a rule");
+
+    const review = read("skills/review/SKILL.md");
+    expect(review).toContain("bottega:autoreview");
+    expect(review).toContain("quoting the spec line it rests on");
+    expect(review).toContain("files the lesson and adds a rule");
 
     // The vendored document is present, carries upstream's identity, and the
     // author's own convergence rule survives verbatim.
-    const review = read("skills/autoreview/SKILL.md");
-    expect(review).toContain("name: autoreview");
-    expect(review).toContain("# Auto Review");
-    expect(review).toContain("two review-triggered patch cycles have not converged");
+    const autoreview = read("skills/autoreview/SKILL.md");
+    expect(autoreview).toContain("name: autoreview");
+    expect(autoreview).toContain("# Auto Review");
+    expect(autoreview).toContain("two review-triggered patch cycles have not converged");
     // The woven run rules: blind prompt, fresh-builder fix dispatch, rerun to clean.
-    expect(review).toContain("never the spec or the plan");
-    expect(review).toContain(
+    expect(autoreview).toContain("never the spec or the plan");
+    expect(autoreview).toContain(
       "dispatches the accepted findings to one fresh builder, briefed as any builder with the implementing method, the findings, and the project's commands; the maestro never edits production code",
     );
-    expect(review).toContain("repeated until the helper exits clean at the accepted head");
+    expect(autoreview).toContain("repeated until the helper exits clean at the accepted head");
   });
 
   it("keeps every lesson enforced somewhere that exists", () => {
