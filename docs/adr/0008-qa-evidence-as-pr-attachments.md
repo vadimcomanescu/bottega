@@ -1,0 +1,7 @@
+# QA evidence attaches to the PR
+
+QA evidence lived on a permanent `bottega/evidence-<slug>` branch (`0003-permanent-evidence-and-reader-contract.md`) so the PR could embed raw-URL screenshots. The branch failed its purpose in practice: every project workflow triggered on push built the evidence branch, the branch never merged and accumulated forever, and the owner's actual goal, a walkthrough playable from the PR, was unreachable because GitHub renders inline video players only for files uploaded through its own attachment flow, never for raw file URLs.
+
+QA evidence now attaches to the PR directly: close drives the PR page with a browser under an authenticated GitHub session and uploads recordings and screenshots through the comment box, the same flow the hosted coding agents use for their PR screenshots. GitHub rehosts each file at a `user-attachments` URL independent of any branch, plays MP4, MOV, and WebM inline, and serves private-repo attachments to every reader who can open the PR, which also retires ADR 0003's public/private split. The cost is a browser dependency at close, because GitHub exposes no API for attachment upload; a machine without an authenticated browser session reports the local evidence paths to the owner instead of publishing.
+
+This supersedes the evidence-branch half of ADR 0003; its reader contract is unchanged. Evidence branches that already exist stay, because deleting one still kills the images embedded in a delivered PR.
