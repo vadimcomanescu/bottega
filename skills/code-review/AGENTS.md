@@ -1,0 +1,5 @@
+# Vendored autoreview engine
+
+- Upstream source: `openclaw/agent-skills`, under `skills/autoreview`. Vendored inside this code-review package: upstream's SKILL.md lives at `references/autoreview.md`, locally adapted (openclaw material and Windows sections stripped, bottega run rules woven in, helper paths rewritten to this package); `scripts/`, `tests/`, and `LICENSE` are upstream's bytes, re-copied unchanged on every sync. Pinned at upstream revision `98122a3` (as recorded by the import, bottega commit 8b7d021). One sentence was backported from upstream `575bed0` on 2026-07-21 (the exception for diffs that are prose only). A full sync takes the document and the scripts together.
+- `SKILL.md` at this directory's root is bottega's own review method and is not vendored.
+- To sync: re-copy `scripts/`, `tests/`, and `LICENSE` whole, then apply the old-upstream-to-new-upstream diff of upstream's SKILL.md to `references/autoreview.md` and reconcile conflicts by hand. Record the new upstream revision here.

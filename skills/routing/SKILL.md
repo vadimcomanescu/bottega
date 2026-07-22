@@ -32,7 +32,7 @@ Scores run 1 to 10, higher is better; a dash is a score not yet measured. Intell
 - Mechanical work and exploration (reads, searches, renames, doc sync, format conversion): your harness's cheap tier at low effort.
 - Cross families to buy capability, never to save cost: reach the other vendor for sol's building, for opus on user-facing work, for the review gate's engines, or for the cold reads on the plan and the spec; cheap work always uses your harness's own cheap tier.
 - These are defaults, not limits. Judge the output, not the price: a worker whose result fails its requirement gets one rerun on a stronger model or higher effort after the failure is diagnosed. Never automatic, never more than one model tier or effort level at a time.
-- No worker dispatch runs on the orchestrator's own model. The review gate's engines are exempt: the gate is mandatory and cross-family, and its models are pinned in skills/autoreview.
+- No worker dispatch runs on the orchestrator's own model. The review gate's engines are exempt: the gate is mandatory and cross-family, and its models are pinned in skills/code-review/references/autoreview.md.
 
 ## Dispatch mechanics
 

@@ -1,7 +1,7 @@
 ---
 name: improve
 argument-hint: "<optional area or direction>"
-description: Scan a codebase for deepening opportunities, present the strongest candidates, agree one, then open a tracker issue and take it through a run. Invoke via /bottega:improve when the user wants the codebase scanned for what to improve next. Never invoke proactively; it opens a run, which costs hours of autonomous agent work.
+description: Scan a codebase for deepening opportunities, present the strongest candidates, agree one, then open a tracker issue and take it through a run. Invoke bottega:improve when the user wants the codebase scanned for what to improve next. Never invoke proactively; it opens a run, which costs hours of autonomous agent work.
 ---
 
 # Improve
