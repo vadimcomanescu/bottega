@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review a diff through the vendored review gate. Invoke via /bottega:code-review on a PR, ref range, or working diff; a run's Review phase invokes the whole method.
+description: Review a diff through the vendored review gate. Invoke bottega:code-review on a PR, ref range, or working diff; a run's Review phase invokes the whole method.
 argument-hint: "<PR, ref range, or worktree>"
 ---
 
