@@ -18,9 +18,9 @@ Builders take `--sandbox danger-full-access`; consultation reads take `--sandbox
 ## What every brief carries
 
 - The dispatch inputs maestro's builder definition names, each by absolute path: the plan, the spec, the owned files, and the project's domain glossary. Pass the files themselves; a summary or reconstruction is a different input and is rejected before dispatch.
-- Role and technology skills by absolute path. A builder gets `skills/building/SKILL.md` and each directly relevant technology skill. Omit an unavailable technology skill. `$CLAUDE_PLUGIN_ROOT`, slash commands, and subagents do not exist for a codex worker; a brief naming any of them stalls the worker. Bulk work a Claude worker would fan out to subagents, a codex brief chunks inline.
+- Role and technology skills by absolute path. A builder gets `skills/implementing/SKILL.md` and each directly relevant technology skill. Omit an unavailable technology skill. `$CLAUDE_PLUGIN_ROOT`, slash commands, and subagents do not exist for a codex worker; a brief naming any of them stalls the worker. Bulk work a Claude worker would fan out to subagents, a codex brief chunks inline.
 - The gate commands verbatim. The worker runs its own gate, including anything that binds (dev server, integration suite), and watches it pass. Green stays something the worker saw itself.
-- A role-specific output contract ending in a JSON code block, so the `-o` message is parsed instead of hand-read as prose. A builder's fields mirror the report in `skills/building`.
+- A role-specific output contract ending in a JSON code block, so the `-o` message is parsed instead of hand-read as prose. A builder's fields mirror the report in `skills/implementing`.
 
 ## The builder brief
 

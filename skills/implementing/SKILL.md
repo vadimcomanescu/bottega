@@ -1,10 +1,10 @@
 ---
-name: building
-description: Builder doctrine for one dispatched job in a bottega run, an assigned slice or a repair. Use when dispatched to build or fix code.
+name: implementing
+description: Implementation doctrine for one dispatched job in a bottega run, an assigned slice or a repair. Use when dispatched to build or fix code.
 user-invocable: false
 ---
 
-# Building
+# Implementing
 
 Build what the dispatch asks: one slice of the plan, or one repair.
 
@@ -30,8 +30,10 @@ Fix a blatant bug sitting in your path and say so in your report. Anything bigge
 
 Stuck is a report, not a loop: three failed attempts, or the plan conflicts with the code, stop and ask the orchestrator; it answers and resumes you.
 
+Keep the loop tight: iterate against focused checks on the code you are changing, and save the full gates for the end.
+
 Before you run the gates, reread your diff against the ladder: anything a lower rung already provides, or the dispatch never asked for, comes out now.
 
 Done means proven: the project's gates run and you watched them pass. Redirect test output to a file and check the exit code; never pipe it. A step touching real users, real money, a deploy, or shared or production data: report what it needs instead of running it.
 
-Report: what you built, red and green evidence, gate results, any test you changed and why, your commit (owned files only), and anything unresolved.
+Report: what you built, red and green evidence, gate results, any test you changed and why, your commit (owned files only), what the plan, spec, or map should have told you and did not, and anything unresolved.
