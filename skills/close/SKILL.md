@@ -10,7 +10,7 @@ Take the accepted, QA-verified head to a PR that is open, readable, its checks g
 
 ## Reader contract
 
-Every artifact close writes for a reader outside the run (the PR body, each followup issue) obeys one rule:
+Every artifact close writes for a reader outside the run (the PR body, the evidence comment, each followup issue) obeys one rule:
 
 > Write for a reader who was not in the run and has not read the spec. Define every non-standard term where it is used, or link the file, ADR, or issue that defines it. Never use a label the document does not itself define. When you cite a prior decision, link its record. State what the diff cannot show; cut what the diff already shows.
 
