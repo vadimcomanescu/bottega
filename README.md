@@ -111,7 +111,7 @@ scripts/          single assembly points for GitHub mutations
 tests/            the verification gate's suites
 docs/adr/         append-only decision records
 docs/specs/       the delivered specs, versioned with the code they describe
-docs/research/    primary-source notes supporting worker doctrine
+docs/research/    readings of outside work, each dated and pinned to its source
 ```
 
 ## Development

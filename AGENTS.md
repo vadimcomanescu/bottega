@@ -27,6 +27,7 @@ Autonomous issue-to-PR runs across Claude Code and Codex: `/bottega:maestro` tak
 | `docs/lessons/` | Failure records: what happened, the rule, and where the rule is enforced | Shaping new work in spec or plan, and when a run diagnoses a failure worth keeping |
 | `docs/specs/` | The delivered specs, versioned with the code they describe | Reading what a feature was agreed to do, or grounding a new spec |
 | `docs/plans/` | The delivered plans, each carrying its slices and their landed status | Reading how a delivered change was built, or resuming a run |
+| `docs/research/` | Readings of outside work: what a source says, what bottega concluded, and when | Before researching a question from scratch, or when a proposal cites outside practice |
 | `tests/` | The verification gate's suites | Any change; the gate pins doctrine and script contracts |
 
 The vendored skill directories are symlinked from `.claude/skills` and `.agents/skills` so every runtime loads the one copy.

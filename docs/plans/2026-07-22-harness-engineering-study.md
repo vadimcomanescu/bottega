@@ -45,4 +45,4 @@ No proposal is implemented. No skill, hook, or test changes to enforce one. No A
 
 ## Status
 
-Slice 1: in progress.
+Slice 1: landed.
