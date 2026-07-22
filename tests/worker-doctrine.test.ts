@@ -324,7 +324,7 @@ describe("portable worker doctrine", () => {
     // The woven run rules: blind prompt, fresh-builder fix dispatch, rerun to clean.
     expect(autoreview).toContain("never the spec or the plan");
     expect(autoreview).toContain(
-      "dispatches the accepted findings to one fresh builder, briefed as any builder with the implementing method, the findings, and the project's commands; the maestro never edits production code",
+      "dispatches the accepted findings to one fresh builder, briefed as any builder with the building doctrine, the findings, and the project's commands; the maestro never edits production code",
     );
     expect(autoreview).toContain("repeated until the helper exits clean at the accepted head");
   });

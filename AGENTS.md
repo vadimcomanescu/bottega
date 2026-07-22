@@ -14,7 +14,7 @@ Autonomous issue-to-PR runs across Claude Code and Codex: `/bottega:maestro` tak
 | `skills/plan/SKILL.md` | The plan method a run's Plan phase invokes whole: model the domain, commit the plan on the run branch, strengthen it with cross-family passes until ready or its round cap; not user-invocable | Anything touches how a plan is modeled, committed, or strengthened |
 | `skills/improve/SKILL.md` | `/bottega:improve`, one agreed improvement filed as an issue and handed to run | Changing how improvements are found or handed off |
 | `skills/setup/SKILL.md` | `/bottega:setup`, one-time reconciliation of a machine and repo with the methodology (harness CLIs, skill discovery, route guard, dispatch timeout ceiling, then the repo docs and labels) | Changing what setup writes or verifies |
-| `skills/implementing` | Builder method shared by Claude and Codex workers | Changing how builders work a slice |
+| `skills/building` | Builder doctrine shared by Claude and Codex workers | Changing how builders work a slice or a repair |
 | `skills/code-review/` | The review package: `SKILL.md` is the method, standalone `/bottega:code-review` on a PR, ref range, or working diff, and the run's Review phase invoking it whole (doc coverage, the blind panel, the spec-conformance check, rerun to one converged head); `references/autoreview.md` is the vendored engine document, with the helper `scripts/` and `tests/` beside it (sync contract in the directory's `AGENTS.md`); see README Credits | Anything touches review method, sequencing, the conformance check, engine mechanics, inputs, fix dispatch, PR threads, or merge verification |
 | `skills/qa/SKILL.md` | QA method and limits: drive the shipped interface, return PASS/FAIL/NOT VERIFIED per scenario, forbidden actions; run's QA phase routes here | Anything touches QA driving, evidence, or limits |
 | `skills/close/SKILL.md` | The closing method a run's Close phase routes to: confirm the accepted head, file followups, open the PR under the reader contract, watch its checks; not user-invocable | Anything touches PR opening, followup filing, the reader contract, or the check watch |
@@ -53,7 +53,7 @@ The vendored skill directories are symlinked from `.claude/skills` and `.agents/
 
 ## Developing bottega
 
-- Every change to this repo is delivered through `/bottega:maestro` on this repo. The run executes the installed version of the method while producing the next. There is no manual path; trivial work scales down inside a run, never outside one (`docs/adr/0001-deliver-through-run.md`).
+- This repo's product is skills prose read by fable and sol, held by evals and tests. Changes are authored directly with the owner: the conversation shapes the content, the session works in a worktree and branch, `npm test` runs green, and a PR the owner merges delivers it. Review here means reading the diff against `REVIEW.md` and the skill-writing doctrine, a second model family's read when the change warrants it, never the autoreview engine for prose (its own contract exempts prose-only diffs). `/bottega:maestro` remains for changes to what the software does (hooks, scripts, schemas, workflows).
 - Every merge to main is a release, enforced by the release gate (`.github/workflows/release-gate.yml`): the PR bumps `version` in `.claude-plugin/plugin.json` above the base, syncs the README's command table, and the release commit is titled `bottega X.Y.Z: <headline> (#PR)`.
 
 ## Review guidelines
