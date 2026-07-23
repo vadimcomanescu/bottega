@@ -14,7 +14,7 @@ Scores run 1 to 10, higher is better; a dash is a score not yet measured. Intell
 
 | model | family | intelligence | taste | notes |
 | --- | --- | --- | --- | --- |
-| fable-5 | anthropic | 9 | 9 | The orchestrator's seat, a panel seat, the claude review engine, and the cold plan reviewer under a Codex orchestrator. Priciest row; spent where a wrong answer costs the most downstream. |
+| fable-5 | anthropic | 9 | 9 | The orchestrator's seat, a panel seat, the claude review engine, and the cold plan editor under a Codex orchestrator. Priciest row; spent where a wrong answer costs the most downstream. |
 | opus-4.8 | anthropic | 8 | 8 | The user-facing worker. |
 | gpt-5.6-sol | openai | 8 | 6 | The builder. Fast and token-lean at xhigh. |
 | sonnet-5 | anthropic | 6 | 7 | Cheap tier under Claude Code: mechanical work, exploration, QA drives. |

@@ -1,6 +1,6 @@
 ---
 name: plan
-description: The plan method a run's Plan phase invokes whole. Model the domain, commit the plan on the run branch, and strengthen it with fresh cross-family passes until one returns ready or the round cap stops the loop. Not user-invocable.
+description: The plan method a run's Plan phase invokes whole. Model the domain, commit the plan on the run branch, and strengthen it with fresh cross-family editor passes until one approves or the fifth round locks it. Not user-invocable.
 user-invocable: false
 ---
 
@@ -18,4 +18,4 @@ The plan is `docs/plans/<YYYY-MM-DD>-<slug>.md`, committed on the run branch. Wo
 
 ## 3. Strengthen
 
-Before anything is built, a fresh reviewer picked by bottega:routing reads the agreed spec, the plan, and the repository cold and returns a verdict: ready, or the blockers. Its brief carries the calibration that keeps the verdict honest: you are judged on the correctness of your verdict, not on whether you found something; an invented blocker is as much a failure as a missed one; a blocker is only what a strong maintainer, seeing the plan and your objection side by side, would clearly agree must change. Resolve the blockers you accept, commit the revision, and repeat with new fresh eyes. Ready ends the loop. Five rounds without ready means the plan needs rethinking, not another revision: stop and go back to the domain model.
+Before anything is built, a fresh editor picked by bottega:routing reads the agreed spec, the plan, and the repository cold and returns the plan approved unchanged or rewritten whole. The rewrite is the only way to object: a finding too small to justify one is dropped, and an editor who would change little approves. Read the rewrite against the current plan, take the changes you accept (the domain model and architecture stay your call), commit, and repeat with new fresh eyes. Approval ends the loop, and the fifth round ends it regardless: the plan stands as committed.
