@@ -38,6 +38,7 @@ Start a new Codex session, invoke `$setup` once to reconcile the repo, then star
 | code-review | `/bottega:code-review <PR, ref range, or worktree>` | `$code-review <PR, ref range, or worktree>` | Review the working diff, a ref range, or a PR through the vendored review gate |
 | panel | `/bottega:panel <the decision>` | `$panel <the decision>` | Produce independent cross-family drafts and a compare-only judgment |
 | setup | `/bottega:setup` | `$setup` | Reconcile the project and register the current harness once per repo |
+| bro | `/bottega:bro` | `$bro` | Restate the last reply in plain language, no jargon |
 
 Maestro and spec are two entry points to one method (explore, grill, agree the spec), defined once in [`skills/spec`](skills/spec/SKILL.md) and invoked whole from either. Maestro carries it through to a delivered PR; spec stops at an agreed spec file committed on a work branch that any later `/bottega:maestro` continues. The spec is that file; an issue is never a spec. During a run, maestro also invokes the open, routing, plan, implementing, code-review, QA, and close skills; code-review is the one users also invoke directly, and the vendored autoreview document under it is the engine every review runs on.
 

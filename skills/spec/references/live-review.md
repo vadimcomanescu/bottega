@@ -15,7 +15,7 @@ Create the shared document from the local file, failing closed on an HTTP error.
       || { echo "publish returned no slug or token"; exit 1; }
     printf '%s' "$RESP" | jq -r '.tokenUrl'
 
-The `tokenUrl` is a live access credential: it grants edit rights to anyone who holds it. Hand it to the owner in the session conversation only, and never write it into an issue, a PR, a log, or any other durable surface. When the create response carries `_links`, prefer those API paths over the literal routes below if they ever differ.
+The `tokenUrl` is a live access credential: it grants edit rights to anyone who holds it. Hand it to the owner in the session conversation only, and never write it into an issue, a PR, a log, or any other durable surface. When an agent-scoped response (`/presence`, `/state`) carries `_links`, prefer those API paths over the literal routes below if they ever differ; the create response's `_links` advertise the web surface, not these routes.
 
 Bind your display name once with `POST /api/agent/$SLUG/presence` (`x-share-token`, `X-Agent-Id`, body `{"name":"...","status":"reading"}`).
 
