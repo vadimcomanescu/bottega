@@ -4,7 +4,7 @@ description: Review a diff through the vendored review gate. Invoke bottega:code
 argument-hint: "<PR, ref range, or worktree>"
 ---
 
-# Code Review
+# Code review
 
 Review one diff and leave nothing blocking at its head. The engine is vendored in this package: [references/autoreview.md](references/autoreview.md) carries the whole review mechanics and the obligations on the invoking agent, and its helper lives in `scripts/`. Invoked standalone on a PR, ref range, or working diff, run that contract on the target and stop. A run's Review phase invokes the full method below, and the orchestrator keeps the verdict: verifying findings and accepting or rejecting the head stay its call.
 
@@ -20,4 +20,4 @@ Severity gates that loop. An accepted finding that blocks (correctness, security
 
 ## 3. Spec conformance
 
-When the review loop has converged, dispatch the spec-conformance check at that head: one fresh worker (model and effort per bottega:routing) reads the diff and the agreed spec and reports what is missing or partial, what nobody asked for, and what looks wrong, each finding quoting the spec line it rests on. It never sees the review's findings and nothing reranks across the two. An accepted conformance blocker goes to a fresh builder and the gates like any review finding; the reviewer then reruns at the new head, and the conformance check reruns after it.
+When the review loop has converged, dispatch the spec-conformance check at that head: one fresh worker (model and effort per `bottega:routing`) reads the diff and the agreed spec and reports what is missing or partial, what nobody asked for, and what looks wrong, each finding quoting the spec line it rests on. It never sees the review's findings and nothing reranks across the two. An accepted conformance blocker goes to a fresh builder and the gates like any review finding; the reviewer then reruns at the new head, and the conformance check reruns after it.

@@ -1,18 +1,24 @@
 ---
 name: improve
-argument-hint: "<optional area or direction>"
 description: Scan a codebase for deepening opportunities, present the strongest candidates, agree one, then open a tracker issue and take it through a run. Invoke bottega:improve when the user wants the codebase scanned for what to improve next. Never invoke proactively; it opens a run, which costs hours of autonomous agent work.
+argument-hint: "<optional area or direction>"
 ---
 
 # Improve
 
 Surface deepening opportunities: refactors that turn shallow modules into deep ones, so the codebase gets easier to test and to navigate. Agree the strongest with the user, file it, and hand it to a run.
 
-**Read.** Start with the smallest map that routes you (root `CLAUDE.md` or `AGENTS.md`), then read only what the scan needs: the relevant `CONTEXT.md` glossaries, the `docs/adr/` decisions covering the code you will touch, the doc the repository names as its documentation authority, and the tracker's labelling conventions.
+## 1. Read
 
-**Scope.** The user's named direction wins: scope to it. Without one, walk the commit history for hot spots (the files and modules that churn) and bias the scan there; a change scattered across the history widens the net. Deepening pays off where change keeps happening.
+Start with the smallest map that routes you (root `CLAUDE.md` or `AGENTS.md`), then read only what the scan needs: the relevant `CONTEXT.md` glossaries, the `docs/adr/` decisions covering the code you will touch, the doc the repository names as its documentation authority, and the tracker's labelling conventions.
 
-**Scan.** Read the scoped code and note where you experience friction, in the vocabulary of [`bottega:codebase-design`](../codebase-design/SKILL.md):
+## 2. Scope
+
+The user's named direction wins: scope to it. Without one, walk the commit history for hot spots (the files and modules that churn) and bias the scan there; a change scattered across the history widens the net. Deepening pays off where change keeps happening.
+
+## 3. Scan
+
+Read the scoped code and note where you experience friction, in the vocabulary of `bottega:codebase-design`:
 
 - understanding one concept requires bouncing between many small modules;
 - a module's interface is nearly as complex as its implementation; apply the deletion test: would deleting it concentrate the complexity, or just move it?
@@ -26,10 +32,16 @@ Surface deepening opportunities: refactors that turn shallow modules into deep o
 
 ADRs constrain the scan: surface a conflict with an ADR only when the friction justifies reopening it, and name the ADR.
 
-**Collisions.** Check open issues and PRs before proposing. An improvement already tracked or already in flight is not a finding.
+## 4. Check collisions
 
-**Propose.** Present the strongest candidates in the conversation, each a coherent unit per [`bottega:codebase-design`](../codebase-design/SKILL.md): the files, the friction with its evidence, the change in product terms (interface design belongs to the run), the gain in leverage and locality, and a strength: strong, worth exploring, or speculative. Lead with the candidate you would take first and why. No HTML, no file report. The user picks one or rejects.
+Check open issues and PRs before proposing. An improvement already tracked or already in flight is not a finding.
+
+## 5. Propose
+
+Present the strongest candidates in the conversation, each a coherent unit per `bottega:codebase-design`: the files, the friction with its evidence, the change in product terms (interface design belongs to the run), the gain in leverage and locality, and a strength: strong, worth exploring, or speculative. Lead with the candidate you would take first and why. No HTML, no file report. The user picks one or rejects.
 
 When the user rejects a candidate for a reason a future scan would need, offer to record it as an ADR so the candidate is not re-proposed. Improve writes that ADR itself: a rejected candidate never reaches a run. Skip ephemeral reasons.
 
-**Hand off.** On the user's pick, create one tracker issue carrying that candidate, labelled for its area per the repository's conventions. Write for a reader who was not in this session: define or link every non-standard term. Then invoke `/bottega:maestro` on that issue. Improve never claims the issue; run acquires the claim itself. Report the issue and a one-line summary.
+## 6. Hand off
+
+On the user's pick, create one tracker issue carrying that candidate, labelled for its area per the repository's conventions. Write for a reader who was not in this session: define or link every non-standard term. Then invoke `bottega:maestro` on that issue. Improve never claims the issue; run acquires the claim itself. Report the issue and a one-line summary.

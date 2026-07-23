@@ -28,7 +28,7 @@ Scores run 1 to 10, higher is better; a dash is a score not yet measured. Intell
 - Review gate: both families, pinned in the autoreview document's run rules (claude-fable-5 and gpt-5.6-sol).
 - Spec-conformance check (a run's Review phase): gpt-5.6-sol at high under a Claude orchestrator, opus-4.8 at high under a Codex orchestrator; never the orchestrator's own model.
 - Plan strengthen pass (a run's Plan phase): gpt-5.6-sol at xhigh under a Claude orchestrator, fable-5 at xhigh under a Codex orchestrator; never the orchestrator's own model.
-- QA drive: your harness's cheap tier at its default effort, driving with the tools skills/qa names.
+- QA drive: your harness's cheap tier at its default effort, driving with the tools `bottega:qa` names.
 - Mechanical work and exploration (reads, searches, renames, doc sync, format conversion): your harness's cheap tier at low effort.
 - Cross families to buy capability, never to save cost: reach the other vendor for sol's building, for opus on user-facing work, for the review gate's engines, or for the cold reads on the plan and the spec; cheap work always uses your harness's own cheap tier.
 - These are defaults, not limits. Judge the output, not the price: a worker whose result fails its requirement gets one rerun on a stronger model or higher effort after the failure is diagnosed. Never automatic, never more than one model tier or effort level at a time.
@@ -38,6 +38,6 @@ Scores run 1 to 10, higher is better; a dash is a score not yet measured. Intell
 
 First locate yourself: which harness you run in decides the mechanics below.
 
-- In Claude Code: Claude models pin per dispatch natively. A GPT model runs through `scripts/codex-exec`, launched from a wrapper subagent (skills/maestro/references/codex-dispatch.md).
+- In Claude Code: Claude models pin per dispatch natively. A GPT model runs through `scripts/codex-exec`, launched from a wrapper subagent ([skills/maestro/references/codex-dispatch.md](../maestro/references/codex-dispatch.md)).
 - In Codex: no model pins per subagent; every native subagent runs the one default subagent model from config, so set that default to the cheap tier and dispatch cheap work natively. Every other model is a CLI shell-out from a wrapper subagent: `scripts/codex-exec` for a GPT model, `claude -p "<brief>" --model <model> --effort <effort>` for a Claude model.
-- The wrapper subagent, either harness: one native subagent per worker, your harness's cheap tier at low effort. It runs the shell-out as one foreground call with an explicit timeout covering the whole run, and returns the worker's report verbatim, so the worker holds a visible row from launch to report. Never background the shell-out, from your own turn or the wrapper's: a backgrounded dispatch holds no row and, inside a subagent, never delivers its result (docs/lessons/subagent-background-work-dies-silently.md).
+- The wrapper subagent, either harness: one native subagent per worker, your harness's cheap tier at low effort. It runs the shell-out as one foreground call with an explicit timeout covering the whole run, and returns the worker's report verbatim, so the worker holds a visible row from launch to report. Never background the shell-out, from your own turn or the wrapper's: a backgrounded dispatch holds no row and, inside a subagent, never delivers its result ([docs/lessons/subagent-background-work-dies-silently.md](../../docs/lessons/subagent-background-work-dies-silently.md)).

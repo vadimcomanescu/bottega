@@ -288,7 +288,7 @@ describe("portable worker doctrine", () => {
 
   it("makes the spec a repo file with its naming owned by the spec skill alone", () => {
     const maestro = read("skills/maestro/SKILL.md");
-    expect(maestro).toContain("Invoke bottega:spec; it ends with the agreed spec committed on the branch.");
+    expect(maestro).toContain("Invoke `bottega:spec`; it ends with the agreed spec committed on the branch.");
     expect(read("skills/spec/references/spec-format.md")).toContain("Status: agreed YYYY-MM-DD");
 
     const convention = "docs/specs/<YYYY-MM-DD>-<slug>.md";
