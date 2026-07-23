@@ -21,9 +21,3 @@ Severity gates that loop. An accepted finding that blocks (correctness, security
 ## 3. Spec conformance
 
 When the review loop has converged, dispatch the spec-conformance check at that head: one fresh worker (model and effort per bottega:routing) reads the diff and the agreed spec and reports what is missing or partial, what nobody asked for, and what looks wrong, each finding quoting the spec line it rests on. It never sees the review's findings and nothing reranks across the two. An accepted conformance blocker goes to a fresh builder and the gates like any review finding; the reviewer then reruns at the new head, and the conformance check reruns after it.
-
-## When a later phase catches what this gate missed
-
-When QA or an incident catches what the review did not, the run files the lesson and lands the rule at the strongest owner the repository supports. A deterministic invariant becomes a check in the project's tooling, failing with the violated invariant and the repair; judgment that stays contextual becomes a rule in the repository's review doctrine where one exists, stating the unsafe behavior, why it matters, and the safe path, placed near the code it governs. A repository with neither home gets the rule in the followup issue instead; a gap that keeps recurring is raised there for the owner to decide its home.
-
-A rule that lands migrates its population: the tree teaches the forbidden pattern for as long as instances remain, so the run fixes the instances in its scope and files one issue for the rest.

@@ -310,11 +310,12 @@ describe("portable worker doctrine", () => {
     expect(maestro).toContain("bottega:code-review");
     expect(maestro).toContain("run one simplification pass over the changed files");
 
+    expect(maestro).toContain("files the lesson and lands the rule at the strongest owner");
+    expect(maestro).toContain("migrates its population");
+
     const review = read("skills/code-review/SKILL.md");
     expect(review).toContain("references/autoreview.md");
     expect(review).toContain("quoting the spec line it rests on");
-    expect(review).toContain("files the lesson and lands the rule at the strongest owner");
-    expect(review).toContain("migrates its population");
 
     // The vendored document is present, carries upstream's identity, and the
     // author's own convergence rule survives verbatim.
