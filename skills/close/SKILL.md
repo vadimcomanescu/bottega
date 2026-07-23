@@ -42,7 +42,7 @@ Compose the body to a file and open it with `gh pr create -F <file>`, never inli
 - how panel evidence changed the plan, when a panel ran;
 - who built and who reviewed: models, rounds, findings, verdicts, refutations;
 - the orchestrator's architecture acceptance;
-- the QA evidence, embedded or linked per the evidence reference.
+- the QA evidence, embedded or linked per the evidence reference, and its limits: the scenarios returned NOT VERIFIED and any claimed behavior no evidence covers.
 
 A Followups section links the issues just filed and nothing else. Keep tool, model, and vendor attribution badges and footers out.
 

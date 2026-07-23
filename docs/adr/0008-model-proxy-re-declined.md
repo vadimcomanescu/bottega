@@ -1,9 +1,9 @@
-# 0007: The model proxy is re-declined; wrapper subagents carry cross-vendor dispatch
+# 0008: The model proxy is re-declined; wrapper subagents carry cross-vendor dispatch
 
 Date: 2026-07-22
 
 ## Decision
-CLIProxyAPI is out as a dispatch path. A model the harness cannot pin natively runs as one foreground CLI call inside a wrapper subagent, one per worker: `scripts/codex-exec` for GPT workers under Claude Code, headless claude for Claude workers under Codex. This supersedes the 2026-07-20 adoption (ADR 0005; docs/specs/cross-harness.md sections 5 and 6), which had itself superseded a 2026-07-19 decline. The decline stands.
+CLIProxyAPI is out as a dispatch path. A model the harness cannot pin natively runs as one foreground CLI call inside a wrapper subagent, one per worker: `scripts/codex-exec` for GPT workers under Claude Code, headless claude for Claude workers under Codex. This supersedes the 2026-07-20 adoption (ADR 0005; docs/specs/2026-07-20-cross-harness.md sections 5 and 6), which had itself superseded a 2026-07-19 decline. The decline stands.
 
 ## Context
 The adoption shipped as documentation only; issue #78 asked to operationalize it. Routing subscription traffic through a third-party client is prohibited by the vendor's published policy: Anthropic's legal-and-compliance page states it "does not permit third-party developers to offer Claude.ai login or to route requests through Free, Pro, or Max plan credentials on behalf of their users," and reserves the right to enforce without notice. Enforcement is documented history through 2026 (third-party harnesses removed their Anthropic OAuth integrations on legal request; full enforcement 2026-04-04). The upstream sweep found the same picture from the proxy's side: request cloaking on by default, disguising non-Claude-Code clients as the official CLI and replacing the system prompt (config.example.yaml, `disable-claude-cloak-mode`); rate limiting refused against a permanent-ban warning (upstream issue #3467, closed not planned); live ban reports (upstream #2211, #1814, #1637); and no per-dispatch effort selection, since the documented integration remaps alias tiers globally.

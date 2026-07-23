@@ -1,0 +1,9 @@
+# 0011: The implementing doctrine's sources, and why the ladder list left
+
+Date: 2026-07-23
+
+The builder doctrine in `skills/implementing` is assembled from named sources: test-first mechanics and the mocking rules (boundary-only mocks, injected dependencies, independent expected values, vertical slices) from Matt Pocock's tdd skill; the reuse-before-build order (this codebase, standard library, platform, installed dependency) and the root-cause repair rule (grep every caller, fix the shared code once) from Ponytail; the reproduce-the-bug-as-a-failing-test repair opening from Addy Osmani's test-driven-development skill; and YAGNI aimed per Kent Beck at the cost of speculative structure, with the owner's rule fixed verbatim: apply YAGNI to speculative complexity, not product quality.
+
+Ponytail's seven-rung ordered ladder ("stop at the first rung that holds") was carried whole until 0.93.0 and is now deliberately gone. It is the right device for Ponytail's context, a standing mode on any repo with no plan, no orchestrator, and no review behind it, and its rungs are measured there. In a bottega dispatch the spec and plan already decide what exists, and the simplification pass and cross-family review catch residual over-build, so the ladder's YAGNI and minimum-code rungs restated what the skill's other sections already say, while its reuse rungs collapse into one ordered paragraph. What Ponytail proved with evidence is kept: the operational root-cause directive (their control showed plain "trace the flow" prose moved nothing, while the grep-the-callers wording took the root-cause-fix rate from 1/6 to 6/6 on both frontier families), and the pre-gate recheck stays criteria-anchored rather than open reflection, per the evidence note recorded with the recheck's introduction in PR #105.
+
+Recorded so the ladder is not re-proposed as a numbered decision procedure: doing so re-introduces the restatements this decision removed.

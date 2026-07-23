@@ -66,4 +66,4 @@ As decisions settle, resolve the domain terms the work introduces or sharpens (t
 
 ## 7. Publish
 
-Push the branch and report it. It is the work branch: a later run continues it, builds on it, and its PR merges the spec to trunk with the code that fulfils it (`docs/adr/0006-spec-status-in-the-file.md`).
+Push the branch and report it. It is the work branch: a later run continues it, builds on it, and its PR merges the spec to trunk with the code that fulfils it (`docs/adr/0007-spec-status-in-the-file.md`).

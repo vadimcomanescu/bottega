@@ -1,0 +1,7 @@
+# 0013: The review engine is vendored, not hand-built
+
+Date: 2026-07-23 (recording decisions of 2026-07-17 through 2026-07-21, releases 0.55.0 area through 0.76.0)
+
+Bottega first built its own review machinery: reviewer agents, a house JSON report schema, schema-enforced dispatches, bounded delta rounds, and a landing skill, assembled from an external reference's principles without its code. It was replaced wholesale by vendoring openclaw's autoreview: the document at `skills/code-review/references/autoreview.md` is the method, its helper runs the engines, and the run's rules are woven in as in-a-run conditionals (sync contract in that directory's own agent file). Two failures drove it: the hand-built loop diverged from the vendor's own fix-and-rerun-to-clean contract and lost convergence ([`docs/lessons/vendored-contract-binds-the-caller.md`](../lessons/vendored-contract-binds-the-caller.md)), and prose reviews without the engine's structure did not converge at all ([`docs/lessons/prose-review-does-not-converge.md`](../lessons/prose-review-does-not-converge.md)).
+
+Considered and rejected: keeping the hand-built machinery (it duplicated a maintained upstream and drifted from it), and adopting the upstream's principles while re-implementing the mechanics (tried first; the re-implementation is where the divergence came from). The standing rule follows: a vendored contract binds the caller whole, and bringing in a newer version means copying it again and reading the diff.
