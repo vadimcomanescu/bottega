@@ -2,6 +2,8 @@
 
 Date: 2026-07-20
 
+Superseded in part: Cursor was dropped as a target in 0.78.0 (`0015-cursor-dropped.md`), and the proxy path was re-declined in 0.80.0 (`0008-model-proxy-re-declined.md`).
+
 ## Decision
 Bottega's method lives entirely in skills that run under Claude Code, Codex, and Cursor. Worker identities as agent files and the entry guard are removed. Model selection moves to a routing skill carrying a fixed model table, task rules, and per-host reach mechanics; enforcement shrinks to one portable rule (a run-owning session names a model on every worker start, never fable); GPT models inside Claude Code arrive natively through an optional local proxy, with `scripts/codex-exec` over the codex CLI as the fallback and the single assembly point for every codex launch.
 

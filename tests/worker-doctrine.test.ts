@@ -146,6 +146,34 @@ describe("portable worker doctrine", () => {
     );
   });
 
+  it("keeps every relative markdown link resolvable", () => {
+    const files = [
+      "AGENTS.md",
+      "README.md",
+      "REVIEW.md",
+      ...filesUnder("skills", ".md"),
+      ...filesUnder("docs", ".md"),
+    ].filter(
+      (path) =>
+        path !== "skills/code-review/references/autoreview.md" &&
+        !path.startsWith("skills/code-review/tests/"),
+    );
+
+    const dead: string[] = [];
+    for (const file of files) {
+      const withoutCode = read(file)
+        .replace(/```[\s\S]*?```/g, "")
+        .replace(/`[^`\n]*`/g, "");
+      for (const [, target] of withoutCode.matchAll(/\]\(([^)\s]+)\)/g)) {
+        const path = (target ?? "").split("#")[0] ?? "";
+        if (path === "" || /^[a-z][a-z+.-]*:/i.test(path) || path.startsWith("/")) continue;
+        const resolved = join(ROOT, file, "..", decodeURIComponent(path));
+        if (!existsSync(resolved)) dead.push(`${file} -> ${target}`);
+      }
+    }
+    expect(dead).toEqual([]);
+  });
+
   it("keeps every AGENTS map path live", () => {
     const agents = read("AGENTS.md");
     const map = agents.match(/^## Map\r?\n([\s\S]*?)(?=\r?\n## )/m);

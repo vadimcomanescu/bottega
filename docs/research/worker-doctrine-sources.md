@@ -1,6 +1,6 @@
 # Worker doctrine and topology
 
-Snapshot: 2026-07-13. This note separates source facts, Bottega inferences, and repository decisions.
+Snapshot: 2026-07-13. This note separates source facts, Bottega inferences, and repository decisions. It describes the tree of its date: the `agents/` directory and the review skills it inventories were later removed or consolidated (`docs/adr/0005-cross-harness-method.md`, `docs/adr/0013-vendored-review-engine.md`); the placement rule it derives still governs, restated in AGENTS.md.
 
 ## The placement rule
 

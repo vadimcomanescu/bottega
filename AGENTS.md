@@ -27,6 +27,7 @@ Autonomous issue-to-PR runs across Claude Code and Codex: `/bottega:maestro` tak
 | `docs/lessons/` | Failure records: what happened, the rule, and where the rule is enforced | Shaping new work in spec or plan, and when a run diagnoses a failure worth keeping |
 | `docs/specs/` | The delivered specs, versioned with the code they describe | Reading what a feature was agreed to do, or grounding a new spec |
 | `docs/plans/` | The delivered plans, each carrying its slices and their landed status | Reading how a delivered change was built, or resuming a run |
+| `docs/research/` | Readings of outside work: what a source says, what bottega concluded, and when | Before researching a question from scratch, or when a proposal cites outside practice |
 | `tests/` | The verification gate's suites | Any change; the gate pins doctrine and script contracts |
 
 The skill directories are symlinked from `.claude/skills` and `.agents/skills` so every runtime loads the one copy.
@@ -54,6 +55,7 @@ The skill directories are symlinked from `.claude/skills` and `.agents/skills` s
 ## Developing bottega
 
 - This repo's product is skills prose read by fable and sol, held by evals and tests. Changes are authored directly with the owner: the conversation shapes the content, the session works in a worktree and branch, `npm test` runs green, and a PR the owner merges delivers it. Review here means reading the diff against `REVIEW.md` and the skill-writing doctrine, a second model family's read when the change warrants it, never the autoreview engine for prose (its own contract exempts prose-only diffs). `/bottega:maestro` remains for changes to what the software does (hooks, scripts, schemas, workflows).
+- Direct authoring keeps a run's documentation duties. In the same diff: a decision meeting the ADR bar (`bottega:codebase-design`) lands its ADR, a diagnosed failure lands its lesson in `docs/lessons/`, and every doc a change makes stale is fixed or deleted. The method this repo preaches to host repos governs this repo.
 - Every merge to main is a release, enforced by the release gate (`.github/workflows/release-gate.yml`): the PR bumps `version` in `.claude-plugin/plugin.json` above the base, syncs the README's command table, and the release commit is titled `bottega X.Y.Z: <headline> (#PR)`.
 
 ## Review guidelines

@@ -4,4 +4,4 @@ What happened: designing issue #78's wrapper dispatch (2026-07-21), the first sh
 
 The rule: a worker's shell-out runs as one foreground call inside its wrapper subagent, with an explicit timeout covering the whole run. A result reporting the command was moved to the background is a failed dispatch, reported immediately, never waited on.
 
-Enforced: skills/routing (Reaching the pick), skills/maestro/references/codex-dispatch.md (the launch paragraph).
+Enforced: skills/routing (Dispatch mechanics), skills/maestro/references/codex-dispatch.md (the launch paragraph).
