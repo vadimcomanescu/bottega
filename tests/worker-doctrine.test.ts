@@ -85,7 +85,6 @@ describe("portable worker doctrine", () => {
         (path) =>
           path !== "skills/code-review/references/autoreview.md" &&
           !path.startsWith("skills/code-review/tests/") &&
-          !path.startsWith("skills/writing-great-skills/") &&
           !path.startsWith("skills/codebase-design/references/"),
       ),
     ];
@@ -258,9 +257,8 @@ describe("portable worker doctrine", () => {
       // the seven possessive determiners: none can begin an imperative verb
       "my", "your", "his", "her", "its", "our", "their",
     ]);
-    const vendored = new Set(["writing-great-skills"]);
     const skillDirectories = readdirSync(join(ROOT, "skills"), { withFileTypes: true })
-      .filter((entry) => entry.isDirectory() && !vendored.has(entry.name))
+      .filter((entry) => entry.isDirectory())
       .map((entry) => entry.name);
 
     for (const name of skillDirectories) {
