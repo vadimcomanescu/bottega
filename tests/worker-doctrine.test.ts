@@ -310,8 +310,8 @@ describe("portable worker doctrine", () => {
     expect(maestro).toContain("bottega:code-review");
     expect(maestro).toContain("run one simplification pass over the changed files");
 
-    expect(maestro).toContain("files the lesson and lands the rule at the strongest owner");
-    expect(maestro).toContain("migrates its population");
+    expect(maestro).toContain("files the lesson and puts the rule where the repository enforces it best");
+    expect(maestro).toContain("fix the ones in the run's scope and file one issue for the rest");
 
     const review = read("skills/code-review/SKILL.md");
     expect(review).toContain("references/autoreview.md");
