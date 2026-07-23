@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Reconcile a machine and a repo with bottega, once. Configure the harness you invoke this from and the worker families it will dispatch, then bring the project to the shape `bottega:codebase-design` defines (the domain docs and documentation architecture); read that skill before the repo work.
 
-## Harness
+## 1. Configure the harness
 
 Configure the harness you invoke setup from, and report anything missing rather than installing it silently.
 
@@ -18,9 +18,7 @@ Configure the harness you invoke setup from, and report anything missing rather 
 - **Route guard.** Register the guard for the current harness from `hooks/`.
 - **Dispatch timeout ceiling**, Claude Code only. A wrapper subagent runs a codex worker as one foreground shell call, so the shell timeout ceiling must exceed the longest expected run. Read the current variable from the harness's environment-variable documentation (`BASH_MAX_TIMEOUT_MS` at last claim), set it in the settings `env` block to a few hours, leave the default timeout alone so ordinary commands keep their short limit, and verify with one live call whose requested timeout exceeds ten minutes.
 
-## Repo reconciliation
-
-### 1. Discover what the repo already has
+## 2. Discover what the repo already has
 
 Resolve symlinks first, then read; never search by a fixed list of filenames. For each part of the shape, find where it lives today, whatever it is called and wherever it sits:
 
@@ -33,7 +31,7 @@ Resolve symlinks first, then read; never search by a fixed list of filenames. Fo
 
 Complete when every part of the shape has either a located current home or a stated "nowhere".
 
-### 2. Decide, one at a time
+## 3. Decide, one at a time
 
 Present the findings, then walk only the decisions the repo cannot answer, one per exchange, waiting for each answer:
 
@@ -42,7 +40,7 @@ Present the findings, then walk only the decisions the repo cannot answer, one p
 - **Context count**, when the code suggests more than one bounded context.
 - **Area labels**, only when the repo has more than one bounded context whose names the tree does not settle. A single-context repo has none.
 
-### 3. Propose the edits
+## 4. Propose the edits
 
 For every gap between the found state and the shape, show the exact edit that closes it. Content moves; nothing is invented: an empty glossary, ADR scaffold, or owner doc is nothing to write.
 
@@ -55,9 +53,13 @@ For every gap between the found state and the shape, show the exact edit that cl
 - **A `.bottega/` entry in `.gitignore`** when missing.
 - **The approved `area:*` labels**, each created with `gh` as get-or-create and read back. Labels organize the backlog for people; the method never reads them. Never rename or delete an existing label.
 
-### 4. Apply
+## 5. Apply
 
 Apply only what was approved, exactly as shown. Complete when every proposed edit is applied or explicitly declined. A declined edit leaves its gap open on purpose: record it in the done report as remaining work, and expect a rerun to propose it again.
+
+## 6. Report
+
+What was written, what was declined, and the findings that remain the user's to fix.
 
 ## Findings (the genuinely un-writable)
 
@@ -75,7 +77,3 @@ CI, the project's own hooks, gate design, technology skills, MCP config, and tri
 ## Idempotency
 
 Setup reads its state from the repository. A doc setup created becomes repo-owned: a rerun validates it and proposes a diff rather than overwriting it. A rerun on a conforming repo makes zero file and zero GitHub changes, and says so.
-
-## Done report
-
-What was written, what was declined, and the findings that remain the user's to fix.

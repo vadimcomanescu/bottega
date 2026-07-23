@@ -1,7 +1,7 @@
 ---
 name: spec
-argument-hint: "<task, issue URL, or direction>"
 description: Prepare a task for delivery without building it. Explore the codebase and the standard solutions, grill the open decisions, agree a spec, and leave it agreed on a work branch a later run continues. Invoke bottega:spec when the user wants work shaped into an agreed spec rather than delivered now. Never invoke proactively; it runs a full discovery and grilling session.
+argument-hint: "<task, issue URL, or direction>"
 ---
 
 # Spec
@@ -14,7 +14,7 @@ When the branch already carries a spec file, start there: show the owner what yo
 
 Read the repo facts first: the smallest map that routes the task (root `CLAUDE.md` or `AGENTS.md`), then `CONTEXT-MAP.md` if present, then only the `CONTEXT.md` glossaries, `docs/adr/` decisions, `docs/lessons/` records, and critical journeys the work touches. Current docs only; archived and superseded ones are history.
 
-Then launch a subagent per job that applies (model and effort per bottega:routing): explore how the affected area of the codebase works today and the precedent it sets; search online for how others solve this problem and where the practice is heading; and read the technology skills in this runtime that match the work. Run the search job on any product-shaped work: the codebase answers how we already do it here, the search answers the standard way.
+Then launch a subagent per job that applies (model and effort per `bottega:routing`): explore how the affected area of the codebase works today and the precedent it sets; search online for how others solve this problem and where the practice is heading; and read the technology skills in this runtime that match the work. Run the search job on any product-shaped work: the codebase answers how we already do it here, the search answers the standard way.
 
 Read what comes back, then read directly the files any decision hinges on. Verify version-sensitive technology against the installed version and primary vendor docs before a decision relies on it. Every decision is yours; a subagent returns findings, never a decision.
 
@@ -22,7 +22,7 @@ Read what comes back, then read directly the files any decision hinges on. Verif
 
 Run this step only when all three hold: the decision shapes what the product does or means for its users; after exploring, at least two credible product directions survive (two ways the product could go, not two models disagreeing); and picking wrong would be expensive to undo or hard to notice later.
 
-When they hold, put the same evidence to independent drafts from different model families by invoking [`bottega:panel`](../panel/SKILL.md), each draft blind to the others. Ask each draft for three things: what this feature could be, which assumptions need the owner's confirmation, and what the owner should be asked. The panel returns a compare-only map: where the drafts agree, where they contradict, what only one saw. Grill from that map, and write the spec yourself.
+When they hold, put the same evidence to independent drafts from different model families by invoking `bottega:panel`, each draft blind to the others. Ask each draft for three things: what this feature could be, which assumptions need the owner's confirmation, and what the owner should be asked. The panel returns a compare-only map: where the drafts agree, where they contradict, what only one saw. Grill from that map, and write the spec yourself.
 
 Run this before the grilling, because the owner's answers narrow the direction: independent proposals are worth most while the job is still finding the right options and the right questions. Keep the panel small; two seats from different companies carry nearly all the independence, because different companies miss different things.
 
@@ -57,7 +57,7 @@ On approval, set the spec's status line to agreed ([references/spec-format.md](r
 
 [references/spec-format.md](references/spec-format.md) gives the document's shape and prose rules: start from that floor and let the discussion and your findings drive the rest. It is a floor, never a template to fill.
 
-As decisions settle, resolve the domain terms the work introduces or sharpens (the method is in [`bottega:codebase-design`](../codebase-design/SKILL.md)) and record them in the spec. Write no `CONTEXT.md` or `docs/adr/` entry from this session; the run that later builds a ticket writes those after approval.
+As decisions settle, resolve the domain terms the work introduces or sharpens (the method is in `bottega:codebase-design`) and record them in the spec. Write no `CONTEXT.md` or `docs/adr/` entry from this session; the run that later builds a ticket writes those after approval.
 
 ## 6. End by entry point
 

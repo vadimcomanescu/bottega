@@ -20,7 +20,7 @@ Autonomous issue-to-PR runs across Claude Code and Codex: `/bottega:maestro` tak
 | `skills/close/SKILL.md` | The closing method a run's Close phase routes to: confirm the accepted head, file followups, open the PR under the reader contract, watch its checks; not user-invocable | Anything touches PR opening, followup filing, the reader contract, or the check watch |
 | `skills/panel/SKILL.md` | `/bottega:panel`, independent cross-family drafts and a compare-only judge for one costly decision; run's Plan phase calls it too | Changing panel seats or judging |
 | `skills/codebase-design` | House design doctrine: domain model, deep modules, documentation architecture | Any design, review, or setup doctrine question |
-| `skills/writing-great-skills` | Vendored skill-writing reference | Creating or editing any skill file |
+| `skills/writing-great-skills` | Skill-writing doctrine, the house format, and the closing checklist | Creating or editing any skill file |
 | `scripts/` | Single assembly points for external calls: `codex-exec`, `pr-threads`; each header states its contract | Any codex launch or GitHub mutation mechanics |
 | `hooks/` | The route guard and its registrations for both harnesses; the guard states its own policy | Changing what dispatches are denied |
 | `docs/adr/` | Append-only decision records | Understanding why a current rule exists before changing it |
@@ -29,7 +29,7 @@ Autonomous issue-to-PR runs across Claude Code and Codex: `/bottega:maestro` tak
 | `docs/plans/` | The delivered plans, each carrying its slices and their landed status | Reading how a delivered change was built, or resuming a run |
 | `tests/` | The verification gate's suites | Any change; the gate pins doctrine and script contracts |
 
-The vendored skill directories are symlinked from `.claude/skills` and `.agents/skills` so every runtime loads the one copy.
+The skill directories are symlinked from `.claude/skills` and `.agents/skills` so every runtime loads the one copy.
 
 ## Rules
 
@@ -41,7 +41,7 @@ The vendored skill directories are symlinked from `.claude/skills` and `.agents/
 - Orchestrate with the harness primitives (subagents, tracked background Bash, workflows); the models already know them. Never add a polling loop, a hand-written scheduler, or prose that restates what the harness does.
 - Every run gets: isolation in its own worktree and branch, a build, the project's gates green after every integrated slice, one cross-family review of the integrated diff, a QA drive with recorded evidence when a user-facing surface changed, and a PR. The integrated review is the one thing never dropped.
 - Verification gate: `npm test` (the vitest suites plus the vendored autoreview Python suites; needs python3 and git on PATH). Never pipe test output inside a `&&` chain; redirect to a file and check the exit code.
-- Creating or editing any skill file, load `skills/writing-great-skills` and evaluate the writing against it. That directory is vendored: keep its body text as imported; the style rules above govern the rest of the repo, not it.
+- Creating or editing any skill file, load `skills/writing-great-skills`, evaluate the writing against it, and end by walking its closing checklist.
 - Skills are packaged per the Agent Skills open standard: one directory per capability, `SKILL.md` on top, supporting material inside it (`references/`, `scripts/`, assets) loaded on demand. An engine or reference a skill wraps lives inside that skill's directory, never as a sibling skill. The authoring and packaging contract is the harness documentation (https://code.claude.com/docs/en/skills) and the standard (https://agentskills.io), read at claim time.
 - Editing the skills (`skills/*`), two tests per line: could the worker derive it from the repo or from competence, and would plain Fable already do it better with no instruction? Either way, cut it. The workers are frontier models; a rule that only prevents a mistake a competent engineer would not make is noise. Constrain only where a real failure was observed or the cost of the mistake is high. Then read every worker rule as the weakest-equipped worker that will receive it: a codex worker has no slash commands, no subagents, no plugin root. Instruction text is calibrated to the model generation it was written for: when routing's model table moves to a new generation, re-run these two tests over every worker-facing skill.
 - Put durable constraints where the worker that must obey them will receive them. The orchestrator owns gates, routing, architecture, and exceptions. Do not script decisions that Fable can make from the repository and evidence.

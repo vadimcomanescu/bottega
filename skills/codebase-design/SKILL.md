@@ -34,7 +34,7 @@ Model the domain before arranging files.
 - Apply YAGNI to presumptive capabilities and flexibility. Do not use it to avoid refactoring, tests, clear names, validation, security, accessibility, or data safety. Those keep evolutionary design viable.
 - A current change may justify refactoring when it removes duplication, restores ownership, or makes the required behavior clear. Do not create abstractions for unrequested variants.
 - A coherent unit is what one run can deliver: one bounded context and primary owner, one architectural rule or interface change, one plan, one integrated review and QA story, one truthful PR title, one safe release and rollback unit. A change that fails this test is more than one unit.
-- For a consequential choice without a strong repository precedent or a standard solution, compare a credible alternative on depth, locality, and seam placement and, when reversing the choice after merge would be expensive, put it to [`bottega:panel`](../panel/SKILL.md).
+- For a consequential choice without a strong repository precedent or a standard solution, compare a credible alternative on depth, locality, and seam placement and, when reversing the choice after merge would be expensive, put it to `bottega:panel`.
 
 ## The plan
 
