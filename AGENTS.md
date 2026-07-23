@@ -6,6 +6,7 @@ Autonomous issue-to-PR runs across Claude Code and Codex: `/bottega:maestro` tak
 
 | Path | What it is | Read it when |
 | --- | --- | --- |
+| `CONTEXT.md` | The glossary of the run vocabulary: one meaning per term, domain only | Writing any text that names a run concept, or resolving a term dispute |
 | `.claude-plugin/` | Plugin and marketplace manifests | Changing install or release metadata |
 | `skills/maestro/SKILL.md` | `/bottega:maestro`, the orchestrator's whole method | Anything touches a run's phases or state |
 | `skills/routing/` | Model and effort selection per worker dispatch: the model table, the task rules, and how each harness reaches a pick | Anything touches which model runs a worker |
