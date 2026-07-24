@@ -6,7 +6,7 @@ argument-hint: "<task, issue URL, or direction>"
 
 # Spec
 
-Produce a spec the owner approves, without implementing the task. Whether the user invoked `/bottega:spec` directly or a run is using this skill to prepare its spec ahead of the run's own sign-off, you explore the task, gather independent proposals when needed, grill the open decisions, prototype what hinges on look or feel, and present the spec to the owner.
+Produce a spec the owner approves, without implementing the task. Whether the user invoked `/bottega:spec` directly or a run is using this skill to prepare the spec its user will agree to, you explore the task, gather independent proposals when needed, grill the open decisions, prototype what hinges on look or feel, and present the spec to the owner.
 
 When the branch already carries a spec file, start there: show the owner what you found and confirm it is the work to do, then run the same method to refine it against the current codebase. An agreed mark never skips this; the code has moved since it was written.
 
@@ -16,13 +16,13 @@ Read the repo facts first: the smallest map that routes the task (root `CLAUDE.m
 
 Then launch a subagent per job that applies, each on opus-5 at medium effort: explore how the affected area of the codebase works today and the precedent it sets; search online for how others solve this problem and where the practice is heading; and read the technology skills in this runtime that match the work. Run the search job on any product-shaped work: the codebase answers how we already do it here, the search answers the standard way.
 
-Read what comes back, then read directly the files any decision hinges on. Verify version-sensitive technology against the installed version and primary vendor docs before a decision relies on it. Every decision is yours; a subagent returns findings, never a decision.
+Read what comes back, then read directly the files any decision hinges on. Verify version-sensitive technology against the installed version and its official docs before a decision relies on it. Every decision is yours; a subagent returns findings, never a decision.
 
 ## 2. Propose independently
 
 Run this step only when all three hold: the decision shapes what the product does or means for its users; after exploring, at least two credible product directions survive (two ways the product could go, not two models disagreeing); and picking wrong would be expensive to undo or hard to notice later.
 
-When they hold, put the same evidence to independent drafts from different model families by invoking `bottega:panel`, each draft blind to the others. Ask each draft for three things: what this feature could be, which assumptions need the owner's confirmation, and what the owner should be asked. The panel returns a compare-only map: where the drafts agree, where they contradict, what only one saw. Grill from that map, and write the spec yourself.
+When they hold, put the same evidence to independent drafts from different companies' models by invoking `bottega:panel`, each draft blind to the others. Ask each draft for three things: what this feature could be, which assumptions need the owner's confirmation, and what the owner should be asked. The panel returns a compare-only map: where the drafts agree, where they contradict, what only one saw. Grill from that map, and write the spec yourself.
 
 Run this before the grilling, because the owner's answers narrow the direction: independent proposals are worth most while the job is still finding the right options and the right questions. Keep the panel small; two seats from different companies carry nearly all the independence, because different companies miss different things.
 
@@ -62,7 +62,7 @@ As decisions settle, resolve the domain terms the work introduces or sharpens (t
 ## 6. End by entry point
 
 - Invoked directly: ask once whether to push the branch, then wait. On yes, publish (step 7). On no, delete the branch this session created, local and remote if pushed, before the session ends; the settled decision already lives in the spec's words.
-- A run's front half: hand back to the run's sign-off rules.
+- Inside a run: hand back to the run, which asks the user to agree the spec.
 
 ## 7. Publish
 

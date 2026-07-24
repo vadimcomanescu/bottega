@@ -101,8 +101,8 @@ describe("portable worker doctrine", () => {
     const review = read("skills/code-review/references/autoreview.md");
     expect(review).toContain("--model codex=gpt-5.6-sol");
     expect(review).toContain("--model claude=claude-fable-5");
-    expect(review, "reruns never use the vendor that wrote the fix").toContain(
-      "never the vendor that wrote the fix",
+    expect(review, "the rerun engine never comes from the company that wrote the fix").toContain(
+      "never comes from the company whose model wrote the fix",
     );
   });
 

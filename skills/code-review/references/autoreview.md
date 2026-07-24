@@ -228,7 +228,7 @@ Run multiple reviewers against one frozen bundle:
 "$AUTOREVIEW" --reviewers codex,claude,pi
 ```
 
-In a bottega maestro run the integrated diff always reviews as one both-family panel:
+In a bottega maestro run the integrated diff always reviews as one panel of both engines:
 
 ```bash
 "$AUTOREVIEW" --mode branch --base <frozen-base> --reviewers codex,claude \
@@ -236,7 +236,7 @@ In a bottega maestro run the integrated diff always reviews as one both-family p
   --model claude=claude-fable-5 --thinking claude=xhigh
 ```
 
-Reruns after fixes are single-engine with model and thinking pinned (`--engine codex --model gpt-5.6-sol --thinking high`; when the fix itself was built by a GPT model, rerun with `--engine claude --model claude-fable-5 --thinking xhigh` instead, so the rerunning engine is never the vendor that wrote the fix), repeated until the helper exits clean at the accepted head; the review stands at that head.
+Reruns after fixes are single-engine with model and thinking pinned (`--engine codex --model gpt-5.6-sol --thinking high`; when the fix itself was built by a GPT model, rerun with `--engine claude --model claude-fable-5 --thinking xhigh` instead, so the rerunning engine never comes from the company whose model wrote the fix), repeated until the helper exits clean at the accepted head; the review stands at that head.
 
 `--panel` is shorthand for Codex plus Claude unless `--engine` changes the first reviewer:
 

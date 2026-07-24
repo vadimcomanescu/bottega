@@ -9,7 +9,7 @@ One piece of work taken from request to a merged PR, owned by one orchestrator s
 _Avoid_: commission, pipeline, job
 
 **One-shot**:
-A run whose work the orchestrator fully understands on reading it, built directly and taken straight to Review; the floor (isolation, gates, integrated review, PR) never drops.
+A run whose work the orchestrator fully understands on reading it, built directly and taken straight to Review; it still gets its own worktree and branch, gates green, the integrated review, and a PR.
 
 **Orchestrator**:
 The session running the maestro method: it keeps design, routing, and arbitration in its own turns and dispatches everything else.
@@ -33,7 +33,7 @@ One vertical unit of the plan with named owned files, buildable and gated on its
 A project command whose green result a change must hold: format, lint, typecheck, tests, build. The map is the commands' one home.
 
 **Editor**:
-The fresh cross-family reader of the plan strengthen pass: it approves the plan unchanged or rewrites it whole; the rewrite is its only way to object.
+The fresh GPT reader of the plan strengthen pass: it approves the plan unchanged or rewrites it whole; the rewrite is its only way to object.
 _Avoid_: plan reviewer (a reviewer files findings; the editor may not)
 
 **Owner file**:
@@ -52,5 +52,5 @@ The agreed statement of what the work does, in product language, committed as a 
 The statement of what a builder must not decide (terms, ownership, interfaces, slices), committed in docs/plans on the run branch and revised as the work teaches.
 
 **Harness**:
-The runtime a session runs in: Claude Code or Codex. The project is the repository a run works on; the two are never the same word.
+The runtime a session runs in: Claude Code. The project is the repository a run works on; the two are never the same word.
 _Avoid_: host (overloaded across both meanings; banned 0.64.0)

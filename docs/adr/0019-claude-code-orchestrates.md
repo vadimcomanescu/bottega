@@ -6,4 +6,4 @@ Why: the Codex CLI's own tracker shows subagent lifecycle failures being re-file
 
 The removal is cheap to reverse: codex-exec runs on every single run as the checking path, so the integration stays exercised; re-adding a Codex orchestrator later is a prose change. In the same change, the Build phase moved from maestro's body to `skills/build`, so every phase reads as one line in maestro and carries its method in its own skill.
 
-Supersedes the both-harnesses decision of ADR 0018; its dissolution of the routing skill, native builders, cross-family checks, and removal of sonnet all stand.
+Supersedes the both-harnesses decision of ADR 0018; its dissolution of the routing skill, Claude builders with GPT checks, and removal of sonnet all stand.
