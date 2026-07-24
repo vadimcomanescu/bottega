@@ -27,7 +27,7 @@ The arguments that matter most for a delivery method like bottega's:
 Each claim below names the part of the method that carries it, as of this release.
 
 - One agent owning the whole job is the run: [`skills/maestro`](../../skills/maestro/SKILL.md) keeps design, routing, and arbitration in the orchestrator's own turns and carries the work from request to a delivered pull request.
-- Delivery as active work is [`skills/close`](../../skills/close/SKILL.md), which watches checks to green and mergeability and routes diff-caused failures back through build and review rather than bypassing them.
+- Delivery as active work is [`skills/close`](../../skills/close/SKILL.md), which watches checks to green, merges the PR, and routes diff-caused failures back through build and review rather than bypassing them.
 - Independent evidence as the reason for a second context window is the cross-family integrated review in [`skills/code-review`](../../skills/code-review/references/autoreview.md) (then `skills/autoreview`, consolidated in 0.82.0) and the independent drafts in [`skills/panel`](../../skills/panel/SKILL.md).
 - Claim-matched proof is [`skills/qa`](../../skills/qa/SKILL.md): the verdict comes from driving the interface a user actually uses, never from code inspection or a staged screenshot.
 - Reviewer convergence, which the corpus reaches through reviewers biased toward merge, is carried by the plan reviewer's calibration in [`skills/plan`](../../skills/plan/SKILL.md) (an invented blocker is as much a failure as a missed one) and by the review gate's own convergence rules.
