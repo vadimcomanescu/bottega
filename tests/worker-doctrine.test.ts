@@ -82,10 +82,16 @@ describe("portable worker doctrine", () => {
 
   it("keeps the dispatch pins at their dispatch sites", () => {
     const maestro = read("skills/maestro/SKILL.md");
-    expect(maestro, "the seat is pinned").toContain("fable-5 at xhigh");
+    expect(maestro, "both seats are pinned").toContain(
+      "fable-5 at xhigh in Claude Code, or gpt-5.6-sol at xhigh in Codex",
+    );
     expect(maestro, "fable is fenced from workers").toContain("never a worker");
-    expect(maestro, "builders are pinned").toContain("on opus-5 at xhigh");
-    expect(maestro, "the QA worker is pinned").toContain("opus-5 at its default effort");
+    expect(maestro, "builders are pinned").toContain(
+      "native family at xhigh (opus-5 in Claude Code, gpt-5.6-sol in Codex)",
+    );
+    expect(maestro, "the QA worker is pinned").toContain(
+      "native family at its default effort",
+    );
     expect(maestro, "verification seats cross families").toContain(
       "runs the family that built the diff",
     );
@@ -148,14 +154,21 @@ describe("portable worker doctrine", () => {
     }
   });
 
-  it("parses the plugin manifest and points it at skills", () => {
-    const manifest = JSON.parse(read(".claude-plugin/plugin.json")) as Record<string, unknown>;
+  it("parses all manifests and points portable manifests at skills", () => {
+    const manifests = new Map(
+      [
+        ".claude-plugin/plugin.json",
+        ".codex-plugin/plugin.json",
+      ].map((path) => [path, JSON.parse(read(path)) as Record<string, unknown>]),
+    );
 
-    expect(manifest.skills).toBe("./skills/");
+    expect(manifests.get(".codex-plugin/plugin.json")!.skills).toBe("./skills/");
+
     // Claude Code auto-loads the standard hooks/hooks.json, so the manifest must
     // not re-declare it; a manifest hooks key points only at a non-standard file.
-    expect(manifest.hooks).toBeUndefined();
-    expect(manifest.version).toMatch(
+    expect(manifests.get(".claude-plugin/plugin.json")!.hooks).toBeUndefined();
+    expect(manifests.get(".codex-plugin/plugin.json")!.hooks).toBe("./hooks/hooks-codex.json");
+    expect(manifests.get(".claude-plugin/plugin.json")!.version).toMatch(
       /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/,
     );
   });

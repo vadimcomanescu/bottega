@@ -1,0 +1,16 @@
+{
+  "name": "bottega",
+  "plugins": [
+    {
+      "name": "bottega",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "description": "Autonomous issue-to-PR runs: /bottega:maestro takes a task, bug, or issue to a reviewed, evidence-backed pull request.",
+      "policy": {
+        "installation": "AVAILABLE"
+      }
+    }
+  ]
+}

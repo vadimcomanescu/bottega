@@ -1,6 +1,6 @@
 # bottega
 
-Autonomous issue-to-PR runs, orchestrated from Claude Code with workers from both model families: `/bottega:maestro` takes a task or issue to a merged PR, and spec, code-review, improve, panel, and setup are also available on their own. Read `README.md` for the model; this file is the working agreement for agents inside this repo.
+Autonomous issue-to-PR runs across Claude Code and Codex: `/bottega:maestro` takes a task or issue to a merged PR, and spec, code-review, improve, panel, and setup are also available on their own. Read `README.md` for the model; this file is the working agreement for agents inside this repo.
 
 ## Map
 
@@ -13,7 +13,7 @@ Autonomous issue-to-PR runs, orchestrated from Claude Code with workers from bot
 | `skills/spec/SKILL.md` | The one spec method (explore, propose independently, grill, present) with two entry points: `/bottega:spec` and the run's Spec phase, which invokes it whole; `references/spec-format.md` sets the document shape, and `references/live-review.md` carries the live-document review mechanics | Anything touches the spec method, exploration, independent proposals, grilling, prototypes, live review, or the spec-and-ticket publish |
 | `skills/plan/SKILL.md` | The plan method a run's Plan phase invokes whole: model the domain, commit the plan on the run branch, strengthen it with one cross-family editor pass; not user-invocable | Anything touches how a plan is modeled, committed, or strengthened |
 | `skills/improve/SKILL.md` | `/bottega:improve`, one agreed improvement filed as an issue and handed to run | Changing how improvements are found or handed off |
-| `skills/setup/SKILL.md` | `/bottega:setup`, one-time reconciliation of a machine and repo with the methodology (Claude Code and the worker CLIs, skill discovery, route guard, dispatch timeout ceiling, then the repo docs and labels) | Changing what setup writes or verifies |
+| `skills/setup/SKILL.md` | `/bottega:setup`, one-time reconciliation of a machine and repo with the methodology (harness CLIs, skill discovery, route guard, dispatch timeout ceiling, then the repo docs and labels) | Changing what setup writes or verifies |
 | `skills/implementing` | Implementation doctrine shared by Claude and Codex builders | Changing how builders work a slice or a repair |
 | `skills/code-review/` | The review package: `SKILL.md` is the method, standalone `/bottega:code-review` on a PR, ref range, or working diff, and the run's Review phase invoking it whole (doc coverage, the blind panel, the spec-conformance check, rerun to one converged head); `references/autoreview.md` is the vendored engine document, with the helper `scripts/` and `tests/` beside it (sync contract in the directory's `AGENTS.md`); see README Credits | Anything touches review method, sequencing, the conformance check, engine mechanics, inputs, fix dispatch, PR threads, or merge verification |
 | `skills/qa/SKILL.md` | QA method and limits: drive the shipped interface, return PASS/FAIL/NOT VERIFIED per scenario, forbidden actions; run's QA phase routes here | Anything touches QA driving, evidence, or limits |
@@ -23,7 +23,7 @@ Autonomous issue-to-PR runs, orchestrated from Claude Code with workers from bot
 | `skills/codebase-design` | House design doctrine: domain model, deep modules, documentation architecture | Any design, review, or setup doctrine question |
 | `skills/writing-great-skills` | Skill-writing doctrine, the house format, and the closing checklist | Creating or editing any skill file |
 | `scripts/` | Single assembly points for external calls: `codex-exec`, `pr-threads`; each header states its contract | Any codex launch or GitHub mutation mechanics |
-| `hooks/` | The route guard and its registration; the guard states its own policy | Changing what dispatches are denied |
+| `hooks/` | The route guard and its registrations for both harnesses; the guard states its own policy | Changing what dispatches are denied |
 | `docs/adr/` | Append-only decision records | Understanding why a current rule exists before changing it |
 | `docs/lessons/` | Failure records: what happened, the rule, and where the rule is enforced | Shaping new work in spec or plan, and when a run diagnoses a failure worth keeping |
 | `docs/specs/` | The delivered specs, versioned with the code they describe | Reading what a feature was agreed to do, or grounding a new spec |

@@ -1,22 +1,22 @@
 ---
 name: setup
-description: One-time reconciliation of a machine and a repo with bottega, covering Claude Code and the worker-family CLIs, skill discovery, the route guard, the dispatch timeout ceiling, then the repo's domain-doc contract, documentation architecture, tracker conventions, and GitHub labels.
+description: One-time reconciliation of a machine and a repo with bottega, covering the harness CLIs and worker families, skill discovery, the route guard, the dispatch timeout ceiling, then the repo's domain-doc contract, documentation architecture, tracker conventions, and GitHub labels.
 disable-model-invocation: true
 ---
 
 # Setup
 
-Reconcile a machine and a repo with bottega, once. Configure Claude Code and the worker families it will dispatch, then bring the project to the shape `bottega:codebase-design` defines (the domain docs and documentation architecture); read that skill before the repo work.
+Reconcile a machine and a repo with bottega, once. Configure the harness you invoke this from and the worker families it will dispatch, then bring the project to the shape `bottega:codebase-design` defines (the domain docs and documentation architecture); read that skill before the repo work.
 
 ## 1. Configure the harness
 
-Configure Claude Code, and report anything missing rather than installing it silently.
+Configure the harness you invoke setup from, and report anything missing rather than installing it silently.
 
 - **Requirements.** `git`, `node`, and `gh`.
-- **Worker families.** Verify `codex`, the CLI that runs GPT workers, is installed and logged in (`codex login status`).
-- **Skill discovery.** Claude Code installs the plugin from this repo's marketplace (the README's install commands). Confirm it lists the bottega skills; when it does not, walk the user through the install commands rather than symlinking anything.
-- **Route guard.** Confirm the guard from `hooks/` is registered.
-- **Dispatch timeout ceiling.** A wrapper subagent runs a codex worker as one foreground shell call, so the shell timeout ceiling must exceed the longest expected run. Read the current variable from the harness's environment-variable documentation (`BASH_MAX_TIMEOUT_MS` at last claim), set it in the settings `env` block to a few hours, leave the default timeout alone so ordinary commands keep their short limit, and verify with one live call whose requested timeout exceeds ten minutes.
+- **Worker families.** Verify the CLI for every other family you will dispatch: `claude` for a Codex-hosted maestro, `codex` for GPT workers under a Claude Code maestro. Confirm each is logged in with its own status command (`codex login status`).
+- **Skill discovery.** Both harnesses install the plugin from this repo's marketplace (the README's install commands). Confirm the harness lists the bottega skills; when it does not, walk the user through the install commands rather than symlinking anything.
+- **Route guard.** Register the guard for the current harness from `hooks/`.
+- **Dispatch timeout ceiling**, Claude Code only. A wrapper subagent runs a codex worker as one foreground shell call, so the shell timeout ceiling must exceed the longest expected run. Read the current variable from the harness's environment-variable documentation (`BASH_MAX_TIMEOUT_MS` at last claim), set it in the settings `env` block to a few hours, leave the default timeout alone so ordinary commands keep their short limit, and verify with one live call whose requested timeout exceeds ten minutes.
 
 ## 2. Discover what the repo already has
 

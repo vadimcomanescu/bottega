@@ -1,12 +1,14 @@
 # bottega
 
-Autonomous issue-to-PR runs, orchestrated from Claude Code with workers from both model families.
+Autonomous issue-to-PR runs for Claude Code and Codex.
 
 `/bottega:maestro` takes a task, bug, or GitHub issue to a reviewed, evidence-backed pull request; spec, code-review, improve, panel, and setup are also available on their own.
 
 ## Install
 
-Install from the Bottega marketplace in Claude Code:
+### Claude Code
+
+Install from the Bottega marketplace:
 
 ```text
 /plugin marketplace add vadimcomanescu/bottega
@@ -15,17 +17,28 @@ Install from the Bottega marketplace in Claude Code:
 
 Start a run with `/bottega:maestro <task, or issue URL>`.
 
+### Codex
+
+Install from the Bottega marketplace:
+
+```bash
+codex plugin marketplace add vadimcomanescu/bottega
+codex plugin install bottega@bottega
+```
+
+Start a new Codex session, invoke `$setup` once to reconcile the repo, then start a run with `$maestro <task, or issue URL>`.
+
 ## Commands
 
-| Skill | Command | What it does |
-| --- | --- | --- |
-| maestro | `/bottega:maestro <task, or issue URL>` | The whole pipeline: spec, plan, build, review, QA, merged PR |
-| spec | `/bottega:spec <task, issue URL, or direction>` | Explore, grill the unknowns, agree the spec, commit it, and file dependency-ordered tickets for later runs |
-| improve | `/bottega:improve [area or direction]` | Scan for deepening opportunities, agree the strongest candidate, file it, and take it through a run |
-| code-review | `/bottega:code-review <PR, ref range, or worktree>` | Review the working diff, a ref range, or a PR through the vendored review gate |
-| panel | `/bottega:panel <the decision>` | Produce independent cross-family drafts and a compare-only judgment |
-| setup | `/bottega:setup` | Reconcile the project and register the harness once per repo |
-| bro | `/bottega:bro` | Restate the last reply in plain language, no jargon |
+| Skill | Claude Code | Codex | What it does |
+| --- | --- | --- | --- |
+| maestro | `/bottega:maestro <task, or issue URL>` | `$maestro <task, or issue URL>` | The whole pipeline: spec, plan, build, review, QA, merged PR |
+| spec | `/bottega:spec <task, issue URL, or direction>` | `$spec <task, issue URL, or direction>` | Explore, grill the unknowns, agree the spec, commit it, and file dependency-ordered tickets for later runs |
+| improve | `/bottega:improve [area or direction]` | `$improve [area or direction]` | Scan for deepening opportunities, agree the strongest candidate, file it, and take it through a run |
+| code-review | `/bottega:code-review <PR, ref range, or worktree>` | `$code-review <PR, ref range, or worktree>` | Review the working diff, a ref range, or a PR through the vendored review gate |
+| panel | `/bottega:panel <the decision>` | `$panel <the decision>` | Produce independent cross-family drafts and a compare-only judgment |
+| setup | `/bottega:setup` | `$setup` | Reconcile the project and register the current harness once per repo |
+| bro | `/bottega:bro` | `$bro` | Restate the last reply in plain language, no jargon |
 
 Maestro and spec are two entry points to one method (explore, grill, agree the spec), defined once in [`skills/spec`](skills/spec/SKILL.md) and invoked whole from either. Maestro carries it through to a merged PR; spec stops at an agreed spec file committed on a work branch that any later `/bottega:maestro` continues. The spec is that file; an issue is never a spec. During a run, maestro also invokes the open, plan, implementing, code-review, QA, and close skills; code-review is the one users also invoke directly, and the vendored autoreview document under it is the engine every review runs on.
 
@@ -46,15 +59,15 @@ The user appears once: agreeing to the spec.
 
 ## Requirements
 
-- Claude Code running the orchestrator model the maestro skill names.
+- Claude Code or Codex running one of the orchestrator models accepted by the maestro skill.
 - Git, Node.js, and the [GitHub CLI](https://cli.github.com/).
-- The codex CLI, logged in: the integrated review always runs both model families.
+- The codex CLI, logged in: the integrated review always runs both model families. Under Codex, the claude CLI as well, for the same reason.
 
 Nothing else is assumed about the project. A run leaves nothing behind but the PR, the spec it commits to `docs/specs/`, the plan it commits to `docs/plans/`, and the permanent branch holding QA evidence: working state is the worktree and one gitignored owner file, both removed at delivery.
 
 ## Cross-vendor workers
 
-Claude models pin per dispatch natively. GPT workers run as one foreground CLI call to [`scripts/codex-exec`](scripts/codex-exec) inside a thin wrapper subagent, one per worker, so every worker holds a visible row for its whole run. Long builds are covered by raising the shell timeout ceiling in settings (`bottega:setup`); backgrounding the call inside a subagent is banned because it never delivers its result ([`docs/lessons/subagent-background-work-dies-silently.md`](docs/lessons/subagent-background-work-dies-silently.md)). A cloud run whose VM lacks the codex CLI or its login stops at the cross-family review gate and reports the missing family; the integrated review is never waived around it.
+Each harness pins its own vendor's models per dispatch natively. The other vendor's models run as one foreground CLI call inside a thin wrapper subagent, one per worker, so every worker holds a visible row for its whole run: under Claude Code, [`scripts/codex-exec`](scripts/codex-exec) dispatches GPT workers; under Codex, headless claude (`claude -p --model <model> --effort <effort>`) dispatches Claude workers. Long builds are covered by raising the shell timeout ceiling in settings (`bottega:setup`); backgrounding the call inside a subagent is banned because it never delivers its result ([`docs/lessons/subagent-background-work-dies-silently.md`](docs/lessons/subagent-background-work-dies-silently.md)). A cloud run whose VM lacks the other family's CLI or login stops at the cross-family review gate and reports the missing family; the integrated review is never waived around it.
 
 A local cross-vendor proxy (CLIProxyAPI) was adopted for this in 0.66.0 and re-declined before it ever ran; routing subscription credentials through a third-party client is prohibited by vendor policy and its own tracker records the account bans. [`docs/adr/0008-model-proxy-re-declined.md`](docs/adr/0008-model-proxy-re-declined.md) records the evidence.
 
@@ -91,9 +104,10 @@ Skills define the reusable methods and independently invoked capabilities. Refer
 
 ```
 skills/           the canonical methods and orchestration entry points
-.agents/          in-repo skill discovery links
+.agents/          the Codex marketplace file and in-repo skill discovery links
 .claude-plugin/   Claude Code packaging
-hooks/            one route guard and its registration
+.codex-plugin/    Codex packaging
+hooks/            one route guard and its harness registrations
 scripts/          single assembly points for GitHub mutations
 tests/            the verification gate's suites
 docs/adr/         append-only decision records

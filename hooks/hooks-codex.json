@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Agent|Task|Workflow",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"__BOTTEGA_ROOT__/hooks/route-guard.mjs\""
+          }
+        ]
+      }
+    ]
+  }
+}
