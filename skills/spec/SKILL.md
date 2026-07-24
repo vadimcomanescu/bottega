@@ -36,7 +36,7 @@ In an autonomous run there is no owner to ask: resolve each remaining unknown th
 
 Trigger: a decision hinges on how something looks or feels, a preference the user cannot answer in words.
 
-Build rough, real, rendered artifacts and screenshot them. When the choice is open, build several directions the user can react to, and show the user flow, not one frame. The user reacts before anything is wired up. State the settled decision in words in the spec and attach the screenshots as evidence. Prototype code is evidence, never truth: it never merges, and the build rewrites it from the agreed spec.
+Build rough, real, rendered artifacts and screenshot them, through a dispatched worker on opus-5 at medium effort: prototype code is thrown away after the decision, so it does not get the build phase's xhigh. When the choice is open, build several directions the user can react to, and show the user flow, not one frame. The user reacts before anything is wired up. State the settled decision in words in the spec and attach the screenshots as evidence. Prototype code is evidence, never truth: it never merges, and the build rewrites it from the agreed spec.
 
 Where you build it depends on the entry point:
 
@@ -55,14 +55,16 @@ The owner's approval may arrive as a comment in the document, in their own words
 
 On approval, set the spec's status line to agreed ([references/spec-format.md](references/spec-format.md)) and commit it as `docs/specs/<YYYY-MM-DD>-<slug>.md` (dated the day it was agreed), with any prototype screenshots it embeds: inside a run, on the run's branch; invoked directly, on branch `bottega/<slug>` (created now when none exists). This file is the spec; no other artifact is.
 
+In an autonomous run there is no owner to present to: skip the shared document, write the spec, set its status line to agreed on your own authority, and commit it to the same path. The owner's veto point is the PR's decisions list.
+
 [references/spec-format.md](references/spec-format.md) gives the document's shape and prose rules: start from that floor and let the discussion and your findings drive the rest. It is a floor, never a template to fill.
 
-As decisions settle, resolve the domain terms the work introduces or sharpens (the method is in `bottega:codebase-design`) and record them in the spec. Write no `CONTEXT.md` or `docs/adr/` entry from this session; the run that later builds a ticket writes those after approval.
+As decisions settle, resolve the domain terms the work introduces or sharpens (the method is in `bottega:codebase-design`) and record them in the spec. Write no `CONTEXT.md` or `docs/adr/` entry from this session; the run that later builds the spec writes those after approval.
 
 ## 6. End by entry point
 
 - Invoked directly: ask once whether to push the branch, then wait. On yes, publish (step 7). On no, delete the branch this session created, local and remote if pushed, before the session ends; the settled decision already lives in the spec's words.
-- Inside a run: hand back to the run, which asks the user to agree the spec.
+- Inside a run: hand the committed agreed spec back to the run.
 
 ## 7. Publish
 

@@ -19,3 +19,5 @@ The plan is `docs/plans/<YYYY-MM-DD>-<slug>.md`, committed on the run branch. Wo
 ## 3. Strengthen
 
 Before anything is built, a fresh editor (gpt-5.6-sol at xhigh, one read-only codex dispatch per [maestro's codex dispatch reference](../maestro/references/codex-dispatch.md)) reads the agreed spec, the plan, and the repository cold and returns the plan approved unchanged or rewritten whole. The rewrite is the only way to object: a finding too small to justify one is dropped, and an editor who would change little approves. Read the rewrite against the current plan, take the changes you accept (the domain model and architecture stay your call), and commit: the plan stands as committed.
+
+When the codex CLI cannot be reached, the run continues: record in the plan file that it was committed unstrengthened and why, so Review and the PR body carry the gap.
