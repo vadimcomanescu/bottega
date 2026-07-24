@@ -272,8 +272,9 @@ describe("portable worker doctrine", () => {
       "run one simplification pass over the changed files",
     );
 
-    expect(maestro).toContain("files the lesson and puts the rule where the repository enforces it best");
-    expect(maestro).toContain("fix the ones in the run's scope and file one issue for the rest");
+    const close = read("skills/close/SKILL.md");
+    expect(close).toContain("puts the rule where the repository enforces it best");
+    expect(close).toContain("fix the ones in the run's scope and file one issue for the rest");
 
     const review = read("skills/code-review/SKILL.md");
     expect(review).toContain("references/autoreview.md");

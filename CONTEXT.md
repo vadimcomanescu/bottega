@@ -12,7 +12,7 @@ _Avoid_: commission, pipeline, job
 A run whose work the orchestrator fully understands on reading it, built directly and taken straight to Review; it still gets its own worktree and branch, gates green, the integrated review, and a PR.
 
 **Orchestrator**:
-The session running the maestro method: it keeps design, routing, and arbitration in its own turns and dispatches everything else.
+The session running the maestro method: it keeps design and arbitration in its own turns and dispatches everything else.
 _Avoid_: maestro (the skill's name, not the actor's), coordinator
 
 **Worker**:
