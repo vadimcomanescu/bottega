@@ -1,6 +1,6 @@
 {
   "name": "bottega",
-  "version": "0.78.0",
+  "version": "0.96.0",
   "description": "Autonomous issue-to-PR runs for Claude Code and Codex.",
   "author": {
     "name": "Vadim Comanescu"
