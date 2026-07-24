@@ -1,0 +1,5 @@
+# 0016: The run merges its own PR
+
+Date: 2026-07-24
+
+Since the first release, the merge click was the one human action that landed code: close ended with the PR open, green, and mergeable, and the owner merged it. The owner has removed human review from the pipeline entirely; the run's own gates (the integrated cross-family review, QA on the accepted head, the project's checks) are the merge bar, so a click after them verified nothing and only added latency, and on the owner's GitHub plan the platform's auto-merge and branch protection are unavailable to do it server-side. Close now merges the PR itself (`gh pr merge --squash`) once every check is green and the PR is mergeable, and ends with the PR merged. A merge the platform refuses is reported with the refusal verbatim. The safety boundary moves from "a human lands code" to "only a head carrying the full recorded evidence lands"; a host repo that wants a human back in the loop expresses that as branch protection, which close reports and respects.

@@ -1,12 +1,12 @@
 ---
 name: close
-description: The closing method a run's Close phase routes to. Confirms the accepted head, publishes evidence, files followups, opens the PR under the reader contract, watches checks and mergeability. Not user-invocable.
+description: The closing method a run's Close phase routes to. Confirms the accepted head, publishes evidence, files followups, opens the PR under the reader contract, watches its checks, and merges it green. Not user-invocable.
 user-invocable: false
 ---
 
 # Close
 
-Take the accepted, QA-verified head to a PR that is open, readable, its checks green, its deferred work filed, and mergeable with its base. Review feedback after the PR opens is handled through `bottega:code-review`: threads are claimed findings, and its autoreview document carries the merge verification.
+Take the accepted, QA-verified head to a merged PR: open, readable, its checks green, its deferred work filed, and landed on its base. Review feedback after the PR opens is handled through `bottega:code-review`: threads are claimed findings, and its autoreview document carries the merge verification.
 
 Run the phases in order; a followup and its evidence must exist before the PR body links them.
 
@@ -46,6 +46,6 @@ Compose the body to a file and open it with `gh pr create -F <file>`, never inli
 
 A Followups section links the issues just filed and nothing else. Keep tool, model, and vendor attribution badges and footers out.
 
-## 6. Watch checks and mergeability
+## 6. Watch and merge
 
-After the PR opens, watch every check to completion as tracked background Bash (`gh pr checks <PR> --watch`), excluding the `bottega/review` status you posted, which is your own marker and not one of the project's checks; distinguish a PR with no checks from one with a failing check. Confirm the PR is cleanly mergeable with its base (`gh pr view <PR> --json mergeable`) when it opens and again whenever the watch ends. Two conditions are run work: a red check the diff caused, and a `CONFLICTING` merge state. Route each through the repair path maestro's QA phase defines; a conflict's fix is the builder merging the base branch into the run branch and resolving it. Close's own part is the tail: the repaired, re-accepted, re-verified head is pushed and re-marked reviewed (phase 2), its fresh QA evidence published (phase 3) and the PR body's evidence links updated to it so nothing points at the superseded head, and its checks and mergeability re-watched. A red check outside the diff's control (infrastructure) is reported with its evidence, never guessed at. Close ends only when the checks are green and the PR is mergeable.
+After the PR opens, watch every check to completion as tracked background Bash (`gh pr checks <PR> --watch`), excluding the `bottega/review` status you posted, which is your own marker and not one of the project's checks; distinguish a PR with no checks from one with a failing check. Confirm the PR is cleanly mergeable with its base (`gh pr view <PR> --json mergeable`) when it opens and again whenever the watch ends. Two conditions are run work: a red check the diff caused, and a `CONFLICTING` merge state. Route each through the repair path maestro's QA phase defines; a conflict's fix is the builder merging the base branch into the run branch and resolving it. Close's own part is the tail: the repaired, re-accepted, re-verified head is pushed and re-marked reviewed (phase 2), its fresh QA evidence published (phase 3) and the PR body's evidence links updated to it so nothing points at the superseded head, and its checks and mergeability re-watched. A red check outside the diff's control (infrastructure) is reported with its evidence, never guessed at. With the checks green and the PR mergeable, merge it: `gh pr merge <PR> --squash`. A merge the platform refuses is reported with the refusal verbatim. Close ends when the PR is merged.

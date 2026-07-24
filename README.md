@@ -83,7 +83,7 @@ A local cross-vendor proxy (CLIProxyAPI) was adopted for this in 0.66.0 and re-d
 
 **QA owns the product drive.** Builders prove their slice through code and tests. Reviewers inspect the integrated code and architecture. Only after the orchestrator accepts the review evidence does a fresh QA worker drive the accepted head and record the verdict; QA never edits product code. The orchestrator reads a failure before routing it, and any product-code repair gets fresh review, orchestrator acceptance, and QA. Evidence is read from the PR, never in local folders: each scenario's walkthrough gif plays in the browser from its blob page in the private evidence repository, one click from the PR body, with the full recording linked beside it (`docs/adr/0009-qa-evidence-repository.md`).
 
-**The PR is the only path to trunk.** Every run builds on its own branch in its own worktree; the user's checkout is never touched, and the merge click is the only human action that lands code. Why: an autonomous system should be unable to change what you run, only to propose it.
+**The PR is the only path to trunk.** Every run builds on its own branch in its own worktree; the user's checkout is never touched, and the run merges its PR only after the integrated review, QA, and the project's checks are green on the exact head being landed. Why: the gate on trunk is the recorded evidence, and a head that carries all of it lands without waiting on a click (`docs/adr/0016-run-merges-its-own-pr.md`).
 
 ## Roles
 
@@ -96,7 +96,7 @@ Skills define the reusable methods and independently invoked capabilities. Refer
 | review panel | hunts defects in the integrated diff, isolated from the builders, its prompt never carrying the spec | [`skills/code-review/references/autoreview.md`](skills/code-review/references/autoreview.md) |
 | qa | drives the built artifact as a user, records the evidence, never edits product code | [`skills/qa/SKILL.md`](skills/qa/SKILL.md) |
 | panel seats and judge | produce independent drafts and compare them without writing the final answer | [`skills/panel/SKILL.md`](skills/panel/SKILL.md) |
-| closer | confirms the accepted head, opens the PR, and watches checks | [`skills/close/SKILL.md`](skills/close/SKILL.md) |
+| closer | confirms the accepted head, opens the PR, watches checks, and merges it green | [`skills/close/SKILL.md`](skills/close/SKILL.md) |
 
 [`skills/codebase-design`](skills/codebase-design/SKILL.md) is shared by the roles that make and judge architecture: the orchestrator uses it to model the domain and write the plan; the review gate feeds that exact plan to the panel engines. Builders receive the plan and glossary as fixed input.
 

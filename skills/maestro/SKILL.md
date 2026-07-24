@@ -42,6 +42,6 @@ Invoke `bottega:qa` with the accepted head and every changed product scenario, d
 
 ## 7. Close
 
-First audit completion the hard way: for every requirement in the spec, point at the evidence in the current state that proves it (a file, a command output, a QA verdict). Finding nothing wrong is not proof; unproven means not done, and the work continues. Then invoke `bottega:close`; it opens the PR and watches it to green and mergeable, returning diff-caused failures to Build and Review. Then delete `.bottega/run/<slug>/` and the worktree. Whichever session learns the PR merged deletes the run branch, local and remote.
+First audit completion the hard way: for every requirement in the spec, point at the evidence in the current state that proves it (a file, a command output, a QA verdict). Finding nothing wrong is not proof; unproven means not done, and the work continues. Then invoke `bottega:close`; it opens the PR, watches it to green, and merges it, returning diff-caused failures to Build and Review. Then delete `.bottega/run/<slug>/`, the worktree, and the run branch, local and remote.
 
 The run's state is the worktree, its plan, its commits, and the PR; a later session resumes by reading them, re-running `bottega:open` against the branch, and committing any finished worker output it finds. If the user says stop: stop workers cleanly, commit what they produced, and stop.
