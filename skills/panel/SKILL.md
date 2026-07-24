@@ -25,10 +25,10 @@ Write the reply so it carries no model or company identity.
 
 One seat per company, and the same `task.md` verbatim to every seat. Every seat is read-only in the repository and grounded twice over: it discovers the repository itself, and it searches the web itself. The defaults are the two companies bottega runs on:
 
-| seat | dispatch (from the repository root) |
+| seat | dispatch |
 | --- | --- |
-| codex | `codex exec -m gpt-5.6-sol -c model_reasoning_effort=max -s read-only -c tools.web_search=true -C <repo> < task.md > codex-draft.md`, run as tracked background Bash, every path absolute |
-| claude | `claude -p --model claude-fable-5 --effort max < task.md > claude-draft.md` |
+| codex | `$CLAUDE_PLUGIN_ROOT/scripts/codex-exec --model gpt-5.6-sol --effort max --sandbox read-only --search --cwd <repo> --brief <session>/task.md --out <session>/codex-draft.md --events <session>/codex-events.jsonl`, run as tracked background Bash, every path absolute ([maestro's codex dispatch reference](../maestro/references/codex-dispatch.md)) |
+| claude | `claude -p --model claude-fable-5 --effort max < task.md > claude-draft.md`, run from the repository root |
 
 Another company's CLI installed on the machine takes a further seat under the same task, read-only with its own web search. The seats are the panel's own: this table names their models, the way the review names its engines.
 

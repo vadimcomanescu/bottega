@@ -8,17 +8,17 @@ argument-hint: "<task, or issue URL>"
 
 Take one piece of work (a run) from request to a merged PR, as its orchestrator. Keep every judgment call in your own turns: the design, the arbitration of review findings, the acceptance of the delivered head. Workers write the production code; code you write yourself gets the same review as any worker's code. The user appears once: agreeing to the spec. When the user says to run autonomously, skip the spec agreement and deliver straight through; that call comes from the user's words, never from the size of the work.
 
-Check your model before anything else. A run is orchestrated from Claude Code on fable-5 at xhigh, and fable-5 never runs a worker. On any other model or harness, stop and tell the user; offer opus-5 at xhigh when fable-5 is unavailable, and continue only when the user says so.
+Check your model before anything else. A run is orchestrated from Claude Code on fable-5 at xhigh, and fable-5 never runs a worker dispatched as a subagent. The panel's claude seat, the plan editor, and the review engines are fresh CLI contexts rather than subagent dispatches, so they are not that worker and the route guard does not police them. On any other model or harness, stop and tell the user; offer opus-5 at xhigh when fable-5 is unavailable, and continue only when the user says so.
 
 Claude models do the work: opus-5 builds at xhigh, drives QA at its default effort, and takes mechanical jobs (renames, doc sync, shell relays) at low effort and exploration at medium. GPT models check that work with fresh eyes: gpt-5.6-sol reads the plan cold, reviews the integrated diff beside the claude engine, and checks the diff against the spec. Each phase's skill states its worker's model and effort, and every dispatch names both on the call that starts the worker. A codex worker is a CLI call you run from your own turn per [references/codex-dispatch.md](references/codex-dispatch.md). A worker that fails its requirement gets one rerun, at higher effort or on a GPT model, after you diagnose the failure; never automatic.
 
-Report progress where the user watches: the harness screen, where every worker runs as a visible subagent. Never launch a worker as a detached shell process: the harness cannot display it, and nothing reports back when it finishes.
+Report progress where the user watches: the harness screen. A Claude worker runs there as a visible subagent and a codex worker as a tracked background task, so every worker holds a visible row. Never launch a worker as a detached shell process: the harness cannot display it, and nothing reports back when it finishes.
 
 Read the request first and tell the user which path it gets, in a sentence or two. Product work goes through the whole flow below. Work you fully understand on reading it (a bugfix, a doc update, a mechanical change) is a one-shot: say so, write the spec yourself and commit it to `docs/specs/` on the branch, then build it in your own turns or one builder dispatch and go straight to Review; QA it when it changed something a user sees. Every path keeps the same guarantees: the worktree and branch, gates green, the integrated review by both Claude and GPT, the PR.
 
 ## 1. Open
 
-Invoke `bottega:open`; it ends with the run owned, isolated on branch `bottega/<slug>`, and the project's commands read from the agent map.
+Invoke `bottega:open`; it ends with the run owned, isolated on branch `bottega/<slug>`, the owner file naming this session, the project's commands read from the agent map, and the codex CLI confirmed ready or the user told why it is not.
 
 ## 2. Spec
 
@@ -34,7 +34,7 @@ Invoke `bottega:build`; it ends with every slice integrated, the full suite gree
 
 ## 5. Review
 
-Invoke `bottega:code-review` on the integrated diff; it ends with the doc-coverage check done and the two-engine review and the spec-conformance check converged at one head with nothing blocking remaining. You verify every finding from both against the real code, reconcile the evidence against every fixed decision in the plan, and accepting or rejecting the reviewed head is your call.
+Invoke `bottega:code-review` on the integrated diff; it ends with the doc-coverage check done and the two-engine review and the spec-conformance check converged at one head with nothing blocking remaining. You verify every finding from both against the real code, reconcile the evidence against every fixed decision in the plan, or against the spec's decisions when a one-shot has no plan, and accepting or rejecting the reviewed head is your call.
 
 ## 6. QA
 
@@ -42,6 +42,6 @@ Invoke `bottega:qa` with the accepted head and every changed product scenario, d
 
 ## 7. Close
 
-First audit completion the hard way: for every requirement in the spec, point at the evidence in the current state that proves it (a file, a command output, a QA verdict). Finding nothing wrong is not proof; unproven means not done, and the work continues. Then invoke `bottega:close`; it opens the PR, watches it to green, merges it, and removes the run's working state, returning diff-caused failures to Build and Review. When close stops instead at something only a person can clear, pass that to the user and leave the branch and its PR standing for them.
+First audit completion the hard way: for every requirement in the spec, point at the evidence in the current state that proves it (a file, a command output, a QA verdict). Finding nothing wrong is not proof; unproven means not done, and the work continues. Then invoke `bottega:close`; it opens the PR, watches it to green, merges it, and removes the run's working state, routing every failure the diff caused through the repair path phase 6 defines. When close stops instead at something only a person can clear, pass that to the user and leave the branch and its PR standing for them.
 
 The run's state is the worktree, its plan, its commits, and the PR; a later session resumes by reading them, re-running `bottega:open` against the branch, and committing any finished worker output it finds. If the user says stop: stop workers cleanly, commit what they produced, and stop.

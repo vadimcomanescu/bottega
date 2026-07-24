@@ -22,7 +22,7 @@ Write your session id to `.bottega/run/<slug>/owner`; the route guard polices th
 
 ## 4. Read the commands
 
-Read the project's commands (format, lint, typecheck, test, build, run) from the repo's agent map (`AGENTS.md` or `CLAUDE.md`; setup keeps one a symlink of the other so both harnesses load the one copy). The map is the commands' one home: a brief quotes them from it, never defines them elsewhere. A command missing or broken there is discovered once and written back to the map as part of the run's diff, and the same rule covers any operating fact a worker had to dig for: how the app boots from a worktree, seed data, migration steps. Complete when every command the run will brief is read from the map.
+Read the project's commands (format, lint, typecheck, test, build, run) from the repo's agent map (`AGENTS.md` or `CLAUDE.md`; setup keeps one a symlink of the other so Claude Code and the codex CLI read the one copy). The map is the commands' one home: a brief quotes them from it, never defines them elsewhere. A command missing or broken there is discovered once and written back to the map as part of the run's diff, and the same rule covers any operating fact a worker had to dig for: how the app boots from a worktree, seed data, migration steps. Complete when every command the run will brief is read from the map.
 
 ## 5. Confirm the worker CLI
 
