@@ -1,6 +1,6 @@
 # bottega
 
-Autonomous issue-to-PR runs across Claude Code and Codex: `/bottega:maestro` takes a task or issue to a delivered PR, and spec, code-review, improve, panel, and setup are also available on their own. Read `README.md` for the model; this file is the working agreement for agents inside this repo.
+Autonomous issue-to-PR runs across Claude Code and Codex: `/bottega:maestro` takes a task or issue to a merged PR, and spec, code-review, improve, panel, and setup are also available on their own. Read `README.md` for the model; this file is the working agreement for agents inside this repo.
 
 ## Map
 
@@ -18,7 +18,7 @@ Autonomous issue-to-PR runs across Claude Code and Codex: `/bottega:maestro` tak
 | `skills/implementing` | Implementation doctrine shared by Claude and Codex builders | Changing how builders work a slice or a repair |
 | `skills/code-review/` | The review package: `SKILL.md` is the method, standalone `/bottega:code-review` on a PR, ref range, or working diff, and the run's Review phase invoking it whole (doc coverage, the blind panel, the spec-conformance check, rerun to one converged head); `references/autoreview.md` is the vendored engine document, with the helper `scripts/` and `tests/` beside it (sync contract in the directory's `AGENTS.md`); see README Credits | Anything touches review method, sequencing, the conformance check, engine mechanics, inputs, fix dispatch, PR threads, or merge verification |
 | `skills/qa/SKILL.md` | QA method and limits: drive the shipped interface, return PASS/FAIL/NOT VERIFIED per scenario, forbidden actions; run's QA phase routes here | Anything touches QA driving, evidence, or limits |
-| `skills/close/SKILL.md` | The closing method a run's Close phase routes to: confirm the accepted head, file followups, open the PR under the reader contract, watch its checks, merge it green; not user-invocable | Anything touches PR opening, followup filing, the reader contract, the check watch, or the merge |
+| `skills/close/SKILL.md` | The closing method a run's Close phase routes to: confirm the accepted head, file followups, open the PR under the reader contract, watch its checks, merge it green or report what only a person can clear; not user-invocable | Anything touches PR opening, followup filing, the reader contract, the check watch, or the merge |
 | `skills/panel/SKILL.md` | `/bottega:panel`, independent cross-family drafts and a compare-only judge for one costly decision; run's Plan phase calls it too | Changing panel seats or judging |
 | `skills/bro/SKILL.md` | `/bottega:bro`, restate the last reply in plain language; user-invoked only | Changing the restatement instruction |
 | `skills/codebase-design` | House design doctrine: domain model, deep modules, documentation architecture | Any design, review, or setup doctrine question |
