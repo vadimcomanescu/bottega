@@ -1,6 +1,6 @@
 ---
 name: plan
-description: The plan method a run's Plan phase invokes whole. Model the domain, commit the plan on the run branch, and strengthen it with one cross-family editor pass. Not user-invocable.
+description: The plan method a run's Plan phase invokes whole. Model the domain, commit the plan on the run branch, and strengthen it with one cold read by a GPT editor. Not user-invocable.
 user-invocable: false
 ---
 
@@ -18,4 +18,4 @@ The plan is `docs/plans/<YYYY-MM-DD>-<slug>.md`, committed on the run branch. Wo
 
 ## 3. Strengthen
 
-Before anything is built, a fresh editor from the other model family (gpt-5.6-sol at xhigh under a Claude Code seat, fable-5 at xhigh under a Codex seat, one read-only cross-family dispatch per maestro's dispatch rules) reads the agreed spec, the plan, and the repository cold and returns the plan approved unchanged or rewritten whole. The rewrite is the only way to object: a finding too small to justify one is dropped, and an editor who would change little approves. Read the rewrite against the current plan, take the changes you accept (the domain model and architecture stay your call), and commit: the plan stands as committed.
+Before anything is built, a fresh editor (gpt-5.6-sol at xhigh, one read-only codex dispatch per [maestro's codex dispatch reference](../maestro/references/codex-dispatch.md)) reads the agreed spec, the plan, and the repository cold and returns the plan approved unchanged or rewritten whole. The rewrite is the only way to object: a finding too small to justify one is dropped, and an editor who would change little approves. Read the rewrite against the current plan, take the changes you accept (the domain model and architecture stay your call), and commit: the plan stands as committed.

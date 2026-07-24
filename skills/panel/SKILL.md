@@ -1,6 +1,6 @@
 ---
 name: panel
-description: Put one costly decision to independent drafts from different model families, blinded, with a compare-only judge; the caller synthesizes the answer. Use when the user asks for a panel, a fusion pass, or second opinions on a decision, or from a run's Plan phase when a decision is expensive to reverse and the repository does not already answer it.
+description: Put one costly decision to independent drafts from different companies' models, blinded, with a compare-only judge; the caller synthesizes the answer. Use when the user asks for a panel, a fusion pass, or second opinions on a decision, or from a run's Plan phase when a decision is expensive to reverse and the repository does not already answer it.
 argument-hint: "<the decision>"
 ---
 
@@ -18,19 +18,19 @@ Make a session directory (`mktemp -d`) and save the task as `task.md`, ending wi
 Ground the answer in the repository and in sources you search or fetch.
 Reply in four sections: Answer (complete, self-contained);
 Claims the answer rests on; Assumptions; What would change this answer.
-Write the reply so it carries no model or vendor identity.
+Write the reply so it carries no model or company identity.
 ```
 
 ## 2. Seat the panel
 
-One seat per model family, and the same `task.md` verbatim to every seat. Every seat is read-only in the repository and grounded twice over: it discovers the repository itself, and it searches the web itself. The defaults are the two families bottega runs on:
+One seat per company, and the same `task.md` verbatim to every seat. Every seat is read-only in the repository and grounded twice over: it discovers the repository itself, and it searches the web itself. The defaults are the two companies bottega runs on:
 
 | seat | dispatch (from the repository root) |
 | --- | --- |
 | codex | `codex exec -m gpt-5.6-sol -c model_reasoning_effort=max -s read-only -c tools.web_search=true -C <repo> < task.md > codex-draft.md`, run as tracked background Bash, every path absolute |
 | claude | `claude -p --model claude-fable-5 --effort max < task.md > claude-draft.md` |
 
-Another family's CLI installed on the machine takes a further seat under the same task, read-only with its own web search. The seats are the panel's own: a fixed cross-family instrument pins its models here, the way the review gate pins its engines.
+Another company's CLI installed on the machine takes a further seat under the same task, read-only with its own web search. The seats are the panel's own: this table names their models, the way the review names its engines.
 
 ## 3. Fan out
 

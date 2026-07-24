@@ -80,34 +80,29 @@ describe("portable worker doctrine", () => {
     expect(violations).toEqual([]);
   });
 
-  it("keeps the dispatch pins at their dispatch sites", () => {
+  it("keeps every worker model choice in the skill that dispatches it", () => {
     const maestro = read("skills/maestro/SKILL.md");
-    expect(maestro, "both seats are pinned").toContain(
-      "fable-5 at xhigh in Claude Code, or gpt-5.6-sol at xhigh in Codex",
+    expect(maestro, "the orchestrator model is named").toContain(
+      "orchestrated from Claude Code on fable-5 at xhigh",
     );
-    expect(maestro, "fable is fenced from workers").toContain("never a worker");
-    expect(maestro, "builders are pinned").toContain(
-      "native family at xhigh (opus-5 in Claude Code, gpt-5.6-sol in Codex)",
-    );
-    expect(maestro, "the QA worker is pinned").toContain(
-      "native family at its default effort",
-    );
-    expect(maestro, "verification seats cross families").toContain(
-      "runs the family that built the diff",
-    );
+    expect(maestro, "fable never runs a worker").toContain("never runs a worker");
+    expect(maestro, "the QA worker model is named").toContain("opus-5 at its default effort");
 
-    expect(read("skills/plan/SKILL.md"), "the plan editor is pinned").toContain(
+    expect(read("skills/build/SKILL.md"), "the builder model is named").toContain(
+      "opus-5 at xhigh",
+    );
+    expect(read("skills/plan/SKILL.md"), "the plan editor model is named").toContain(
       "gpt-5.6-sol at xhigh",
     );
-    expect(read("skills/code-review/SKILL.md"), "the conformance check is pinned").toContain(
+    expect(read("skills/code-review/SKILL.md"), "the conformance model is named").toContain(
       "gpt-5.6-sol at high",
     );
 
     const review = read("skills/code-review/references/autoreview.md");
     expect(review).toContain("--model codex=gpt-5.6-sol");
     expect(review).toContain("--model claude=claude-fable-5");
-    expect(review, "reruns pin the engine to the non-building family").toContain(
-      "pinned to the family that did not build the diff",
+    expect(review, "the rerun engine never comes from the company that wrote the fix").toContain(
+      "never comes from the company whose model wrote the fix",
     );
   });
 
@@ -154,21 +149,14 @@ describe("portable worker doctrine", () => {
     }
   });
 
-  it("parses all manifests and points portable manifests at skills", () => {
-    const manifests = new Map(
-      [
-        ".claude-plugin/plugin.json",
-        ".codex-plugin/plugin.json",
-      ].map((path) => [path, JSON.parse(read(path)) as Record<string, unknown>]),
-    );
+  it("parses the plugin manifest and points it at skills", () => {
+    const manifest = JSON.parse(read(".claude-plugin/plugin.json")) as Record<string, unknown>;
 
-    expect(manifests.get(".codex-plugin/plugin.json")!.skills).toBe("./skills/");
-
+    expect(manifest.skills).toBe("./skills/");
     // Claude Code auto-loads the standard hooks/hooks.json, so the manifest must
     // not re-declare it; a manifest hooks key points only at a non-standard file.
-    expect(manifests.get(".claude-plugin/plugin.json")!.hooks).toBeUndefined();
-    expect(manifests.get(".codex-plugin/plugin.json")!.hooks).toBe("./hooks/hooks-codex.json");
-    expect(manifests.get(".claude-plugin/plugin.json")!.version).toMatch(
+    expect(manifest.hooks).toBeUndefined();
+    expect(manifest.version).toMatch(
       /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/,
     );
   });
@@ -280,7 +268,9 @@ describe("portable worker doctrine", () => {
     const maestro = read("skills/maestro/SKILL.md");
     expect(maestro).toContain("every fixed decision in the plan");
     expect(maestro).toContain("bottega:code-review");
-    expect(maestro).toContain("run one simplification pass over the changed files");
+    expect(read("skills/build/SKILL.md")).toContain(
+      "run one simplification pass over the changed files",
+    );
 
     expect(maestro).toContain("files the lesson and puts the rule where the repository enforces it best");
     expect(maestro).toContain("fix the ones in the run's scope and file one issue for the rest");

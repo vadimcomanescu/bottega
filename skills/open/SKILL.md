@@ -1,12 +1,12 @@
 ---
 name: open
-description: The opening method a run's Open phase invokes whole. Settle ownership, isolate the run in a worktree and branch, write the owner file, read the project's commands from the agent map, and confirm worker reach. Not user-invocable.
+description: The opening method a run's Open phase invokes whole. Settle ownership, isolate the run in a worktree and branch, write the owner file, read the project's commands from the agent map, and confirm the worker CLI is logged in. Not user-invocable.
 user-invocable: false
 ---
 
 # Open
 
-Prepare the run before any spec work: owned, isolated, commands in hand, workers reachable.
+Prepare the run before any spec work: owned, isolated, commands in hand, the worker CLI ready.
 
 ## 1. Settle ownership
 
@@ -24,6 +24,6 @@ Write your session id to `.bottega/run/<slug>/owner`; the route guard polices th
 
 Read the project's commands (format, lint, typecheck, test, build, run) from the repo's agent map (`AGENTS.md` or `CLAUDE.md`; setup keeps one a symlink of the other so both harnesses load the one copy). The map is the commands' one home: a brief quotes them from it, never defines them elsewhere. A command missing or broken there is discovered once and written back to the map as part of the run's diff, and the same rule covers any operating fact a worker had to dig for: how the app boots from a worktree, seed data, migration steps. Complete when every command the run will brief is read from the map.
 
-## 5. Confirm worker reach
+## 5. Confirm the worker CLI
 
-Confirm the worker families the run will need are reachable before the first dispatch (for codex workers, `codex login status`). Missing, logged out, or over quota: tell the user now. Complete when every family the run needs is reachable or the user knows which is not.
+Confirm the codex CLI is installed and logged in before the first dispatch (`codex login status`). Missing, logged out, or over quota: tell the user now. Complete when the CLI is ready or the user knows why it is not.

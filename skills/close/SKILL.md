@@ -1,6 +1,6 @@
 ---
 name: close
-description: The closing method a run's Close phase routes to. Confirms the accepted head, publishes evidence, files followups, opens the PR under the reader contract, watches its checks, and merges it green or reports what only a person can clear. Not user-invocable.
+description: The closing method a run's Close phase routes to. Confirms the accepted head, publishes evidence, files followups, opens the PR written for a reader outside the run, watches its checks, and merges it green or reports what only a person can clear. Not user-invocable.
 user-invocable: false
 ---
 
@@ -10,9 +10,9 @@ Take the accepted, QA-verified head to a merged PR: open, readable, its checks g
 
 Run the phases in order; a followup and its evidence must exist before the PR body links them.
 
-## Reader contract
+## Writing for a reader outside the run
 
-Every artifact close writes for a reader outside the run (the PR body, each followup issue) obeys one rule:
+Everything close writes for someone outside the run (the PR body, each followup issue) obeys one rule:
 
 > Write for a reader who was not in the run and has not read the spec. Define every non-standard term where it is used, or link the file, ADR, or issue that defines it. Never use a label the document does not itself define. When you cite a prior decision, link its record. State what the diff cannot show; cut what the diff already shows.
 
@@ -30,11 +30,11 @@ Put the QA evidence where the PR can read it, per [references/qa-evidence.md](re
 
 ## 4. File followups
 
-Each review or QA finding classified follow-up, and each item the run deferred, becomes one tracker issue in the project's repo, filed before the PR opens so the body links it. Each issue stands on its own under the reader contract: what is wrong, where, why it was deferred, and the evidence. A failure the run diagnosed and fixed that a future run could repeat also gets a record in `docs/lessons/`: what happened, the rule, and where the rule is enforced.
+Each review or QA finding classified follow-up, and each item the run deferred, becomes one tracker issue in the project's repo, filed before the PR opens so the body links it. Each issue stands on its own for a reader who was not in the run: what is wrong, where, why it was deferred, and the evidence. A failure the run diagnosed and fixed that a future run could repeat also gets a record in `docs/lessons/`: what happened, the rule, and where the rule is enforced.
 
 ## 5. Open the PR
 
-Compose the body to a file and open it with `gh pr create -F <file>`, never inline. On an issue-born run, close the issue with the PR through a closing keyword. The body carries, under the reader contract:
+Compose the body to a file and open it with `gh pr create -F <file>`, never inline. On an issue-born run, close the issue with the PR through a closing keyword. The body carries, written for that outside reader:
 
 - what changed and why;
 - the approved spec and the plan;
@@ -44,7 +44,7 @@ Compose the body to a file and open it with `gh pr create -F <file>`, never inli
 - the orchestrator's architecture acceptance;
 - the QA evidence, embedded or linked per the evidence reference, and its limits: the scenarios returned NOT VERIFIED and any claimed behavior no evidence covers.
 
-A Followups section links the issues just filed and nothing else. Keep tool, model, and vendor attribution badges and footers out.
+A Followups section links the issues just filed and nothing else. Keep tool, model, and company attribution badges and footers out.
 
 ## 6. Watch and merge
 
