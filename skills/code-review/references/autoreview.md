@@ -59,7 +59,7 @@ Before patching a finding, classify it:
 - **Follow-up**: the finding is real but belongs to an adjacent bug class, sibling surface, cleanup, or broader hardening track.
 - **Stop-and-escalate**: the finding requires a new protocol/config/storage/public API contract, a different owner boundary, a release-process change, or a design choice outside the original request.
 
-In a bottega maestro run, the maestro verifies each finding against the real code, then dispatches the accepted findings to one fresh builder, briefed as any builder with the implementing doctrine, the findings, and the project's commands; the maestro never edits production code. Outside a run, fix directly as this contract states.
+In a bottega maestro run, the maestro verifies each finding against the real code, then dispatches the accepted findings to one fresh builder, briefed as any builder with the implementing doctrine, the findings, and the project's commands; the maestro never edits production code. That builder runs on opus-5 at xhigh. Outside a run, fix directly as this contract states.
 
 Stop patching and report the scope break instead of continuing when:
 
@@ -90,6 +90,12 @@ On release, beta, stable, hotfix, signing, notarization, appcast, package-publis
 Set the skill script paths once, then use `"$AUTOREVIEW"` and `"$AUTOREVIEW_HARNESS"` in the examples below.
 
 Choose one:
+
+```bash
+# Claude Code plugin install, the shape bottega:setup produces:
+export AUTOREVIEW="${CLAUDE_PLUGIN_ROOT}/skills/code-review/scripts/autoreview"
+export AUTOREVIEW_HARNESS="${CLAUDE_PLUGIN_ROOT}/skills/code-review/scripts/test-review-harness"
+```
 
 ```bash
 # Project-local skill in the current repo for Codex and other agents:
