@@ -30,25 +30,11 @@ function repoWithRun(owner?: string): string {
   return dir;
 }
 
-function run(
-  event: unknown,
-  harness: "claude" | "codex" = "claude",
-): string {
-  const {
-    CLAUDE_PLUGIN_ROOT: _claudeRoot,
-    CODEX_HOME: _codexHome,
-    CODEX_PLUGIN_ROOT: _codexPluginRoot,
-    PLUGIN_ROOT: _pluginRoot,
-    ...baseEnv
-  } = process.env;
-  const harnessEnv =
-    harness === "codex"
-      ? { CODEX_HOME: join(tmpdir(), "codex-home"), PLUGIN_ROOT: HOOKS }
-      : { CLAUDE_PLUGIN_ROOT: HOOKS };
+function run(event: unknown): string {
   const result = spawnSync("node", [ROUTE_GUARD], {
     input: typeof event === "string" ? event : JSON.stringify(event),
     encoding: "utf8",
-    env: { ...baseEnv, ...harnessEnv },
+    env: { ...process.env, CLAUDE_PLUGIN_ROOT: HOOKS },
   });
   expect(result.status).toBe(0);
   return result.stdout;
@@ -137,26 +123,11 @@ const check = await agent('run checks', { label: 'check', model: "gpt-5.6-sol" }
   });
 });
 
-describe("route guard harness responses", () => {
-  it("emits the documented Codex PreToolUse denial", () => {
-    const parsed = JSON.parse(run(ownedEvent({ subagent_type: "worker" }), "codex"));
-    expect(parsed).toMatchObject({
-      hookSpecificOutput: {
-        hookEventName: "PreToolUse",
-        permissionDecision: "deny",
-      },
-    });
-  });
-});
-
-describe("route guard registrations", () => {
-  it.each([
-    ["Claude Code", "hooks.json", "PreToolUse"],
-    ["Codex", "hooks-codex.json", "PreToolUse"],
-  ])("parses the %s registration and references route-guard.mjs", (_harness, file, event) => {
-    const raw = readFileSync(join(HOOKS, file), "utf8");
+describe("route guard registration", () => {
+  it("parses the registration and references route-guard.mjs", () => {
+    const raw = readFileSync(join(HOOKS, "hooks.json"), "utf8");
     const registration = JSON.parse(raw);
-    expect(registration.hooks[event]).toBeInstanceOf(Array);
+    expect(registration.hooks["PreToolUse"]).toBeInstanceOf(Array);
     expect(raw).toContain("route-guard.mjs");
   });
 });

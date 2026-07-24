@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "bottega",
   "displayName": "Bottega",
-  "version": "0.97.0",
-  "description": "Autonomous issue-to-PR runs for Claude Code and Codex.",
+  "version": "0.98.0",
+  "description": "Autonomous issue-to-PR runs, orchestrated from Claude Code with Claude and GPT workers.",
   "author": {
     "name": "Vadim Comanescu"
   },
