@@ -78,7 +78,7 @@ describe("route guard ownership rule", () => {
       run(ownedEvent({ subagent_type: "general-purpose", prompt: "build the slice" })),
     );
     expect(reason).toMatch(/names no model/i);
-    expect(reason).toMatch(/skills\/routing/);
+    expect(reason).toMatch(/skills\/maestro/);
   });
 
   it("denies an owner-session dispatch routed to fable", () => {
@@ -86,11 +86,11 @@ describe("route guard ownership rule", () => {
       run(ownedEvent({ subagent_type: "general-purpose", model: "claude-fable-5" })),
     );
     expect(reason).toMatch(/fable/i);
-    expect(reason).toMatch(/skills\/routing/);
+    expect(reason).toMatch(/never a worker/i);
   });
 
   it("allows an owner-session dispatch with a non-fable model", () => {
-    expect(run(ownedEvent({ subagent_type: "general-purpose", model: "opus-4.8" }))).toBe("");
+    expect(run(ownedEvent({ subagent_type: "general-purpose", model: "claude-opus-5" }))).toBe("");
   });
 
   it("allows a non-owner session regardless of model", () => {
@@ -119,7 +119,7 @@ describe("route guard workflow rule", () => {
     const script = "const result = await agent('review the diff', { label: 'review' })";
     const reason = claudeDenial(run(ownedEvent({ script }, "Workflow")));
     expect(reason).toMatch(/agent\(\).*names no literal model/i);
-    expect(reason).toMatch(/skills\/routing/);
+    expect(reason).toMatch(/skills\/maestro/);
   });
 
   it("denies an owner-session workflow with a fable agent model", () => {
@@ -130,7 +130,7 @@ describe("route guard workflow rule", () => {
 
   it("allows an owner-session workflow whose agent calls use non-fable literal models", () => {
     const script = `
-const review = await agent('review the diff', { model: 'opus-4.8' })
+const review = await agent('review the diff', { model: 'claude-opus-5' })
 const check = await agent('run checks', { label: 'check', model: "gpt-5.6-sol" })
 `;
     expect(run(ownedEvent({ script }, "Workflow"))).toBe("");
@@ -147,7 +147,6 @@ describe("route guard harness responses", () => {
       },
     });
   });
-
 });
 
 describe("route guard registrations", () => {
