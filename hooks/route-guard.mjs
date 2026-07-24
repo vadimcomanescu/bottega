@@ -7,13 +7,13 @@ const FABLE = /fable/i;
 const MODEL_LITERAL = /\bmodel\s*:\s*(['"])([^'"]*)\1/;
 
 const DIRECT_UNPINNED =
-  "This live run dispatch names no model. Choose an explicit model using skills/routing and retry.";
+  "This live run dispatch names no model. Name the model the dispatching phase pins (the seat rules are in skills/maestro) and retry.";
 const DIRECT_FABLE =
-  "This live run dispatch routes to Fable. Choose a non-Fable model using skills/routing and retry.";
+  "This live run dispatch routes to Fable, the orchestrator's seat and never a worker's. Name the model the dispatching phase pins and retry.";
 const WORKFLOW_UNPINNED =
-  "This live run workflow has an agent() call that names no literal model. Choose an explicit model using skills/routing and retry.";
+  "This live run workflow has an agent() call that names no literal model. Name the model the dispatching phase pins (the seat rules are in skills/maestro) and retry.";
 const WORKFLOW_FABLE =
-  "This live run workflow has an agent() call routed to Fable. Choose a non-Fable model using skills/routing and retry.";
+  "This live run workflow has an agent() call routed to Fable, the orchestrator's seat and never a worker's. Name the model the dispatching phase pins and retry.";
 
 function readStdin() {
   return new Promise((resolve) => {

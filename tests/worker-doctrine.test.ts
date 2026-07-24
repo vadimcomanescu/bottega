@@ -35,28 +35,6 @@ function symlinksUnder(path: string): string[] {
   });
 }
 
-function markdownTables(markdown: string): string[][] {
-  const tables: string[][] = [];
-  let current: string[] = [];
-
-  for (const line of markdown.split(/\r?\n/)) {
-    if (/^\s*\|.*\|\s*$/.test(line)) {
-      current.push(line);
-      continue;
-    }
-    if (current.length > 0) tables.push(current);
-    current = [];
-  }
-  if (current.length > 0) tables.push(current);
-
-  return tables;
-}
-
-function tableHeader(table: string[]): string[] {
-  const [header = ""] = table;
-  return header.split("|").slice(1, -1).map((cell) => cell.trim());
-}
-
 describe("portable worker doctrine", () => {
   it("gives every skill matching name and description frontmatter", () => {
     const skillDirectories = readdirSync(join(ROOT, "skills"), {
@@ -102,47 +80,28 @@ describe("portable worker doctrine", () => {
     expect(violations).toEqual([]);
   });
 
-  it("keeps the routing model table and cross-family review pins", () => {
-    const routing = read("skills/routing/SKILL.md");
-    const modelTables = markdownTables(routing).filter((table) =>
-      tableHeader(table).includes("model"),
+  it("keeps the dispatch pins at their dispatch sites", () => {
+    const maestro = read("skills/maestro/SKILL.md");
+    expect(maestro, "the seat is pinned").toContain("fable-5 at xhigh");
+    expect(maestro, "fable is fenced from workers").toContain("never a worker");
+    expect(maestro, "builders are pinned").toContain("on opus-5 at xhigh");
+    expect(maestro, "the QA worker is pinned").toContain("opus-5 at its default effort");
+    expect(maestro, "verification seats cross families").toContain(
+      "runs the family that built the diff",
     );
-    expect(modelTables, "routing must have one model table").toHaveLength(1);
-    expect(tableHeader(modelTables[0]!)).toEqual([
-      "model",
-      "family",
-      "intelligence",
-      "taste",
-      "notes",
-    ]);
 
-    const FAMILIES = new Set(["anthropic", "openai"]);
-    const SCORE = /^([1-9]|10|-)$/;
-    const rows = modelTables[0]!.slice(2).map((row) =>
-      row.split("|").slice(1, -1).map((cell) => cell.trim()),
+    expect(read("skills/plan/SKILL.md"), "the plan editor is pinned").toContain(
+      "gpt-5.6-sol at xhigh",
     );
-    const ids = rows.map((cells) => cells[0] ?? "").filter(Boolean);
-    for (const cells of rows) {
-      const [id = "", family = "", intelligence = "", taste = ""] = cells;
-      expect(FAMILIES.has(family), `${id} has unknown family ${family}`).toBe(true);
-      expect(SCORE.test(intelligence), `${id} intelligence must be 1-10 or -`).toBe(true);
-      expect(SCORE.test(taste), `${id} taste must be 1-10 or -`).toBe(true);
-    }
-    for (const id of ["fable-5", "opus-4.8", "gpt-5.6-sol", "sonnet-5"]) {
-      expect(ids, `routing table must carry ${id}`).toContain(id);
-    }
-
-    expect(routing).toContain("gpt-5.6-sol at xhigh");
-    expect(routing).toContain("pinned in the autoreview document's run rules");
-    for (const harness of ["In Claude Code:", "In Codex:"]) {
-      expect(routing, `routing must state reach mechanics for ${harness}`).toContain(harness);
-    }
+    expect(read("skills/code-review/SKILL.md"), "the conformance check is pinned").toContain(
+      "gpt-5.6-sol at high",
+    );
 
     const review = read("skills/code-review/references/autoreview.md");
     expect(review).toContain("--model codex=gpt-5.6-sol");
     expect(review).toContain("--model claude=claude-fable-5");
-    expect(review, "single-engine reruns must pin fable").toContain(
-      "--engine claude --model claude-fable-5",
+    expect(review, "reruns pin the engine to the non-building family").toContain(
+      "pinned to the family that did not build the diff",
     );
   });
 
@@ -189,21 +148,14 @@ describe("portable worker doctrine", () => {
     }
   });
 
-  it("parses all manifests and points portable manifests at skills", () => {
-    const manifests = new Map(
-      [
-        ".claude-plugin/plugin.json",
-        ".codex-plugin/plugin.json",
-      ].map((path) => [path, JSON.parse(read(path)) as Record<string, unknown>]),
-    );
+  it("parses the plugin manifest and points it at skills", () => {
+    const manifest = JSON.parse(read(".claude-plugin/plugin.json")) as Record<string, unknown>;
 
-    expect(manifests.get(".codex-plugin/plugin.json")!.skills).toBe("./skills/");
-
+    expect(manifest.skills).toBe("./skills/");
     // Claude Code auto-loads the standard hooks/hooks.json, so the manifest must
     // not re-declare it; a manifest hooks key points only at a non-standard file.
-    expect(manifests.get(".claude-plugin/plugin.json")!.hooks).toBeUndefined();
-    expect(manifests.get(".codex-plugin/plugin.json")!.hooks).toBe("./hooks/hooks-codex.json");
-    expect(manifests.get(".claude-plugin/plugin.json")!.version).toMatch(
+    expect(manifest.hooks).toBeUndefined();
+    expect(manifest.version).toMatch(
       /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/,
     );
   });
@@ -246,25 +198,6 @@ describe("portable worker doctrine", () => {
         comments.some((line) => line.replace(/^\s*\/\//, "").trim().length > 0),
         `scripts/${script} needs a nonempty contract comment`,
       ).toBe(true);
-    }
-  });
-
-  it("delegates routing from maestro without embedding a model table", () => {
-    const maestro = read("skills/maestro/SKILL.md");
-    const routing = read("skills/routing/SKILL.md");
-    expect(maestro).toContain("bottega:routing");
-
-    const ids = markdownTables(routing)
-      .filter((table) => tableHeader(table).includes("model"))[0]!
-      .slice(2)
-      .map((row) => row.split("|")[1]?.trim() ?? "")
-      .filter(Boolean);
-
-    for (const table of markdownTables(maestro)) {
-      const rows = table.join("\n");
-      for (const id of ids) {
-        expect(rows, `maestro has its own routing row for ${id}`).not.toContain(id);
-      }
     }
   });
 

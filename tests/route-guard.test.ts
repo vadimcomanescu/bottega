@@ -30,25 +30,11 @@ function repoWithRun(owner?: string): string {
   return dir;
 }
 
-function run(
-  event: unknown,
-  harness: "claude" | "codex" = "claude",
-): string {
-  const {
-    CLAUDE_PLUGIN_ROOT: _claudeRoot,
-    CODEX_HOME: _codexHome,
-    CODEX_PLUGIN_ROOT: _codexPluginRoot,
-    PLUGIN_ROOT: _pluginRoot,
-    ...baseEnv
-  } = process.env;
-  const harnessEnv =
-    harness === "codex"
-      ? { CODEX_HOME: join(tmpdir(), "codex-home"), PLUGIN_ROOT: HOOKS }
-      : { CLAUDE_PLUGIN_ROOT: HOOKS };
+function run(event: unknown): string {
   const result = spawnSync("node", [ROUTE_GUARD], {
     input: typeof event === "string" ? event : JSON.stringify(event),
     encoding: "utf8",
-    env: { ...baseEnv, ...harnessEnv },
+    env: { ...process.env, CLAUDE_PLUGIN_ROOT: HOOKS },
   });
   expect(result.status).toBe(0);
   return result.stdout;
@@ -78,7 +64,7 @@ describe("route guard ownership rule", () => {
       run(ownedEvent({ subagent_type: "general-purpose", prompt: "build the slice" })),
     );
     expect(reason).toMatch(/names no model/i);
-    expect(reason).toMatch(/skills\/routing/);
+    expect(reason).toMatch(/skills\/maestro/);
   });
 
   it("denies an owner-session dispatch routed to fable", () => {
@@ -86,11 +72,11 @@ describe("route guard ownership rule", () => {
       run(ownedEvent({ subagent_type: "general-purpose", model: "claude-fable-5" })),
     );
     expect(reason).toMatch(/fable/i);
-    expect(reason).toMatch(/skills\/routing/);
+    expect(reason).toMatch(/never a worker/i);
   });
 
   it("allows an owner-session dispatch with a non-fable model", () => {
-    expect(run(ownedEvent({ subagent_type: "general-purpose", model: "opus-4.8" }))).toBe("");
+    expect(run(ownedEvent({ subagent_type: "general-purpose", model: "claude-opus-5" }))).toBe("");
   });
 
   it("allows a non-owner session regardless of model", () => {
@@ -119,7 +105,7 @@ describe("route guard workflow rule", () => {
     const script = "const result = await agent('review the diff', { label: 'review' })";
     const reason = claudeDenial(run(ownedEvent({ script }, "Workflow")));
     expect(reason).toMatch(/agent\(\).*names no literal model/i);
-    expect(reason).toMatch(/skills\/routing/);
+    expect(reason).toMatch(/skills\/maestro/);
   });
 
   it("denies an owner-session workflow with a fable agent model", () => {
@@ -130,34 +116,18 @@ describe("route guard workflow rule", () => {
 
   it("allows an owner-session workflow whose agent calls use non-fable literal models", () => {
     const script = `
-const review = await agent('review the diff', { model: 'opus-4.8' })
+const review = await agent('review the diff', { model: 'claude-opus-5' })
 const check = await agent('run checks', { label: 'check', model: "gpt-5.6-sol" })
 `;
     expect(run(ownedEvent({ script }, "Workflow"))).toBe("");
   });
 });
 
-describe("route guard harness responses", () => {
-  it("emits the documented Codex PreToolUse denial", () => {
-    const parsed = JSON.parse(run(ownedEvent({ subagent_type: "worker" }), "codex"));
-    expect(parsed).toMatchObject({
-      hookSpecificOutput: {
-        hookEventName: "PreToolUse",
-        permissionDecision: "deny",
-      },
-    });
-  });
-
-});
-
-describe("route guard registrations", () => {
-  it.each([
-    ["Claude Code", "hooks.json", "PreToolUse"],
-    ["Codex", "hooks-codex.json", "PreToolUse"],
-  ])("parses the %s registration and references route-guard.mjs", (_harness, file, event) => {
-    const raw = readFileSync(join(HOOKS, file), "utf8");
+describe("route guard registration", () => {
+  it("parses the Claude Code registration and references route-guard.mjs", () => {
+    const raw = readFileSync(join(HOOKS, "hooks.json"), "utf8");
     const registration = JSON.parse(raw);
-    expect(registration.hooks[event]).toBeInstanceOf(Array);
+    expect(registration.hooks["PreToolUse"]).toBeInstanceOf(Array);
     expect(raw).toContain("route-guard.mjs");
   });
 });
