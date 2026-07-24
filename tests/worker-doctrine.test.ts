@@ -153,8 +153,12 @@ describe("portable worker doctrine", () => {
     const manifest = JSON.parse(read(".claude-plugin/plugin.json")) as Record<string, unknown>;
 
     expect(manifest.skills).toBe("./skills/");
-    // Claude Code auto-loads the standard hooks/hooks.json, so the manifest must
-    // not re-declare it; a manifest hooks key points only at a non-standard file.
+    // A live harness constraint, not a guard on a past direction: Claude Code
+    // auto-loads the standard hooks/hooks.json, and a manifest that also names it
+    // loads the file twice, which fails hook load on every install
+    // (docs/lessons/standard-hooks-file-is-not-redeclared.md). A manifest hooks
+    // key is legitimate only for a hook file under a non-standard name, and this
+    // plugin has none, so the requirement is that the key be absent.
     expect(manifest.hooks).toBeUndefined();
     expect(manifest.version).toMatch(
       /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/,
@@ -275,6 +279,12 @@ describe("portable worker doctrine", () => {
     const close = read("skills/close/SKILL.md");
     expect(close).toContain("puts the rule where the repository enforces it best");
     expect(close).toContain("fix the ones in the run's scope and file one issue for the rest");
+    expect(close, "the merge lands the exact head the evidence was recorded on").toContain(
+      "--match-head-commit",
+    );
+    expect(close, "a requirement only a person can satisfy ends the run at an open PR").toContain(
+      "open and unmerged",
+    );
 
     const review = read("skills/code-review/SKILL.md");
     expect(review).toContain("references/autoreview.md");
