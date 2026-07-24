@@ -2,6 +2,8 @@
 
 Date: 2026-07-22
 
+Superseded in part: the wrapper subagent was retired and the CLI call now runs from the orchestrator's own turn (`0020-dispatch-from-the-orchestrators-turn.md`); the decline itself and the rest of this record stand.
+
 ## Decision
 CLIProxyAPI is out as a dispatch path. A model the harness cannot pin natively runs as one foreground CLI call inside a wrapper subagent, one per worker: `scripts/codex-exec` for GPT workers under Claude Code, headless claude for Claude workers under Codex. This supersedes the 2026-07-20 adoption (ADR 0005; docs/specs/2026-07-20-cross-harness.md sections 5 and 6), which had itself superseded a 2026-07-19 decline. The decline stands.
 
