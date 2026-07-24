@@ -54,7 +54,7 @@ Nothing else is assumed about the project. A run leaves nothing behind but the P
 
 ## How workers run
 
-Claude workers are ordinary subagents, each naming its model and effort. GPT workers run as one foreground call to [`scripts/codex-exec`](scripts/codex-exec) inside a thin wrapper subagent, one per worker, so every worker holds a visible row for its whole run. Long builds are covered by raising the shell timeout ceiling in settings (`bottega:setup`); backgrounding the call inside a subagent is banned because it never delivers its result ([`docs/lessons/subagent-background-work-dies-silently.md`](docs/lessons/subagent-background-work-dies-silently.md)). A cloud run whose VM lacks the codex CLI or its login stops at the review and reports what is missing; the integrated review is never waived around it.
+Claude workers are ordinary subagents, each naming its model and effort. GPT workers run as calls to [`scripts/codex-exec`](scripts/codex-exec) that the orchestrator drives from its own turn as tracked background Bash, so every worker holds a visible row for its whole run and its completion re-invokes the orchestrator. Long builds are covered by raising the shell timeout ceiling in settings (`bottega:setup`) and by resuming a cut-short thread; a subagent never holds one of these calls, because it backgrounds it and returns a stub ([`docs/lessons/no-subagent-holds-a-long-dispatch.md`](docs/lessons/no-subagent-holds-a-long-dispatch.md)). A cloud run whose VM lacks the codex CLI or its login stops at the review and reports what is missing; the integrated review is never waived around it.
 
 ## Design decisions
 
