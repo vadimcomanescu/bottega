@@ -32,7 +32,7 @@ Start a new Codex session, invoke `$setup` once to reconcile the repo, then star
 
 | Skill | Claude Code | Codex | What it does |
 | --- | --- | --- | --- |
-| maestro | `/bottega:maestro <task, or issue URL>` | `$maestro <task, or issue URL>` | The whole pipeline: spec, plan, build, review, QA, delivered PR |
+| maestro | `/bottega:maestro <task, or issue URL>` | `$maestro <task, or issue URL>` | The whole pipeline: spec, plan, build, review, QA, merged PR |
 | spec | `/bottega:spec <task, issue URL, or direction>` | `$spec <task, issue URL, or direction>` | Explore, grill the unknowns, agree the spec, commit it, and file dependency-ordered tickets for later runs |
 | improve | `/bottega:improve [area or direction]` | `$improve [area or direction]` | Scan for deepening opportunities, agree the strongest candidate, file it, and take it through a run |
 | code-review | `/bottega:code-review <PR, ref range, or worktree>` | `$code-review <PR, ref range, or worktree>` | Review the working diff, a ref range, or a PR through the vendored review gate |
@@ -40,7 +40,7 @@ Start a new Codex session, invoke `$setup` once to reconcile the repo, then star
 | setup | `/bottega:setup` | `$setup` | Reconcile the project and register the current harness once per repo |
 | bro | `/bottega:bro` | `$bro` | Restate the last reply in plain language, no jargon |
 
-Maestro and spec are two entry points to one method (explore, grill, agree the spec), defined once in [`skills/spec`](skills/spec/SKILL.md) and invoked whole from either. Maestro carries it through to a delivered PR; spec stops at an agreed spec file committed on a work branch that any later `/bottega:maestro` continues. The spec is that file; an issue is never a spec. During a run, maestro also invokes the open, routing, plan, implementing, code-review, QA, and close skills; code-review is the one users also invoke directly, and the vendored autoreview document under it is the engine every review runs on.
+Maestro and spec are two entry points to one method (explore, grill, agree the spec), defined once in [`skills/spec`](skills/spec/SKILL.md) and invoked whole from either. Maestro carries it through to a merged PR; spec stops at an agreed spec file committed on a work branch that any later `/bottega:maestro` continues. The spec is that file; an issue is never a spec. During a run, maestro also invokes the open, routing, plan, implementing, code-review, QA, and close skills; code-review is the one users also invoke directly, and the vendored autoreview document under it is the engine every review runs on.
 
 ## What it does
 
@@ -55,7 +55,7 @@ Maestro and spec are two entry points to one method (explore, grill, agree the s
 7. Sends a separate QA worker through that exact head and records the product verdict. QA reports and stops. The orchestrator classifies a failure as environment, implementation, or design before routing a repair; every product change gets fresh review, orchestrator acceptance, and QA.
 8. Opens the PR carrying the spec, every decision made on the user's behalf, the review verdicts, the orchestrator's architecture acceptance, and the QA evidence. The closing step changes no tracked file, so the PR publishes the accepted reviewed head.
 
-The user appears exactly twice: agreeing to the spec, and merging the PR.
+The user appears once: agreeing to the spec.
 
 ## Requirements
 
@@ -83,7 +83,7 @@ A local cross-vendor proxy (CLIProxyAPI) was adopted for this in 0.66.0 and re-d
 
 **QA owns the product drive.** Builders prove their slice through code and tests. Reviewers inspect the integrated code and architecture. Only after the orchestrator accepts the review evidence does a fresh QA worker drive the accepted head and record the verdict; QA never edits product code. The orchestrator reads a failure before routing it, and any product-code repair gets fresh review, orchestrator acceptance, and QA. Evidence is read from the PR, never in local folders: each scenario's walkthrough gif plays in the browser from its blob page in the private evidence repository, one click from the PR body, with the full recording linked beside it (`docs/adr/0009-qa-evidence-repository.md`).
 
-**The PR is the only path to trunk.** Every run builds on its own branch in its own worktree; the user's checkout is never touched, and the run merges its PR only after the integrated review, QA, and the project's checks are green on the exact head being landed. Why: the gate on trunk is the recorded evidence, and a head that carries all of it lands without waiting on a click (`docs/adr/0016-run-merges-its-own-pr.md`).
+**The PR is the only path to trunk.** Every run builds on its own branch in its own worktree; the user's checkout is never touched, and the run merges its PR only after the integrated review, QA, and the project's checks are green on the exact head being landed. Why: the gate on trunk is the recorded evidence, and a head that carries all of it lands without waiting on a click (`docs/adr/0016-run-merges-its-own-pr.md`). A project that wants a person back in the loop says so in branch protection: a required review or a label only a human adds leaves the run's PR open, with that action reported to the user (`docs/adr/0017-close-respects-human-gates.md`).
 
 ## Roles
 
@@ -96,7 +96,7 @@ Skills define the reusable methods and independently invoked capabilities. Refer
 | review panel | hunts defects in the integrated diff, isolated from the builders, its prompt never carrying the spec | [`skills/code-review/references/autoreview.md`](skills/code-review/references/autoreview.md) |
 | qa | drives the built artifact as a user, records the evidence, never edits product code | [`skills/qa/SKILL.md`](skills/qa/SKILL.md) |
 | panel seats and judge | produce independent drafts and compare them without writing the final answer | [`skills/panel/SKILL.md`](skills/panel/SKILL.md) |
-| closer | confirms the accepted head, opens the PR, watches checks, and merges it green | [`skills/close/SKILL.md`](skills/close/SKILL.md) |
+| closer | confirms the accepted head, opens the PR, watches checks, and merges it green or reports what only a person can clear | [`skills/close/SKILL.md`](skills/close/SKILL.md) |
 
 [`skills/codebase-design`](skills/codebase-design/SKILL.md) is shared by the roles that make and judge architecture: the orchestrator uses it to model the domain and write the plan; the review gate feeds that exact plan to the panel engines. Builders receive the plan and glossary as fixed input.
 
@@ -124,7 +124,7 @@ npm install
 npm test        # vitest suites plus the vendored autoreview Python suites (needs python3 and git on PATH)
 ```
 
-Every change to this repo ships through `/bottega:maestro` on this repo; the procedure, including releases, is in `AGENTS.md` under "Developing bottega".
+Changes to this repo are authored directly with the owner and delivered by a PR the owner merges; `/bottega:maestro` runs the changes to what the software does (hooks, scripts, schemas, workflows). The procedure, including releases, is in `AGENTS.md` under "Developing bottega".
 
 ## Credits
 

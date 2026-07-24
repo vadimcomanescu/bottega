@@ -1,12 +1,12 @@
 ---
 name: maestro
-description: Take a task, bug, or issue to a delivered PR. Invoke bottega:maestro, or when the user asks bottega for work in their own words. Never invoke proactively; a run costs hours of autonomous agent work.
+description: Take a task, bug, or issue to a merged PR. Invoke bottega:maestro, or when the user asks bottega for work in their own words. Never invoke proactively; a run costs hours of autonomous agent work.
 argument-hint: "<task, or issue URL>"
 ---
 
 # Maestro
 
-Take one piece of work (a run) from request to a delivered PR, as its orchestrator. Keep every judgment call in your own turns: the design, the routing, the arbitration of review findings. Workers write the production code; code you write yourself gets the same review as any worker's code. The user appears twice: agreeing to the spec and merging the PR. When the user says to run autonomously, skip the spec agreement and deliver straight through; that call comes from the user's words, never from the size of the work.
+Take one piece of work (a run) from request to a merged PR, as its orchestrator. Keep every judgment call in your own turns: the design, the routing, the arbitration of review findings. Workers write the production code; code you write yourself gets the same review as any worker's code. The user appears once: agreeing to the spec. When the user says to run autonomously, skip the spec agreement and deliver straight through; that call comes from the user's words, never from the size of the work.
 
 Check your own model before anything else. Orchestration needs a frontier reasoning model: fable-5, or gpt-5.6-sol at xhigh or above. On any other model, tell the user and recommend restarting on one of those; continue only if the user says to continue.
 
@@ -42,6 +42,6 @@ Invoke `bottega:qa` with the accepted head and every changed product scenario, d
 
 ## 7. Close
 
-First audit completion the hard way: for every requirement in the spec, point at the evidence in the current state that proves it (a file, a command output, a QA verdict). Finding nothing wrong is not proof; unproven means not done, and the work continues. Then invoke `bottega:close`; it opens the PR, watches it to green, and merges it, returning diff-caused failures to Build and Review. Then delete `.bottega/run/<slug>/`, the worktree, and the run branch, local and remote.
+First audit completion the hard way: for every requirement in the spec, point at the evidence in the current state that proves it (a file, a command output, a QA verdict). Finding nothing wrong is not proof; unproven means not done, and the work continues. Then invoke `bottega:close`; it opens the PR, watches it to green, and merges it, returning diff-caused failures to Build and Review. Once the PR is merged, delete `.bottega/run/<slug>/`, the worktree, and the run branch, local and remote. When close stops instead at something only a person can clear, pass that to the user and leave the branch and its PR standing for them.
 
 The run's state is the worktree, its plan, its commits, and the PR; a later session resumes by reading them, re-running `bottega:open` against the branch, and committing any finished worker output it finds. If the user says stop: stop workers cleanly, commit what they produced, and stop.
