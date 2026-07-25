@@ -18,7 +18,7 @@ codex exec --ignore-user-config -C <worktree> \
 - The brief reaches codex through a file and stdin, never inline shell quoting. Name the brief, out, and log files by absolute path in one directory for the run: shell variables do not survive between your Bash calls, and a recovery needs those paths again.
 - `--ignore-user-config` keeps the machine's codex config out of the run, so a dispatch behaves the same on any host; auth still resolves from `CODEX_HOME`.
 - The final message lands in the out file; everything else (the session header, the commands codex runs, its messages) streams to the log. Read the out file as the report; open the log to debug a failure, never whole into context.
-- A dispatch that grounds itself on the web adds `-c tools.web_search=true`, which composes with a read-only sandbox.
+- A dispatch that grounds itself on the web adds `-c tools.web_search=true`, which composes with any sandbox.
 - A report that must parse: pass `--output-schema <schema-file>`, or end the brief with an output contract demanding a final JSON code block.
 - Outside a git repository, add `--skip-git-repo-check`.
 
@@ -41,7 +41,7 @@ The log file's age is the liveness read: codex streams every command it runs and
 ```
 
 - Resume by explicit session id, read from the log. `--last` filters by cwd and still races any parallel codex on the machine.
-- The session id is `resume`'s first positional argument: it has no `-s`, and no `-C` either. Carry the model, effort, and config isolation exactly as the launch did, re-assert the sandbox as `-c sandbox_mode="..."`, and give the worktree as the process cwd. A resume that omits any of them takes the host's config value instead, which is how a pinned dispatch silently finishes on another model.
+- The session id is `resume`'s first positional argument: it has no `-s`, and no `-C` either. Carry the model, effort, and config isolation exactly as the launch did, re-assert the sandbox as `-c sandbox_mode="..."`, and give the worktree as the process cwd. A resume that omits any of them runs at the host config's values instead of the dispatch's: measured on a session pinned to `low` effort and `read-only`, a bare resume came back at the host's `xhigh` and `danger-full-access`. Whatever the dispatch site chose is what has to survive the recovery.
 - Sessions live in the machine's `CODEX_HOME` and die with it. A session that is gone gets a fresh dispatch whose brief carries whatever the interrupted run had already reported.
 - Resume continues the same job (a follow-up fix, a recovery). A new job gets a fresh `codex exec`: a long session fed a new work order reads it as configuration and no-ops.
 
