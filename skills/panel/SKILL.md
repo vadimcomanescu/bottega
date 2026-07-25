@@ -1,6 +1,6 @@
 ---
 name: panel
-description: Put one costly decision to independent drafts from different companies' models, blinded, with a compare-only judge; the caller synthesizes the answer. Use when the user asks for a panel or a fusion pass, or when a run's Spec or Plan phase reaches a decision that passes its gate.
+description: Put one costly decision to independent drafts from different companies' models, blinded, with a compare-only judge; the caller synthesizes the answer. Use when the user asks for a panel or a fusion pass, or when a run's Spec or Plan phase reaches a decision meeting the three conditions it states.
 argument-hint: "<the decision>"
 ---
 
@@ -8,7 +8,7 @@ argument-hint: "<the decision>"
 
 Run the whole panel yourself: frame the decision, dispatch the seats, and write the final answer. The panel does not vote or decide; it returns independent drafts and a structured comparison, and the decision stays yours.
 
-The gate, all three before any seat is paid for: the decision is open (several defensible answers, and neither the repository nor a standard solution settles it); wrong is costly (expensive to reverse after merge, or hard to notice until it is); and no cheap check settles it (a question a test, spike, benchmark, or prototype can answer gets that check instead: the check returns ground truth, while the seats, grounded but read-only, can only return arguments). The panel generates answers to a question nobody has answered yet; a critique of an existing answer (a plan, a diff, a spec) is a review, never a panel.
+A panel is worth its cost on three conditions, all true before any seat is paid for: the decision is open (several defensible answers, and neither the repository nor a standard solution settles it); wrong is costly (expensive to reverse after merge, or hard to notice until it is); and no cheap check settles it (a question a test, spike, benchmark, or prototype can answer gets that check instead: the check returns ground truth, while the seats, grounded but read-only, can only return arguments). The panel generates answers to a question nobody has answered yet; a critique of an existing answer (a plan, a diff, a spec) is a review, never a panel.
 
 ## 1. Frame the task
 
