@@ -27,6 +27,7 @@ Resolve symlinks first, then read; never search by a fixed list of filenames. Fo
 - Decisions: wherever design decisions are recorded today, including prose sections of README-class docs.
 - Tracker conventions, the GitHub remote, its labels, and whether `gh` is authenticated with issue and label permissions.
 - The project's commands (test, lint, format, typecheck, build, run), whether the canonical map states them, and `.gitignore`.
+- The default branch's merge governance: rulesets or branch protection, the auto-merge setting, and any automation that merges or arms auto-merge.
 - Any index the repo declares for its own agent skills.
 
 Complete when every part of the shape has either a located current home or a stated "nowhere".
@@ -50,6 +51,7 @@ For every gap between the found state and the shape, show the exact edit that cl
 - **Migrations**: discovered term definitions move into the relevant `CONTEXT.md`; discovered decision records that meet the ADR bar move into `docs/adr/`; two files claiming the same authority merge into one home; every reference updates in the same change. Formats follow `bottega:codebase-design` and its references. When a source and its target both hold material, put the merge to the user before writing.
 - **A critical-journeys doc** when the repo ships a user-facing surface and no doc names its journeys: draft the inventory from the code, one journey per user-visible capability, for the owner to correct before it lands, and route to it from the managed block. Runs read it at spec and QA, and a slice that changes a journey owns updating it.
 - **Owner docs** for tracker conventions, always reusing an existing equivalent home instead of creating a second one.
+- **A merge-governance proposal** when the default branch has none, where the plan supports it: a ruleset with the project's gates as required checks, squash merges, and no bypass actors; auto-merge allowed with no automation arming it, so the owner arming auto-merge or merging is the release (`docs/adr/0024-the-owner-merges.md`); required approvals stay zero while the owner authors the PRs, because an author cannot approve their own PR. Automation found merging or arming auto-merge is shown as an edit that removes it.
 - **A `.bottega/` entry in `.gitignore`** when missing.
 - **The approved `area:*` labels**, each created with `gh` as get-or-create and read back. Labels organize the backlog for people; the method never reads them. Never rename or delete an existing label.
 

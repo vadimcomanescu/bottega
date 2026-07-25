@@ -5,7 +5,7 @@ The delivery method's own vocabulary: the terms every skill, brief, and doc in t
 ## Language
 
 **Run**:
-One piece of work taken from request to a merged PR, owned by one orchestrator session on its own branch and worktree.
+One piece of work taken from request to a PR ready to merge, owned by one orchestrator session on its own branch and worktree; the owner's merge is the release.
 _Avoid_: commission, pipeline, job
 
 **One-shot**:

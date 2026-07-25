@@ -19,15 +19,16 @@ Start a run with `/bottega:maestro <task, or issue URL>`.
 
 | Skill | Command | What it does |
 | --- | --- | --- |
-| maestro | `/bottega:maestro <task, or issue URL>` | The whole pipeline: spec, plan, build, review, QA, merged PR |
+| maestro | `/bottega:maestro <task, or issue URL>` | The whole pipeline: spec, plan, build, review, QA, and a PR ready to merge |
 | spec | `/bottega:spec <task, issue URL, or direction>` | Explore, grill the unknowns, agree the spec, and commit it on a work branch a later run continues |
 | improve | `/bottega:improve [area or direction]` | Scan for deepening opportunities, agree the strongest candidate, file it, and take it through a run |
 | code-review | `/bottega:code-review <PR, ref range, or worktree>` | Review the working diff, a ref range, or a PR through the vendored review gate |
 | panel | `/bottega:panel <the decision>` | Produce independent drafts from different companies' models and a compare-only judgment |
 | setup | `/bottega:setup` | Reconcile the project and register the harness once per repo |
+| calibrate | `/bottega:calibrate <repo root, or one doc>` | Audit agent docs against the Claude 5 calibration bar and propose the cuts |
 | bro | `/bottega:bro` | Restate the last reply in plain language, no jargon |
 
-Maestro and spec are two entry points to one method (explore, grill, agree the spec), defined once in [`skills/spec`](skills/spec/SKILL.md) and invoked whole from either. Maestro carries it through to a merged PR; spec stops at an agreed spec file committed on a work branch that any later `/bottega:maestro` continues. The spec is that file; an issue is never a spec. During a run, maestro also invokes the open, plan, build, implementing, code-review, QA, and close skills; code-review is the one users also invoke directly, and the vendored autoreview document under it is the engine every review runs on.
+Maestro and spec are two entry points to one method (explore, grill, agree the spec), defined once in [`skills/spec`](skills/spec/SKILL.md) and invoked whole from either. Maestro carries it through to a ready PR; spec stops at an agreed spec file committed on a work branch that any later `/bottega:maestro` continues. The spec is that file; an issue is never a spec. During a run, maestro also invokes the open, plan, build, implementing, code-review, QA, and close skills; code-review is the one users also invoke directly, and the vendored autoreview document under it is the engine every review runs on.
 
 ## What it does
 
@@ -40,7 +41,7 @@ Maestro and spec are two entry points to one method (explore, grill, agree the s
 5. Dispatches builders with one assigned slice, the fixed architecture, the glossary, and relevant technology skills. Builders work test-first and stop at the slice boundary; the project's gates stay green at every integrate.
 6. Checks that every changed user-facing surface updated its docs inside its slice, then reviews the integrated diff through the vendored autoreview document: one panel invocation, two isolated engines, one Claude and one GPT, isolated from the builders, their prompt never carrying the spec or the plan, judging against the repository's own review doctrine. A separate fresh GPT worker checks the diff against the agreed spec, quoting the line each finding rests on. The orchestrator verifies every finding, dispatches the accepted ones to a fresh builder, and the reviewer reruns with a single engine until nothing blocking remains.
 7. Sends a separate QA worker through that exact head and records the product verdict. QA reports and stops. The orchestrator classifies a failure as environment, implementation, or design before routing a repair; every product change gets fresh review, orchestrator acceptance, and QA.
-8. Opens the PR carrying the spec, every decision made on the user's behalf, the review verdicts, the orchestrator's architecture acceptance, and the QA evidence. The closing step changes no tracked file, so the PR publishes the accepted reviewed head. It then watches every check to completion and squash-merges that exact head, pinned by SHA; a requirement no code change satisfies, such as a required human review or a label only a person adds, ends the run instead with the PR open and that action named to the user.
+8. Opens the PR carrying the spec, every decision made on the user's behalf, the review verdicts, the orchestrator's architecture acceptance, and the QA evidence. The closing step changes no tracked file, so the PR publishes the accepted reviewed head. It then watches every check to completion and reports the PR ready for the user's merge; a requirement no code change satisfies, such as a required human review or a label only a person adds, is named to the user with the PR left open.
 
 The user appears once: agreeing to the spec.
 
@@ -68,7 +69,7 @@ Claude workers are ordinary subagents, each naming its model and effort. GPT wor
 
 **QA owns the product drive.** Builders prove their slice through code and tests. Reviewers inspect the integrated code and architecture. Only after the orchestrator accepts the review evidence does a fresh QA worker drive the accepted head and record the verdict; QA never edits product code. The orchestrator reads a failure before routing it, and any product-code repair gets fresh review, orchestrator acceptance, and QA. Evidence is read from the PR, never in local folders: each scenario's walkthrough gif plays in the browser from its blob page in the private evidence repository, one click from the PR body, with the full recording linked beside it (`docs/adr/0009-qa-evidence-repository.md`).
 
-**The PR is the only path to trunk.** Every run builds on its own branch in its own worktree; the user's checkout is never touched, and the run merges its PR only after the integrated review, QA, and the project's checks are green on the exact head being landed. Why: the gate on trunk is the recorded evidence, and a head that carries all of it lands without waiting on a click (`docs/adr/0016-run-merges-its-own-pr.md`). A project that wants a person back in the loop says so in branch protection: a required review or a label only a human adds leaves the run's PR open, with that action reported to the user (`docs/adr/0017-close-respects-human-gates.md`).
+**The PR is the only path to trunk.** Every run builds on its own branch in its own worktree; the user's checkout is never touched, and the run's PR reaches ready only after the integrated review, QA, and the project's checks are green on the exact head being delivered. Why: verification is the run's, authorization is the user's; the user's merge is the release (`docs/adr/0024-the-owner-merges.md`). Any further requirement only a person can clear, a required review or a label, is reported the same way, the PR left open (`docs/adr/0017-close-respects-human-gates.md`).
 
 ## Roles
 
@@ -81,7 +82,7 @@ Skills define the reusable methods and independently invoked capabilities. Refer
 | review panel | hunts defects in the integrated diff, isolated from the builders, its prompt never carrying the spec | [`skills/code-review/references/autoreview.md`](skills/code-review/references/autoreview.md) |
 | qa | drives the built artifact as a user, records the evidence, never edits product code | [`skills/qa/SKILL.md`](skills/qa/SKILL.md) |
 | panel seats and judge | produce independent drafts and compare them without writing the final answer | [`skills/panel/SKILL.md`](skills/panel/SKILL.md) |
-| closer | confirms the accepted head, opens the PR, watches checks, and merges it green or reports what only a person can clear | [`skills/close/SKILL.md`](skills/close/SKILL.md) |
+| closer | confirms the accepted head, opens the PR, watches checks, and reports it ready for the user's merge or what only a person can clear | [`skills/close/SKILL.md`](skills/close/SKILL.md) |
 
 [`skills/codebase-design`](skills/codebase-design/SKILL.md) is shared by the roles that make and judge architecture: the orchestrator uses it to model the domain and write the plan; the review feeds that exact plan to the panel engines. Builders receive the plan and glossary as fixed input.
 

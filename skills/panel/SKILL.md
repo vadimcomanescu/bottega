@@ -6,7 +6,7 @@ argument-hint: "<the decision>"
 
 # Panel
 
-Run the whole panel yourself: frame the decision, dispatch the seats, and write the final answer. The panel does not vote or decide; it returns independent drafts and a structured comparison, and the decision stays yours.
+Run the whole panel yourself: frame the decision, dispatch the seats, and write the final answer. The panel does not vote or decide; it returns independent drafts and a structured comparison.
 
 A panel is worth its cost on three conditions, all true before any seat is paid for: the decision is open (several defensible answers, and neither the repository nor a standard solution settles it); wrong is costly (expensive to reverse after merge, or hard to notice until it is); and no cheap check settles it (a question a test, spike, benchmark, or prototype can answer gets that check instead: the check returns ground truth, while the seats, grounded but read-only, can only return arguments). The panel generates answers to a question nobody has answered yet; a critique of an existing answer (a plan, a diff, a spec) is a review, never a panel.
 
@@ -36,7 +36,7 @@ Another company's CLI installed on the machine takes a further seat under the sa
 
 ## 3. Fan out
 
-Dispatch every seat in parallel and wait for all of them. A seat that errors, times out, or returns an empty draft is recorded and the panel continues. With two or more drafts, proceed. With one draft, take a second independent draft from the strongest seat that answered, same task verbatim, fresh dispatch: two runs of one strong model still fuse, because independent runs cover different considerations, and that measured the largest single gain in the evidence. Only when no seat answers at all is there no panel: report the failures and answer solo, saying so.
+Dispatch every seat in parallel and wait for all of them. A seat that errors, times out, or returns an empty draft is recorded and the panel continues. With two or more drafts, proceed. With one draft, take a second independent draft from the strongest seat that answered, same task verbatim, fresh dispatch: two runs of one strong model still fuse, because independent runs cover different considerations, and that measured the largest single gain in the evidence ([docs/research/2026-07-25-fusion-panels.md](../../docs/research/2026-07-25-fusion-panels.md)). Only when no seat answers at all is there no panel: report the failures and answer solo, saying so.
 
 ## 4. Blind
 
