@@ -100,6 +100,71 @@ describe("route guard ownership rule", () => {
   });
 });
 
+describe("route guard discovery claim", () => {
+  function repoWithDiscovery(owner: string): string {
+    const dir = mkdtempSync(join(tmpdir(), "bottega-route-guard-"));
+    cleanups.push(dir);
+    mkdirSync(join(dir, ".bottega"), { recursive: true });
+    writeFileSync(join(dir, ".bottega", "discovery"), owner + "\n");
+    return dir;
+  }
+
+  it("denies a claim-holding session's dispatch without a model", () => {
+    const reason = claudeDenial(
+      run({
+        cwd: repoWithDiscovery(OWNER),
+        session_id: OWNER,
+        tool_name: "Agent",
+        tool_input: { subagent_type: "general-purpose", prompt: "explore the area" },
+      }),
+    );
+    expect(reason).toMatch(/names no model/i);
+  });
+
+  it("allows a bystander session when only a discovery claim exists", () => {
+    expect(
+      run({
+        cwd: repoWithDiscovery(OWNER),
+        session_id: "bystander-session",
+        tool_name: "Agent",
+        tool_input: { subagent_type: "general-purpose" },
+      }),
+    ).toBe("");
+  });
+});
+
+describe("route guard codex dispatch rule", () => {
+  it("denies an owner-session codex exec without a model", () => {
+    const reason = claudeDenial(
+      run(ownedEvent({ command: "codex exec -s read-only -o /tmp/out - < /tmp/brief" }, "Bash")),
+    );
+    expect(reason).toMatch(/codex dispatch names no model/i);
+    expect(reason).toMatch(/skills\/maestro/);
+  });
+
+  it("denies an owner-session codex exec routed to fable", () => {
+    const reason = claudeDenial(
+      run(ownedEvent({ command: "codex exec -m claude-fable-5 -o /tmp/out -" }, "Bash")),
+    );
+    expect(reason).toMatch(/fable/i);
+  });
+
+  it("allows an owner-session codex exec naming a model, resume included", () => {
+    for (const command of [
+      "codex exec --ignore-user-config -m gpt-5.6-sol -c model_reasoning_effort=\"xhigh\" -s read-only -o /tmp/out -",
+      "(cd /tmp/wt && codex exec resume abc123 --ignore-user-config -m gpt-5.6-sol -o /tmp/out -)",
+    ]) {
+      expect(run(ownedEvent({ command }, "Bash"))).toBe("");
+    }
+  });
+
+  it("ignores non-dispatch bash in an owner session", () => {
+    for (const command of ["codex login status", "git status", "codex exec --help"]) {
+      expect(run(ownedEvent({ command }, "Bash"))).toBe("");
+    }
+  });
+});
+
 describe("route guard workflow rule", () => {
   it("denies an owner-session workflow with an unpinned agent call", () => {
     const script = "const result = await agent('review the diff', { label: 'review' })";

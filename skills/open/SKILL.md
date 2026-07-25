@@ -18,7 +18,7 @@ First sweep finished work: a `.bottega/run/` entry or worktree whose PR has merg
 
 ## 3. Write the owner file
 
-Write your session id to `.bottega/run/<slug>/owner`; the route guard polices the session named there. Resuming in a later session, rewrite it before dispatching anything. Complete when the owner file names this session.
+Write your session id to `.bottega/run/<slug>/owner`, and delete the `.bottega/discovery` claim when one exists; the route guard polices the session named there. Resuming in a later session, rewrite it before dispatching anything. Complete when the owner file names this session.
 
 ## 4. Read the commands
 

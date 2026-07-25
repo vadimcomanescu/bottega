@@ -15,6 +15,10 @@ const WORKFLOW_UNPINNED =
   `This live run workflow has an agent() call that names no literal model. Name the model this worker's row gives it (${TABLE}) and retry.`;
 const WORKFLOW_FABLE =
   `This live run workflow has an agent() call routed to Fable, the orchestrator's model, never a worker's. Name the model this worker's row gives it (${TABLE}) and retry.`;
+const CODEX_UNPINNED =
+  `This live run codex dispatch names no model (-m). Name the model this worker's row gives it (${TABLE}) and retry.`;
+const CODEX_FABLE =
+  `This live run codex dispatch routes to Fable, the orchestrator's model, never a worker's. Name the model this worker's row gives it (${TABLE}) and retry.`;
 
 function readStdin() {
   return new Promise((resolve) => {
@@ -43,6 +47,17 @@ function ownsLiveRun(cwd, session) {
     }
   }
   return false;
+}
+
+// Discovery runs before Open creates the run entry; the discovery claim is
+// the session id written to .bottega/discovery, and it polices that window.
+function ownsDiscovery(cwd, session) {
+  try {
+    const owner = readFileSync(join(cwd, ".bottega", "discovery"), "utf8").trim();
+    return owner !== "" && owner === session;
+  } catch {
+    return false;
+  }
 }
 
 function workflowScript(input, cwd) {
@@ -137,7 +152,19 @@ const cwd =
 const session = typeof event.session_id === "string" ? event.session_id : null;
 const input = event.tool_input;
 if (!cwd || !session || !input || typeof input !== "object") process.exit(0);
-if (!ownsLiveRun(cwd, session)) process.exit(0);
+if (!ownsLiveRun(cwd, session) && !ownsDiscovery(cwd, session)) process.exit(0);
+
+if (event.tool_name === "Bash") {
+  const command = typeof input.command === "string" ? input.command : "";
+  if (!/\bcodex\s+exec\b/.test(command) || command.includes("--help")) process.exit(0);
+  const model = command.match(/(?:^|\s)(?:-m|--model)[=\s]+(\S+)/)?.[1] ?? "";
+  if (!model) {
+    deny(CODEX_UNPINNED);
+    process.exit(0);
+  }
+  if (FABLE.test(model)) deny(CODEX_FABLE);
+  process.exit(0);
+}
 
 if (event.tool_name === "Workflow") {
   const script = workflowScript(input, cwd);

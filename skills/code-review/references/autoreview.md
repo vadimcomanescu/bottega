@@ -253,13 +253,13 @@ Reruns after fixes are single-engine with model and thinking pinned (`--engine c
 Set reviewer models and thinking/effort explicitly:
 
 ```bash
-"$AUTOREVIEW" --reviewers codex,claude --model codex=gpt-5.6-sol --thinking codex=xhigh --model claude=claude-fable-5 --thinking claude=max
+"$AUTOREVIEW" --reviewers codex,claude --model codex=gpt-5.6-sol --thinking codex=xhigh --model claude=claude-fable-5 --thinking claude=xhigh
 ```
 
 Inline syntax is also supported for simple model IDs:
 
 ```bash
-"$AUTOREVIEW" --reviewers codex:gpt-5.6-sol:xhigh,claude:claude-fable-5:max
+"$AUTOREVIEW" --reviewers codex:gpt-5.6-sol:xhigh,claude:claude-fable-5:xhigh
 ```
 
 For models with slashes or extra colons, prefer keyed form:
@@ -311,7 +311,7 @@ Examples matching current `main` behavior:
 "$AUTOREVIEW" --engine codex --codex-config 'service_tier="fast"'
 
 # Claude Code aliases or full model names, with optional availability fallback
-"$AUTOREVIEW" --engine claude --model claude-fable-5 --thinking max
+"$AUTOREVIEW" --engine claude --model claude-fable-5 --thinking xhigh
 "$AUTOREVIEW" --engine claude --model claude-fable-5 --fallback-model claude-opus-4-8,claude-sonnet-4-6
 
 # Pi with explicit model and thinking level
