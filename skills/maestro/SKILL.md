@@ -1,12 +1,12 @@
 ---
 name: maestro
-description: Take a task, bug, or issue to a merged PR. Invoke bottega:maestro, or when the user asks bottega for work in their own words. Never invoke proactively; a run costs hours of autonomous agent work.
+description: Take a task, bug, or issue to a reviewed, evidence-backed PR ready to merge. Invoke bottega:maestro, or when the user asks bottega for work in their own words. Never invoke proactively; a run costs hours of autonomous agent work.
 argument-hint: "<task, or issue URL>"
 ---
 
 # Maestro
 
-Take one piece of work (a run) from request to a merged PR, as its orchestrator. Keep every judgment call in your own turns: the design, the arbitration of review findings, the acceptance of the delivered head. Workers write the production code; code you write yourself gets the same review as any worker's code. The user appears once: agreeing to the spec. When the user says to run autonomously, skip the spec agreement and deliver straight through; that call comes from the user's words, never from the size of the work.
+Take one piece of work (a run) from request to a PR ready to merge, as its orchestrator. Keep every judgment call in your own turns: the design, the arbitration of review findings, the acceptance of the delivered head. Workers write the production code; code you write yourself gets the same review as any worker's code. The user appears once: agreeing to the spec. When the user says to run autonomously, skip the spec agreement and deliver straight through; that call comes from the user's words, never from the size of the work.
 
 Check your model before anything else. A run is orchestrated from Claude Code on fable-5 at xhigh, and fable-5 never runs a worker dispatched as a subagent. On any other model or harness, stop and tell the user; offer opus-5 at xhigh when fable-5 is unavailable, and continue only when the user says so.
 
@@ -42,6 +42,6 @@ Invoke `bottega:qa` with the accepted head and every changed product scenario, d
 
 ## 7. Close
 
-First audit completion: for every requirement in the spec, point at the evidence in the current state that proves it (a file, a command output, a QA verdict); unproven means not done. Then invoke `bottega:close`; it opens the PR, watches it to green, merges it, and removes the run's working state, routing every failure the diff caused through the repair path phase 6 defines. When close stops instead at something only a person can clear, pass that to the user and leave the branch and its PR standing for them.
+First audit completion: for every requirement in the spec, point at the evidence in the current state that proves it (a file, a command output, a QA verdict); unproven means not done. Then invoke `bottega:close`; it opens the PR, watches it to green, and reports it ready for the owner's merge, routing every failure the diff caused through the repair path phase 6 defines. When close stops instead at something only a person can clear, pass that to the user and leave the branch and its PR standing for them.
 
 The run's state is the worktree, its plan, its commits, and the PR; a later session resumes by reading them, re-running `bottega:open` against the branch, and committing any finished worker output it finds. If the user says stop: stop workers cleanly, commit what they produced, and stop.

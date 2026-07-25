@@ -279,8 +279,8 @@ describe("portable worker doctrine", () => {
     const close = read("skills/close/SKILL.md");
     expect(close).toContain("puts the rule where the repository enforces it best");
     expect(close).toContain("fix the ones in the run's scope and file one issue for the rest");
-    expect(close, "the merge lands the exact head the evidence was recorded on").toContain(
-      "--match-head-commit",
+    expect(close, "the run never merges; the owner's merge is the release").toContain(
+      "The owner's merge is the release",
     );
     expect(close, "a requirement only a person can satisfy ends the run at an open PR").toContain(
       "open and unmerged",
