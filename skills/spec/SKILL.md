@@ -14,7 +14,7 @@ When the branch already carries a spec file, start there: show the owner what yo
 
 Read the repo facts first: the smallest map that routes the task (root `CLAUDE.md` or `AGENTS.md`), then `CONTEXT-MAP.md` if present, then only the `CONTEXT.md` glossaries, `docs/adr/` decisions, `docs/lessons/` records, and critical journeys the work touches. Current docs only.
 
-Then launch a subagent per job that applies, each on opus-5 at medium effort: explore how the affected area of the codebase works today and the precedent it sets; search online for how others solve this problem and where the practice is heading; and read the technology skills in this runtime that match the work. Run the search job on any product-shaped work: the codebase answers how we already do it here, the search answers the standard way.
+Then launch a subagent per job that applies, each on the explorer's row of [the worker table](../maestro/references/workers.md): explore how the affected area of the codebase works today and the precedent it sets; search online for how others solve this problem and where the practice is heading; and read the technology skills in this runtime that match the work. Run the search job on any product-shaped work: the codebase answers how we already do it here, the search answers the standard way.
 
 Read what comes back, then read directly the files any decision hinges on. Verify version-sensitive technology against the installed version and its official docs before a decision relies on it. A subagent returns findings, never a decision.
 
@@ -36,7 +36,7 @@ In an autonomous run there is no owner to ask: resolve each remaining unknown th
 
 Trigger: a decision hinges on how something looks or feels, a preference the user cannot answer in words.
 
-Build rough, real, rendered artifacts and screenshot them, through a dispatched worker on opus-5 at medium effort: prototype code never ships, so it does not get the build phase's xhigh. When the choice is open, build several directions the user can react to, and show the user flow, not one frame. The user reacts before anything is wired up. State the settled decision in words in the spec and attach the screenshots as evidence. Prototype code is evidence, never truth: it never merges into the product, and the build rewrites it from the agreed spec; keep the source beside the spec, because a rendered mockup a builder can read carries the settled look at a fidelity no description of it reaches.
+Build rough, real, rendered artifacts and screenshot them, through a dispatched worker on the prototyper's row of [the worker table](../maestro/references/workers.md): prototype code never ships, so it does not get the builder's effort. When the choice is open, build several directions the user can react to, and show the user flow, not one frame. The user reacts before anything is wired up. State the settled decision in words in the spec and attach the screenshots as evidence. Prototype code is evidence, never truth: it never merges into the product, and the build rewrites it from the agreed spec; keep the source beside the spec, because a rendered mockup a builder can read carries the settled look at a fidelity no description of it reaches.
 
 Where you build it depends on the entry point:
 

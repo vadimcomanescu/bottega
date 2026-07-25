@@ -80,23 +80,78 @@ describe("portable worker doctrine", () => {
     expect(violations).toEqual([]);
   });
 
-  it("keeps every worker model choice in the skill that dispatches it", () => {
+  it("keeps every run worker's model in the worker table, one row each", () => {
     const maestro = read("skills/maestro/SKILL.md");
     expect(maestro, "the orchestrator model is named").toContain(
       "orchestrated from Claude Code on fable-5 at xhigh",
     );
     expect(maestro, "fable never runs a worker").toContain("never runs a worker");
-    expect(maestro, "the QA worker model is named").toContain("opus-5 at its default effort");
+    expect(maestro, "every dispatch reads the worker table").toContain(
+      "references/workers.md",
+    );
 
-    expect(read("skills/build/SKILL.md"), "the builder model is named").toContain(
-      "opus-5 at xhigh",
+    const workers = read("skills/maestro/references/workers.md");
+    for (const row of [
+      "| builder | opus-5 | xhigh |",
+      "| explorer | opus-5 | medium |",
+      "| prototyper | opus-5 | medium |",
+      "| QA driver | opus-5 | default |",
+      "| mechanic | opus-5 | low |",
+      "| plan editor | gpt-5.6-sol | xhigh |",
+      "| conformance checker | gpt-5.6-sol | high |",
+    ]) {
+      expect(workers, `the worker table is missing the row ${row}`).toContain(row);
+    }
+
+    // One row is one worker, one model, one effort. A cell holding two of
+    // either is two workers written on one line, and the pair cannot move
+    // independently when a model or an effort level goes away.
+    const rows = workers
+      .split(/\r?\n/)
+      .filter((line) => line.startsWith("|") && !/^\|\s*(Worker|-)/.test(line));
+    expect(rows.length).toBeGreaterThan(0);
+    for (const row of rows) {
+      const cells = row.split("|").map((cell) => cell.trim());
+      expect(cells[2]?.includes("/"), `worker row carries two models: ${row}`).toBe(false);
+      expect(cells[3]?.includes("/"), `worker row carries two efforts: ${row}`).toBe(false);
+    }
+
+    // Every skill file routes to the table instead of restating a model, the
+    // references included, since a reference is where a restated pin would go
+    // unnoticed. The exceptions each own their models: the table itself,
+    // maestro's own orchestrator sentence, the panel's seats, and the vendored
+    // engine and its suites.
+    const owned = new Set([
+      "skills/maestro/references/workers.md",
+      "skills/maestro/SKILL.md",
+      "skills/panel/SKILL.md",
+      "skills/code-review/references/autoreview.md",
+    ]);
+    for (const file of filesUnder("skills", ".md")) {
+      if (owned.has(file) || file.startsWith("skills/code-review/tests/")) continue;
+      const named = read(file).match(/\b(opus-5|fable-5|gpt-5\.6-\w+)\b/);
+      expect(named?.[0], `${file} names ${named?.[0]}; the worker table owns it`).toBe(undefined);
+    }
+    expect(read("skills/panel/SKILL.md"), "the panel names its own seats").toContain(
+      "opus-5 at max effort",
     );
-    expect(read("skills/plan/SKILL.md"), "the plan editor model is named").toContain(
-      "gpt-5.6-sol at xhigh",
-    );
-    expect(read("skills/code-review/SKILL.md"), "the conformance model is named").toContain(
-      "gpt-5.6-sol at high",
-    );
+
+    // The vendored engine states the fix builder's model for a standalone
+    // review, which never reads a run's table, so the same fact has two homes
+    // on purpose. Read the builder's row and require the vendored line to
+    // match it: changing the row fails here until the vendored text is
+    // re-scoped with it, and THIRD_PARTY.md records that scoping.
+    const builder = workers
+      .split(/\r?\n/)
+      .find((line) => line.startsWith("| builder |"))
+      ?.split("|")
+      .map((cell) => cell.trim());
+    const [, , builderModel, builderEffort] = builder ?? [];
+    expect(builderModel, "the worker table has a builder row").toBeTruthy();
+    expect(
+      read("skills/code-review/references/autoreview.md"),
+      `the vendored fix builder has drifted from the builder row (${builderModel} at ${builderEffort})`,
+    ).toContain(`runs on ${builderModel} at ${builderEffort}`);
 
     const review = read("skills/code-review/references/autoreview.md");
     expect(review).toContain("--model codex=gpt-5.6-sol");

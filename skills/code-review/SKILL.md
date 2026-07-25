@@ -10,7 +10,7 @@ Review one diff and leave nothing blocking at its head. The engine is vendored i
 
 ## 1. Doc coverage
 
-Docs were updated inside each slice, so the only doc question here is coverage: does the diff change a user-facing surface whose docs did not change? A gap is a builder dispatch on opus-5 at xhigh, per `bottega:build`, before the review's base freezes; never create a doc surface the project doesn't have.
+Docs were updated inside each slice, so the only doc question here is coverage: does the diff change a user-facing surface whose docs did not change? A gap is a builder dispatch per `bottega:build`, before the review's base freezes; never create a doc surface the project doesn't have.
 
 ## 2. The review
 
@@ -20,4 +20,4 @@ Severity gates that loop. An accepted finding that blocks (correctness, security
 
 ## 3. Spec conformance
 
-When the review loop has converged, dispatch the spec-conformance check at that head: one fresh worker (gpt-5.6-sol at high, one read-only codex dispatch per [maestro's codex dispatch method](../maestro/references/codex-dispatch.md)) reads the diff and the agreed spec and reports what is missing or partial, what nobody asked for, and what looks wrong, each finding quoting the spec line it rests on. It never sees the review's findings and nothing reranks across the two. An accepted conformance blocker goes to a fresh builder on opus-5 at xhigh and the gates like any review finding; the reviewer then reruns at the new head, and the conformance check reruns after it.
+When the review loop has converged, dispatch the spec-conformance check at that head: one fresh worker (the conformance checker's row of [the worker table](../maestro/references/workers.md), one read-only codex dispatch per [maestro's codex dispatch method](../maestro/references/codex-dispatch.md)) reads the diff and the agreed spec and reports what is missing or partial, what nobody asked for, and what looks wrong, each finding quoting the spec line it rests on. It never sees the review's findings and nothing reranks across the two. An accepted conformance blocker goes to a fresh builder and the gates like any review finding; the reviewer then reruns at the new head, and the conformance check reruns after it.
