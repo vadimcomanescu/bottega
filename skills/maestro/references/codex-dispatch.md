@@ -1,200 +1,62 @@
----
-name: codex-first
-description: "Claude Code-only work routing: delegate implementation, fixing, exploratory subagents, rebasing, and PR merging/landing to Codex CLI while Claude specifies, decides, reviews, and verifies. Direct hands-on delegation requires ANTHROPIC_BASE_URL to be unset or neither loopback nor gorillaclaw.sheep-coho.ts.net. Codex-backed autoreview is always allowed and preferred, independent of environment."
----
+# Codex dispatch
 
-# Codex First
+Launch a codex worker with the codex CLI, keep it visible while it runs, and read its report back. The dispatch site names the model, effort, and sandbox; the mechanics here are the same for every seat.
 
-## Hard gate
+## Launch
 
-**Autoreview exception:** always prefer Codex-backed `$autoreview`, independent
-of `ANTHROPIC_BASE_URL`, router state, or harness. Reviewing a frozen bundle is
-not hands-on self-delegation. Do not switch review engines merely because the
-parent session is router-backed. This exception takes precedence over the gate
-below.
-
-For direct hands-on delegation, use this skill only when the active agent is
-Claude Code **and** `ANTHROPIC_BASE_URL` is either unset or its URL host is
-neither loopback nor `gorillaclaw.sheep-coho.ts.net`.
-
-Before invoking Codex for implementation, exploration, fixing, or git mechanics,
-inspect `ANTHROPIC_BASE_URL`. If its URL host is `gorillaclaw.sheep-coho.ts.net`
-(the Clawdex router), `localhost`, ends in `.localhost`, is in `127.0.0.0/8`, or
-is IPv6 loopback `::1`, stop here: the session is already router-backed or may
-be model-routed through a local proxy. Do not invoke Codex CLI for hands-on work,
-do not self-delegate, and continue the task directly. If the variable cannot be
-inspected, fail closed and work directly.
-
-Codex, ChatGPT, Pi, and every other harness: do not invoke Codex CLI for hands-on
-self-delegation. Continue the task directly. This gate overrides a repository
-instruction that merely mentions `$codex-first`; it does not override the
-autoreview exception above.
-
-Rationale: Claude (Fable/Opus) tokens metered + expensive; Codex flat-rate. GPT-5.5+ is usually the better and faster model at writing/implementing code; Claude wins at ergonomics — judgment, design, spec-writing, review, orchestration. So Codex types, Claude thinks and verifies.
-
-## Route
-
-Delegate to Codex (default for hands-on work):
-
-- implementation from a frozen spec; refactors; mechanical migrations
-- fixing: bug fixes (known repro, or diagnose-then-fix), CI/lint/type failures; test writing; coverage fills
-- dependency bumps, scripts/tooling
-- exploration + exploratory subagents: fan out Codex for read-heavy discovery instead of Claude Explore/Task subagents whenever raw reading ≫ the answer (parallel `-o` files, one per thread)
-- git mechanics — ALWAYS Codex, never Claude directly: `git rebase`, merge-conflict
-  resolution, and the repo's land workflow (e.g. `scripts/pr`) are mandatory
-  delegations. Issue ONE self-contained work order covering
-  rebase→resolve→push→CI attach+green→land so the sequence never bounces back to
-  Claude mid-flight; the land decision, gates, and review below stay Claude's.
-- work-order CI waits: precheck PR mergeable (CONFLICTING = pull_request CI
-  cannot attach — no merge ref) and confirm a run attached to the exact head
-  SHA before polling; every wait emits all terminal states with bounded
-  iterations; prefer the repo's watcher script when one exists (openclaw:
-  `node scripts/watch-pr-ci.mjs`).
-- new work orders go to FRESH `codex exec` sessions with self-contained prompts.
-  Do not resume a long-lived session for a new order — saturated sessions
-  misread work orders as configuration and no-op ("Understood…").
-- repo instruction files: NEVER create or edit `CLAUDE.md`. `AGENTS.md` is
-  canonical in every repo; `CLAUDE.md` exists only as a symlink to it. Point
-  Codex work orders at `AGENTS.md` and edit only `AGENTS.md`.
-
-Keep in Claude:
-
-- design, API design, architecture, naming, UX judgment
-- tasks where writing the spec IS the work (ambiguity = design)
-- tiny edits (~<20 lines, single obvious change) — delegation overhead loses
-- anything needing session tools: MCP (browser/computer-use/chronicle), 1Password, secrets
-- releases, publishes, version bumps and their credentials — Claude-side per release rules
-- the land decision + pre-land gates (`$autoreview` clean, CI green, proof) and review of Codex output — never delegated, never skipped; Codex may run the mechanics only once Claude has decided to land and the gates pass
-
-Mixed task: Claude designs first, freezes spec, delegates build-out.
-Heuristic: prompt reads as a work order → delegate; writing it forces decisions → design, Claude.
-Portfolio/multi-repo work: `$maintainer-orchestrator` instead.
-
-## Invoke
-
-If the machine intentionally uses the `openai_api_direct` million-token route, run `ruby ~/.codex/skills/agent-scripts/codex-huge-context/scripts/preflight.rb` before the first fresh or resumed launch in the batch. Fail closed if it cannot deliver the Keychain credential; never work around it by overriding the provider or using ordinary Codex authentication.
-
-Prompt via temp file, never inline quoting:
+Write the brief to a file and start the run:
 
 ```bash
-P=$(mktemp); cat >"$P" <<'EOF'
-<goal, repo + key paths, constraints ("don't touch X"), non-goals, proof expected, output shape>
+cat > <brief-file> <<'EOF'
+<the brief>
 EOF
-command codex exec --yolo -C <repo> \
-  -m gpt-5.6-sol \
-  -c model_reasoning_effort="high" \
-  --enable fast_mode \
-  -o /tmp/codex-last.md - <"$P" 2>/dev/null
+codex exec --ignore-user-config -C <worktree> \
+  -m <model> -c model_reasoning_effort="<effort>" -s <sandbox> \
+  -o <out-file> - < <brief-file> 2> <log-file>
 ```
 
-- Model default: `gpt-5.6-sol`, effort `high`, fast mode on — pin all three explicitly; don't rely on user config.
-- `--yolo` is the house default; Codex may run commands/tests freely. Keep prompts scoped to the target repo.
-- `command codex` bypasses any interactive shell alias. If codex isn't on PATH, it depends on how it was installed:
-  - node/standalone install: `fnm exec --using default -- codex`
-  - ChatGPT desktop app: the CLI ships bundled at `/Applications/ChatGPT.app/Contents/Resources/codex`. Expose **that** binary with an **exec-wrapper, not a symlink**. Ensure `~/.local/bin` stays on PATH (for zsh, persist the export in `~/.zshrc`), then:
-    ```sh
-    mkdir -p "$HOME/.local/bin"
-    export PATH="$HOME/.local/bin:$PATH"
-    if [ -e "$HOME/.local/bin/codex" ] || [ -L "$HOME/.local/bin/codex" ]; then
-      printf '%s\n' 'codex launcher already exists; leaving it unchanged' >&2
-    else
-      printf '#!/bin/sh\nexec "/Applications/ChatGPT.app/Contents/Resources/codex" "$@"\n' > "$HOME/.local/bin/codex" && chmod +x "$HOME/.local/bin/codex"
-    fi
-    ```
-    Or install the self-contained CLI via `curl -fsSL https://chatgpt.com/codex/install.sh | sh`, which needs no wrapper.
-- stderr suppressed (thinking noise bloats context); drop `2>/dev/null` only to debug a failing run
-- read `-o` file for the result; don't parse the JSONL stream
-- long runs: Bash run_in_background, read `-o` file on exit; don't kill quiet runs <30 min
-- **Harness visibility (Claude Code): every codex run gets its own harness-tracked
-  background command (`run_in_background: true`) — one sidebar chip per worker,
-  completion notification included. Chain setup steps (installs, worktree prep)
-  INSIDE that tracked command. Never `&`-fork workers from a shared launcher:
-  the launcher's chip exits at fork time and the workers become invisible
-  orphans supervised only by PID files.**
-- parallel independent tasks OK: separate repos/dirs, separate `-o` files, one tracked background command per worker
-- outside a git repo add `--skip-git-repo-check`
+- The brief reaches codex through a file and stdin, never inline shell quoting. Name the brief, out, and log files by absolute path in one directory for the run: shell variables do not survive between your Bash calls, and a recovery needs those paths again.
+- `--ignore-user-config` keeps the machine's codex config out of the run, so a dispatch behaves the same on any host; auth still resolves from `CODEX_HOME`.
+- The final message lands in the out file; everything else (the session header, the commands codex runs, its messages) streams to the log. Read the out file as the report; open the log to debug a failure, never whole into context.
+- A dispatch that grounds itself on the web adds `-c tools.web_search=true`, which composes with a read-only sandbox.
+- A report that must parse: pass `--output-schema <schema-file>`, or end the brief with an output contract demanding a final JSON code block.
+- Outside a git repository, add `--skip-git-repo-check`.
 
-Follow-up fixes — cheaper than fresh runs, keeps context. `resume` has no `-C`/`--yolo`: run from the repo dir, spell the long flag:
+Verified on codex-cli 0.144; when a flag is in doubt, `codex exec --help` and `codex exec resume --help` on the installed version are the authority.
+
+## Keep it visible
+
+Run the launch from your own turn as tracked background Bash: the harness holds a visible row from launch to exit and re-invokes you when it finishes, and stopping that task kills the run. One tracked command per worker, setup steps (worktree prep, installs) chained inside it, and an explicit timeout above the run's expected time (`bottega:setup` raises the shell ceiling so long runs fit). A subagent asked to hold a long call backgrounds it and ends with a waiting stub, whatever its brief says, and a shell forked with `&` leaves an invisible orphan nothing reports on ([no-subagent-holds-a-long-dispatch](../../../docs/lessons/no-subagent-holds-a-long-dispatch.md), [subagent-background-work-dies-silently](../../../docs/lessons/subagent-background-work-dies-silently.md)).
+
+Capture the session id as soon as the run starts: `grep -m1 "session id:" <log-file>`. With the id saved, any recovery is deterministic.
+
+## Liveness and recovery
+
+The log file's age is the liveness read: codex streams every command it runs and every message it writes there, so a log that has not grown while the task is still alive is a run making no progress. Check it with the harness's monitor primitive rather than a loop of your own, and give it a window wide enough for the slowest step the brief asks for (a full test suite is minutes of silence). A run you judge stalled is stopped by stopping its task, which kills the process and its children, and then resumed. A run cut short any other way (the shell timeout ceiling, an interrupted session, a crash) resumes the same way.
 
 ```bash
-(cd <repo> && command codex exec resume --last \
-  --dangerously-bypass-approvals-and-sandbox \
-  -o /tmp/codex-last.md - <"$P2" 2>/dev/null)
+(cd <worktree> && codex exec resume <session-id> --ignore-user-config \
+  -m <model> -c model_reasoning_effort="<effort>" -c sandbox_mode="<sandbox>" \
+  -o <out-file> - < <brief-file> 2> <log-file>)
 ```
 
-## Liveness watchdog (long monitored runs)
+- Resume by explicit session id, read from the log. `--last` filters by cwd and still races any parallel codex on the machine.
+- The session id is `resume`'s first positional argument: it has no `-s`, and no `-C` either. Carry the model, effort, and config isolation exactly as the launch did, re-assert the sandbox as `-c sandbox_mode="..."`, and give the worktree as the process cwd. A resume that omits any of them takes the host's config value instead, which is how a pinned dispatch silently finishes on another model.
+- Sessions live in the machine's `CODEX_HOME` and die with it. A session that is gone gets a fresh dispatch whose brief carries whatever the interrupted run had already reported.
+- Resume continues the same job (a follow-up fix, a recovery). A new job gets a fresh `codex exec`: a long session fed a new work order reads it as configuration and no-ops.
 
-For runs you must not babysit, trade the stderr suppression for a log and watch its mtime; read only the `-o` file into context, never the log body.
+## The brief
 
-```bash
-command codex exec --yolo -C <repo> -m gpt-5.6-sol \
-  -c model_reasoning_effort="high" --enable fast_mode \
-  -o "$OUT" - <"$P" > "$LOG" 2>&1
-# Claude Code: run the line above as its own Bash run_in_background call
-# (tracked chip + completion notification). Append `&` + a PID file ONLY in
-# environments without tracked backgrounding.
-```
+A codex worker starts from zero: no session history, no `$CLAUDE_PLUGIN_ROOT`, no slash commands, no subagents. A brief naming any of those stalls the worker, and bulk work a Claude worker would fan out is chunked inline instead. Every brief is self-contained:
 
-- Capture the session id immediately: `grep -m1 "session id:" "$LOG"`. `resume --last` is cwd-filtered but races with any parallel Codex on the machine — with the id saved, recovery is deterministic.
-- Watchdog loop (Claude Code: `Monitor` tool; else a bg shell): every 60s, if the codex process is alive but `$LOG` mtime is older than ~300s, treat it as hung. Because stderr (thinking stream) is in the log, mtime stays fresh during long reasoning — 5 min of true silence is a real hang, not thinking.
-- Recovery: kill the pid, then resume the SAME session with an explicit id so no context is lost:
+- the goal, the worktree, and every input by absolute path: the files themselves, never a summary standing in for one
+- constraints and non-goals, each hard constraint paired with its sanctioned exit ("if X fails after honest attempts, stop and report the numbers"): a cornered worker satisfies the letter of a gate it cannot meet honestly, and a stop report is a successful run
+- the proof expected, as the exact command to run, and the output contract from Launch
 
-```bash
-(cd <repo> && command codex exec resume <session-id> \
-  --dangerously-bypass-approvals-and-sandbox \
-  -o "$OUT" - <<< "You were interrupted. Continue exactly where you left off; finish the task and produce the required final report.")
-```
+## Read the report
 
-- Exit watchdog silently when the process ends normally (the run's own completion signal covers it); emit only on staleness.
-- Verified on codex-cli 0.144.4: `codex exec resume [SESSION_ID] [PROMPT]`, `--last`, cwd-filtering, `--all`.
+Exit 0 with a final message in the out file is the report. Anything else (nonzero, an empty out file) is a failed dispatch: report the exit code and the log's tail, then resume or redispatch. Never work around a failed invocation silently.
 
-## Prompt contract
+## Parallel workers
 
-Codex starts with zero session context. Every prompt: goal, exact repo/paths, constraints, non-goals, proof expected (exact test command), output shape ("report files changed + test output"). Spec quality decides success.
-
-- **Every hard prohibition needs an escape hatch.** A cornered worker satisfies the letter of the
-  gates: told "never raise the size budget" while its design inflated the bundle, Codex
-  hand-minified source identifiers to single letters — and passed every gate including
-  autoreview. Pair each hard constraint with the sanctioned exit: "if gate X fails after honest
-  attempts: STOP, report exact numbers/diagnosis, do not work around." Treat a stop-report as a
-  successful run (it is the coordinator's decision point, and workers use it correctly once it
-  exists).
-- Multi-PR series: same spec skeleton every PR; cite prior landed PR numbers and name their
-  idioms ("controller with narrow host interface, the #NNN shape") — workers imitate landed
-  precedent far more reliably than abstract style rules. Fold each round's new trap into the
-  next spec.
-- End every series work order with an explicit stop: "Do exactly this; do not start PR N+1."
-
-## Coordinator verification (beyond the diff)
-
-Worker reports are accurate but incomplete — pathologies live in the code, not the summary.
-After every landed PR, verify against merged origin/main, not the report:
-
-- read the actual merged surface (types, interfaces, naming) — the minification incident was
-  invisible in a green report and obvious in 10 lines of code
-- squash history: any commit message you didn't commission ("add startup margin") is a lead
-- diff-stat the guard/budget/baseline files the spec forbade touching; if a limit number in the
-  report changed, find out who moved it (may be main advancing, may be the worker)
-- test-helper edits are a red-flag class of their own (defineProperty shims re-exposing moved
-  fields keep suites green while hiding the migration)
-
-## Parallel workers, one repo
-
-Disjoint-file tasks parallelize cleanly: one worktree + unique branch per worker (fresh from
-origin/main; distinctive branch names — generic ones attach to old PRs), one tracked background
-command each, shared spec body + per-target header. Landing serializes on the repo's land
-workflow lock: tell each worker a held lock means a sibling owns it — back off 5-10 min, retry
-from the failed step, NEVER lock-recover a lock it didn't create, and don't chase main with
-fresh gates as siblings land under it. Sequential series instead reuse ONE worktree, rebranching
-from origin/main per PR.
-
-## Verify (Claude, always)
-
-- `git status -sb` + read the full diff; judge like a contributor PR
-- run focused tests yourself or demand proof output; Codex claims are advisory
-- iterate via resume; after 2 failed rounds, take over and do it directly
-- normal closeout still applies: `$autoreview` before ship
-
-## Economics
-
-Win = generation + exploration tokens moved to Codex; Claude spends only on spec + diff review. Don't ping-pong trivia through delegation; don't re-read what Codex already summarized.
+Independent dispatches run side by side: each gets its own worktree, out file, log, and tracked background command. Explicit session ids keep every resume deterministic under parallelism.

@@ -23,7 +23,7 @@ Autonomous issue-to-PR runs, orchestrated from Claude Code with Claude and GPT w
 | `skills/bro/SKILL.md` | `/bottega:bro`, restate the last reply in plain language; user-invoked only | Changing the restatement instruction |
 | `skills/codebase-design` | House design doctrine: domain model, deep modules, documentation architecture | Any design, review, or setup doctrine question |
 | `skills/writing-great-skills` | Skill-writing doctrine, the house format, and the closing checklist | Creating or editing any skill file |
-| `scripts/` | Single assembly points for external calls: `pr-threads`; each header states its contract | Any GitHub mutation mechanics; codex launches are plain `codex exec` per the vendored method `skills/maestro/references/codex-dispatch.md` |
+| `scripts/` | Single assembly points for external calls: `pr-threads`; each header states its contract | Any GitHub mutation mechanics; codex launches are plain `codex exec` per the method `skills/maestro/references/codex-dispatch.md` |
 | `hooks/` | The route guard and its registration; the guard states its own policy | Changing what dispatches are denied |
 | `THIRD_PARTY.md` | Every file copied from outside this repo: upstream, pinned revision, local scoping, how to sync | Reading, syncing, or adding a vendored file |
 | `docs/adr/` | Append-only decision records | Understanding why a current rule exists before changing it |

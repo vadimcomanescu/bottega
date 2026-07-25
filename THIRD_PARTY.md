@@ -2,14 +2,6 @@
 
 Every file in this repository that came from outside it, with the revision it was taken at and how to take a newer one. Vendored text is synced as its author wrote it: the register rules in `AGENTS.md` bind bottega's own prose, never these files.
 
-## `skills/maestro/references/codex-dispatch.md`
-
-The method for dispatching a codex worker: the invocation, resume, the liveness watchdog, the prompt contract, parallel workers, and coordinator verification.
-
-- Upstream: `steipete/agent-scripts`, file `skills/codex-first/SKILL.md`, MIT.
-- Pinned at `bb36883`, imported 2026-07-25, byte-identical.
-- Sync: re-copy the file whole, record the new revision.
-
 ## `skills/code-review/references/autoreview.md` and the helpers beside it
 
 The review engine every review runs on.
