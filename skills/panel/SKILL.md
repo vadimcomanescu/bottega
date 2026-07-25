@@ -6,7 +6,7 @@ argument-hint: "<the decision>"
 
 # Panel
 
-Run the whole panel yourself: frame the decision, dispatch the seats, and write the final answer. The panel does not vote or decide; it returns independent drafts and a structured comparison, and the decision stays yours.
+Run the whole panel yourself: frame the decision, dispatch the seats, and write the final answer. The panel does not vote or decide; it returns independent drafts and a structured comparison.
 
 A panel is worth its cost on three conditions, all true before any seat is paid for: the decision is open (several defensible answers, and neither the repository nor a standard solution settles it); wrong is costly (expensive to reverse after merge, or hard to notice until it is); and no cheap check settles it (a question a test, spike, benchmark, or prototype can answer gets that check instead: the check returns ground truth, while the seats, grounded but read-only, can only return arguments). The panel generates answers to a question nobody has answered yet; a critique of an existing answer (a plan, a diff, a spec) is a review, never a panel.
 

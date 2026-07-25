@@ -12,15 +12,15 @@ When the branch already carries a spec file, start there: show the owner what yo
 
 ## 1. Explore
 
-Read the repo facts first: the smallest map that routes the task (root `CLAUDE.md` or `AGENTS.md`), then `CONTEXT-MAP.md` if present, then only the `CONTEXT.md` glossaries, `docs/adr/` decisions, `docs/lessons/` records, and critical journeys the work touches. Current docs only; archived and superseded ones are history.
+Read the repo facts first: the smallest map that routes the task (root `CLAUDE.md` or `AGENTS.md`), then `CONTEXT-MAP.md` if present, then only the `CONTEXT.md` glossaries, `docs/adr/` decisions, `docs/lessons/` records, and critical journeys the work touches. Current docs only.
 
 Then launch a subagent per job that applies, each on opus-5 at medium effort: explore how the affected area of the codebase works today and the precedent it sets; search online for how others solve this problem and where the practice is heading; and read the technology skills in this runtime that match the work. Run the search job on any product-shaped work: the codebase answers how we already do it here, the search answers the standard way.
 
-Read what comes back, then read directly the files any decision hinges on. Verify version-sensitive technology against the installed version and its official docs before a decision relies on it. Every decision is yours; a subagent returns findings, never a decision.
+Read what comes back, then read directly the files any decision hinges on. Verify version-sensitive technology against the installed version and its official docs before a decision relies on it. A subagent returns findings, never a decision.
 
 ## 2. Propose independently
 
-Run this step for a decision that shapes what the product does or means for its users and meets the panel's three conditions: open, meaning exploring left two credible product directions standing (two ways the product could go, not two models disagreeing); costly, meaning picking wrong would be expensive to undo or hard to notice later; and settled by no cheap check, which sends a look-or-feel direction to the prototype step instead. In an autonomous run the costly condition is met more often, because the owner reads the Decisions list only at the end, on a PR the run may already have merged, so a wrong direction is caught late and the panel stands in for the owner's answers.
+Run this step for a decision that shapes what the product does or means for its users and meets the panel's three conditions: open, meaning exploring left two credible product directions standing (two ways the product could go, not two models disagreeing); costly, meaning picking wrong would be expensive to undo or hard to notice later; and settled by no cheap check, which sends a look-or-feel direction to the prototype step instead. In an autonomous run the costly condition is met more often: the owner reads the Decisions list only on the delivered PR, so a wrong direction is caught late and the panel stands in for the owner's answers.
 
 When it passes, invoke `bottega:panel` with the decision, its task putting three questions to every seat: what this feature could be, which assumptions need the owner's confirmation, and what the owner should be asked. The panel returns a compare-only map: where the drafts agree, where they contradict, what only one saw. Grill from that map, and write the spec yourself.
 
@@ -28,9 +28,9 @@ Run this before the grilling, because the owner's answers narrow the direction: 
 
 ## 3. Grill
 
-List the unknowns the request leaves open: the risks the code, history, or domain point to but the request omits. Then sweep for blind spots: the questions neither you nor the request thought to ask, strongest where the owner is furthest from the domain. Rank everything by impact, and ask earliest where the answer would change the architecture. Resolve each unknown from a repo fact where one exists, searching the project's own precedent before you reach for the user. Put what remains to the user one question at a time, each with your recommended answer, so a reply is a yes or a correction. Keep asking until you can predict the user's acceptance decisions. A decision that reverses an earlier verdict names that verdict and the evidence that changed the call, in the spec.
+List the unknowns the request leaves open: the risks the code, history, or domain point to but the request omits. Then sweep for blind spots: the questions neither you nor the request thought to ask, strongest where the owner is furthest from the domain. Rank everything by impact, and ask earliest where the answer would change the architecture. Resolve each unknown from a repo fact where one exists before you reach for the user. Put what remains to the user one question at a time, each with your recommended answer, so a reply is a yes or a correction. Keep asking until you can predict the user's acceptance decisions. A decision that reverses an earlier verdict names that verdict and the evidence that changed the call, in the spec.
 
-In an autonomous run there is no owner to ask: resolve each remaining unknown the same way, the repo's precedent first, then the standard way others solve it, and record each resolution with its reason under Decisions; the PR's decisions list is where the owner vetoes later.
+In an autonomous run there is no owner to ask: resolve each remaining unknown the same way, the repo's precedent first, then the standard way others solve it, and record each resolution with its reason under Decisions.
 
 ## 4. Prototype a look-or-feel decision
 
@@ -47,9 +47,9 @@ If nothing can render, and only then, draw a wireframe in the spec body: layout 
 
 ## 5. Present
 
-The shared editor is hosted, so the spec passes through its operator's servers. Offer it to the owner first; an owner who cannot accept that declines it, and the same review happens in the conversation, the spec presented as text. The publish mechanics below are for an owner who accepts.
+The shared editor is hosted, so the spec passes through its operator's servers. Offer it to the owner first; an owner who cannot accept that declines it, and the same review happens in the conversation, the spec presented as text.
 
-Present the spec as a live shared document: the owner reads it rendered, on any device, and comments on the text directly. [references/live-review.md](references/live-review.md) has the mechanics; load it here. Reply inside each comment thread, saying whether you agree and why, and make any resulting change as a tracked edit the owner accepts or rejects. Threads resolve as they settle, on the one living document, through every round. The local markdown file stays the single source of truth: mirror the agreed state back to it; it is the file publish commits.
+Present the spec as a live shared document: the owner reads it rendered, on any device, and comments on the text directly. [references/live-review.md](references/live-review.md) has the mechanics; load it here. Reply inside each comment thread, saying whether you agree and why, and make any resulting change as a tracked edit the owner accepts or rejects. Threads resolve as they settle. The local markdown file stays the single source of truth: mirror the agreed state back to it; it is the file publish commits.
 
 The owner's approval may arrive as a comment in the document, in their own words; that is the go signal, the same as a reply in the conversation.
 
