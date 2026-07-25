@@ -24,7 +24,7 @@ Run this step for a decision that shapes what the product does or means for its 
 
 When it passes, invoke `bottega:panel` with the decision, its task putting three questions to every seat: what this feature could be, which assumptions need the owner's confirmation, and what the owner should be asked. The panel returns a compare-only map: where the drafts agree, where they contradict, what only one saw. Grill from that map, and write the spec yourself.
 
-Run this before the grilling, because the owner's answers narrow the direction: independent proposals are worth most while the job is still finding the right options and the right questions. Keep the panel small; two seats from different companies carry nearly all the independence, because different companies miss different things.
+Run this before the grilling, because the owner's answers narrow the direction: independent proposals are worth most while the job is still finding the right options and the right questions.
 
 ## 3. Grill
 

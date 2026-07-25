@@ -1,6 +1,6 @@
 # Fusion panels, read against bottega
 
-Snapshot: 2026-07-25. Sources: OpenRouter's Fusion announcement and the ensemble literature around it, each fetched and read this day. This note records what the evidence measured and what bottega concluded, so a later session reads it here instead of researching the concept again. The decision it supports is `docs/adr/0021-panel-is-fusion.md`; the instrument is `skills/panel/SKILL.md`.
+Snapshot: 2026-07-25. Sources: OpenRouter's Fusion announcement and the ensemble literature around it, each fetched and read this day. This note records what the evidence measured and what bottega concluded, so a later session reads it here instead of researching the concept again. The decision it supports is `docs/adr/0023-panel-is-fusion.md`; the instrument is `skills/panel/SKILL.md`.
 
 ## What the sources measured
 
@@ -16,7 +16,7 @@ Snapshot: 2026-07-25. Sources: OpenRouter's Fusion announcement and the ensemble
 ## What bottega concluded
 
 1. The panel pays on open-ended questions where the feared failure is omission: a good answer is a union of considerations, and independent drafts of the same question cover different ones. It does not pay where any checker exists; a test, spike, benchmark, or prototype beats a judge and collapses the headroom. This is the third leg of the panel gate.
-2. Identical task text verbatim to every seat, drafts independent, no cross-talk, blinded, a judge that compares and never answers, synthesis by the caller. Every measured win used this shape; every interactive variant lost. This confirms `skills/panel/SKILL.md` as wired and is why differentiated per-seat briefs stay rejected (`docs/adr/0021-panel-is-fusion.md`).
+2. Identical task text verbatim to every seat, drafts independent, no cross-talk, blinded, a judge that compares and never answers, synthesis by the caller. Every measured win used this shape; every interactive variant lost. This confirms `skills/panel/SKILL.md` as wired and is why differentiated per-seat briefs stay rejected (`docs/adr/0023-panel-is-fusion.md`).
 3. Two or three seats of comparable frontier strength. The two-seat panel beat the three-seat one on DRACO; weaker seats subtract.
 4. When a second company's seat is unavailable, fuse the best model with itself: two independent runs of one strong model measured the largest single gain in the source. Self-fusion replaces the old answer-solo fallback.
 5. Consensus between drafts marks coverage, not correctness. The synthesis checks consensus claims against the repository the same way it checks unique ones.
