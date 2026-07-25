@@ -7,41 +7,41 @@ Launch a codex worker with the codex CLI, keep it visible while it runs, and rea
 Write the brief to a file and start the run:
 
 ```bash
-BRIEF=$(mktemp); cat >"$BRIEF" <<'EOF'
+cat > <brief-file> <<'EOF'
 <the brief>
 EOF
 codex exec --ignore-user-config -C <worktree> \
   -m <model> -c model_reasoning_effort="<effort>" -s <sandbox> \
-  -o <out-file> - <"$BRIEF" 2><log-file>
+  -o <out-file> - < <brief-file> 2> <log-file>
 ```
 
-- The brief reaches codex through a file and stdin, never inline shell quoting.
+- The brief reaches codex through a file and stdin, never inline shell quoting. Name the brief, out, and log files by absolute path in one directory for the run: shell variables do not survive between your Bash calls, and a recovery needs those paths again.
 - `--ignore-user-config` keeps the machine's codex config out of the run, so a dispatch behaves the same on any host; auth still resolves from `CODEX_HOME`.
-- The final message lands in the out file; everything else (thinking, commands, the session id) streams to the log. Read the out file as the report; open the log to debug a failure, never whole into context.
+- The final message lands in the out file; everything else (the session header, the commands codex runs, its messages) streams to the log. Read the out file as the report; open the log to debug a failure, never whole into context.
 - A dispatch that grounds itself on the web adds `-c tools.web_search=true`, which composes with a read-only sandbox.
 - A report that must parse: pass `--output-schema <schema-file>`, or end the brief with an output contract demanding a final JSON code block.
 - Outside a git repository, add `--skip-git-repo-check`.
 
-Verified on codex-cli 0.144; when a flag is in doubt, `codex exec --help` on the installed version is the authority.
+Verified on codex-cli 0.144; when a flag is in doubt, `codex exec --help` and `codex exec resume --help` on the installed version are the authority.
 
 ## Keep it visible
 
-Run the launch from your own turn as tracked background Bash: the harness holds a visible row from launch to exit and re-invokes you when it finishes. One tracked command per worker, setup steps (worktree prep, installs) chained inside it, and an explicit timeout above the run's expected time (`bottega:setup` raises the shell ceiling so long runs fit). A subagent asked to hold a long call backgrounds it and ends with a waiting stub, whatever its brief says, and a shell forked with `&` leaves an invisible orphan nothing reports on ([no-subagent-holds-a-long-dispatch](../../../docs/lessons/no-subagent-holds-a-long-dispatch.md), [subagent-background-work-dies-silently](../../../docs/lessons/subagent-background-work-dies-silently.md)).
+Run the launch from your own turn as tracked background Bash: the harness holds a visible row from launch to exit and re-invokes you when it finishes, and stopping that task kills the run. One tracked command per worker, setup steps (worktree prep, installs) chained inside it, and an explicit timeout above the run's expected time (`bottega:setup` raises the shell ceiling so long runs fit). A subagent asked to hold a long call backgrounds it and ends with a waiting stub, whatever its brief says, and a shell forked with `&` leaves an invisible orphan nothing reports on ([no-subagent-holds-a-long-dispatch](../../../docs/lessons/no-subagent-holds-a-long-dispatch.md), [subagent-background-work-dies-silently](../../../docs/lessons/subagent-background-work-dies-silently.md)).
 
 Capture the session id as soon as the run starts: `grep -m1 "session id:" <log-file>`. With the id saved, any recovery is deterministic.
 
 ## Liveness and recovery
 
-The log file's age is the liveness read. The thinking stream keeps it fresh, so a log untouched for five minutes while the process lives is a hang, not a long thought: kill the codex process and its children, then resume the session. A run cut short any other way (the shell timeout ceiling, an interrupted session, a crash) recovers the same way.
+The log file's age is the liveness read: codex streams every command it runs and every message it writes there, so a log that has not grown while the task is still alive is a run making no progress. Check it with the harness's monitor primitive rather than a loop of your own, and give it a window wide enough for the slowest step the brief asks for (a full test suite is minutes of silence). A run you judge stalled is stopped by stopping its task, which kills the process and its children, and then resumed. A run cut short any other way (the shell timeout ceiling, an interrupted session, a crash) resumes the same way.
 
 ```bash
-(cd <worktree> && codex exec resume <session-id> \
-  -c model_reasoning_effort="<effort>" -c sandbox_mode="<sandbox>" \
-  -o <out-file> - <"$BRIEF2" 2><log-file>)
+(cd <worktree> && codex exec resume <session-id> --ignore-user-config \
+  -m <model> -c model_reasoning_effort="<effort>" -c sandbox_mode="<sandbox>" \
+  -o <out-file> - < <brief-file> 2> <log-file>)
 ```
 
-- Resume by explicit session id, from the log. `--last` filters by cwd and still races any parallel codex on the machine.
-- `resume` reads `-s` as the session id and has no `-C`: re-assert the sandbox as `-c sandbox_mode="..."` and the worktree as the process cwd, on every resume.
+- Resume by explicit session id, read from the log. `--last` filters by cwd and still races any parallel codex on the machine.
+- The session id is `resume`'s first positional argument: it has no `-s`, and no `-C` either. Carry the model, effort, and config isolation exactly as the launch did, re-assert the sandbox as `-c sandbox_mode="..."`, and give the worktree as the process cwd. A resume that omits any of them takes the host's config value instead, which is how a pinned dispatch silently finishes on another model.
 - Sessions live in the machine's `CODEX_HOME` and die with it. A session that is gone gets a fresh dispatch whose brief carries whatever the interrupted run had already reported.
 - Resume continues the same job (a follow-up fix, a recovery). A new job gets a fresh `codex exec`: a long session fed a new work order reads it as configuration and no-ops.
 

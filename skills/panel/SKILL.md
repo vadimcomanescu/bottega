@@ -30,7 +30,7 @@ One seat per company, and the same `task.md` verbatim to every seat. Every seat 
 | seat | dispatch |
 | --- | --- |
 | codex | one read-only codex dispatch per [maestro's codex dispatch method](../maestro/references/codex-dispatch.md): gpt-5.6-sol at max, web search on, the draft to `<session>/codex-draft.md` |
-| claude | `claude -p --model claude-fable-5 --effort max < task.md > claude-draft.md`, run from the repository root |
+| claude | one subagent on opus-5 at max effort, given `task.md` verbatim, the draft returned as its report |
 
 Another company's CLI installed on the machine takes a further seat under the same task, read-only with its own web search. The seats are the panel's own: this table names their models, the way the review names its engines.
 
