@@ -40,7 +40,7 @@ Compose the body to a file and open it with `gh pr create -F <file>`, never inli
 
 - what changed and why;
 - the approved spec and the plan;
-- every decision made on the user's behalf;
+- every decision made on the user's behalf, the one most likely to draw a different answer first;
 - how panel evidence changed the plan, when a panel ran;
 - who built and who reviewed: models, rounds, findings, verdicts, refutations;
 - the orchestrator's architecture acceptance;
