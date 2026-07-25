@@ -14,7 +14,7 @@ Every dispatch names the model and effort from its row of the worker table, [ref
 
 ## 1. Discover
 
-Use `bottega:discover` to find and settle the unknowns. Then call the delivery on what it found, and say it: work whose whole diff you can state in one sentence takes no spec and no plan, built in your own turns or one builder dispatch and taken straight to Review; everything else takes every phase below. The call is provisional both ways: work that outgrows its sentence re-enters at Spec, and settled discovery shrinks later phases to what stays open.
+Write your session id to `.bottega/discovery` before the first dispatch; the route guard polices this session from that moment, and `bottega:open` replaces the claim with the run's owner file. Then use `bottega:discover` to find and settle the unknowns. Then call the delivery on what it found, and say it: work whose whole diff you can state in one sentence takes no spec and no plan, built in your own turns or one builder dispatch and taken straight to Review; everything else takes every phase below. The call is provisional both ways: work that outgrows its sentence re-enters at Spec, and settled discovery shrinks later phases to what stays open.
 
 ## 2. Open
 
