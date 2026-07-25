@@ -36,7 +36,7 @@ Another company's CLI installed on the machine takes a further seat under the sa
 
 ## 3. Fan out
 
-Dispatch every seat in parallel and wait for all of them. A seat that errors, times out, or returns an empty draft is recorded and the panel continues. With two or more drafts, proceed. With one draft, take a second independent draft from the strongest seat that answered, same task verbatim, fresh dispatch: two runs of one strong model still fuse, because independent runs cover different considerations, and that measured the largest single gain in the evidence. Only when no seat answers at all is there no panel: report the failures and answer solo, saying so.
+Dispatch every seat in parallel and wait for all of them. A seat that errors, times out, or returns an empty draft is recorded and the panel continues. With two or more drafts, proceed. With one draft, take a second independent draft from the strongest seat that answered, same task verbatim, fresh dispatch: two runs of one strong model still fuse, because independent runs cover different considerations, and that measured the largest single gain in the evidence ([docs/research/2026-07-25-fusion-panels.md](../../docs/research/2026-07-25-fusion-panels.md)). Only when no seat answers at all is there no panel: report the failures and answer solo, saying so.
 
 ## 4. Blind
 
