@@ -36,6 +36,10 @@ A project command whose green result a change must hold: format, lint, typecheck
 The fresh GPT reader of the plan strengthen pass: it approves the plan unchanged or rewrites it whole; the rewrite is its only way to object.
 _Avoid_: editor on its own (the spec's live review calls its shared document the editor); plan reviewer (a reviewer files findings; the plan editor may not)
 
+**Panel**:
+One open, costly decision that no cheap check settles, put as the same task to independent models from different companies, blinded, compared without a verdict; the caller synthesizes the decision. The review's both-engine invocation is the vendored engine document's own word for its reviewers, not this term.
+_Avoid_: panel for any critique of an existing answer
+
 **Owner**:
 The person the work is for: they give the request, approve the spec, and receive what only a person can clear. Prose inside a run says "the user" for this same person; prefer that word there.
 _Avoid_: owner for the session that claims a run (that meaning belongs to the owner file below)

@@ -1,12 +1,14 @@
 ---
 name: panel
-description: Put one costly decision to independent drafts from different companies' models, blinded, with a compare-only judge; the caller synthesizes the answer. Use when the user asks for a panel, a fusion pass, or second opinions on a decision, or from a run's Plan phase when a decision is expensive to reverse and the repository does not already answer it.
+description: Put one costly decision to independent drafts from different companies' models, blinded, with a compare-only judge; the caller synthesizes the answer. Use when the user asks for a panel or a fusion pass, or when a run's Spec or Plan phase reaches a decision that passes its gate.
 argument-hint: "<the decision>"
 ---
 
 # Panel
 
 Run the whole panel yourself: frame the decision, dispatch the seats, and write the final answer. The panel does not vote or decide; it returns independent drafts and a structured comparison, and the decision stays yours.
+
+The gate, all three before any seat is paid for: the decision is open (several defensible answers, and neither the repository nor a standard solution settles it); wrong is costly (expensive to reverse after merge, or hard to notice until it is); and no cheap check settles it (a question a test, spike, benchmark, or prototype can answer gets that check instead: the check returns ground truth, while the seats, grounded but read-only, can only return arguments). The panel generates answers to a question nobody has answered yet; a critique of an existing answer (a plan, a diff, a spec) is a review, never a panel.
 
 ## 1. Frame the task
 
@@ -34,7 +36,7 @@ Another company's CLI installed on the machine takes a further seat under the sa
 
 ## 3. Fan out
 
-Dispatch every seat in parallel and wait for all of them. A seat that errors, times out, or returns an empty draft is recorded and the panel continues. With two or more drafts, proceed. With fewer there is no panel: report which seats failed and answer solo, saying so, rather than comparing one draft with itself.
+Dispatch every seat in parallel and wait for all of them. A seat that errors, times out, or returns an empty draft is recorded and the panel continues. With two or more drafts, proceed. With one draft, take a second independent draft from the strongest seat that answered, same task verbatim, fresh dispatch: two runs of one strong model still fuse, because independent runs cover different considerations, and that measured the largest single gain in the evidence. Only when no seat answers at all is there no panel: report the failures and answer solo, saying so.
 
 ## 4. Blind
 
@@ -53,4 +55,4 @@ Do not answer the task, merge the drafts, vote, grade, or pick one.
 
 ## 6. Synthesize
 
-You write the decision from the drafts and the comparison: build on the consensus, resolve each contradiction by the stronger evidence, keep the unique insights that survive a check against the repository, and close or explicitly flag the blind spots. Record the decision and what the panel changed wherever your context records decisions: a run puts it in the plan and the PR; a conversation puts it in the reply.
+You write the decision from the drafts and the comparison: build on the consensus after checking it against the repository the same way as anything else (agreement between models marks coverage, never correctness), resolve each contradiction by the stronger evidence, keep the unique insights that survive the same check, and close or explicitly flag the blind spots. Record the decision and what the panel changed wherever your context records decisions: a run puts it in the plan and the PR; a conversation puts it in the reply.
