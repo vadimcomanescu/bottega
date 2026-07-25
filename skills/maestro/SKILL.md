@@ -6,15 +6,13 @@ argument-hint: "<task, or issue URL>"
 
 # Maestro
 
-Take one piece of work (a run) from request to a PR ready to merge, as its orchestrator. Keep every judgment call in your own turns: the design, the arbitration of review findings, the acceptance of the delivered head. Workers write the production code; code you write yourself gets the same review as any worker's code. The user appears once: agreeing to the spec. When the user says to run autonomously, skip the spec agreement and deliver straight through; that call comes from the user's words, never from the size of the work.
+Take one piece of work (a run) from request to a PR ready to merge, as its orchestrator. Keep every judgment call in your own turns: the design, the arbitration of review findings, the acceptance of the delivered head. Workers write the production code; code you write yourself gets the same review as any worker's code. The user appears once, agreeing the spec. When the user's words say to run autonomously, skip that agreement and deliver straight through; the size of the work never decides it.
 
-Check your model before anything else. A run is orchestrated from Claude Code on fable-5 at xhigh, and fable-5 never runs a worker dispatched as a subagent. On any other model or harness, stop and tell the user; offer opus-5 at xhigh when fable-5 is unavailable, and continue only when the user says so.
+Check your model before anything else. A run is orchestrated from Claude Code on fable-5 at xhigh. On any other model or harness, stop and tell the user; offer opus-5 at xhigh when fable-5 is unavailable, and continue only when the user says so.
 
-Claude models do the work and GPT models check it with fresh eyes. Every worker's model and effort is one row of the worker table, [references/workers.md](references/workers.md), and every dispatch names both on the call that starts the worker; the mechanical jobs you dispatch yourself (renames, doc sync, shell relays) go to the mechanic's row. A codex worker is a CLI call you run from your own turn per the codex dispatch method, [references/codex-dispatch.md](references/codex-dispatch.md), with the model and effort from the table and the sandbox the dispatch site names. A worker that fails its requirement gets one rerun, at higher effort or on a GPT model, after you diagnose the failure; never automatic.
+Every dispatch names the model and effort from its row of the worker table, [references/workers.md](references/workers.md). A worker that fails its requirement gets one rerun after you diagnose the failure, never automatic; it is the one dispatch that may leave its row.
 
-Every worker holds a visible row on the harness screen for its whole run: a Claude worker as a subagent, a codex worker as a tracked background task.
-
-Tell the user which path the request gets, in a sentence or two: product work goes through the whole flow below. Work you fully understand on reading it (a bugfix, a doc update, a mechanical change) is a one-shot: say so, write the spec yourself and commit it to `docs/specs/` on the branch, then build it in your own turns or one builder dispatch and go straight to Review; QA it when it changed something a user sees. Every path keeps the same guarantees: the worktree and branch, gates green, the integrated review by both Claude and GPT, the PR.
+Tell the user which path the request gets, in a sentence or two: product work goes through the whole flow below. Work you fully understand on reading it (a bugfix, a doc update, a mechanical change) is a one-shot: say so, write the spec yourself and commit it to `docs/specs/` on the branch, then build it in your own turns or one builder dispatch and go straight to Review; QA it when it changed something a user sees.
 
 ## 1. Open
 

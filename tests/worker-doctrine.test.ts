@@ -85,12 +85,14 @@ describe("portable worker doctrine", () => {
     expect(maestro, "the orchestrator model is named").toContain(
       "orchestrated from Claude Code on fable-5 at xhigh",
     );
-    expect(maestro, "fable never runs a worker").toContain("never runs a worker");
     expect(maestro, "every dispatch reads the worker table").toContain(
       "references/workers.md",
     );
 
     const workers = read("skills/maestro/references/workers.md");
+    expect(workers, "no row runs a worker on the orchestrator's model").toContain(
+      "a worker dispatched as a subagent never runs on it",
+    );
     for (const row of [
       "| builder | opus-5 | xhigh |",
       "| explorer | opus-5 | medium |",
