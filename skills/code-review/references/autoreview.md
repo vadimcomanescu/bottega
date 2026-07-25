@@ -59,7 +59,7 @@ Before patching a finding, classify it:
 - **Follow-up**: the finding is real but belongs to an adjacent bug class, sibling surface, cleanup, or broader hardening track.
 - **Stop-and-escalate**: the finding requires a new protocol/config/storage/public API contract, a different owner boundary, a release-process change, or a design choice outside the original request.
 
-In a bottega maestro run, the maestro verifies each finding against the real code, then dispatches the accepted findings to one fresh builder, briefed as any builder with the implementing doctrine, the findings, and the project's commands; the maestro never edits production code. That builder runs on opus-5 at xhigh. Outside a run, fix directly as this contract states.
+In a bottega maestro run, the maestro verifies each finding against the real code, then dispatches the accepted findings to one fresh builder, briefed as any builder with the implementing doctrine, the findings, and the project's commands; the maestro never edits production code. That builder runs on opus-5 at medium. Outside a run, fix directly as this contract states.
 
 Stop patching and report the scope break instead of continuing when:
 
@@ -238,11 +238,11 @@ In a bottega maestro run the integrated diff always reviews as one panel of both
 
 ```bash
 "$AUTOREVIEW" --mode branch --base <frozen-base> --reviewers codex,claude \
-  --model codex=gpt-5.6-sol --thinking codex=high \
-  --model claude=claude-fable-5 --thinking claude=xhigh
+  --model codex=gpt-5.6-sol --thinking codex=xhigh \
+  --model claude=claude-fable-5 --thinking claude=high
 ```
 
-Reruns after fixes are single-engine with model and thinking pinned (`--engine codex --model gpt-5.6-sol --thinking high`; when the fix itself was built by a GPT model, rerun with `--engine claude --model claude-fable-5 --thinking xhigh` instead, so the rerunning engine never comes from the company whose model wrote the fix), repeated until the helper exits clean at the accepted head; the review stands at that head.
+Reruns after fixes are single-engine with model and thinking pinned (`--engine codex --model gpt-5.6-sol --thinking xhigh`; when the fix itself was built by a GPT model, rerun with `--engine claude --model claude-fable-5 --thinking high` instead, so the rerunning engine never comes from the company whose model wrote the fix), repeated until the helper exits clean at the accepted head; the review stands at that head.
 
 `--panel` is shorthand for Codex plus Claude unless `--engine` changes the first reviewer:
 
@@ -253,13 +253,13 @@ Reruns after fixes are single-engine with model and thinking pinned (`--engine c
 Set reviewer models and thinking/effort explicitly:
 
 ```bash
-"$AUTOREVIEW" --reviewers codex,claude --model codex=gpt-5.6-sol --thinking codex=high --model claude=claude-fable-5 --thinking claude=max
+"$AUTOREVIEW" --reviewers codex,claude --model codex=gpt-5.6-sol --thinking codex=xhigh --model claude=claude-fable-5 --thinking claude=max
 ```
 
 Inline syntax is also supported for simple model IDs:
 
 ```bash
-"$AUTOREVIEW" --reviewers codex:gpt-5.6-sol:high,claude:claude-fable-5:max
+"$AUTOREVIEW" --reviewers codex:gpt-5.6-sol:xhigh,claude:claude-fable-5:max
 ```
 
 For models with slashes or extra colons, prefer keyed form:
@@ -302,7 +302,7 @@ Examples matching current `main` behavior:
 
 ```bash
 # Codex with explicit model and reasoning
-"$AUTOREVIEW" --engine codex --model gpt-5.6-sol --thinking high
+"$AUTOREVIEW" --engine codex --model gpt-5.6-sol --thinking xhigh
 
 # Codex fast mode (priority service tier); needs a model whose catalog lists the tier, silently standard otherwise
 "$AUTOREVIEW" --engine codex --codex-speed fast
