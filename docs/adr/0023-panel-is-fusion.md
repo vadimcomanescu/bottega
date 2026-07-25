@@ -1,4 +1,6 @@
-# The panel is fusion: identical task, independent answers, compare-only judge
+# 0023: The panel is fusion: identical task, independent answers, compare-only judge
+
+Date: 2026-07-25.
 
 The panel exists for one hard question whose answer is expensive to get wrong. Its mechanism is fusion (OpenRouter, https://openrouter.ai/blog/announcements/fusion-beats-frontier/): the same task text verbatim to independent models from different companies, each grounding itself in the repository and the web, drafts blinded, a judge that only compares (consensus points, contradictions, partial coverage, unique insights, blind spots), and synthesis by the caller, who holds the context the judge never sees.
 

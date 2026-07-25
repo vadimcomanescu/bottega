@@ -1,6 +1,6 @@
 ---
 name: panel
-description: Put one costly decision to independent drafts from different companies' models, blinded, with a compare-only judge; the caller synthesizes the answer. Use when the user asks for a panel or a fusion pass, or when a run's Spec or Plan phase reaches a decision meeting the three conditions it states.
+description: Put one costly decision to independent drafts from different companies' models, blinded, with a compare-only judge; the caller synthesizes the answer. Use when the user asks for a panel or a fusion pass, or when a run's Spec or Plan phase reaches a decision meeting the three conditions below.
 argument-hint: "<the decision>"
 ---
 
