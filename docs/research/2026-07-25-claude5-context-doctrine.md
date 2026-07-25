@@ -27,4 +27,4 @@ The calibration bar distilled from the two posts, applied sentence by sentence:
 
 A cut needs a positive case under one of these; a constraint pinning an observed failure survives doubt. The 80% headline does not transfer to a tree already pruned under review: the pass over bottega's 11,462-word skills tree touched about 3% of sentences, and what remains is decisions, contracts, and pinned failures, the three categories the sources say to keep.
 
-`skills/calibrate` carries this bar as a user-invocable audit for host repos.
+`skills/calibrate` carries this bar as a user-invocable audit for host repos. The field guide's discovery method lives in `skills/discover`, the run's opening phase.

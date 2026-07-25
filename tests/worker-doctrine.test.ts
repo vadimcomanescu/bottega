@@ -94,7 +94,7 @@ describe("portable worker doctrine", () => {
       "a worker dispatched as a subagent never runs on it",
     );
     for (const row of [
-      "| builder | opus-5 | xhigh |",
+      "| builder | opus-5 | medium |",
       "| explorer | opus-5 | medium |",
       "| prototyper | opus-5 | medium |",
       "| QA driver | opus-5 | default |",
@@ -311,7 +311,7 @@ describe("portable worker doctrine", () => {
 
   it("makes the spec a repo file with its naming owned by the spec skill alone", () => {
     const maestro = read("skills/maestro/SKILL.md");
-    expect(maestro).toContain("Invoke `bottega:spec`; it ends with the agreed spec committed on the branch.");
+    expect(maestro).toContain("Use `bottega:spec` to agree the spec and commit it.");
     expect(read("skills/spec/references/spec-format.md")).toContain("Status: agreed YYYY-MM-DD");
 
     const convention = "docs/specs/<YYYY-MM-DD>-<slug>.md";

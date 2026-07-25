@@ -1,6 +1,6 @@
 ---
 name: plan
-description: The plan method a run's Plan phase invokes whole. Model the domain, commit the plan on the run branch, and strengthen it with one cold read by a GPT editor. Not user-invocable.
+description: The plan method a run's Plan phase uses whole. Model the domain, commit the plan on the run branch, and strengthen it with one cold read by a GPT editor. Not user-invocable.
 user-invocable: false
 ---
 
@@ -10,7 +10,7 @@ Produce the plan the builders receive, and strengthen it before anything is buil
 
 ## 1. Model
 
-You own the domain model and architecture. Invoke `bottega:codebase-design` and write the plan it defines: the domain decisions, the interfaces, and the vertical slices, each slice naming its owned files, docs included: a slice that changes a user-facing surface owns updating the docs that describe it. Put a decision to `bottega:panel` when its three conditions hold: open, costly to reverse after merge, and settled by no cheap check; a checkable question (which of two named options performs, whether a library supports the case) gets a spike or a benchmark instead. The plan records each costly decision and how it was settled: repository precedent, standard solution, check, or panel.
+You own the domain model and architecture. Use `bottega:codebase-design` and write the plan it defines: the domain decisions, the interfaces, and the vertical slices, each slice naming its owned files, docs included: a slice that changes a user-facing surface owns updating the docs that describe it. Put a decision to `bottega:panel` when its three conditions hold: open, costly to reverse after merge, and settled by no cheap check; a checkable question (which of two named options performs, whether a library supports the case) gets a spike or a benchmark instead. The plan records each costly decision and how it was settled: repository precedent, standard solution, check, or panel. A plan may be one slice. Split into parallel slices only where the work divides into parts that can land independently. The plan editor's cold read runs whatever the plan's size.
 
 ## 2. Commit
 

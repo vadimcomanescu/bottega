@@ -1,6 +1,6 @@
 ---
 name: improve
-description: Scan a codebase for deepening opportunities, present the strongest candidates, agree one, then open a tracker issue and take it through a run. Invoke bottega:improve when the user wants the codebase scanned for what to improve next. Never invoke proactively; it opens a run, which costs hours of autonomous agent work.
+description: Scan a codebase for deepening opportunities, present the strongest candidates, agree one, then open a tracker issue and take it through a run. Use bottega:improve when the user wants the codebase scanned for what to improve next. Never use proactively; it opens a run, which costs hours of autonomous agent work.
 argument-hint: "<optional area or direction>"
 ---
 
@@ -44,4 +44,4 @@ When the user rejects a candidate for a reason a future scan would need, offer t
 
 ## 6. Hand off
 
-On the user's pick, create one tracker issue carrying that candidate, labelled for its area per the repository's conventions. Write for a reader who was not in this session: define or link every non-standard term. Then invoke `bottega:maestro` on that issue. Improve never claims the issue; run acquires the claim itself. Report the issue and a one-line summary.
+On the user's pick, create one tracker issue carrying that candidate, labelled for its area per the repository's conventions. Write for a reader who was not in this session: define or link every non-standard term. Then use `bottega:maestro` on that issue. Improve never claims the issue; run acquires the claim itself. Report the issue and a one-line summary.

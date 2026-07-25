@@ -11,7 +11,7 @@
     {
       "name": "bottega",
       "source": "./",
-      "description": "/bottega:maestro is the whole pipeline: the orchestrator reads the codebase, agrees a spec with the user and commits it to the repo, puts costly decisions to a panel, builds with worker agents, has the integrated diff reviewed by both Claude and GPT, and lands a merged PR with QA evidence. The user appears once, at the spec OK, and skips even that by saying to run autonomously. /bottega:spec stops at an agreed repo spec committed on a work branch a later run continues, and code-review, improve, panel, and setup are available on their own.",
+      "description": "/bottega:maestro is the whole pipeline: the orchestrator explores and settles the unknowns with the user, agrees a spec and commits it to the repo, puts costly decisions to a panel, builds with worker agents, has the integrated diff reviewed by both Claude and GPT, and lands a merged PR with QA evidence. The user takes part in two places, discovery and the spec agreement, and skips the spec wait by saying to run autonomously. /bottega:spec stops at an agreed repo spec committed on a work branch a later run continues, and code-review, improve, panel, and setup are available on their own.",
       "author": {
         "name": "Vadim Comanescu"
       },

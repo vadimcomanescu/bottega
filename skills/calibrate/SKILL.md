@@ -1,6 +1,6 @@
 ---
 name: calibrate
-description: Audit a repo's agent docs (the root map, skills, rules files) against the Claude 5 calibration bar and propose the cuts. Invoke bottega:calibrate on a repo or one doc when the user wants agent instructions pruned, rightsized, or checked against what current models need told.
+description: Audit a repo's agent docs (the root map, skills, rules files) against the Claude 5 calibration bar and propose the cuts. Use bottega:calibrate on a repo or one doc when the user wants agent instructions pruned, rightsized, or checked against what current models need told.
 argument-hint: "<repo root, or one doc>"
 ---
 

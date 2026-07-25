@@ -4,7 +4,7 @@ Every worker a run dispatches, with the model and effort its dispatch call names
 
 | Worker | Model | Effort |
 | --- | --- | --- |
-| builder | opus-5 | xhigh |
+| builder | opus-5 | medium |
 | explorer | opus-5 | medium |
 | prototyper | opus-5 | medium |
 | QA driver | opus-5 | default |

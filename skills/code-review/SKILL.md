@@ -1,12 +1,12 @@
 ---
 name: code-review
-description: Review a diff through the vendored review engine. Invoke bottega:code-review on a PR, ref range, or working diff; a run's Review phase invokes the whole method.
+description: Review a diff through the vendored review engine. Use bottega:code-review on a PR, ref range, or working diff; a run's Review phase uses the whole method.
 argument-hint: "<PR, ref range, or worktree>"
 ---
 
 # Code review
 
-Review one diff and leave nothing blocking at its head. The engine is vendored in this package: [references/autoreview.md](references/autoreview.md) carries the whole review mechanics and the obligations on the invoking agent, and its helper lives in `scripts/`. Invoked standalone on a PR, ref range, or working diff, run that contract on the target and stop. A run's Review phase invokes the full method below, and the orchestrator keeps the verdict: verifying findings and accepting or rejecting the head stay its call.
+Review one diff and leave nothing blocking at its head. The engine is vendored in this package: [references/autoreview.md](references/autoreview.md) carries the whole review mechanics and the obligations on the agent that uses it, and its helper lives in `scripts/`. Used standalone on a PR, ref range, or working diff, run that contract on the target and stop. A run's Review phase uses the full method below, and the orchestrator keeps the verdict: verifying findings and accepting or rejecting the head stay its call.
 
 ## 1. Doc coverage
 
@@ -20,4 +20,4 @@ Severity gates that loop. An accepted finding that blocks (correctness, security
 
 ## 3. Spec conformance
 
-When the review loop has converged, dispatch the spec-conformance check at that head: one fresh worker (the conformance checker's row of [the worker table](../maestro/references/workers.md), one read-only codex dispatch per [maestro's codex dispatch method](../maestro/references/codex-dispatch.md)) reads the diff and the agreed spec and reports what is missing or partial, what nobody asked for, and what looks wrong, each finding quoting the spec line it rests on. It never sees the review's findings and nothing reranks across the two. An accepted conformance blocker goes to a fresh builder and the gates like any review finding; the reviewer then reruns at the new head, and the conformance check reruns after it.
+When the review loop has converged, dispatch the spec-conformance check at that head: one fresh worker (the conformance checker's row of [the worker table](../maestro/references/workers.md), one read-only codex dispatch per [maestro's codex dispatch method](../maestro/references/codex-dispatch.md)) reads the diff and the agreed spec, or the request and the delivery call's sentence when the work has no spec, and reports what is missing or partial, what nobody asked for, and what looks wrong, each finding quoting the spec line it rests on. It never sees the review's findings and nothing reranks across the two. An accepted conformance blocker goes to a fresh builder and the gates like any review finding; the reviewer then reruns at the new head, and the conformance check reruns after it.

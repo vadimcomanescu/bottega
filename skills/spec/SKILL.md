@@ -1,71 +1,33 @@
 ---
 name: spec
-description: Prepare a task for delivery without building it. Explore the codebase and the standard solutions, grill the open decisions, agree a spec, and leave it agreed on a work branch a later run continues. Invoke bottega:spec when the user wants work shaped into an agreed spec rather than delivered now. Never invoke proactively; it runs a full discovery and grilling session.
+description: Write, present, and commit an agreed spec from discovery's findings. Use bottega:spec when the user wants work shaped into an agreed spec rather than delivered now; a run's Spec phase uses it whole. Never use proactively.
 argument-hint: "<task, issue URL, or direction>"
 ---
 
 # Spec
 
-Produce a spec the owner approves, without implementing the task. Whether the user invoked `/bottega:spec` directly or a run is using this skill to prepare the spec its user will agree to, you explore the task, gather independent proposals when needed, grill the open decisions, prototype what hinges on look or feel, and present the spec to the owner.
+Produce a spec the user approves, without implementing the task. This method starts from discovery's findings: when none exist yet, use `bottega:discover` first.
 
-When the branch already carries a spec file, start there: show the owner what you found and confirm it is the work to do, then run the same method to refine it against the current codebase. An agreed mark never skips this; the code has moved since it was written.
+When the branch already carries a spec file, start there: show the user what you found and confirm it is the work to do, then run the same method to refine it against the current codebase. An agreed mark never skips this; the code has moved since it was written.
 
-## 1. Explore
+## 1. Write
 
-Read the repo facts first: the smallest map that routes the task (root `CLAUDE.md` or `AGENTS.md`), then `CONTEXT-MAP.md` if present, then only the `CONTEXT.md` glossaries, `docs/adr/` decisions, `docs/lessons/` records, and critical journeys the work touches. Current docs only.
+Keep the spec simple and let the artifacts carry the detail: state each decision in a sentence and point at the prototype sources and references discovery produced; a rendered mockup or a pointed-at implementation tells a builder more than prose describing it. Prototype code is evidence, never truth: it never merges into the product, and the build rewrites it from the agreed spec. A decision that reverses an earlier verdict names that verdict and the evidence that changed the call, in the spec.
 
-Then launch a subagent per job that applies, each on the explorer's row of [the worker table](../maestro/references/workers.md): explore how the affected area of the codebase works today and the precedent it sets; search online for how others solve this problem and where the practice is heading; and read the technology skills in this runtime that match the work. Run the search job on any product-shaped work: the codebase answers how we already do it here, the search answers the standard way.
+[references/spec-format.md](references/spec-format.md) gives the document's shape and prose rules: start from that floor and let discovery's findings drive the rest. It is a floor, never a template to fill. As decisions settle, resolve the domain terms the work introduces or sharpens (the method is in `bottega:codebase-design`) and record them in the spec. Write no `CONTEXT.md` or `docs/adr/` entry from this session; the run that builds the spec writes those after approval.
 
-Read what comes back, then read directly the files any decision hinges on. Verify version-sensitive technology against the installed version and its official docs before a decision relies on it. A subagent returns findings, never a decision.
+## 2. Present
 
-## 2. Propose independently
+The shared editor is hosted, so the spec passes through its operator's servers. Offer it to the user first; a user who cannot accept that declines it, and the same review happens in the conversation, the spec presented as text.
 
-Run this step for a decision that shapes what the product does or means for its users and meets the panel's three conditions: open, meaning exploring left two credible product directions standing (two ways the product could go, not two models disagreeing); costly, meaning picking wrong would be expensive to undo or hard to notice later; and settled by no cheap check, which sends a look-or-feel direction to the prototype step instead. In an autonomous run the costly condition is met more often: the owner reads the Decisions list only on the delivered PR, so a wrong direction is caught late and the panel stands in for the owner's answers.
+Present the spec as a live shared document: the user reads it rendered, on any device, and comments on the text directly. [references/live-review.md](references/live-review.md) has the mechanics; load it here. Reply inside each comment thread, saying whether you agree and why, and make any resulting change as a tracked edit the user accepts or rejects. Threads resolve as they settle. The local markdown file stays the single source of truth: mirror the agreed state back to it; it is the file publish commits.
 
-When it passes, invoke `bottega:panel` with the decision, its task putting three questions to every seat: what this feature could be, which assumptions need the owner's confirmation, and what the owner should be asked. The panel returns a compare-only map: where the drafts agree, where they contradict, what only one saw. Grill from that map, and write the spec yourself.
+The user's approval may arrive as a comment in the document, in their own words; that is the go signal, the same as a reply in the conversation.
 
-Run this before the grilling, because the owner's answers narrow the direction: independent proposals are worth most while the job is still finding the right options and the right questions.
+On approval, set the spec's status line to agreed ([references/spec-format.md](references/spec-format.md)) and commit it as `docs/specs/<YYYY-MM-DD>-<slug>.md` (dated the day it was agreed), with any prototype screenshots it embeds and the prototype sources that produced them, under `docs/specs/assets/<slug>/`, on the current work branch, creating `bottega/<slug>` now when none exists. This file is the spec; no other artifact is.
 
-## 3. Grill
+In an autonomous run there is no user to present to: skip the shared document, write the spec, set its status line to agreed on your own authority, and commit it to the same path. The user's veto point is the PR's decisions list.
 
-List the unknowns the request leaves open: the risks the code, history, or domain point to but the request omits. Then sweep for blind spots: the questions neither you nor the request thought to ask, strongest where the owner is furthest from the domain. Rank everything by impact, and ask earliest where the answer would change the architecture. Resolve each unknown from a repo fact where one exists before you reach for the user. Put what remains to the user one question at a time, each with your recommended answer, so a reply is a yes or a correction. Keep asking until you can predict the user's acceptance decisions. A decision that reverses an earlier verdict names that verdict and the evidence that changed the call, in the spec.
+## 3. Publish
 
-In an autonomous run there is no owner to ask: resolve each remaining unknown the same way, the repo's precedent first, then the standard way others solve it, and record each resolution with its reason under Decisions.
-
-## 4. Prototype a look-or-feel decision
-
-Trigger: a decision hinges on how something looks or feels, a preference the user cannot answer in words.
-
-Build rough, real, rendered artifacts and screenshot them, through a dispatched worker on the prototyper's row of [the worker table](../maestro/references/workers.md): prototype code never ships, so it does not get the builder's effort. When the choice is open, build several directions the user can react to, and show the user flow, not one frame. The user reacts before anything is wired up. State the settled decision in words in the spec and attach the screenshots as evidence. Prototype code is evidence, never truth: it never merges into the product, and the build rewrites it from the agreed spec; keep the source beside the spec, because a rendered mockup a builder can read carries the settled look at a fidelity no description of it reaches.
-
-Where you build it depends on the entry point:
-
-- Invoked directly: create a worktree on branch `bottega/<slug>`, the work branch a later run continues, and build there. Delete the local worktree when the session ends.
-- Inside a run: build in the run's existing worktree.
-
-If nothing can render, and only then, draw a wireframe in the spec body: layout and flow, never an image posing as the finished product.
-
-## 5. Present
-
-The shared editor is hosted, so the spec passes through its operator's servers. Offer it to the owner first; an owner who cannot accept that declines it, and the same review happens in the conversation, the spec presented as text.
-
-Present the spec as a live shared document: the owner reads it rendered, on any device, and comments on the text directly. [references/live-review.md](references/live-review.md) has the mechanics; load it here. Reply inside each comment thread, saying whether you agree and why, and make any resulting change as a tracked edit the owner accepts or rejects. Threads resolve as they settle. The local markdown file stays the single source of truth: mirror the agreed state back to it; it is the file publish commits.
-
-The owner's approval may arrive as a comment in the document, in their own words; that is the go signal, the same as a reply in the conversation.
-
-On approval, set the spec's status line to agreed ([references/spec-format.md](references/spec-format.md)) and commit it as `docs/specs/<YYYY-MM-DD>-<slug>.md` (dated the day it was agreed), with any prototype screenshots it embeds and the prototype sources that produced them, under `docs/specs/assets/<slug>/`: inside a run, on the run's branch; invoked directly, on branch `bottega/<slug>` (created now when none exists). This file is the spec; no other artifact is.
-
-In an autonomous run there is no owner to present to: skip the shared document, write the spec, set its status line to agreed on your own authority, and commit it to the same path. The owner's veto point is the PR's decisions list.
-
-[references/spec-format.md](references/spec-format.md) gives the document's shape and prose rules: start from that floor and let the discussion and your findings drive the rest. It is a floor, never a template to fill.
-
-As decisions settle, resolve the domain terms the work introduces or sharpens (the method is in `bottega:codebase-design`) and record them in the spec. Write no `CONTEXT.md` or `docs/adr/` entry from this session; the run that later builds the spec writes those after approval.
-
-## 6. End by entry point
-
-- Invoked directly: ask once whether to push the branch, then wait. On yes, publish (step 7). On no, delete the branch this session created, local and remote if pushed, before the session ends; the settled decision already lives in the spec's words.
-- Inside a run: hand the committed agreed spec back to the run.
-
-## 7. Publish
-
-Push the branch and report it. It is the work branch: a later run continues it, builds on it, and its PR merges the spec to trunk with the code that fulfils it (`docs/adr/0007-spec-status-in-the-file.md`).
+The method ends at the committed spec. When the branch existed before this method ran, there is nothing more to do. When this method created it, ask the user once whether to push, then wait. On yes, push and report it: it is the work branch a later run continues, and its PR merges the spec to trunk with the code that fulfils it (`docs/adr/0007-spec-status-in-the-file.md`). On no, delete the branch, local and remote if pushed, before the session ends; the settled decisions already live in the spec's words.
