@@ -1,0 +1,11 @@
+# Worker names in one table, worker rules at the dispatch
+
+ADR 0018 dissolved the routing skill and moved both the worker rules and the worker model names to the phase that dispatches. The rules belong there and stay there. The names do not: twelve sentences across seven files each named a model and an effort, four of them stating the same builder pin, and nothing read them for judgment. They only had to be current.
+
+`skills/maestro/references/workers.md` is now the one table: one row per worker, one model, one effort, no cell holding two of either. The phases name the worker they dispatch (a builder, an explorer, the plan editor) and read the row. The orchestrator stays out of the table, because it is not a dispatched worker and its fallback to opus-5 needs the user's agreement, which a row cannot carry. Two dispatchers that are invoked on their own keep their own models: `bottega:panel` names its seats, and the vendored review engine names its engines.
+
+What ADR 0018 objected to does not return. There is no skill to invoke before a dispatch, the table carries no rules and no rows without a worker, and the invariants that need judgment (fable orchestrates and never works a slice, no verification worker runs the family that wrote the diff, one rerun after a diagnosis) stay in `skills/maestro/SKILL.md` where the orchestrator reads them.
+
+Grounds: every comparable system binds a role to a model in one place and keeps the model name out of the instructions. OpenHands agents reference a named LLM group; Continue models declare which roles they serve; aider takes an editor model beside the main one; Goose reads lead, planner, and worker models from the environment; Roo binds a model profile to a mode; Codex reads model and reasoning effort from a profile; LiteLLM exists to let an alias change what it points at. Where a model literal does appear in an instruction file, it is a machine-read field holding a tier alias or `inherit`, roughly seven times more often than a versioned id. Anthropic's own guidance is that effort is a general preference rather than a per-task decision, which is the other half of why twelve effort statements were twelve chances to drift.
+
+The efforts each worker runs at are unchanged by this decision. Moving a name is not the moment to retune one.

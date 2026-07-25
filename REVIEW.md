@@ -2,7 +2,7 @@
 
 Bottega is a method in markdown; most defects are false claims, drifted duplicates, and register violations, not crashing code.
 
-- Worker model choices live in the skill that makes each dispatch; maestro states the orchestrator model and the rules binding every choice, the review engines are named in `skills/code-review/references/autoreview.md`, and the panel's seats in `skills/panel`. A second home for any of these is a defect.
+- Worker model choices live in one table, `skills/maestro/references/workers.md`, one row per worker with one model and one effort; the phases name the worker they dispatch and nothing else. Maestro states the orchestrator model and the rules binding every choice, the review engines are named in `skills/code-review/references/autoreview.md`, and the panel's seats in `skills/panel`. A second home for any of these is a defect.
 - Enforcement is one rule in `hooks/route-guard.mjs`: a session owning a live run names a model on every subagent and workflow dispatch, never fable. The guard reads `Agent`, `Task`, and `Workflow` calls only, so the GPT workers the orchestrator shells out to from its own turn are outside it; re-scoping the guard to those is an open followup (issue #116). Guard changes need `tests/route-guard.test.ts` to still pass against real event shapes.
 - There are no agent identity files. Worker method arrives per dispatch from skills (`implementing`, `qa`).
 - The skills tree is the product and must stay harness-portable: nothing in `skills/` may assume slash commands, subagents, or a plugin root exists, except where a harness is named.

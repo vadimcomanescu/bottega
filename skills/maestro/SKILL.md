@@ -10,7 +10,7 @@ Take one piece of work (a run) from request to a PR ready to merge, as its orche
 
 Check your model before anything else. A run is orchestrated from Claude Code on fable-5 at xhigh, and fable-5 never runs a worker dispatched as a subagent. On any other model or harness, stop and tell the user; offer opus-5 at xhigh when fable-5 is unavailable, and continue only when the user says so.
 
-Claude models do the work and GPT models check it with fresh eyes. Each phase's skill states its worker's model and effort, and every dispatch names both on the call that starts the worker; the mechanical jobs you dispatch yourself (renames, doc sync, shell relays) go to opus-5 at low effort. A codex worker is a CLI call you run from your own turn per the codex dispatch method, [references/codex-dispatch.md](references/codex-dispatch.md), with the model, effort, and sandbox the dispatch site names. A worker that fails its requirement gets one rerun, at higher effort or on a GPT model, after you diagnose the failure; never automatic.
+Claude models do the work and GPT models check it with fresh eyes. Every worker's model and effort is one row of the worker table, [references/workers.md](references/workers.md), and every dispatch names both on the call that starts the worker; the mechanical jobs you dispatch yourself (renames, doc sync, shell relays) go to the mechanic's row. A codex worker is a CLI call you run from your own turn per the codex dispatch method, [references/codex-dispatch.md](references/codex-dispatch.md), with the model and effort from the table and the sandbox the dispatch site names. A worker that fails its requirement gets one rerun, at higher effort or on a GPT model, after you diagnose the failure; never automatic.
 
 Every worker holds a visible row on the harness screen for its whole run: a Claude worker as a subagent, a codex worker as a tracked background task.
 
@@ -38,7 +38,7 @@ Invoke `bottega:code-review` on the integrated diff; it ends with the doc-covera
 
 ## 6. QA
 
-Invoke `bottega:qa` with the accepted head and every changed product scenario, drawn from the repo's critical-journeys doc where one keeps them (the changed journeys, plus any the diff touches); the QA worker runs opus-5 at its default effort. A divergence stops the drive so you classify and route it by cause: an implementation defect is a builder dispatch, the defect and its evidence in the brief; a wrong spec, domain model, or architecture returns to Plan. A repair updates the docs its change touches, ends with gates green, and re-enters the review to your acceptance, then fresh QA at the re-drive scope `bottega:qa` sets.
+Invoke `bottega:qa` with the accepted head and every changed product scenario, drawn from the repo's critical-journeys doc where one keeps them (the changed journeys, plus any the diff touches). A divergence stops the drive so you classify and route it by cause: an implementation defect is a builder dispatch, the defect and its evidence in the brief; a wrong spec, domain model, or architecture returns to Plan. A repair updates the docs its change touches, ends with gates green, and re-enters the review to your acceptance, then fresh QA at the re-drive scope `bottega:qa` sets.
 
 ## 7. Close
 

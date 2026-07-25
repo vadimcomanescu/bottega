@@ -6,14 +6,15 @@ import { isAbsolute, join } from "node:path";
 const FABLE = /fable/i;
 const MODEL_LITERAL = /\bmodel\s*:\s*(['"])([^'"]*)\1/;
 
+const TABLE = "skills/maestro/references/workers.md";
 const DIRECT_UNPINNED =
-  "This live run dispatch names no model. Name the model the phase's skill states (the model rules are in skills/maestro) and retry.";
+  `This live run dispatch names no model. Name the model this worker's row gives it (${TABLE}) and retry.`;
 const DIRECT_FABLE =
-  "This live run dispatch routes to Fable, the orchestrator's model, never a worker's. Name the model the phase's skill states and retry.";
+  `This live run dispatch routes to Fable, the orchestrator's model, never a worker's. Name the model this worker's row gives it (${TABLE}) and retry.`;
 const WORKFLOW_UNPINNED =
-  "This live run workflow has an agent() call that names no literal model. Name the model the phase's skill states (the model rules are in skills/maestro) and retry.";
+  `This live run workflow has an agent() call that names no literal model. Name the model this worker's row gives it (${TABLE}) and retry.`;
 const WORKFLOW_FABLE =
-  "This live run workflow has an agent() call routed to Fable, the orchestrator's model, never a worker's. Name the model the phase's skill states and retry.";
+  `This live run workflow has an agent() call routed to Fable, the orchestrator's model, never a worker's. Name the model this worker's row gives it (${TABLE}) and retry.`;
 
 function readStdin() {
   return new Promise((resolve) => {

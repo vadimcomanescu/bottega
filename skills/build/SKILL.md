@@ -10,7 +10,7 @@ Build the plan's slices through dispatched builders and leave the integrated cod
 
 ## 1. Dispatch
 
-A builder is a fresh worker given one job (a slice of the plan, or a repair) with the plan, the spec path, its owned files, and the gate commands, on opus-5 at xhigh; its doctrine is `bottega:implementing`, and every change to product code in a run is a builder dispatch. Dispatch one builder per slice through the harness's native isolation, each in its own worktree from the run branch's current commit, and sequence only slices that share a file or a resource only one worker can use at a time. Prefer one dynamic workflow for the fan-out. Complete when every slice is dispatched or sequenced behind the slice it waits on.
+A builder is a fresh worker given one job (a slice of the plan, or a repair) with the plan, the spec path, its owned files, and the gate commands, on the builder's row of [the worker table](../maestro/references/workers.md); its doctrine is `bottega:implementing`, and every change to product code in a run is a builder dispatch. Dispatch one builder per slice through the harness's native isolation, each in its own worktree from the run branch's current commit, and sequence only slices that share a file or a resource only one worker can use at a time. Prefer one dynamic workflow for the fan-out. Complete when every slice is dispatched or sequenced behind the slice it waits on.
 
 ## 2. Check
 
