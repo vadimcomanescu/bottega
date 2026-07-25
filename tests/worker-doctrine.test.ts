@@ -136,6 +136,23 @@ describe("portable worker doctrine", () => {
       "opus-5 at max effort",
     );
 
+    // The vendored engine states the fix builder's model for a standalone
+    // review, which never reads a run's table, so the same fact has two homes
+    // on purpose. Read the builder's row and require the vendored line to
+    // match it: changing the row fails here until the vendored text is
+    // re-scoped with it, and THIRD_PARTY.md records that scoping.
+    const builder = workers
+      .split(/\r?\n/)
+      .find((line) => line.startsWith("| builder |"))
+      ?.split("|")
+      .map((cell) => cell.trim());
+    const [, , builderModel, builderEffort] = builder ?? [];
+    expect(builderModel, "the worker table has a builder row").toBeTruthy();
+    expect(
+      read("skills/code-review/references/autoreview.md"),
+      `the vendored fix builder has drifted from the builder row (${builderModel} at ${builderEffort})`,
+    ).toContain(`runs on ${builderModel} at ${builderEffort}`);
+
     const review = read("skills/code-review/references/autoreview.md");
     expect(review).toContain("--model codex=gpt-5.6-sol");
     expect(review).toContain("--model claude=claude-fable-5");
