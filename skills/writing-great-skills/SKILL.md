@@ -107,4 +107,4 @@ Walk this list against the finished file after creating or editing any skill; fi
 - [ ] Every **completion criterion** is checkable, and exhaustive where thin **legwork** would hurt.
 - [ ] Each meaning has one home; no sentence fails the **no-op** test; no **sediment** survives the edit.
 - [ ] Restated ideas are collapsed into a **leading word** where one exists.
-- [ ] One term per concept throughout, and prohibitions rephrased to the **positive** target.
+- [ ] One term per concept and one concept per term, checked against the glossary the text belongs to; prohibitions rephrased to the **positive** target.
