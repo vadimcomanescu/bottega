@@ -1,0 +1,11 @@
+# 0021: The codex dispatch method is vendored, not written here
+
+Date: 2026-07-25.
+
+Decision: the codex dispatch method is a proven outside document vendored byte-identical at `skills/maestro/references/codex-dispatch.md` (upstream `steipete/agent-scripts`, `skills/codex-first/SKILL.md`, revision `bb36883`), recorded in root `THIRD_PARTY.md` with every other vendored file, the same shape as the vendored review engine (ADR 0013). Bottega writes no dispatch machinery of its own: `scripts/codex-exec` and its tests are deleted, and the hand-written dispatch reference with them. What stays bottega's is recorded in that record, never edited into the vendored file: each dispatch site still names the model, effort, and sandbox (ADR 0018), read seats dispatch `-s read-only` in place of the vendored default, and briefs carry the run's inputs by absolute path.
+
+This supersedes the assembly-point clause of ADR 0020 and ADR 0008 (`scripts/codex-exec` as the single assembly point). Everything else in 0020 stands: dispatch from the orchestrator's own turn as tracked background Bash, resume over rerun, backgrounding inside a subagent stays fatal.
+
+Why: the owner directed adopting a proven solution whole after three were studied against the wrapper. The vendored review engine runs codex as a single blocking exec with a schema and a heartbeat; the two wrapper-heavy alternatives (a broker over the app server, a detached supervisor runner) each carry thousands of lines against a few hundred load-bearing and neither delivers resume; the vendored method runs raw `codex exec` with a prompt file, an `-o` file, session-id resume, and a log-freshness liveness read, and has the widest adoption of any published shape. The wrapper's 466 lines and 730-word contract restated what the raw call plus one grep does. A method document that already works is taken as written and scoped beside itself, the same rule the review engine set.
+
+Recorded limits: without the wrapper's watchdog, a hang is caught by the orchestrator's liveness read, not by the call exiting nonzero; a run that dies before printing its session id is dispatched fresh; a schema'd dispatch is checked by reading the out file, not by an exit code; upstream moves under the sync contract, so a sync is a deliberate re-read, not an automatic pull.

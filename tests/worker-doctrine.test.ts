@@ -62,6 +62,7 @@ describe("portable worker doctrine", () => {
       ...filesUnder("skills", ".md").filter(
         (path) =>
           path !== "skills/code-review/references/autoreview.md" &&
+          path !== "skills/maestro/references/codex-dispatch.md" &&
           !path.startsWith("skills/code-review/tests/") &&
           !path.startsWith("skills/codebase-design/references/"),
       ),

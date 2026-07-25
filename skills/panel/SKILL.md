@@ -27,7 +27,7 @@ One seat per company, and the same `task.md` verbatim to every seat. Every seat 
 
 | seat | dispatch |
 | --- | --- |
-| codex | `$CLAUDE_PLUGIN_ROOT/scripts/codex-exec --model gpt-5.6-sol --effort max --sandbox read-only --search --cwd <repo> --brief <session>/task.md --out <session>/codex-draft.md --events <session>/codex-events.jsonl`, run as tracked background Bash, every path absolute ([maestro's codex dispatch reference](../maestro/references/codex-dispatch.md)) |
+| codex | one read-only codex dispatch per [maestro's codex dispatch method](../maestro/references/codex-dispatch.md): gpt-5.6-sol at max, `--search`, the draft to `<session>/codex-draft.md` |
 | claude | `claude -p --model claude-fable-5 --effort max < task.md > claude-draft.md`, run from the repository root |
 
 Another company's CLI installed on the machine takes a further seat under the same task, read-only with its own web search. The seats are the panel's own: this table names their models, the way the review names its engines.
