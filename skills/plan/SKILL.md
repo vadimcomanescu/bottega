@@ -10,7 +10,7 @@ Produce the plan the builders receive, and strengthen it before anything is buil
 
 ## 1. Model
 
-You own the domain model and architecture. Invoke `bottega:codebase-design` and write the plan it defines: the domain decisions, the interfaces, and the vertical slices, each slice naming its owned files, docs included: a slice that changes a user-facing surface owns updating the docs that describe it. Put a decision that is expensive to reverse after merge to `bottega:panel` unless the repository already answers it.
+You own the domain model and architecture. Invoke `bottega:codebase-design` and write the plan it defines: the domain decisions, the interfaces, and the vertical slices, each slice naming its owned files, docs included: a slice that changes a user-facing surface owns updating the docs that describe it. Put a decision to `bottega:panel` when its gate holds: open, costly to reverse after merge, and settled by no cheap check; a checkable question (which of two named options performs, whether a library supports the case) gets a spike or a benchmark instead. The plan records each costly decision and how it was settled: repository precedent, standard solution, check, or panel.
 
 ## 2. Commit
 

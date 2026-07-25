@@ -20,9 +20,9 @@ Read what comes back, then read directly the files any decision hinges on. Verif
 
 ## 2. Propose independently
 
-Run this step only when all three hold: the decision shapes what the product does or means for its users; after exploring, at least two credible product directions survive (two ways the product could go, not two models disagreeing); and picking wrong would be expensive to undo or hard to notice later.
+Run this step only when all three hold: the decision shapes what the product does or means for its users; after exploring, at least two credible product directions survive (two ways the product could go, not two models disagreeing); and picking wrong would be expensive to undo or hard to notice later. A direction a prototype can settle goes to the prototype step instead. In an autonomous run, weigh the third condition knowing the owner reads the Decisions list only at the end, on a PR the run may already have merged: a wrong direction is caught late, which passes the gate more often, and the panel stands in for the owner's answers.
 
-When they hold, put the same evidence to independent drafts from different companies' models by invoking `bottega:panel`, each draft blind to the others. Ask each draft for three things: what this feature could be, which assumptions need the owner's confirmation, and what the owner should be asked. The panel returns a compare-only map: where the drafts agree, where they contradict, what only one saw. Grill from that map, and write the spec yourself.
+When they hold, invoke `bottega:panel` with the decision, its task putting three questions to every seat: what this feature could be, which assumptions need the owner's confirmation, and what the owner should be asked. The panel returns a compare-only map: where the drafts agree, where they contradict, what only one saw. Grill from that map, and write the spec yourself.
 
 Run this before the grilling, because the owner's answers narrow the direction: independent proposals are worth most while the job is still finding the right options and the right questions. Keep the panel small; two seats from different companies carry nearly all the independence, because different companies miss different things.
 
