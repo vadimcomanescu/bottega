@@ -54,7 +54,7 @@ Nothing else is assumed about the project. A run leaves nothing behind but the P
 
 ## How workers run
 
-Claude workers are ordinary subagents, each naming its model and effort. GPT workers run as calls to [`scripts/codex-exec`](scripts/codex-exec) that the orchestrator drives from its own turn as tracked background Bash, so every worker holds a visible row for its whole run and its completion re-invokes the orchestrator. Long builds are covered by raising the shell timeout ceiling in settings (`bottega:setup`) and by resuming a cut-short thread; a subagent never holds one of these calls, because it backgrounds it and returns a stub ([`docs/lessons/no-subagent-holds-a-long-dispatch.md`](docs/lessons/no-subagent-holds-a-long-dispatch.md)). A cloud run whose VM lacks the codex CLI or its login stops at the plan's cold read, the first GPT worker a run needs, and reports what is missing; neither that read nor the integrated review is waived around it.
+Claude workers are ordinary subagents, each naming its model and effort. GPT workers run as plain `codex exec` calls ([the codex dispatch method](skills/maestro/references/codex-dispatch.md)) that the orchestrator drives from its own turn as tracked background Bash, so every worker holds a visible row for its whole run and its completion re-invokes the orchestrator. Long builds are covered by raising the shell timeout ceiling in settings (`bottega:setup`) and by resuming a cut-short thread; a subagent never holds one of these calls, because it backgrounds it and returns a stub ([`docs/lessons/no-subagent-holds-a-long-dispatch.md`](docs/lessons/no-subagent-holds-a-long-dispatch.md)). A cloud run whose VM lacks the codex CLI or its login stops at the plan's cold read, the first GPT worker a run needs, and reports what is missing; neither that read nor the integrated review is waived around it.
 
 ## Design decisions
 
@@ -117,9 +117,10 @@ Changes to this repo are authored directly with the owner and delivered by a PR 
 These files are other people's work, copied as they were written and used unchanged. Each copy carries its upstream license file:
 
 - the vendored autoreview engine in `skills/code-review/` (`references/autoreview.md`, `scripts/`, `tests/`) from [openclaw/agent-skills](https://github.com/openclaw/agent-skills), under `skills/code-review/LICENSE` (MIT, Copyright (c) 2026 openclaw).
+- `skills/maestro/references/codex-dispatch.md`, the codex dispatch method, from [steipete/agent-scripts](https://github.com/steipete/agent-scripts), under `skills/maestro/references/LICENSE` (MIT, Copyright (c) 2026 Peter Steinberger).
 - `skills/codebase-design/references/CONTEXT-FORMAT.md` and `ADR-FORMAT.md` from [mattpocock/skills](https://github.com/mattpocock/skills), under `skills/codebase-design/references/LICENSE` (MIT, Copyright (c) 2026 Matt Pocock).
 
-Edit either upstream, not here. Bringing in a newer version means copying it again and reading the diff.
+Edit any of them upstream, not here. Bringing in a newer version means copying it again and reading the diff. [`THIRD_PARTY.md`](THIRD_PARTY.md) carries each one's pinned revision, local scoping, and sync procedure.
 
 ### Drawn on, not copied
 
