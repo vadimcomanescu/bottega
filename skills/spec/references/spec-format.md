@@ -9,7 +9,7 @@ A spec works backwards from the launch: it announces a finished product, then su
 1. **Problem to solve.** The problem in the product's own language: who it hurts and how, stated before any solution.
 2. **How we measure success.** The post-delivery signals that the feature worked, over the runs that follow. Distinct from acceptance criteria: these say the product worked, never that the build is correct; conflating them lets "tests pass" stand in for "the product worked".
 3. **The launch post.** The finished behavior announced the way you would announce it to the people who will use it. Prototype screenshots sit inline here, each where it carries the product story, with the decision it settled stated in words beside it. When nothing could render, the wireframe drawn in its place: layout and flow, never an image posing as the finished product.
-4. **Decisions.** Each choice made on the user's behalf, under the precedent rule below. State the default so the user can veto any decision in one read.
+4. **Decisions.** Each choice made on the user's behalf, under the precedent rule below. State the default so the user can veto any decision in one read, and order them by how likely the user is to want a different answer: the choice most exposed to their taste or their plans comes first, the ones the repository or a standard settled come last.
 5. **Details.** The specifics a builder needs that the launch post does not carry.
 6. **Acceptance criteria.** The observable conditions that decide the build is correct.
 7. **Out of scope.** What the work deliberately excludes, so the boundary is explicit.
