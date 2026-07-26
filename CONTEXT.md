@@ -59,6 +59,13 @@ The agreed statement of what the work does, in product language, committed as a 
 **Plan**:
 The statement of what a builder must not decide (terms, ownership, interfaces, slices), committed in docs/plans on the run branch and revised as the work teaches.
 
+**Run contract**:
+The one working file a guru run keeps on its branch where the spec and the plan would stand: settled decisions, slices with owned files and interfaces, the quality bar its critics score against, and the deviations log. It moves in the same commits as the code and never merges; by close its content is the tests, the PR body, and any decision record.
+_Avoid_: contract for a module's public interface (say interface)
+
+**Critic**:
+The worker that hunts defects in a guru run's integrated diff, one on each company's critic row, blind to the run contract. A maestro run's equivalent readers are the vendored engine document's reviewers, not this term.
+
 **Harness**:
 The runtime a session runs in: Claude Code. The project is the repository a run works on; the two are never the same word.
 _Avoid_: host (overloaded across both meanings; banned 0.64.0)

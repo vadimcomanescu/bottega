@@ -101,6 +101,8 @@ describe("portable worker doctrine", () => {
       "| mechanic | opus-5 | low |",
       "| plan editor | gpt-5.6-sol | xhigh |",
       "| conformance checker | gpt-5.6-sol | high |",
+      "| Claude critic | opus-5 | xhigh |",
+      "| GPT critic | gpt-5.6-sol | xhigh |",
     ]) {
       expect(workers, `the worker table is missing the row ${row}`).toContain(row);
     }

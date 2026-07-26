@@ -1,6 +1,6 @@
 # bottega
 
-Autonomous issue-to-PR runs, orchestrated from Claude Code with Claude and GPT workers: `/bottega:maestro` takes a task or issue to a reviewed, evidence-backed PR ready to merge, and spec, code-review, improve, panel, and setup are also available on their own. Read `README.md` for the model; this file is the working agreement for agents inside this repo.
+Autonomous issue-to-PR runs, orchestrated from Claude Code with Claude and GPT workers: `/bottega:maestro` takes a task or issue to a reviewed, evidence-backed PR ready to merge, and guru, spec, code-review, improve, panel, and setup are also available on their own. Read `README.md` for the model; this file is the working agreement for agents inside this repo.
 
 ## Map
 
@@ -9,6 +9,7 @@ Autonomous issue-to-PR runs, orchestrated from Claude Code with Claude and GPT w
 | `CONTEXT.md` | The glossary of the run vocabulary: one meaning per term, domain only | Writing any text that names a run concept, or resolving a term dispute |
 | `.claude-plugin/` | Plugin and marketplace manifests | Changing install or release metadata |
 | `skills/maestro/SKILL.md` | `/bottega:maestro`, the orchestrator's whole method: the orchestrator model, the worker model rules, and the run's phases; `references/workers.md` is the one table giving each worker its model and effort | Anything touches a run's phases or state, or which model runs a worker |
+| `skills/guru/SKILL.md` | `/bottega:guru`, the run as one goal statement: a live run contract and failing tests in place of the committed spec and plan, critics on the worker table's critic rows, the contract never merging | Anything touches the guru run's method, its contract, or its critics |
 | `skills/discover/SKILL.md` | The discovery method a run's Discover phase uses whole: explore, then the field guide's moves (blind spot pass, brainstorms and prototypes, interviews, references) where their condition holds, ending with the direction chosen and every decision answered; not user-invocable | Anything touches how a run finds unknowns, sets scope, brainstorms, prototypes, interviews the user, or gathers references |
 | `skills/build/SKILL.md` | The build method a run's Build phase uses whole: dispatch builders per slice, check reports, integrate with gates green, end with the simplification pass; not user-invocable | Anything touches how slices are dispatched, checked, integrated, or simplified |
 | `skills/open/SKILL.md` | The opening method a run's Open phase uses whole: ownership, worktree and branch, the owner file, commands from the agent map; not user-invocable | Anything touches how a run starts or claims work |
