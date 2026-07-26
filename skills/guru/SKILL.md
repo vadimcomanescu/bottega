@@ -1,6 +1,6 @@
 ---
 name: guru
-description: "Take a task, bug, or issue to a reviewed, evidence-backed PR with one goal-driven prompt: ultracode dynamic workflows, a /loop review by a Claude and a GPT critic, and a live run contract with failing tests in place of committed spec and plan files. Use bottega:guru when the user asks for a guru run. Never use proactively; a run costs hours of autonomous agent work."
+description: "Run the delivery method as one goal-driven prompt: ultracode dynamic workflows, a /loop review by a Claude and a GPT critic, and a live run contract with failing tests in place of committed spec and plan files, ending at a PR ready for the owner's merge. Use bottega:guru only when the user asks for a guru run by name; bottega:maestro is the default for work handed to bottega. Never use proactively; a run costs hours of autonomous agent work."
 argument-hint: "<task, or issue URL>"
 ---
 
