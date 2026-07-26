@@ -60,7 +60,7 @@ The agreed statement of what the work does, in product language, committed as a 
 The statement of what a builder must not decide (terms, ownership, interfaces, slices), committed in docs/plans on the run branch and revised as the work teaches.
 
 **Run contract**:
-The one working file a guru run keeps on its branch where the spec and the plan would stand: settled decisions, slices with owned files and interfaces, the quality bar its critics score against, and the deviations log. It moves in the same commits as the code and never merges; by close its content is the tests, the PR body, and any decision record.
+The one working file a guru run keeps on its branch where the spec and the plan would stand: settled decisions, slices with owned files and interfaces, the quality bar its critics score against, and the deviations log. It moves in the same commits as the code and is deleted before the PR opens; by then its content is the tests, the PR body, and any decision record.
 _Avoid_: contract for a module's public interface (say interface)
 
 **Critic**:
