@@ -1,12 +1,12 @@
 ---
 name: close
-description: The closing method a run's Close phase routes to. Confirms the accepted head, publishes evidence, files followups, opens the PR written for a reader outside the run, watches its checks, and reports it ready for the owner's merge or names what only a person can clear. Not user-invocable.
+description: The closing method a run's Close phase routes to. Confirms the accepted head, publishes evidence, files followups, opens the PR written for a reader outside the run (labeled hold when the launch said hold), watches its checks, and reports it merged, ready to land, or waiting on what only a person can clear. Not user-invocable.
 user-invocable: false
 ---
 
 # Close
 
-Take the accepted head, QA-verified when QA ran, to a PR the owner can merge on sight: open, readable, its checks green, its merge state clean, its deferred work filed. The owner's merge is the release: a run never merges a PR, never enables auto-merge, and never approves one. A requirement only a person can satisfy before the PR is ready ends the run with that action named to the user. Review feedback after the PR opens is handled through `bottega:code-review`: threads are claimed findings, and its autoreview document carries the merge verification.
+Take the accepted head, QA-verified when QA ran, to a PR that lands on sight: open, readable, its checks green, its merge state clean, its deferred work filed. The launch decided the release (`docs/adr/0027-the-launch-decides-the-release.md`): the run's recorded answer, `.bottega/run/<slug>/release`, says whether the PR lands on green or holds for the user, and a host repository that arms its own auto-merge may land a green PR while close watches. A run never merges a PR, never enables auto-merge, and never approves one; its whole part is the label and the watch. A requirement only a person can satisfy before the PR is ready ends the run with that action named to the user. Review feedback after the PR opens is handled through `bottega:code-review`: threads are claimed findings, and its autoreview document carries the merge verification.
 
 Run the phases in order; a followup and its evidence must exist before the PR body links them.
 
@@ -36,7 +36,7 @@ Filing is close's whole part here; the head is already pushed. The rule work bel
 
 ## 5. Open the PR
 
-Compose the body to a file and open it with `gh pr create -F <file>`, never inline. On an issue-born run, close the issue with the PR through a closing keyword. The body carries, written for that outside reader:
+Compose the body to a file and open it with `gh pr create -F <file>`, never inline; when the run's release answer is hold, add `--label hold` on the same call, so the PR arrives already braked. On an issue-born run, close the issue with the PR through a closing keyword. The body carries, written for that outside reader:
 
 - what changed and why;
 - the approved spec and the plan where they exist; a one-shot states its scope sentence in their place;
@@ -48,14 +48,14 @@ Compose the body to a file and open it with `gh pr create -F <file>`, never inli
 
 A Followups section links the issues just filed and nothing else. Keep tool, model, and company attribution badges and footers out.
 
-## 6. Watch and report ready
+## 6. Watch and report
 
-After the PR opens, watch every check to completion as tracked background Bash (`gh pr checks <PR> --watch`), excluding the `bottega/review` status you posted, your own marker, not a project check; distinguish a PR with no checks from one with a failing check. Read the merge state with it (`gh pr view <PR> --json mergeable,mergeStateStatus`) when the PR opens and again whenever the watch ends. `mergeable` returns only `MERGEABLE`, `CONFLICTING`, or `UNKNOWN`; `UNKNOWN` means GitHub has not finished computing it, so ask again rather than act on it. `mergeStateStatus` carries what `mergeable` cannot show: `CLEAN` is ready to merge, `BEHIND` is behind the base, `BLOCKED` is branch protection refusing, so read which requirement is unmet and sort it below.
+After the PR opens, watch every check to completion as tracked background Bash (`gh pr checks <PR> --watch`), excluding the `bottega/review` status you posted, your own marker, not a project check; distinguish a PR with no checks from one with a failing check. Read the merge state with it (`gh pr view <PR> --json state,mergeable,mergeStateStatus`) when the PR opens and again whenever the watch ends. A `state` of `MERGED` means the host repository's auto-merge landed the PR during the watch; go straight to the report below. `mergeable` returns only `MERGEABLE`, `CONFLICTING`, or `UNKNOWN`; `UNKNOWN` means GitHub has not finished computing it, so ask again rather than act on it. `mergeStateStatus` carries what `mergeable` cannot show: `CLEAN` is ready to merge, `BEHIND` is behind the base, `BLOCKED` is branch protection refusing, so read which requirement is unmet and sort it below.
 
 Sort what the watch and the merge state return by remedy, not by cause. The first question is always whether a change to the diff can clear it:
 
 - Run work: a code change clears it. A red check the diff can fix, a `CONFLICTING` merge state, and a `BEHIND` one all land here. Route each through the repair path maestro's QA phase defines; for `CONFLICTING` and `BEHIND` the fix is the builder merging the base branch into the run branch and resolving. Close's own part is the tail: the repaired, re-accepted, re-verified head is pushed and re-marked reviewed (phase 2), its fresh QA evidence published when QA re-ran (phase 3) and the PR body's evidence links updated to it so nothing points at the superseded head, and its checks and merge state re-watched.
-- Waiting on a person: no code change clears it and someone's action does. A required human review, a label the project's rules ask a reviewer to add, any other approval. A check the diff turned red belongs here whenever only a person can clear it. Report to the user what is needed and on which PR, and leave the PR open and unmerged for them; adding the label or the approval yourself defeats a check that exists to put a person in the loop.
+- Waiting on a person: no code change clears it and someone's action does. A required human review, a label the project's rules ask a reviewer to add, any other approval. A check the diff turned red belongs here whenever only a person can clear it. Report to the user what is needed and on which PR, and leave the PR open and unmerged for them; adding the label or the approval yourself defeats a check that exists to put a person in the loop, and removing a `hold` label is the same act in reverse: the user lands a held PR, never the run.
 - Infrastructure: neither clears it, because the failure is outside the diff's control. Report it with its evidence, never guessed at.
 
-With the checks green and the merge state `CLEAN`, report the PR ready: the PR, the head SHA phase 1 confirmed, and the evidence links. Close ends with the PR open and ready for the owner's merge, or with the PR open and the human action it waits on named to the user. The run's working state (`.bottega/run/<slug>/`, the worktree, the run branch) stands until the merge: a session that observes the merge deletes it, and `bottega:open` sweeps the state of any run whose PR has merged.
+A PR whose `state` is `MERGED` when the watch ends is the decided default, not an anomaly: report it merged, with the head SHA phase 1 confirmed and the evidence links, and sweep the run's working state (`.bottega/run/<slug>/`, the worktree, the run branch) in this same session. With the PR still open, its checks green, and the merge state `CLEAN`, report it ready: the PR, the head SHA phase 1 confirmed, the evidence links, and what lands it (on a hold run, the user removing the `hold` label; where nothing arms auto-merge, the user's merge). Close ends with the PR merged and the state swept, with the PR open and ready, or with the PR open and the human action it waits on named to the user. An open PR's working state stands until the merge: a session that observes the merge deletes it, and `bottega:open` sweeps the state of any run whose PR has merged.

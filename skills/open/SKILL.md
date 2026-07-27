@@ -1,6 +1,6 @@
 ---
 name: open
-description: The opening method a run's Open phase invokes whole. Settle ownership, isolate the run in a worktree and branch, write the owner file, read the project's commands from the agent map, and confirm the worker CLI is logged in. Not user-invocable.
+description: The opening method a run's Open phase invokes whole. Settle ownership, isolate the run in a worktree and branch, write the owner file and the release answer, read the project's commands from the agent map, and confirm the worker CLI is logged in. Not user-invocable.
 user-invocable: false
 ---
 
@@ -18,7 +18,7 @@ First sweep finished work: a `.bottega/run/` entry or worktree whose PR has merg
 
 ## 3. Write the owner file
 
-Write your session id to `.bottega/run/<slug>/owner`, and delete the `.bottega/discovery` claim when one exists; the route guard polices the session named there. Resuming in a later session, rewrite it before dispatching anything. Complete when the owner file names this session.
+Write your session id to `.bottega/run/<slug>/owner`, and delete the `.bottega/discovery` claim when one exists; the route guard polices the session named there. Write the release answer maestro settled to `.bottega/run/<slug>/release`, `land` or `hold`; close reads it before the PR opens. Resuming in a later session, rewrite the owner file before dispatching anything, and write the release file when the run predates it, asking the user when no answer was ever settled. Complete when the owner file names this session and the release file carries the run's answer.
 
 ## 4. Read the commands
 

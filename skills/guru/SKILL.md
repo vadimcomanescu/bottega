@@ -1,12 +1,12 @@
 ---
 name: guru
-description: "Run bottega's whole method as one prompt, to a PR ready for the owner's merge. Use only when the user asks for a guru run by name; bottega:maestro is the default for work handed to bottega. Never use proactively; a run costs hours of autonomous agent work."
+description: "Run bottega's whole method as one prompt, to a green PR ready to land. Use only when the user asks for a guru run by name; bottega:maestro is the default for work handed to bottega. Never use proactively; a run costs hours of autonomous agent work."
 argument-hint: "<task, or issue URL>"
 ---
 
 # Guru
 
-Take this to a PR ready for my merge: `$ARGUMENTS`. The diff should be good enough that a reviewer who wasn't in the run would merge it without asking for a change. Work in your own worktree on `bottega/<slug>`, write your session id to `.bottega/run/<slug>/owner`, and never merge or approve the PR yourself. Claude workers run on Opus, codex ones on gpt-5.6-sol per [the codex dispatch method](../maestro/references/codex-dispatch.md).
+Take this to a green PR ready to land: `$ARGUMENTS`. The diff should be good enough that a reviewer who wasn't in the run would merge it without asking for a change. Work in your own worktree on `bottega/<slug>`, write your session id to `.bottega/run/<slug>/owner`, and never merge, arm auto-merge, or approve the PR yourself; the repo's own machinery or I land it. Claude workers run on Opus, codex ones on gpt-5.6-sol per [the codex dispatch method](../maestro/references/codex-dispatch.md).
 
 Ground yourself the way bottega does: read the repo's agent map (`AGENTS.md` or `CLAUDE.md`) for its commands and gotchas, its `CONTEXT.md` for the domain terms where one exists, and `docs/lessons` and `docs/adr` before deciding anything they already decided. Speak the repo's language everywhere: briefs, code, the PR. Then sweep outward before you settle anything: fan out cheap workers, Opus at low effort or codex with web search on, to find how others already solved this and to read what the installed versions actually do, from their own docs and source rather than from memory.
 

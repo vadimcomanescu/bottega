@@ -5,8 +5,12 @@ The delivery method's own vocabulary: the terms every skill, brief, and doc in t
 ## Language
 
 **Run**:
-One piece of work taken from request to a PR ready to merge, owned by one orchestrator session on its own branch and worktree; the owner's merge is the release.
+One piece of work taken from request to a PR ready to merge, owned by one orchestrator session on its own branch and worktree; the launch decides the release.
 _Avoid_: commission, pipeline, job
+
+**Launch**:
+The moment the user hands work to a run, carrying the release answer: land on green, or hold. A request that says neither gets one plain question from maestro before any PR exists.
+_Avoid_: kickoff, start (say launch when the release answer is meant)
 
 **One-shot**:
 A run whose whole diff the orchestrator can state in one sentence after discovery, built directly and taken straight to Review with no spec and no plan; it still gets its own worktree and branch, gates green, the integrated review, and a PR.

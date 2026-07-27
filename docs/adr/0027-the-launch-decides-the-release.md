@@ -1,0 +1,7 @@
+# 0027: The launch decides the release
+
+Date: 2026-07-27
+
+Supersedes 0024's release clause. Verification is untouched: the integrated cross-family review, QA, and the project's checks remain the whole bar, and a run still never merges a PR, never enables auto-merge, and never approves one. What moves is where the owner's release authority is exercised. Under 0024 it sat at a merge click after close reported ready, and on every green PR that click confirmed what the recorded evidence already showed while the work waited on a person. The owner moved the decision to the launch: a request either says the PR lands on green or says it holds, and when it says neither, maestro asks the user one plain question, land on green or hold for you, before any PR can exist. The answer is recorded with the run's state and close carries it to the PR.
+
+The machinery that lands a PR is the host repository's, never the run's: a repository that adopts this arms its own auto-merge at PR open and brakes with a hold label enforced by a required check, the opt-out polarity of Prow's do-not-merge/hold. The run's whole part is the answer, the hold label on a held PR's create call, and the watch to completion. A PR the host repository merges during that watch is reported merged with its head SHA and evidence, and the run's working state is swept in that same session. Saying hold at launch, or adding the label while the PR is open, is the human act; removing the label lands it.

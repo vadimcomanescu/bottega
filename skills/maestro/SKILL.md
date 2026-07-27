@@ -16,6 +16,8 @@ Every dispatch names the model and effort from its row of the worker table, [ref
 
 Write your session id to `.bottega/discovery` before the first dispatch; the route guard polices this session from that moment, and `bottega:open` replaces the claim with the run's owner file. Then use `bottega:discover` to find and settle the unknowns. Then call the delivery on what it found, and say it: work whose whole diff you can state in one sentence takes no spec and no plan, built in your own turns or one builder dispatch and taken straight to Review; everything else takes every phase below. The call is provisional both ways: work that outgrows its sentence re-enters at Spec, and settled discovery shrinks later phases to what stays open.
 
+The delivery call settles the run's shape; settle the release answer with it, before any later phase can open a PR. A request that already says how the PR lands carries its own answer: autonomous or land it means land on green, hold this means hold. A request that says neither gets one plain question to the user, two answers: land on green, or hold for you. Ask it outright and wait; the answer is never inferred and never defaulted. `bottega:open` records it with the run's state, and close carries it to the PR (`docs/adr/0027-the-launch-decides-the-release.md`).
+
 ## 2. Open
 
 Use `bottega:open` to claim and isolate the run.
