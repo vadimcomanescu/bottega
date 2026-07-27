@@ -12,13 +12,13 @@ Model the domain before arranging files.
 
 - Define the concepts, states, relationships, and invariants that the change depends on. Resolve overloaded or conflicting terms with concrete scenarios and current code.
 - Use one term for one concept across the spec, glossary, interfaces, implementation, errors, and tests.
-- `CONTEXT.md` is the per-context glossary of the ubiquitous language: domain meaning only, never implementation. Add an `_Avoid_` synonym line only for a synonym that caused real ambiguity. `CONTEXT-MAP.md` at the root exists only for a multi-context repo, naming each bounded context and its relationships. `docs/adr/` holds append-only dated decisions, written only when the decision is hard to reverse, surprising without context, and the result of a real trade-off. Create each lazily, only when there is something to write.
+- `CONTEXT.md` is the per-context glossary of the ubiquitous language: domain meaning only, never implementation. Add an `_Avoid_` synonym line only for a synonym that caused real ambiguity. `CONTEXT-MAP.md` at the root exists only for a multi-context repo, naming each bounded context and its relationships. `docs/adr/` holds append-only dated decisions, written only when the decision is hard to reverse, surprising without context, and the result of a real trade-off. Outside reading is not an artifact of its own: what a source said belongs in the sentence of the decision it changed, named with its URL there, so a decision that meets the bar becomes one ADR stating plainly what was decided and why, and no research, findings, or reading note is committed as a file. Create each lazily, only when there is something to write.
 - Writing any of these files, an existing file's format wins; a new file or entry follows the vendored format references: [CONTEXT-FORMAT.md](references/CONTEXT-FORMAT.md) and [ADR-FORMAT.md](references/ADR-FORMAT.md).
 - Put behavior with the state and rules it protects. A file boundary or existing class is evidence, not authority, when it conflicts with the model.
 
 ## Documentation architecture
 
-- Every normative fact has exactly one authoritative home. `CLAUDE.md` and `AGENTS.md` are maps that route to those homes and never restate their contents.
+- Every normative fact has exactly one authoritative home. `CLAUDE.md` and `AGENTS.md` are maps that route to those homes and never restate their contents. The rule crosses repository boundaries: where a sibling repository already owns a fact, this one links that owner's stable home by full URL and never restates it, and a second copy found in the change's scope is deleted rather than kept in sync.
 - A document's path shows its authority: living truth, decisions under `docs/adr/`, open plans, and archive. Living docs never cite archived docs.
 - Read the smallest map that routes the task, then only the contexts and ADRs the task touches.
 - A change to covered behavior updates the owning living doc in the same change.
