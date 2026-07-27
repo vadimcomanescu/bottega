@@ -1,12 +1,12 @@
 ---
 name: open
-description: The opening method a run's Launch phase invokes whole. Settle ownership, isolate the run in a worktree and branch, write the owner file and the release answer, read the project's commands from the agent map, and confirm the worker CLI is logged in. Not user-invocable.
+description: The opening method a run's Launch phase invokes whole. Settle ownership, isolate the run in a worktree and branch, write the owner file and the release answer, read the project's commands from the agent map, and confirm the review's codex CLI is logged in. Not user-invocable.
 user-invocable: false
 ---
 
 # Open
 
-Prepare the run before any dispatch: owned, isolated, commands in hand, the worker CLI ready. Discovery and every later phase work inside what this opens.
+Prepare the run before any dispatch: owned, isolated, commands in hand, the review CLI checked. Discovery and every later phase work inside what this opens.
 
 ## 1. Settle ownership
 
@@ -24,6 +24,6 @@ Write your session id to `.bottega/run/<slug>/owner` before the run's first disp
 
 Read the project's commands (format, lint, typecheck, test, build, run) from the repo's agent map (`AGENTS.md` or `CLAUDE.md`; setup keeps one a symlink of the other so Claude Code and the codex CLI read the one copy). The map is the commands' one home: a brief quotes them from it, never defines them elsewhere. A command missing or broken there is discovered once and written back to the map as part of the run's diff, and the same rule covers any operating fact a worker had to dig for: how the app boots from a worktree, seed data, migration steps. Complete when every command the run will brief is read from the map.
 
-## 5. Confirm the worker CLI
+## 5. Confirm the review CLI
 
-Confirm the codex CLI is installed and logged in before the first dispatch (`codex login status`). Missing, logged out, or over quota: tell the user now. Complete when the CLI is ready or the user knows why it is not.
+Confirm the codex CLI is installed and logged in (`codex login status`); the run's GPT cross-reads run through it. Missing, logged out, or over quota: tell the user now and continue, with fresh Claude workers taking those reads and the run recording the gap. Complete when the CLI is ready or the user knows why it is not.
