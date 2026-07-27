@@ -4,12 +4,22 @@
 # makes the bump a merge requirement instead of a convention.
 name: release-gate
 
+#
+# It also runs on every push to main. The ruleset does not require a PR to be
+# up to date with main before it merges (strict up-to-date would rebuild every
+# PR behind every merge), so two PRs that pass separately can break main
+# together. This run is where that shows up: `test` on the merged tree, once
+# per merge. `version-bump` compares a PR against its base, which a push has
+# no meaning for, so it stays a pull-request job.
 on:
   pull_request:
+    branches: [main]
+  push:
     branches: [main]
 
 jobs:
   version-bump:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
