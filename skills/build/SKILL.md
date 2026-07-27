@@ -1,6 +1,6 @@
 ---
 name: build
-description: The build method a run's Build phase invokes whole. Dispatch one builder per slice, check every report, drive every slice that changes a user-facing surface, keep the project's gates green at every integrate, and finish with a simplification pass. Not user-invocable.
+description: The build method a run's Build phase invokes whole. Dispatch one builder per slice, check every report, keep the project's gates green at every integrate, drive every landed slice that changes a user-facing surface, and finish with a simplification pass. Not user-invocable.
 user-invocable: false
 ---
 
@@ -16,13 +16,13 @@ A builder is a fresh worker given one job (a slice of the plan, or a repair) wit
 
 Treat every worker report as a claim to check, never as a fact; a report whose evidence is missing, or narrower than its claim, goes back to the worker. When a builder's output is bad, fix the instructions that produced it and rerun; do not hand-patch a builder's diff. Complete when every report is checked against its evidence.
 
-## 3. Drive
-
-A slice that changes a user-facing surface is driven once its gates are green and before you accept it, by a fresh worker on the QA driver's row of [the worker table](../maestro/references/workers.md) briefed with `bottega:qa`: through the interface a user actually uses, judging how good the result is as well as whether it matches the plan. Complete when every slice that changed a user-facing surface has been driven and its report read.
-
-## 4. Integrate
+## 3. Integrate
 
 Keep every merge decision yourself. Every slice ends with the map's gate commands green (format, lint, typecheck, tests) before it merges, and the full suite runs at every integrate; a failure the run introduced freezes merging until you route the fix. When builders iterate against gate runs that take minutes, file a followup to shrink the gate. Complete when every slice is merged and the full suite is green at the run branch's head.
+
+## 4. Drive
+
+A slice that changes a user-facing surface is driven on the run branch once it has merged, before the run proceeds past it, so each drive reads the integrated state so far. The driver is a fresh worker on the QA driver's row of [the worker table](../maestro/references/workers.md) briefed with `bottega:qa`, going through the interface a user actually uses and judging how good the result is as well as whether it matches the plan. Complete when every slice that changed a user-facing surface has been driven at the run branch head that merged it and its report read.
 
 ## 5. Simplify
 

@@ -38,7 +38,7 @@ Use `bottega:code-review` on the integrated diff. You verify every finding again
 
 ## 7. QA
 
-Use `bottega:qa` on the accepted head and every changed product scenario, drawn from the repo's critical-journeys doc where one keeps them (the changed journeys, plus any the diff touches). QA returns every divergence it found in one report; classify and route each by cause: an implementation defect is a builder dispatch, the defect and its evidence in the brief; a wrong spec, domain model, or architecture returns to Plan. A repair updates the docs its change touches, ends with gates green, and re-enters the review to your acceptance, then fresh QA at the re-drive scope `bottega:qa` sets.
+Use `bottega:qa` on the accepted head and every changed product scenario, derived from the agreed spec's behaviors, the diff, and the repo's tagged end-to-end suite (the changed flows, plus any the diff touches). QA returns every divergence it found in one report; classify and route each by cause: an implementation defect is a builder dispatch, the defect and its evidence in the brief; a wrong spec, domain model, or architecture returns to Plan. A repair updates the docs its change touches, ends with gates green, and re-enters the review to your acceptance, then fresh QA at the re-drive scope `bottega:qa` sets.
 
 ## 8. Close
 

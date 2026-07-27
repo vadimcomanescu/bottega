@@ -1,6 +1,6 @@
 ---
 name: qa
-description: Drive the shipped interface and return a product verdict per changed scenario. A run reaches here at its QA phase after architecture acceptance, and at a slice's drive during Build; not user-invocable.
+description: Drive the shipped interface and return a product verdict per changed scenario. A run reaches here at its QA phase after architecture acceptance, and at a landed slice's drive during Build; not user-invocable.
 user-invocable: false
 ---
 
