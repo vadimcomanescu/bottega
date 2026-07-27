@@ -6,25 +6,25 @@ argument-hint: "<task, or issue URL>"
 
 # Maestro
 
-Take one piece of work (a run) from request to a PR ready to merge, as its orchestrator. Keep every judgment call in your own turns: the design, the arbitration of review findings, the acceptance of the delivered head. Workers write the production code; code you write yourself gets the same review as any worker's code. When the user's words say to run autonomously, deliver straight through, resolving the user's part as each phase's method says; the size of the work never makes that call.
+Take one piece of work (a run) from request to a PR ready to merge, as its orchestrator. Make every judgment call yourself: the design, deciding which review findings are real, and accepting or rejecting the finished code. Workers write the production code; code you write yourself gets reviewed like any worker's. When the user says to run autonomously, deliver straight through without stopping to ask, settling the user's part as each phase's method says; how big the work is never changes that.
 
 Everything the user reads from you is one human talking to another: simple, concise, no jargon, what happened rather than a label for it. A domain term the reader needs is used the way the repo's `CONTEXT.md` defines it, its meaning plain in the sentence; invent no vocabulary of your own.
 
 Check your model before anything else. A run is orchestrated from Claude Code on fable-5 at xhigh. On any other model or harness, stop and tell the user; offer opus-5 at xhigh when fable-5 is unavailable, and continue only when the user says so.
 
-Every dispatch names the model and effort from its row of the worker table, [references/workers.md](references/workers.md). A worker that fails its requirement gets one rerun after you diagnose the failure, never automatic; it is the one dispatch that may leave its row. Dynamic workflows are opted in for this run's fan-out phases (exploration, review verification, any phase whose work is many independent jobs), and every `agent()` call in one names its worker's model from the table, which the route guard enforces.
+Every dispatch names the model and effort from its row of the worker table, [references/workers.md](references/workers.md). A worker that fails what it was asked for gets one rerun, and only after you work out why it failed; that rerun is the one dispatch allowed a model its row does not give it. Use dynamic workflows for the phases that are many independent jobs at once (exploration, checking review findings), and every `agent()` call in one still names its worker's model from the table, which the route guard enforces.
 
 ## 1. Launch
 
-Settle the release answer before anything else, because the request carries it: land it means land on green, hold this means hold; autonomous speaks to the run's waits, never to the release, so it carries no answer. A request that says neither gets one plain question to the user, two answers: land on green, or hold for you. Ask it outright and wait; the answer is never inferred and never defaulted. Then use `bottega:open`, which isolates the run and records the answer for close. Every phase below runs inside that worktree, under the guard that reads its owner file.
+Settle how the PR ends before anything else: it merges itself once the checks are green, or it waits for the user. The request usually says which. "Land it" means merge on green, and "hold this" means wait. "Autonomous" answers a different question: it means work without stopping to ask, not merge without asking. When the request says neither, ask the user outright, offering those two answers, and wait for the reply; never guess it and never fall back to one. Then use `bottega:open`, which isolates the run and records the answer for close. Every phase below runs inside that worktree, under the guard that reads its owner file.
 
 ## 2. Discover
 
 Use `bottega:discover` to find and settle the unknowns.
 
-## 3. Call the delivery
+## 3. Choose which phases run
 
-Read what discovery found and settle the run's shape, said to the user: a phase below runs where discovery left an unknown unresolved or where a wrong call would be costly to reverse. Settled discovery shrinks spec and plan to what stays open: down to a paragraph of fixed decisions where the work is small and a wrong call is expensive, and to neither document where nothing is open and reversal is cheap, that work built in your own turns or one builder dispatch and taken straight to Review. The call is provisional both ways: work that turns out to hold an open unknown or a costly call re-enters at Spec, and a phase whose questions settle mid-run shrinks to what is left.
+Read what discovery found, decide which phases below this work needs, and tell the user what you decided. A phase runs when discovery left one of its questions open, or when getting it wrong would be expensive to undo. The more discovery settled, the less spec and plan have left to say: where the work is small but a mistake would be costly, a paragraph of fixed decisions replaces both documents; where nothing is open and a mistake is cheap to undo, neither document is written, and the work is built in your own turns or by one builder and taken straight to Review. Change this decision whenever the work proves it wrong: work that turns out to hide an open question or a costly call goes back to Spec, and a phase whose questions get settled mid-run shrinks to what is left.
 
 ## 4. Spec
 
@@ -40,14 +40,14 @@ Use `bottega:build` to deliver the slices. When a worker hits a case the plan di
 
 ## 7. Review
 
-Use `bottega:code-review` on the integrated diff. You verify every finding against the real code, reconcile the evidence against every fixed decision in the plan, or against the spec's decisions when there is no plan, or against the request and the fixed decisions the delivery call recorded when there is neither, and accepting or rejecting the reviewed head is your call.
+Use `bottega:code-review` on the integrated diff. Check every finding against the real code yourself, and check what the run built against every fixed decision in the plan, against the spec's decisions when there is no plan, and against the request plus the decisions phase 3 recorded when there is neither. Accepting or rejecting the reviewed code is your call.
 
 ## 8. QA
 
-Use `bottega:qa` on the accepted head and every changed product scenario, derived from the agreed spec's behaviors, the diff, and the repo's tagged end-to-end suite (the changed flows, plus any the diff touches). QA returns every divergence it found in one report; classify and route each by cause: an implementation defect is a builder dispatch, the defect and its evidence in the brief; a wrong spec, domain model, or architecture returns to Plan. A repair updates the docs its change touches, ends with gates green, and re-enters the review to your acceptance, then fresh QA at the re-drive scope `bottega:qa` sets.
+Use `bottega:qa` on the accepted head and every product scenario the work changed, taken from the agreed spec's behaviors, the diff, and the repo's tagged end-to-end suite (the changed flows, plus any the diff touches). QA reports everything that came out wrong in one batch. Work out the cause of each and route it: a coding defect goes back to a builder, with the defect and its evidence in the brief; a wrong spec, domain model, or architecture goes back to Plan. A repair updates the docs its change touches, ends with the gates green, and goes through review and your acceptance again, then a fresh QA drive covering what `bottega:qa` says a re-drive covers.
 
 ## 9. Close
 
-First audit completion: for every requirement in the spec, point at the evidence in the current state that proves it (a file, a command output, a QA verdict); unproven means not done. Then use `bottega:close`, routing every failure the diff caused through the repair path phase 8 defines. When close stops instead at something only a person can clear, pass that to the user and leave the branch and its PR standing for them.
+First check the work is actually finished: for every requirement in the spec, point at the evidence that proves it (a file, a command's output, a QA verdict), and treat anything you cannot prove as not done. Then use `bottega:close`, sending every failure the diff caused through the repair path phase 8 describes. When close stops at something only a person can clear, tell the user what it is and leave the branch and its PR standing for them.
 
-The run's state is the worktree, its plan, its commits, and the PR; a later session resumes by reading them, re-running `bottega:open` against the branch, and committing any finished worker output it finds. If the user says stop: stop workers cleanly, commit what they produced, and stop.
+The run's state is the worktree, its plan, its commits, and the PR; a later session picks it up by reading them, re-running `bottega:open` against the branch, and committing any finished worker output it finds. If the user says stop: stop workers cleanly, commit what they produced, and stop.
