@@ -194,6 +194,48 @@ describe("portable worker doctrine", () => {
     expect(dead).toEqual([]);
   });
 
+  it("keeps every skill self-contained and clear of this repository's records", () => {
+    // An installed plugin ships only what is under skills/, so a skill either
+    // stands on its own or points at another file the plugin delivers. Two
+    // things break that: a relative link that resolves outside skills/, and a
+    // reference to a concrete record file of this repository (a numbered ADR,
+    // a dated research note, a named lesson), none of which install with the
+    // plugin. Telling a run to read or write the HOST repository's own generic
+    // paths is legitimate, so a directory with no filename (`docs/adr/`,
+    // `docs/lessons/`) and a placeholder path (`docs/plans/<YYYY-MM-DD>-<slug>.md`)
+    // both pass. The vendored review engine and its suites are synced as their
+    // author wrote them and are exempt.
+    const RECORD_FILE =
+      /docs\/(?:adr|research)\/\d[A-Za-z0-9._-]*|docs\/lessons\/[A-Za-z0-9][A-Za-z0-9._-]*\.md/g;
+
+    const files = filesUnder("skills", ".md").filter(
+      (path) =>
+        path !== "skills/code-review/references/autoreview.md" &&
+        !path.startsWith("skills/code-review/scripts/") &&
+        !path.startsWith("skills/code-review/tests/"),
+    );
+
+    const violations: string[] = [];
+    for (const file of files) {
+      const lines = read(file).split(/\r?\n/);
+      lines.forEach((line, index) => {
+        const found = new Set<string>();
+        for (const [, target] of line.matchAll(/\]\(([^)\s]+)\)/g)) {
+          const path = (target ?? "").split("#")[0] ?? "";
+          if (path === "" || /^[a-z][a-z+.-]*:/i.test(path) || path.startsWith("/")) continue;
+          const resolved = relative(
+            join(ROOT, "skills"),
+            join(ROOT, file, "..", decodeURIComponent(path)),
+          );
+          if (resolved === ".." || resolved.startsWith(`..${sep}`)) found.add(target ?? "");
+        }
+        for (const [match] of line.matchAll(RECORD_FILE)) found.add(match);
+        if (found.size > 0) violations.push(`${file}:${index + 1} -> ${[...found].join(", ")}`);
+      });
+    }
+    expect(violations).toEqual([]);
+  });
+
   it("keeps every AGENTS map path live", () => {
     const agents = read("AGENTS.md");
     const map = agents.match(/^## Map\r?\n([\s\S]*?)(?=\r?\n## )/m);

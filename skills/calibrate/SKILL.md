@@ -6,7 +6,7 @@ argument-hint: "<repo root, or one doc>"
 
 # Calibrate
 
-Hold every sentence of a repo's agent docs to what a Claude 5 model actually needs told, and deliver the diff that removes the rest. The bar below is distilled from Anthropic's own guidance for this model generation; sources and derivation are in [the research note](../../docs/research/2026-07-25-claude5-context-doctrine.md).
+Hold every sentence of a repo's agent docs to what a Claude 5 model actually needs told, and deliver the diff that removes the rest. The bar below is distilled from Anthropic's own guidance for this model generation.
 
 ## 1. Read
 
