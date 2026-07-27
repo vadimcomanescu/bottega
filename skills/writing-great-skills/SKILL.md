@@ -95,7 +95,7 @@ Every skill in this repo shares one outer shape:
 
 The body takes one of two shapes, chosen by what the skill is:
 
-- A method: numbered phases as `## N. Verb` headings, each ending on its **completion criterion**.
+- A method: numbered phases as `## N. Verb` headings, each ending on its **completion criterion**. A phase's body holds only that phase's own work; a decision that reads one phase's result and sets a later phase's shape is its own numbered phase between them, never the tail of the phase that produced its input.
 - A reference: topical headings with the rules under them, no sequence implied. Tables only for lookup data.
 
 ## Checklist
