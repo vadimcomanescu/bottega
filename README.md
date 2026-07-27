@@ -2,7 +2,7 @@
 
 Autonomous issue-to-PR runs, orchestrated from Claude Code with Claude and GPT workers.
 
-`/bottega:maestro` takes a task, bug, or GitHub issue to a reviewed, evidence-backed pull request; spec, code-review, improve, panel, and setup are also available on their own.
+`/bottega:maestro` takes a task, bug, or GitHub issue to a reviewed, evidence-backed pull request; guru, spec, code-review, improve, panel, and setup are also available on their own.
 
 ## Install
 
@@ -20,6 +20,7 @@ Start a run with `/bottega:maestro <task, or issue URL>`.
 | Skill | Command | What it does |
 | --- | --- | --- |
 | maestro | `/bottega:maestro <task, or issue URL>` | The whole pipeline: discovery, spec, plan, build, review, QA, and a PR ready to merge |
+| guru | `/bottega:guru <task, or issue URL>` | The run as one goal statement: a live run contract and failing tests carry the agreement, and no spec or plan file merges |
 | spec | `/bottega:spec <task, issue URL, or direction>` | Run discovery, agree the spec, and commit it on a work branch a later run continues |
 | improve | `/bottega:improve [area or direction]` | Scan for deepening opportunities, agree the strongest candidate, file it, and take it through a run |
 | code-review | `/bottega:code-review <PR, ref range, or worktree>` | Review the working diff, a ref range, or a PR through the vendored review gate |
@@ -29,6 +30,8 @@ Start a run with `/bottega:maestro <task, or issue URL>`.
 | bro | `/bottega:bro` | Restate the last reply in plain language, no jargon |
 
 Maestro and spec run the same front of the method: discovery finds and settles the unknowns ([`skills/discover`](skills/discover/SKILL.md)), then the spec is written from those findings, presented, and committed ([`skills/spec`](skills/spec/SKILL.md)). Each is defined once and used whole from either entry point. Maestro carries it through to a ready PR; spec stops at an agreed spec file committed on a work branch that any later `/bottega:maestro` continues. The spec is that file; an issue is never a spec. During a run, maestro also uses the open, plan, build, implementing, code-review, QA, and close skills; code-review is the one users also run directly, and the vendored autoreview document under it is the engine every review runs on.
+
+Guru ([`skills/guru`](skills/guru/SKILL.md)) runs the same delivery bar as one standalone prompt: the repo's own map and glossary read first, unknowns found and settled, a run contract on the branch in place of the committed spec and plan, builders fanned out with the implementation doctrine in their brief, a critic drive per user-facing slice, and a looped final review by a Claude and a codex critic. Beyond `bottega:panel` for a costly decision it uses no other skill, it names its workers' models where it dispatches them, and the contract is deleted before the PR opens, once the PR body carries its decisions (`docs/adr/0026-guru-one-goal-entry-point.md`).
 
 ## What it does
 
