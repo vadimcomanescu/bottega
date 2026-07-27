@@ -95,11 +95,11 @@ describe("portable worker doctrine", () => {
     );
     for (const row of [
       "| builder | opus-5 | medium |",
-      "| explorer | opus-5 | medium |",
+      "| explorer | opus-5 | low |",
       "| prototyper | opus-5 | medium |",
       "| QA driver | opus-5 | default |",
       "| mechanic | opus-5 | low |",
-      "| plan editor | gpt-5.6-sol | xhigh |",
+      "| plan editor | gpt-5.6-sol | high |",
       "| conformance checker | gpt-5.6-sol | high |",
     ]) {
       expect(workers, `the worker table is missing the row ${row}`).toContain(row);

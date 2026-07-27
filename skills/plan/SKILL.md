@@ -20,4 +20,4 @@ The plan is `docs/plans/<YYYY-MM-DD>-<slug>.md`, committed on the run branch. Wo
 
 Before anything is built, a fresh editor (the plan editor's row of [the worker table](../maestro/references/workers.md), one read-only codex dispatch per [maestro's codex dispatch method](../maestro/references/codex-dispatch.md)) reads the agreed spec, the plan, and the repository cold and returns the plan approved unchanged or rewritten whole. The rewrite is the only way to object: a finding too small to justify one is dropped, and an editor who would change little approves. Read the rewrite against the current plan, take the changes you accept (the domain model and architecture stay your call), and commit: the plan stands as committed.
 
-When the codex CLI cannot be reached, the run continues: record in the plan file that it was committed unstrengthened and why, so Review and the PR body carry the gap.
+When the codex CLI cannot be reached, the worker table's fallback applies: a fresh Claude worker takes the same cold read under the same contract, and the plan file records that the cross-model read was unavailable.

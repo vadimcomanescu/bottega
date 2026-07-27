@@ -41,7 +41,7 @@ The fresh GPT reader of the plan strengthen pass: it approves the plan unchanged
 _Avoid_: editor on its own (the spec's live review calls its shared document the editor); plan reviewer (a reviewer files findings; the plan editor may not)
 
 **Panel**:
-One open, costly decision that no cheap check settles, put as the same task to independent models, blinded, compared without a verdict; the caller synthesizes the decision. The review's both-engine invocation is the vendored engine document's own word for its reviewers, not this term.
+One open, costly decision that no cheap check settles, put as the same task to independent fresh seats, blinded, compared without a verdict; the caller synthesizes the decision. The review's both-engine invocation is the vendored engine document's own word for its reviewers, not this term.
 _Avoid_: panel for any critique of an existing answer
 
 **Owner**:
@@ -71,7 +71,7 @@ The one working file a guru run keeps on its branch where the spec and the plan 
 _Avoid_: contract for a module's public interface (say interface)
 
 **Critic**:
-The worker that hunts defects in a guru run, one Claude and one codex, blind to the run contract: at each user-facing slice it drives the product with license to roam, and at the end it reads the integrated diff cold. A maestro run's equivalent readers are the vendored engine document's reviewers, not this term.
+The worker that hunts defects in a guru run, blind to the run contract: a Claude worker drives the product at each user-facing slice with license to roam, and at the end one Claude and one codex read the integrated diff cold. A maestro run's equivalent readers are the vendored engine document's reviewers, not this term.
 
 **Harness**:
 The runtime a session runs in: Claude Code. The project is the repository a run works on; the two are never the same word.
