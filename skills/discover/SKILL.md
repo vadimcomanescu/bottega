@@ -22,7 +22,7 @@ When the scope is still open, brainstorm: ways to intervene, cheapest to most am
 
 ## 4. Interviews
 
-After brainstorming, ambiguities the user can name likely remain: ask about them one question at a time, the architecture-changing ones first, each with your recommended answer so a reply is a yes or a correction. Complete when you can predict the user's acceptance decisions.
+After brainstorming, ambiguities the user can name likely remain: ask about them one question at a time, in plain words, the architecture-changing ones first, each with your recommended answer so a reply is a yes or a correction. Complete when you can predict the user's acceptance decisions.
 
 ## 5. References
 

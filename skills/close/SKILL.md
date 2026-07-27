@@ -14,7 +14,7 @@ Run the phases in order; a followup and its evidence must exist before the PR bo
 
 Everything close writes for someone outside the run (the PR body, each followup issue) obeys one rule:
 
-> Write for a reader who was not in the run and has not read the spec. Define every non-standard term where it is used, or link the file, ADR, or issue that defines it. Never use a label the document does not itself define. When you cite a prior decision, link its record. State what the diff cannot show; cut what the diff already shows.
+> Write simply and concisely, for a reader who was not in the run and has not read the spec. Define every non-standard term where it is used, or link the file, ADR, or issue that defines it. Never use a label the document does not itself define. When you cite a prior decision, link its record. State what the diff cannot show; cut what the diff already shows.
 
 ## 1. Confirm the head
 
