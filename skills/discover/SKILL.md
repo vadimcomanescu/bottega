@@ -10,7 +10,7 @@ Find what the user couldn't tell you before any spec is written: what the reques
 
 ## 1. Explore
 
-Read what the request settles and what the repo records about the code and the problem it touches, the lessons and decision records (`docs/lessons`, `docs/adr`) before deciding anything they already decided. Then sweep outward before you settle anything: fan out cheap workers, Opus at low effort with web search on, one per job that applies, to find the affected code and its precedent, how others already solved this, and what the installed versions actually do, read from their own docs and source rather than from memory. A worker returns findings, never a decision. Ask the user where they are in their thinking and what experience they have with this problem and this part of the code: their starting point sets which unknowns below they have and how much every later step must explain. A request the looking shows fully settled runs none of the steps below. Complete when everything the looking can answer is answered and what stays open is listed.
+Read what the request settles and what the repo records about the code and the problem it touches, the lessons and decision records (`docs/lessons`, `docs/adr`) before deciding anything they already decided. Then sweep outward before you settle anything: fan out cheap workers, Opus at low effort with web search on, one per job that applies, to find the affected code and its precedent, how others already solved this, and what the installed versions actually do, read from their own docs and source rather than from memory. A worker returns findings, never a decision. Ask the user where they are in their thinking and what experience they have with this problem and this part of the code: their starting point sets which unknowns below they have and how much every later step must explain. A request this reading and sweeping shows fully settled runs none of the steps below. Complete when everything reading and sweeping can answer is answered and what stays open is listed.
 
 ## 2. Blind spot pass
 
@@ -18,7 +18,7 @@ The user may not know what questions to ask, what good looks like, or what potho
 
 ## 3. Brainstorms and prototypes
 
-When the scope is still open, brainstorm: ways to intervene, cheapest to most ambitious, with your recommendation; the user's reactions set the direction. A criterion the user only knows when they see it gets built instead of asked: rough prototypes in wildly different directions, sources and screenshots kept with the findings, and a wireframe only when nothing can render, layout and flow, never an image posing as the finished product. A decision that is open, costly, and settled by no cheap check goes to `bottega:panel`; its map feeds the interview. Complete when the direction is chosen and its edges stated: what is in, what is out.
+When the scope is still open, brainstorm: ways to intervene, cheapest to most ambitious, with your recommendation; the user's reactions set the direction. A criterion the user only knows when they see it gets built instead of asked: rough prototypes in wildly different directions, sources and screenshots kept with the findings, and a wireframe only when nothing can render, layout and flow, never an image posing as the finished product. A decision that is open, costly, and settled by no cheap check goes to `bottega:panel`; its comparison of the drafts feeds the interview. Complete when the direction is chosen and its edges stated: what is in, what is out.
 
 ## 4. Interviews
 

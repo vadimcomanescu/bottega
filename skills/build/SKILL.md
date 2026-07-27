@@ -18,7 +18,7 @@ Treat every worker report as a claim to check, never as a fact; a report whose e
 
 ## 3. Integrate
 
-Keep every merge decision yourself. Every slice ends with the map's gate commands green (format, lint, typecheck, tests) before it merges, and the full suite runs at every integrate; a failure the run introduced freezes merging until you route the fix. When builders iterate against gate runs that take minutes, file a followup to shrink the gate. Complete when every slice is merged and the full suite is green at the run branch's head.
+Keep every merge decision yourself. Every slice ends with the map's gate commands green (format, lint, typecheck, tests) before it merges, and the full suite runs at every integrate; a failure the run introduced freezes merging until you route the fix. When builders iterate against gate runs that take minutes, file a followup to make the gate faster. Complete when every slice is merged and the full suite is green at the run branch's head.
 
 ## 4. Drive
 
