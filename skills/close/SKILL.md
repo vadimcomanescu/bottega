@@ -39,7 +39,7 @@ Filing is close's whole part here; the head is already pushed. The rule work bel
 Compose the body to a file and open it with `gh pr create -F <file>`, never inline. On an issue-born run, close the issue with the PR through a closing keyword. The body carries, written for that outside reader:
 
 - what changed and why;
-- the approved spec and the plan where they exist; a one-shot states its scope sentence in their place;
+- the approved spec and the plan where they exist; a run delivered without them states the scope it ran on and the decisions it fixed in their place;
 - every decision made on the user's behalf, the one most likely to draw a different answer first;
 - how panel evidence changed the plan, when a panel ran;
 - who built and who reviewed: models, rounds, findings, verdicts, refutations;

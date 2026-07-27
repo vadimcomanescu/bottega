@@ -1,6 +1,6 @@
 ---
 name: qa
-description: Drive the shipped interface and return a product verdict per changed scenario. A run reaches here at its QA phase after architecture acceptance; not user-invocable.
+description: Drive the shipped interface and return a product verdict per changed scenario. A run reaches here at its QA phase after architecture acceptance, and at a slice's drive during Build; not user-invocable.
 user-invocable: false
 ---
 
@@ -16,9 +16,9 @@ Verify the shipped product as a user would, independently of the builders and re
 - If a step would touch real users, real money, a deploy, or shared or production data, don't run it; return `NOT VERIFIED` with what the step needs.
 - Return `PASS` with the observed evidence, `FAIL` with the exact expected and observed divergence, or `NOT VERIFIED` with the blocking reason. Never expose credentials as evidence.
 
-## Stop on divergence
+## Report every divergence in one batch
 
-On a product divergence, record the verdict and evidence, then stop and report so the orchestrator classifies and routes the failure before any further driving. Return the scenarios you did not reach as `NOT VERIFIED` with that reason.
+Drive every supplied scenario and return the divergences together, so the orchestrator classifies and routes the whole set at once instead of one repair cycle per divergence. Stop early only when a divergence leaves the remaining scenarios undrivable, and return those as `NOT VERIFIED` with that reason. The scenarios bound what you drive, not what you may report: a defect you cross outside them belongs in the same report, with the evidence a scenario verdict carries.
 
 ## Scope a re-drive after a repair
 
