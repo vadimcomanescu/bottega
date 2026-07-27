@@ -8,23 +8,23 @@ argument-hint: "<task, or issue URL>"
 
 Take one piece of work (a run) from request to a PR ready to merge, as its orchestrator. Keep every judgment call in your own turns: the design, the arbitration of review findings, the acceptance of the delivered head. Workers write the production code; code you write yourself gets the same review as any worker's code. When the user's words say to run autonomously, deliver straight through, resolving the user's part as each phase's method says; the size of the work never makes that call.
 
+Everything the user reads from you is plain language in the repository's own words: say what happened rather than a label for it, use a term the repo's `CONTEXT.md` defines the way it defines it, and invent no vocabulary of your own.
+
 Check your model before anything else. A run is orchestrated from Claude Code on fable-5 at xhigh. On any other model or harness, stop and tell the user; offer opus-5 at xhigh when fable-5 is unavailable, and continue only when the user says so.
 
 Every dispatch names the model and effort from its row of the worker table, [references/workers.md](references/workers.md). A worker that fails its requirement gets one rerun after you diagnose the failure, never automatic; it is the one dispatch that may leave its row. Dynamic workflows are opted in for this run's fan-out phases (exploration, review verification, any phase whose work is many independent jobs), and every `agent()` call in one names its worker's model from the table, which the route guard enforces.
 
-## 1. Discover
+## 1. Launch
 
-Settle the release answer before the first dispatch, because discovery spends hours and its end is no place to reach a question only the user can answer. A request that already says how the PR lands carries its own answer: land it means land on green, hold this means hold; autonomous speaks to the run's waits, never to the release, so it carries no answer. A request that says neither gets one plain question to the user, two answers: land on green, or hold for you. Ask it outright and wait; the answer is never inferred and never defaulted. `bottega:open` records it with the run's state, and close carries it to the PR.
+Settle the release answer before anything else, because the request carries it: land it means land on green, hold this means hold; autonomous speaks to the run's waits, never to the release, so it carries no answer. A request that says neither gets one plain question to the user, two answers: land on green, or hold for you. Ask it outright and wait; the answer is never inferred and never defaulted. Then use `bottega:open`, which isolates the run and records the answer for close. Every phase below runs inside that worktree, under the guard that reads its owner file.
 
-Write your session id to `.bottega/discovery` before the first dispatch; the route guard polices this session from that moment, and `bottega:open` replaces the claim with the run's owner file. Then use `bottega:discover` to find and settle the unknowns.
+## 2. Discover
 
-## 2. Call the delivery
+Use `bottega:discover` to find and settle the unknowns.
+
+## 3. Call the delivery
 
 Read what discovery found and settle the run's shape, said to the user: a phase below runs where discovery left an unknown unresolved or where a wrong call would be costly to reverse. Settled discovery shrinks spec and plan to what stays open: down to a paragraph of fixed decisions where the work is small and a wrong call is expensive, and to neither document where nothing is open and reversal is cheap, that work built in your own turns or one builder dispatch and taken straight to Review. The call is provisional both ways: work that turns out to hold an open unknown or a costly call re-enters at Spec, and a phase whose questions settle mid-run shrinks to what is left.
-
-## 3. Open
-
-Use `bottega:open` to claim and isolate the run.
 
 ## 4. Spec
 

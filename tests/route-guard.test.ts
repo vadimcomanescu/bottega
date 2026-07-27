@@ -100,38 +100,6 @@ describe("route guard ownership rule", () => {
   });
 });
 
-describe("route guard discovery claim", () => {
-  function repoWithDiscovery(owner: string): string {
-    const dir = mkdtempSync(join(tmpdir(), "bottega-route-guard-"));
-    cleanups.push(dir);
-    mkdirSync(join(dir, ".bottega"), { recursive: true });
-    writeFileSync(join(dir, ".bottega", "discovery"), owner + "\n");
-    return dir;
-  }
-
-  it("denies a claim-holding session's dispatch without a model", () => {
-    const reason = claudeDenial(
-      run({
-        cwd: repoWithDiscovery(OWNER),
-        session_id: OWNER,
-        tool_name: "Agent",
-        tool_input: { subagent_type: "general-purpose", prompt: "explore the area" },
-      }),
-    );
-    expect(reason).toMatch(/names no model/i);
-  });
-
-  it("allows a bystander session when only a discovery claim exists", () => {
-    expect(
-      run({
-        cwd: repoWithDiscovery(OWNER),
-        session_id: "bystander-session",
-        tool_name: "Agent",
-        tool_input: { subagent_type: "general-purpose" },
-      }),
-    ).toBe("");
-  });
-});
 
 describe("route guard codex dispatch rule", () => {
   it("denies an owner-session codex exec without a model", () => {

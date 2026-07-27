@@ -1,16 +1,16 @@
 ---
 name: open
-description: The opening method a run's Open phase invokes whole. Settle ownership, isolate the run in a worktree and branch, write the owner file and the release answer, read the project's commands from the agent map, and confirm the worker CLI is logged in. Not user-invocable.
+description: The opening method a run's Launch phase invokes whole. Settle ownership, isolate the run in a worktree and branch, write the owner file and the release answer, read the project's commands from the agent map, and confirm the worker CLI is logged in. Not user-invocable.
 user-invocable: false
 ---
 
 # Open
 
-Prepare the run before any spec work: owned, isolated, commands in hand, the worker CLI ready.
+Prepare the run before any dispatch: owned, isolated, commands in hand, the worker CLI ready. Discovery and every later phase work inside what this opens.
 
 ## 1. Settle ownership
 
-For a tracker issue, read its assignee. Assigned to an account other than the one this session operates as: stop and report. Otherwise assign it to this session's account; the PR that delivers the issue closes it. An issue-driven run embeds the issue number in its slug, so one issue maps to one branch, and an existing branch for the work means it is claimed: stop and report. Continue an existing run only when pointed at its branch. Complete when the work is yours or the run has stopped with the reason.
+For a tracker issue, read its assignee. Assigned to an account other than the one this session operates as: stop and report. Otherwise assign it to this session's account; the PR that delivers the issue closes it. An issue-driven run embeds the issue number in its slug, so one issue maps to one branch, and an existing branch for the work means it is claimed: stop and report. The slug names the work as the request states it, since discovery has not run yet. Continue an existing run only when pointed at its branch. Complete when the work is yours or the run has stopped with the reason.
 
 ## 2. Isolate
 
@@ -18,7 +18,7 @@ First sweep finished work: a `.bottega/run/` entry or worktree whose PR has merg
 
 ## 3. Write the owner file
 
-Write your session id to `.bottega/run/<slug>/owner`, and delete the `.bottega/discovery` claim when one exists; the route guard polices the session named there. Write the release answer maestro settled to `.bottega/run/<slug>/release`, `land` or `hold`; close reads it before the PR opens. Resuming in a later session, rewrite the owner file before dispatching anything, and write the release file when the run predates it, asking the user when no answer was ever settled. Complete when the owner file names this session and the release file carries the run's answer.
+Write your session id to `.bottega/run/<slug>/owner` before the run's first dispatch; the route guard polices the session named there. Write the release answer maestro settled to `.bottega/run/<slug>/release`, `land` or `hold`; close reads it before the PR opens. Resuming in a later session, rewrite the owner file before dispatching anything, and write the release file when the run predates it, asking the user when no answer was ever settled. Complete when the owner file names this session and the release file carries the run's answer.
 
 ## 4. Read the commands
 

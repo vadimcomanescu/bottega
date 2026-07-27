@@ -49,17 +49,6 @@ function ownsLiveRun(cwd, session) {
   return false;
 }
 
-// Discovery runs before Open creates the run entry; the discovery claim is
-// the session id written to .bottega/discovery, and it polices that window.
-function ownsDiscovery(cwd, session) {
-  try {
-    const owner = readFileSync(join(cwd, ".bottega", "discovery"), "utf8").trim();
-    return owner !== "" && owner === session;
-  } catch {
-    return false;
-  }
-}
-
 function workflowScript(input, cwd) {
   if (typeof input.scriptPath === "string" && input.scriptPath.length > 0) {
     const path = isAbsolute(input.scriptPath) ? input.scriptPath : join(cwd, input.scriptPath);
@@ -152,7 +141,7 @@ const cwd =
 const session = typeof event.session_id === "string" ? event.session_id : null;
 const input = event.tool_input;
 if (!cwd || !session || !input || typeof input !== "object") process.exit(0);
-if (!ownsLiveRun(cwd, session) && !ownsDiscovery(cwd, session)) process.exit(0);
+if (!ownsLiveRun(cwd, session)) process.exit(0);
 
 if (event.tool_name === "Bash") {
   const command = typeof input.command === "string" ? input.command : "";
