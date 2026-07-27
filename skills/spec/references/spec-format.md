@@ -27,4 +27,4 @@ These govern the spec and every question you put to the user.
 
 - No file paths and no code snippets. One exception: a prototype-derived snippet that pins a decision more precisely than prose can (a state machine, a schema, a type shape), trimmed to the decision.
 - A requirement names whose problem it solves when the feature serves users whose problems genuinely differ. When one kind of user is served, skip persona phrasing. No story grammar is required, and none is banned.
-- Product language. Write as if announcing the finished behavior to the people who will use it: the user's words for the user's actions, the domain's terms for the domain's concepts, no implementation vocabulary, no session shorthand, and never a label the text does not itself define.
+- Product language. Write simply and concisely, as if announcing the finished behavior to the people who will use it: the user's words for the user's actions, the domain's terms for the domain's concepts, no implementation vocabulary, no session shorthand, and never a label the text does not itself define.

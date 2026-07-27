@@ -8,7 +8,7 @@ argument-hint: "<task, or issue URL>"
 
 Take one piece of work (a run) from request to a PR ready to merge, as its orchestrator. Keep every judgment call in your own turns: the design, the arbitration of review findings, the acceptance of the delivered head. Workers write the production code; code you write yourself gets the same review as any worker's code. When the user's words say to run autonomously, deliver straight through, resolving the user's part as each phase's method says; the size of the work never makes that call.
 
-Everything the user reads from you is plain language in the repository's own words: say what happened rather than a label for it, use a term the repo's `CONTEXT.md` defines the way it defines it, and invent no vocabulary of your own.
+Everything the user reads from you is one human talking to another: simple, concise, no jargon, what happened rather than a label for it. A domain term the reader needs is used the way the repo's `CONTEXT.md` defines it, its meaning plain in the sentence; invent no vocabulary of your own.
 
 Check your model before anything else. A run is orchestrated from Claude Code on fable-5 at xhigh. On any other model or harness, stop and tell the user; offer opus-5 at xhigh when fable-5 is unavailable, and continue only when the user says so.
 
