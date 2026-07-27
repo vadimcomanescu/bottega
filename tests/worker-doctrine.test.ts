@@ -101,8 +101,6 @@ describe("portable worker doctrine", () => {
       "| mechanic | opus-5 | low |",
       "| plan editor | gpt-5.6-sol | xhigh |",
       "| conformance checker | gpt-5.6-sol | high |",
-      "| Claude critic | opus-5 | xhigh |",
-      "| GPT critic | gpt-5.6-sol | xhigh |",
     ]) {
       expect(workers, `the worker table is missing the row ${row}`).toContain(row);
     }
@@ -123,13 +121,16 @@ describe("portable worker doctrine", () => {
     // Every skill file routes to the table instead of restating a model, the
     // references included, since a reference is where a restated pin would go
     // unnoticed. The exceptions each own their models: the table itself,
-    // maestro's own orchestrator sentence, the panel's seats, and the vendored
-    // engine and its suites.
+    // maestro's own orchestrator sentence, the panel's seats, the vendored
+    // engine and its suites, and guru, whose whole body is one standalone
+    // prompt that names its workers' models where it dispatches them
+    // (docs/adr/0026-guru-one-goal-entry-point.md).
     const owned = new Set([
       "skills/maestro/references/workers.md",
       "skills/maestro/SKILL.md",
       "skills/panel/SKILL.md",
       "skills/code-review/references/autoreview.md",
+      "skills/guru/SKILL.md",
     ]);
     for (const file of filesUnder("skills", ".md")) {
       if (owned.has(file) || file.startsWith("skills/code-review/tests/")) continue;

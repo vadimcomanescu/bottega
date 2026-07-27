@@ -64,7 +64,7 @@ The one working file a guru run keeps on its branch where the spec and the plan 
 _Avoid_: contract for a module's public interface (say interface)
 
 **Critic**:
-The worker that hunts defects in a guru run's integrated diff, one on the Claude critic's row and one on the GPT critic's row, blind to the run contract. A maestro run's equivalent readers are the vendored engine document's reviewers, not this term.
+The worker that hunts defects in a guru run, one Claude and one codex, blind to the run contract: at each user-facing slice it drives the product with license to roam, and at the end it reads the integrated diff cold. A maestro run's equivalent readers are the vendored engine document's reviewers, not this term.
 
 **Harness**:
 The runtime a session runs in: Claude Code. The project is the repository a run works on; the two are never the same word.

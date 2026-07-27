@@ -11,10 +11,8 @@ Every worker a run dispatches, with the model and effort its dispatch call names
 | mechanic | opus-5 | low |
 | plan editor | gpt-5.6-sol | xhigh |
 | conformance checker | gpt-5.6-sol | high |
-| Claude critic | opus-5 | xhigh |
-| GPT critic | gpt-5.6-sol | xhigh |
 
-The mechanic's row covers the mechanical jobs the orchestrator dispatches itself: renames, doc sync, shell relays. The critic rows seat the review loop of `bottega:guru`; a maestro run's review engines are the vendored autoreview document's own. No row names fable-5: that is the orchestrator's own model, and a worker dispatched as a subagent never runs on it.
+The mechanic's row covers the mechanical jobs the orchestrator dispatches itself: renames, doc sync, shell relays. No row names fable-5: that is the orchestrator's own model, and a worker dispatched as a subagent never runs on it.
 
 A GPT row runs as a codex dispatch per [the codex dispatch method](codex-dispatch.md), which takes the model and effort from here and the sandbox from the dispatch site. A Claude row runs as a subagent named on the call.
 
