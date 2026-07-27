@@ -9,7 +9,7 @@ One piece of work taken from request to a PR ready to merge, owned by one orches
 _Avoid_: commission, pipeline, job
 
 **One-shot**:
-A run whose whole diff the orchestrator can state in one sentence after discovery, built directly and taken straight to Review with no spec and no plan; it still gets its own worktree and branch, gates green, the integrated review, and a PR.
+A run that discovery leaves with no unresolved unknown and no call that is costly to reverse, built directly and taken straight to Review with no spec and no plan; it still gets its own worktree and branch, gates green, the integrated review, and a PR.
 
 **Orchestrator**:
 The session running the maestro method: it keeps design and arbitration in its own turns and dispatches everything else.
