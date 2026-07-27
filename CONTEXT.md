@@ -51,6 +51,9 @@ _Avoid_: owner for the session that claims a run (that meaning belongs to the ow
 **Owner file**:
 The gitignored file naming the session that claims a run, a session and never a person; the route guard polices the session named there.
 
+**Release file**:
+The gitignored file beside the owner file carrying the run's launch answer, `land` or `hold`; close reads it before the PR opens.
+
 **Followup**:
 A real finding or deferred item filed as one tracker issue before the PR opens, so the PR body links it.
 
