@@ -1,6 +1,6 @@
 ---
 name: panel
-description: Put one costly decision to independent blinded drafts from fresh contexts, with a compare-only judge; the caller synthesizes the answer. Use when the user asks for a panel or a fusion pass, or when a run's Discover or Plan phase reaches a decision meeting the three conditions below.
+description: Put one costly decision to independent drafts from different companies' models, blinded, with a compare-only judge; the caller synthesizes the answer. Use when the user asks for a panel or a fusion pass, or when a run's Discover or Plan phase reaches a decision meeting the three conditions below.
 argument-hint: "<the decision>"
 ---
 
@@ -25,19 +25,26 @@ Write the reply so it carries no model or company identity.
 
 ## 2. Seat the panel
 
-Three seats, and the same `task.md` verbatim to every seat: each is one fresh subagent on opus-5 at max effort, read-only in the repository and grounded twice over: it discovers the repository itself, and it searches the web itself. Independent fresh contexts cover different considerations; that coverage is what the panel pays for. The seats are the panel's own: this section names their model, the way the review names its engines.
+One seat per company, and the same `task.md` verbatim to every seat. Every seat is read-only in the repository and grounded twice over: it discovers the repository itself, and it searches the web itself. Model diversity is what the panel pays for, so the seats are the one place outside the cross-reads where a run dispatches another company's model. The defaults are the two companies bottega runs on:
+
+| seat | dispatch |
+| --- | --- |
+| codex | one read-only codex dispatch per [maestro's codex dispatch method](../maestro/references/codex-dispatch.md): gpt-5.6-sol at max, web search on, the draft to `<session>/codex-draft.md` |
+| claude | one subagent on opus-5 at max effort, given `task.md` verbatim, the draft returned as its report |
+
+Another company's CLI installed on the machine takes a further seat under the same task, read-only with its own web search. The seats are the panel's own: this table names their models, the way the review names its engines.
 
 ## 3. Fan out
 
-Dispatch every seat in parallel and wait for all of them. A seat that errors, times out, or returns an empty draft is recorded and the panel continues. With two or more drafts, proceed. With one draft, take a second independent draft, same task verbatim, fresh dispatch. Only when no seat answers at all is there no panel: report the failures and answer solo, saying so.
+Dispatch every seat in parallel and wait for all of them. A seat that errors, times out, or returns an empty draft is recorded and the panel continues. With two or more drafts, proceed. With one draft, take a second independent draft from the strongest seat that answered, same task verbatim, fresh dispatch: two runs of one strong model still fuse, because independent runs cover different considerations. Only when no seat answers at all is there no panel: report the failures and answer solo, saying so.
 
 ## 4. Blind
 
-Copy the drafts to `A.md`, `B.md`, ... in an order unrelated to the seat list, and cut any line that reveals which seat wrote one. From here every reference is by letter. The blinding is for the judge; you still know the mapping, so at synthesis weigh evidence, never authorship.
+Copy the drafts to `A.md`, `B.md`, ... in an order unrelated to the seat list, and cut any line that reveals which model wrote one. From here every reference is by letter. The blinding is for the judge; you still know the mapping, so at synthesis weigh evidence, never authorship.
 
 ## 5. Judge, compare only
 
-One fresh dispatch, same mechanics as a seat, given `task.md`, the blinded drafts, and this brief:
+One fresh dispatch, same mechanics as the claude seat, given `task.md`, the blinded drafts, and this brief:
 
 ```
 Compare the drafts against the task. Report exactly five sections,
