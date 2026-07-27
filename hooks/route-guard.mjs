@@ -6,19 +6,17 @@ import { isAbsolute, join } from "node:path";
 const FABLE = /fable/i;
 const MODEL_LITERAL = /\bmodel\s*:\s*(['"])([^'"]*)\1/;
 
-const TABLE = "skills/maestro/references/workers.md";
-const DIRECT_UNPINNED =
-  `This live run dispatch names no model. Name the model this worker's row gives it (${TABLE}) and retry.`;
+const NAME_IT = "Name the worker's model (Claude workers run on opus-5) and retry.";
+const DIRECT_UNPINNED = `This live run dispatch names no model. ${NAME_IT}`;
 const DIRECT_FABLE =
-  `This live run dispatch routes to Fable, the orchestrator's model, never a worker's. Name the model this worker's row gives it (${TABLE}) and retry.`;
+  `This live run dispatch routes to Fable, the orchestrator's model, never a worker's. ${NAME_IT}`;
 const WORKFLOW_UNPINNED =
-  `This live run workflow has an agent() call that names no literal model. Name the model this worker's row gives it (${TABLE}) and retry.`;
+  `This live run workflow has an agent() call that names no literal model. ${NAME_IT}`;
 const WORKFLOW_FABLE =
-  `This live run workflow has an agent() call routed to Fable, the orchestrator's model, never a worker's. Name the model this worker's row gives it (${TABLE}) and retry.`;
-const CODEX_UNPINNED =
-  `This live run codex dispatch names no model (-m). Name the model this worker's row gives it (${TABLE}) and retry.`;
+  `This live run workflow has an agent() call routed to Fable, the orchestrator's model, never a worker's. ${NAME_IT}`;
+const CODEX_UNPINNED = `This live run codex dispatch names no model (-m). ${NAME_IT}`;
 const CODEX_FABLE =
-  `This live run codex dispatch routes to Fable, the orchestrator's model, never a worker's. Name the model this worker's row gives it (${TABLE}) and retry.`;
+  `This live run codex dispatch routes to Fable, the orchestrator's model, never a worker's. ${NAME_IT}`;
 
 function readStdin() {
   return new Promise((resolve) => {

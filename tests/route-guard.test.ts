@@ -64,7 +64,7 @@ describe("route guard ownership rule", () => {
       run(ownedEvent({ subagent_type: "general-purpose", prompt: "build the slice" })),
     );
     expect(reason).toMatch(/names no model/i);
-    expect(reason).toMatch(/skills\/maestro/);
+    expect(reason).toMatch(/opus-5/);
   });
 
   it("denies an owner-session dispatch routed to fable", () => {
@@ -107,7 +107,7 @@ describe("route guard codex dispatch rule", () => {
       run(ownedEvent({ command: "codex exec -s read-only -o /tmp/out - < /tmp/brief" }, "Bash")),
     );
     expect(reason).toMatch(/codex dispatch names no model/i);
-    expect(reason).toMatch(/skills\/maestro/);
+    expect(reason).toMatch(/opus-5/);
   });
 
   it("denies an owner-session codex exec routed to fable", () => {
@@ -138,7 +138,7 @@ describe("route guard workflow rule", () => {
     const script = "const result = await agent('review the diff', { label: 'review' })";
     const reason = claudeDenial(run(ownedEvent({ script }, "Workflow")));
     expect(reason).toMatch(/agent\(\).*names no literal model/i);
-    expect(reason).toMatch(/skills\/maestro/);
+    expect(reason).toMatch(/opus-5/);
   });
 
   it("denies an owner-session workflow with a fable agent model", () => {

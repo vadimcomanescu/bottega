@@ -10,14 +10,10 @@ Review one diff and leave nothing blocking at its head. The engine is vendored i
 
 ## 1. Doc coverage
 
-Docs were updated inside each slice, so the only doc question here is coverage: does the diff change a user-facing surface whose docs did not change? A gap is a builder dispatch per `bottega:build`, before the review's base freezes; never create a doc surface the project doesn't have.
+Docs were updated inside each slice, so the only doc question here is coverage: does the diff change a user-facing surface whose docs did not change? A gap is a builder dispatch under `bottega:implementing`, before the review's base freezes; never create a doc surface the project doesn't have.
 
 ## 2. The review
 
 Run the review per [references/autoreview.md](references/autoreview.md) on the integrated diff; that document carries the whole review method: the run's both-family panel, the blind prompt, the fix dispatch to a fresh builder, and the rerun until nothing blocking remains.
 
 Severity gates that loop. An accepted finding that blocks (correctness, security, data safety, a broken contract) goes to the fix dispatch and the rerun; a real finding below that bar is classified follow-up and filed, which leaves the head standing and the loop where it was.
-
-## 3. Spec conformance
-
-When the review loop has converged, dispatch the spec-conformance check at that head: one fresh worker (the conformance checker's row of [the worker table](../maestro/references/workers.md), one read-only codex dispatch per [maestro's codex dispatch method](../maestro/references/codex-dispatch.md)) reads the diff and the agreed spec, or the request and what the run wrote down when it chose which phases to run, when the work has no spec, and reports what is missing or partial, what nobody asked for, and what looks wrong, each finding quoting the spec line it rests on. It never sees the review's findings and nothing reranks across the two. An accepted conformance blocker goes to a fresh builder and the gates like any review finding; the reviewer then reruns at the new head, and the conformance check reruns after it.

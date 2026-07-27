@@ -12,15 +12,12 @@ _Avoid_: commission, pipeline, job
 The moment the user hands work to a run, carrying the release answer: land on green, or hold. A request that says neither gets one plain question from maestro before any PR exists.
 _Avoid_: kickoff, start (say launch when the release answer is meant)
 
-**One-shot**:
-A run that discovery leaves with no unresolved unknown and no call that is costly to reverse, built directly and taken straight to Review with no spec and no plan; it still gets its own worktree and branch, gates green, the integrated review, and a PR.
-
 **Orchestrator**:
 The session running the maestro method: it keeps design and arbitration in its own turns and dispatches everything else.
 _Avoid_: maestro (the skill's name, not the actor's), coordinator
 
 **Worker**:
-A fresh context given one dispatched job and returning one report: a builder, a reviewer, the QA driver, a panel seat, the plan editor.
+A fresh context given one dispatched job and returning one report: a builder, a reviewer, the QA driver, a panel seat, the codex second opinion.
 _Avoid_: seat (panel seats only), agent (the harness's word)
 
 **Builder**:
@@ -31,14 +28,13 @@ _Avoid_: building (collided with the Build phase; renamed 0.86.0)
 One worker start: a fresh context, one task, a finished answer read by the dispatcher; workers never coordinate with each other.
 
 **Slice**:
-One vertical unit of the plan with named owned files, buildable and gated on its own before it merges to the run branch.
+One vertical unit of the work with named owned files, buildable and gated on its own before it merges to the run branch.
 
 **Gate**:
 A project command whose green result a change must hold: format, lint, typecheck, tests, build. The map is the commands' one home.
 
-**Plan editor**:
-The fresh GPT reader of the plan strengthen pass: it approves the plan unchanged or rewrites it whole; the rewrite is its only way to object.
-_Avoid_: editor on its own (the spec's live review calls its shared document the editor); plan reviewer (a reviewer files findings; the plan editor may not)
+**Second opinion**:
+The fresh codex read of the run's settled design and execution plan before building, held to one bar: revise only where a strong maintainer would clearly agree the revision is necessary or materially better; otherwise the plan is ready.
 
 **Panel**:
 One open, costly decision that no cheap check settles, put as the same task to independent models, blinded, compared without a verdict; the caller synthesizes the decision. The review's both-engine invocation is the vendored engine document's own word for its reviewers, not this term.
@@ -60,18 +56,8 @@ A real finding or deferred item filed as one tracker issue before the PR opens, 
 **Lesson**:
 A failure record in docs/lessons: what happened, the rule, and where the rule is enforced; its rule lands where the repository enforces it best.
 
-**Spec**:
-The agreed statement of what the work does, in product language, committed as a dated file in docs/specs on the branch that builds it; the file's own status line says whether it is agreed.
-
-**Plan**:
-The statement of what a builder must not decide (terms, ownership, interfaces, slices), committed in docs/plans on the run branch and revised as the work teaches.
-
-**Run contract**:
-The one working file a guru run keeps on its branch where the spec and the plan would stand: the settled decisions, the user's most-likely-to-change ones first, the slices with owned files, and the quality bar its critics score against. It moves in the same commits as the code and is deleted before the PR opens, once the PR body carries its decisions.
-_Avoid_: contract for a module's public interface (say interface)
-
-**Critic**:
-The worker that hunts defects in a guru run, blind to the run contract: a Claude worker drives the product at each user-facing slice with license to roam, and at the end one Claude and one codex read the integrated diff cold. A maestro run's equivalent readers are the vendored engine document's reviewers, not this term.
+**Discovery artifacts**:
+What discovery produces and the run keeps while it builds: the approved prototypes, the settled decisions, the references. Briefs point at them and QA judges against them; none of them merges, and they are deleted before the PR opens, once their record has landed in the tests, the decision records, the agent map, and the PR body.
 
 **Harness**:
 The runtime a session runs in: Claude Code. The project is the repository a run works on; the two are never the same word.

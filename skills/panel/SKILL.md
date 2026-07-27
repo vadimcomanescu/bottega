@@ -1,6 +1,6 @@
 ---
 name: panel
-description: Put one costly decision to independent drafts from different companies' models, blinded, with a compare-only judge; the caller synthesizes the answer. Use when the user asks for a panel or a fusion pass, or when a run's Discover or Plan phase reaches a decision meeting the three conditions below.
+description: Put one costly decision to independent drafts from different companies' models, blinded, with a compare-only judge; the caller synthesizes the answer. Use when the user asks for a panel or a fusion pass, or when a run reaches a decision meeting the three conditions below.
 argument-hint: "<the decision>"
 ---
 
@@ -55,4 +55,4 @@ Do not answer the task, merge the drafts, vote, grade, or pick one.
 
 ## 6. Synthesize
 
-You write the decision from the drafts and the comparison: build on the consensus after checking it against the repository the same way as anything else (agreement between models marks coverage, never correctness), resolve each contradiction by the stronger evidence, keep the unique insights that survive the same check, and close or explicitly flag the blind spots. Record the decision and what the panel changed wherever your context records decisions: a run puts it in the plan and the PR; a conversation puts it in the reply.
+You write the decision from the drafts and the comparison: build on the consensus after checking it against the repository the same way as anything else (agreement between models marks coverage, never correctness), resolve each contradiction by the stronger evidence, keep the unique insights that survive the same check, and close or explicitly flag the blind spots. Record the decision and what the panel changed wherever your context records decisions: a run puts it in its design and the PR body; a conversation puts it in the reply.

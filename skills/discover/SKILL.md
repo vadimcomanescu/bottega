@@ -1,16 +1,16 @@
 ---
 name: discover
-description: The discovery method a run's Discover phase uses whole. Find the unknowns in a request, explain each one to the user in plain words, and settle them together before any spec is written. Not user-invocable.
+description: The discovery method a run's Discover phase uses whole. Find the unknowns in a request, explain each one to the user in plain words, and settle them together before anything is built. Not user-invocable.
 user-invocable: false
 ---
 
 # Discover
 
-Find what the user couldn't tell you before any spec is written: what the request doesn't say, what they couldn't write down, what nobody thought to ask. Too specific a request gets followed where a pivot was better; too vague gets the standard answer where this product needed its own. The user can only settle what they understand, so every unknown found here reaches them as a plain-words explanation before any question rests on it.
+Find what the user couldn't tell you before anything is built: what the request doesn't say, what they couldn't write down, what nobody thought to ask. Too specific a request gets followed where a pivot was better; too vague gets the standard answer where this product needed its own. The user can only settle what they understand, so every unknown found here reaches them as a plain-words explanation before any question rests on it.
 
 ## 1. Explore
 
-Read what the request settles and what the repo records about the code and the problem it touches, the lessons and decision records (`docs/lessons`, `docs/adr`) before deciding anything they already decided. Then sweep outward before you settle anything: fan out cheap workers, Opus at low effort with web search on, one per job that applies, to find the affected code and its precedent, how others already solved this, and what the installed versions actually do, read from their own docs and source rather than from memory. A worker returns findings, never a decision. Ask the user where they are in their thinking and what experience they have with this problem and this part of the code: their starting point sets which unknowns below they have and how much every later step must explain. A request this reading and sweeping shows fully settled runs none of the steps below. Complete when everything reading and sweeping can answer is answered and what stays open is listed.
+Read what the request settles and what the repo records about the code and the problem it touches, the lessons and decision records (`docs/lessons`, `docs/adr`) before deciding anything they already decided. Then sweep outward before you settle anything: fan out cheap workers, Opus at low effort with web search on, one per job that applies, to find the affected code and its precedent, how others already solved this, what the installed versions actually do, read from their own docs and source rather than from memory, and which agent skills installed in this runtime apply to the task, so later briefs can name them. A worker returns findings, never a decision. Ask the user where they are in their thinking and what experience they have with this problem and this part of the code: their starting point sets which unknowns below they have and how much every later step must explain. A request this reading and sweeping shows fully settled runs none of the steps below. Complete when everything reading and sweeping can answer is answered and what stays open is listed.
 
 ## 2. Blind spot pass
 
@@ -28,6 +28,6 @@ Ask about the ambiguities that remain, one question at a time, architecture-chan
 
 When the user can't find words for what they want, ask for source code that does it their way, in any repo or language; it beats any description. Read what they point at; the pointer travels with the findings. Complete when no decision rests on words the user could not find.
 
-When no unknown is left unaddressed, hand the caller the direction, its edges, and each decision with its answer.
+When no unknown is left unaddressed, hand the caller the direction, its edges, and each decision with its answer, together with the artifacts that settled them: the approved prototype sources, the screenshots, the references. The caller keeps them while the work is built; a brief that points at an approved render tells a builder more than prose describing it.
 
 An autonomous run has no user: resolve each step from the repo's precedent and the standard way, recording each resolution with its reason.

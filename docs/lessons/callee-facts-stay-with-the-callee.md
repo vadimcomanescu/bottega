@@ -4,4 +4,4 @@ What happened: across 0.65.0 through 0.71.0 (2026-07-20), maestro's Isolate and 
 
 The rule: a caller carries the invocation and its own constraints, never the callee's method or facts. A fact lives in one skill; every other file reaches it through the invocation. Fixing a duplication means moving the fact to its owner and deleting the copies, not rewording them, and each sentence added to a caller must fail the question "does the invocation alone already carry this?"
 
-Enforced: tests/worker-doctrine.test.ts ("makes the spec a repo file with its naming owned by the spec skill alone").
+Enforced: REVIEW.md ("A second home for any of these is a defect"); tests/worker-doctrine.test.ts ("names worker models where the dispatch happens and nowhere else").

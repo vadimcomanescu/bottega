@@ -80,85 +80,40 @@ describe("portable worker doctrine", () => {
     expect(violations).toEqual([]);
   });
 
-  it("keeps every run worker's model in the worker table, one row each", () => {
+  it("names worker models where the dispatch happens and nowhere else", () => {
+    // Three files own model names: maestro states the orchestrator's model and
+    // its workers' models in the sentences that dispatch them, the panel names
+    // its seats, and the vendored engine names its engines. Every other skill
+    // file stays model-free, the references included, since a reference is
+    // where a restated pin would go unnoticed and drift.
     const maestro = read("skills/maestro/SKILL.md");
-    expect(maestro, "the orchestrator model is named").toContain(
-      "orchestrated from Claude Code on fable-5 at xhigh",
+    expect(maestro, "the orchestrator model is named").toContain("orchestrated on fable-5");
+    expect(maestro, "Claude workers run on opus-5").toContain("Claude workers run on opus-5");
+    expect(maestro, "the second opinion names its model and effort").toContain(
+      "gpt-5.6-sol at high effort",
     );
-    expect(maestro, "every dispatch reads the worker table").toContain(
-      "references/workers.md",
+    expect(maestro, "fable is never dispatched as a worker").toContain(
+      "never dispatched as a worker",
     );
 
-    const workers = read("skills/maestro/references/workers.md");
-    expect(workers, "no row runs a worker on the orchestrator's model").toContain(
-      "a worker dispatched as a subagent never runs on it",
-    );
-    for (const row of [
-      "| builder | opus-5 | medium |",
-      "| explorer | opus-5 | low |",
-      "| prototyper | opus-5 | medium |",
-      "| QA driver | opus-5 | default |",
-      "| mechanic | opus-5 | low |",
-      "| plan editor | gpt-5.6-sol | high |",
-      "| conformance checker | gpt-5.6-sol | high |",
-    ]) {
-      expect(workers, `the worker table is missing the row ${row}`).toContain(row);
-    }
-
-    // One row is one worker, one model, one effort. A cell holding two of
-    // either is two workers written on one line, and the pair cannot move
-    // independently when a model or an effort level goes away.
-    const rows = workers
-      .split(/\r?\n/)
-      .filter((line) => line.startsWith("|") && !/^\|\s*(Worker|-)/.test(line));
-    expect(rows.length).toBeGreaterThan(0);
-    for (const row of rows) {
-      const cells = row.split("|").map((cell) => cell.trim());
-      expect(cells[2]?.includes("/"), `worker row carries two models: ${row}`).toBe(false);
-      expect(cells[3]?.includes("/"), `worker row carries two efforts: ${row}`).toBe(false);
-    }
-
-    // Every skill file routes to the table instead of restating a model, the
-    // references included, since a reference is where a restated pin would go
-    // unnoticed. The exceptions each own their models: the table itself,
-    // maestro's own orchestrator sentence, the panel's seats, the vendored
-    // engine and its suites, and guru, whose whole body is one standalone
-    // prompt that names its workers' models where it dispatches them
-    // (docs/adr/0026-guru-one-goal-entry-point.md).
     const owned = new Set([
-      "skills/maestro/references/workers.md",
       "skills/maestro/SKILL.md",
       "skills/panel/SKILL.md",
       "skills/code-review/references/autoreview.md",
-      "skills/guru/SKILL.md",
     ]);
     for (const file of filesUnder("skills", ".md")) {
       if (owned.has(file) || file.startsWith("skills/code-review/tests/")) continue;
       const named = read(file).match(/\b(opus-5|fable-5|gpt-5\.6-\w+)\b/);
-      expect(named?.[0], `${file} names ${named?.[0]}; the worker table owns it`).toBe(undefined);
+      expect(named?.[0], `${file} names ${named?.[0]}; the dispatch site owns it`).toBe(undefined);
     }
     expect(read("skills/panel/SKILL.md"), "the panel names its own seats").toContain(
       "opus-5 at max effort",
     );
 
-    // The vendored engine states the fix builder's model for a standalone
-    // review, which never reads a run's table, so the same fact has two homes
-    // on purpose. Read the builder's row and require the vendored line to
-    // match it: changing the row fails here until the vendored text is
-    // re-scoped with it, and THIRD_PARTY.md records that scoping.
-    const builder = workers
-      .split(/\r?\n/)
-      .find((line) => line.startsWith("| builder |"))
-      ?.split("|")
-      .map((cell) => cell.trim());
-    const [, , builderModel, builderEffort] = builder ?? [];
-    expect(builderModel, "the worker table has a builder row").toBeTruthy();
-    expect(
-      read("skills/code-review/references/autoreview.md"),
-      `the vendored fix builder has drifted from the builder row (${builderModel} at ${builderEffort})`,
-    ).toContain(`runs on ${builderModel} at ${builderEffort}`);
-
+    // The vendored engine names its engines and its fix builder itself; its
+    // local scoping is recorded in THIRD_PARTY.md.
     const review = read("skills/code-review/references/autoreview.md");
+    expect(review).toContain("runs on opus-5 at medium");
     expect(review).toContain("--model codex=gpt-5.6-sol");
     expect(review).toContain("--model claude=claude-fable-5");
     expect(review, "the rerun engine never comes from the company that wrote the fix").toContain(
@@ -353,28 +308,14 @@ describe("portable worker doctrine", () => {
     }
   });
 
-  it("makes the spec a repo file with its naming owned by the spec skill alone", () => {
-    const maestro = read("skills/maestro/SKILL.md");
-    expect(maestro).toContain("Use `bottega:spec` to agree the spec and commit it.");
-    expect(read("skills/spec/references/spec-format.md")).toContain("Status: agreed YYYY-MM-DD");
-
-    const convention = "docs/specs/<YYYY-MM-DD>-<slug>.md";
-    const owners = readdirSync(join(ROOT, "skills"), { withFileTypes: true })
-      .filter((entry) => entry.isDirectory())
-      .map((entry) => entry.name)
-      .filter((dir) => {
-        const skillFile = join(ROOT, "skills", dir, "SKILL.md");
-        return existsSync(skillFile) && readFileSync(skillFile, "utf8").includes(convention);
-      });
-    expect(owners).toEqual(["spec"]);
-  });
-
   it("pins the review interlock and its quantifiers", () => {
     const maestro = read("skills/maestro/SKILL.md");
-    expect(maestro).toContain("every fixed decision in the plan");
     expect(maestro).toContain("bottega:code-review");
-    expect(read("skills/build/SKILL.md")).toContain(
-      "run one simplification pass over the changed files",
+    expect(maestro, "every finding is checked before acceptance").toContain(
+      "Check each finding against the real code before you accept it",
+    );
+    expect(maestro, "a reversal names the verdict it reverses").toContain(
+      "names that verdict and the evidence that changed the call",
     );
 
     const close = read("skills/close/SKILL.md");
@@ -384,7 +325,7 @@ describe("portable worker doctrine", () => {
       "A run never merges a PR by hand and never approves one; it arms auto-merge on the PR it opens",
     );
     expect(close, "a held PR needs a check that enforces its label").toContain(
-      "confirm one of them is red on this PR because the label is present",
+      "a required check that is red on this PR because the label is present",
     );
     expect(close, "a hold run's PR arrives carrying its label").toContain("--label hold");
     expect(close, "a requirement only a person can satisfy ends the run at an open PR").toContain(
@@ -393,7 +334,6 @@ describe("portable worker doctrine", () => {
 
     const review = read("skills/code-review/SKILL.md");
     expect(review).toContain("references/autoreview.md");
-    expect(review).toContain("quoting the spec line it rests on");
 
     // The vendored document is present, carries upstream's identity, and the
     // author's own convergence rule survives verbatim.
