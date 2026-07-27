@@ -94,7 +94,7 @@ _Avoid_: supporting material, docs, background
 
 ### External Reference
 
-**Reference** that lives outside any one skill (a plain file, no **description**, no **steps**, not invocable) that several skills point at, while still sitting inside what ships with the skills: for a plugin, a file in the delivered tree, never the surrounding repository, whose decision records and research notes are the authoring repository's own record rather than skill material. The home for shared reference that needn't fire on its own, and the only shared home two **user-invoked** skills can use, since neither has a description and so neither can fire the other.
+**Reference** that lives outside any one skill (a plain file, no **description**, no **steps**, not invocable) that several skills point at, while still sitting inside what ships with the skills: for a plugin, a file in the delivered tree, never the surrounding repository, whose decision records are the authoring repository's own record rather than skill material. The home for shared reference that needn't fire on its own, and the only shared home two **user-invoked** skills can use, since neither has a description and so neither can fire the other.
 
 _Avoid_: doc, resource, knowledge base
 

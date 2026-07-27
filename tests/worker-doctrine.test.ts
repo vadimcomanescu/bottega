@@ -199,14 +199,13 @@ describe("portable worker doctrine", () => {
     // stands on its own or points at another file the plugin delivers. Two
     // things break that: a relative link that resolves outside skills/, and a
     // reference to a concrete record file of this repository (a numbered ADR,
-    // a dated research note, a named lesson), none of which install with the
-    // plugin. Telling a run to read or write the HOST repository's own generic
+    // a named lesson), neither of which installs with the plugin. Telling a run to read or write the HOST repository's own generic
     // paths is legitimate, so a directory with no filename (`docs/adr/`,
     // `docs/lessons/`) and a placeholder path (`docs/plans/<YYYY-MM-DD>-<slug>.md`)
     // both pass. The vendored review engine and its suites are synced as their
     // author wrote them and are exempt.
     const RECORD_FILE =
-      /docs\/(?:adr|research)\/\d[A-Za-z0-9._-]*|docs\/lessons\/[A-Za-z0-9][A-Za-z0-9._-]*\.md/g;
+      /docs\/adr\/\d[A-Za-z0-9._-]*|docs\/lessons\/[A-Za-z0-9][A-Za-z0-9._-]*\.md/g;
 
     const files = filesUnder("skills", ".md").filter(
       (path) =>
@@ -381,8 +380,11 @@ describe("portable worker doctrine", () => {
     const close = read("skills/close/SKILL.md");
     expect(close).toContain("puts the rule where the repository enforces it best");
     expect(close).toContain("fix the ones in the run's scope and file one issue for the rest");
-    expect(close, "the run never merges; the launch decided the release").toContain(
-      "A run never merges a PR, never enables auto-merge, and never approves one",
+    expect(close, "the run never merges by hand; it arms what the repository lands with").toContain(
+      "A run never merges a PR by hand and never approves one; it arms auto-merge on the PR it opens",
+    );
+    expect(close, "a held PR needs a check that enforces its label").toContain(
+      "confirm one of them is red on this PR because the label is present",
     );
     expect(close, "a hold run's PR arrives carrying its label").toContain("--label hold");
     expect(close, "a requirement only a person can satisfy ends the run at an open PR").toContain(
