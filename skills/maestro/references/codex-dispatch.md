@@ -26,7 +26,7 @@ Verified on codex-cli 0.144; when a flag is in doubt, `codex exec --help` and `c
 
 ## Keep it visible
 
-Run the launch from your own turn as tracked background Bash: the harness holds a visible row from launch to exit and re-invokes you when it finishes, and stopping that task kills the run. One tracked command per worker, setup steps (worktree prep, installs) chained inside it, and an explicit timeout above the run's expected time (`bottega:setup` raises the shell ceiling so long runs fit). A subagent asked to hold a long call backgrounds it and ends with a waiting stub, whatever its brief says, and a shell forked with `&` leaves an invisible orphan nothing reports on ([no-subagent-holds-a-long-dispatch](../../../docs/lessons/no-subagent-holds-a-long-dispatch.md), [subagent-background-work-dies-silently](../../../docs/lessons/subagent-background-work-dies-silently.md)).
+Run the launch from your own turn as tracked background Bash: the harness holds a visible row from launch to exit and re-invokes you when it finishes, and stopping that task kills the run. One tracked command per worker, setup steps (worktree prep, installs) chained inside it, and an explicit timeout above the run's expected time (`bottega:setup` raises the shell ceiling so long runs fit). A subagent asked to hold a long call backgrounds it and ends with a waiting stub, whatever its brief says, and a shell forked with `&` leaves an invisible orphan nothing reports on.
 
 Capture the session id as soon as the run starts: `grep -m1 "session id:" <log-file>`. With the id saved, any recovery is deterministic.
 

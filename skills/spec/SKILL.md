@@ -30,4 +30,4 @@ In an autonomous run there is no user to present to: skip the shared document, w
 
 ## 3. Publish
 
-The method ends at the committed spec. When the branch existed before this method ran, there is nothing more to do. When this method created it, ask the user once whether to push, then wait. On yes, push and report it: it is the work branch a later run continues, and its PR merges the spec to trunk with the code that fulfils it (`docs/adr/0007-spec-status-in-the-file.md`). On no, delete the branch, local and remote if pushed, before the session ends; the settled decisions already live in the spec's words.
+The method ends at the committed spec. When the branch existed before this method ran, there is nothing more to do. When this method created it, ask the user once whether to push, then wait. On yes, push and report it: it is the work branch a later run continues, and its PR merges the spec to trunk with the code that fulfils it. On no, delete the branch, local and remote if pushed, before the session ends; the settled decisions already live in the spec's words.
