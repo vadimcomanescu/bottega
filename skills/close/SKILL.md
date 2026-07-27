@@ -6,7 +6,7 @@ user-invocable: false
 
 # Close
 
-Take the accepted head, QA-verified when QA ran, to a PR that lands on sight: open, readable, its checks green, its merge state clean, its deferred work filed. The launch decided the release (`docs/adr/0027-the-launch-decides-the-release.md`): the run's recorded answer, `.bottega/run/<slug>/release`, says whether the PR lands on green or holds for the user, and a host repository that arms its own auto-merge may land a green PR while close watches. A run never merges a PR, never enables auto-merge, and never approves one; its whole part is the label and the watch. A requirement only a person can satisfy before the PR is ready ends the run with that action named to the user. Review feedback after the PR opens is handled through `bottega:code-review`: threads are claimed findings, and its autoreview document carries the merge verification.
+Take the accepted head, QA-verified when QA ran, to a PR that lands on sight: open, readable, its checks green, its merge state clean, its deferred work filed. The launch decided the release (`docs/adr/0028-the-launch-decides-the-release.md`): the run's recorded answer, `.bottega/run/<slug>/release`, says whether the PR lands on green or holds for the user, and a host repository that arms its own auto-merge may land a green PR while close watches. A run never merges a PR, never enables auto-merge, and never approves one; its whole part is the label and the watch. A requirement only a person can satisfy before the PR is ready ends the run with that action named to the user. Review feedback after the PR opens is handled through `bottega:code-review`: threads are claimed findings, and its autoreview document carries the merge verification.
 
 Run the phases in order; a followup and its evidence must exist before the PR body links them.
 
@@ -39,7 +39,7 @@ Filing is close's whole part here; the head is already pushed. The rule work bel
 Compose the body to a file and open it with `gh pr create -F <file>`, never inline; when the run's release answer is hold, add `--label hold` on the same call, so the PR arrives already braked. On an issue-born run, close the issue with the PR through a closing keyword. The body carries, written for that outside reader:
 
 - what changed and why;
-- the approved spec and the plan where they exist; a one-shot states its scope sentence in their place;
+- the approved spec and the plan where they exist; a run delivered without them states the scope it ran on and the decisions it fixed in their place;
 - every decision made on the user's behalf, the one most likely to draw a different answer first;
 - how panel evidence changed the plan, when a panel ran;
 - who built and who reviewed: models, rounds, findings, verdicts, refutations;

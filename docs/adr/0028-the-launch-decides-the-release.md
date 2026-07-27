@@ -1,4 +1,4 @@
-# 0027: The launch decides the release
+# 0028: The launch decides the release
 
 Date: 2026-07-27
 

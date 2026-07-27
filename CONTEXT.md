@@ -13,7 +13,7 @@ The moment the user hands work to a run, carrying the release answer: land on gr
 _Avoid_: kickoff, start (say launch when the release answer is meant)
 
 **One-shot**:
-A run whose whole diff the orchestrator can state in one sentence after discovery, built directly and taken straight to Review with no spec and no plan; it still gets its own worktree and branch, gates green, the integrated review, and a PR.
+A run that discovery leaves with no unresolved unknown and no call that is costly to reverse, built directly and taken straight to Review with no spec and no plan; it still gets its own worktree and branch, gates green, the integrated review, and a PR.
 
 **Orchestrator**:
 The session running the maestro method: it keeps design and arbitration in its own turns and dispatches everything else.
