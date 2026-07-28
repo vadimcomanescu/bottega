@@ -4,7 +4,7 @@ description: Run one task through the codex CLI, from launch to the report read 
 user-invocable: false
 ---
 
-# Using codex
+# Use codex
 
 Run the given task through the codex CLI: launch it, keep it visible while it runs, and read its report back. The dispatch that sent you here names the model, effort, and sandbox. Everything below is the same for every dispatch.
 

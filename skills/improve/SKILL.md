@@ -1,6 +1,6 @@
 ---
 name: improve
-description: Scan a codebase for deepening opportunities, present the strongest candidates, agree one, then open a tracker issue and take it through a run. Use bottega:improve when the user wants the codebase scanned for what to improve next. Never use proactively. It opens a run, which costs hours of autonomous agent work.
+description: Scan a codebase for deepening opportunities, present the strongest candidates, agree one, then take it through a run with the scan standing as its discovery. Use bottega:improve when the user wants the codebase scanned for what to improve next. Never use proactively. It opens a run, which costs hours of autonomous agent work.
 argument-hint: "<optional area or direction>"
 ---
 
@@ -10,7 +10,7 @@ Find the refactors that turn shallow modules into deep ones, so the codebase get
 
 ## 1. Read
 
-Start with the smallest map that routes you (root `CLAUDE.md` or `AGENTS.md`), then read only what the scan needs: the relevant `CONTEXT.md` glossaries, the `docs/adr/` decisions covering the code you will touch, the doc the repository names as its documentation authority, and the tracker's labelling conventions.
+Start with the smallest map that routes you (root `CLAUDE.md` or `AGENTS.md`), then read only what the scan needs: the relevant `CONTEXT.md` glossaries, the `docs/adr/` decisions covering the code you will touch, and the doc the repository names as its documentation authority.
 
 ## 2. Scope
 
@@ -42,6 +42,6 @@ Present the strongest candidates in the conversation, each a coherent unit per `
 
 When I reject a candidate for a reason a future scan would need, offer to record it as an ADR so the candidate is not re-proposed. Write that ADR yourself, because a rejected candidate never reaches a run. Skip ephemeral reasons.
 
-## 6. Hand off
+## 6. Run it
 
-On my pick, create one tracker issue carrying that candidate, labelled for its area per the repository's conventions, and write it for a reader who was not in this session, defining or linking every non-standard term. Then use `bottega:maestro` on that issue, leaving the claim to the run rather than claiming the issue yourself, and tell me which issue you filed with a one-line summary of it.
+On my pick, sharpen the candidate with me until its acceptance criteria are measurable, then take it through `bottega:maestro`, handing over the friction evidence, the agreed change, and the criteria. The scan was the discovery, so the run starts at the design.
