@@ -18,7 +18,7 @@ Scope to the direction I named, which wins over anything you would pick yourself
 
 ## 3. Scan
 
-Read the scoped code and note where you experience friction, in the vocabulary of `bottega:codebase-design`:
+Read the scoped code and note where you experience friction, in the vocabulary of `bottega:architect`:
 
 - understanding one concept requires bouncing between many small modules
 - a module's interface is nearly as complex as its implementation. Apply the deletion test: would deleting it concentrate the complexity, or just move it?
@@ -38,7 +38,7 @@ Check open issues and PRs before proposing. An improvement already tracked or al
 
 ## 5. Propose
 
-Present the strongest candidates in the conversation, each a coherent unit per `bottega:codebase-design`: the files, the friction with its evidence, the change in product terms (interface design belongs to the run), the gain in leverage and locality, and a strength: strong, worth exploring, or speculative. Lead with the candidate you would take first and why. No HTML, no file report. I pick one or reject.
+Present the strongest candidates in the conversation, each a coherent unit per `bottega:architect`: the files, the friction with its evidence, the change in product terms (interface design belongs to the run), the gain in leverage and locality, and a strength: strong, worth exploring, or speculative. Lead with the candidate you would take first and why. No HTML, no file report. I pick one or reject.
 
 When I reject a candidate for a reason a future scan would need, offer to record it as an ADR so the candidate is not re-proposed. Write that ADR yourself, because a rejected candidate never reaches a run. Skip ephemeral reasons.
 

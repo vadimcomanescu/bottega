@@ -83,7 +83,7 @@ Skills define the reusable methods and independently invoked capabilities. Refer
 | panel seats and judge | produce independent drafts and compare them without writing the final answer | [`skills/panel/SKILL.md`](skills/panel/SKILL.md) |
 | closer | confirms the accepted head, opens the PR (labeled hold when the launch said hold), watches checks, and reports it merged, ready, or waiting on what only a person can clear | [`skills/close/SKILL.md`](skills/close/SKILL.md) |
 
-[`skills/codebase-design`](skills/codebase-design/SKILL.md) is shared by the roles that make and judge architecture: the orchestrator uses it to model the domain and fix the design. Builders receive that design and the glossary as fixed input in their briefs.
+[`skills/architect`](skills/architect/SKILL.md) is shared by the roles that make and judge architecture: the orchestrator uses it to model the domain and fix the design. Builders receive that design and the glossary as fixed input in their briefs.
 
 ## Repo layout
 
@@ -114,7 +114,7 @@ Changes to this repo are authored directly with the owner and delivered by a PR 
 These files are other people's work. The scripts and suites are used unchanged; the review document carries local edits recorded in [`THIRD_PARTY.md`](THIRD_PARTY.md). Each copy carries its upstream license file:
 
 - the vendored autoreview engine in `skills/code-review/` (`SKILL.md`, `scripts/`, `tests/`) from [openclaw/agent-skills](https://github.com/openclaw/agent-skills), under `skills/code-review/LICENSE` (MIT, Copyright (c) 2026 openclaw).
-- `skills/codebase-design/references/CONTEXT-FORMAT.md` and `ADR-FORMAT.md` from [mattpocock/skills](https://github.com/mattpocock/skills), under `skills/codebase-design/references/LICENSE` (MIT, Copyright (c) 2026 Matt Pocock).
+- `skills/architect/references/CONTEXT-FORMAT.md` and `ADR-FORMAT.md` from [mattpocock/skills](https://github.com/mattpocock/skills), under `skills/architect/references/LICENSE` (MIT, Copyright (c) 2026 Matt Pocock).
 
 Edit any of them upstream, not here. Bringing in a newer version means copying it again and reading the diff. [`THIRD_PARTY.md`](THIRD_PARTY.md) carries each one's pinned revision, local scoping, and sync procedure.
 
