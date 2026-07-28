@@ -14,7 +14,7 @@ Hold every skill you write to one virtue: **predictability**, the agent taking t
 You choose between two invocation modes, trading different costs:
 
 - A **model-invoked** skill keeps a **description**, so the agent can fire it autonomously _and_ other skills can reach it (you can still type its name too). It contributes to **context load**: the description sits in the window every turn. Mechanics: omit `disable-model-invocation`, and write a model-facing description with rich trigger phrasing ("Use when the user wants…, mentions…").
-- A **user-invoked** skill strips the description from the agent's reach. Only the user, typing its name, can invoke it, and no other skill can. Zero context load, but it spends **cognitive load**: the user is the index that must remember it exists. Mechanics: set `disable-model-invocation: true`. The `description` becomes human-facing, a one-line summary with trigger lists stripped.
+- A **user-invoked** skill strips the description from the agent's reach. Only the user, typing its name, can invoke it, and no other skill can. Zero context load, but it spends **cognitive load**: nothing looks the skill up for the user, so they have to remember it exists. Mechanics: set `disable-model-invocation: true`. The `description` becomes human-facing, a one-line summary with trigger lists stripped.
 
 Pick model-invocation only when the agent must reach the skill on its own, or another skill must. If it only ever fires by hand, make it user-invoked and pay no context load.
 
@@ -38,7 +38,7 @@ Build a skill from two content types, **steps** and **reference**, mixed freely:
 
 A demanding **finish line** drives thorough **legwork**, the digging the agent does within the work, whether the skill has steps or not, since "every rule applied" binds flat reference just as "every step done" binds a sequence.
 
-Push too little down and the top bloats. Push too much and you hide material the agent actually needs. That tension is the whole decision.
+Push too little down and the top bloats. Push too much and you hide material the agent actually needs. Deciding how far down each piece goes is the whole of this choice.
 
 **Progressive disclosure** is the move down the ladder, out of `SKILL.md` into a linked file, so the top stays legible. Mechanics: a linked `.md` file in the skill folder, named for what it holds (this skill discloses its full definitions to `GLOSSARY.md`). Some skills are used in more than one way, and each distinct way is a **branch**: different runs taking different paths through the skill. Branching is the cleanest disclosure test: inline what every branch needs, and push behind a pointer what only some branches reach. A **context pointer**'s _wording_, not its target, decides when and how reliably the agent reaches the material.
 
@@ -65,12 +65,12 @@ A **leading word** is a compact concept already living in the model's pretrainin
 
 It serves predictability twice. In the body it anchors _execution_: the agent reaches for the same behaviour every time the word appears. In the description it anchors _invocation_: when the same word lives in your prompts, docs, and code, the agent links that shared language to the skill and fires it more reliably.
 
-Hunt for opportunities to refactor skills to use leading words. A triad spelled out at three sites (**duplication**), a description spending a sentence to gesture at one idea: each is a passage begging to collapse into a single token. Examples include:
+Hunt for opportunities to refactor skills to use leading words. A triad spelled out at three sites (**duplication**), a description spending a sentence to gesture at one idea: each is a passage a single token can replace. Examples include:
 
 - "fast, deterministic, low-overhead" -> _tight_: one quality restated across a phase, collapsed into a single pretrained word (a _tight_ loop).
 - "a loop you believe in" -> _red_: converts a fuzzy gate into a binary observable state (the loop goes _red_ on the bug, or it doesn't).
 
-You win twice over: fewer tokens, _and_ a sharper hook for the agent to hang its thinking on. Assume every skill is carrying restatements that leading words retire, and go find them.
+You get both: fewer tokens, _and_ a word the agent reaches the same behaviour from every time. Assume every skill is carrying restatements that leading words retire, and go find them.
 
 ## Failure modes
 
@@ -98,7 +98,7 @@ Write the body to the agent that will do the work, the way one person briefs a c
 - Say who the other person in the file is by writing as them. A skill the agent runs while its owner is in the conversation is that owner's brief, so it speaks in their voice: "you" is the agent, "I" and "me" are the owner ("ask me where I am in my thinking"). A skill dispatched to a fresh worker has no owner in the room, so it addresses the worker and names the orchestrator it reports to. The frontmatter description stays third person either way, because it is the model-facing trigger and not part of the conversation.
 - Order the body as the work happens. Add a heading only when it shortens the read, and number headings only where the sequence itself is the instruction, a walkthrough someone resumes midway. Steps and reference mix freely, per the hierarchy above.
 - Put each rule in the sentence where the work happens, and each step's **finish line** in the step's own prose ("each one hands you its slice with the gates green"), never as a trailing formula.
-- Sentences end. A semicolon in prose is two sentences wearing one: split it. Periods, commas, colons, and parentheses do everything this repo's prose needs. Code keeps its own syntax.
+- A semicolon in prose joins two complete sentences, so write them as two. Periods, commas, colons, and parentheses do everything this repo's prose needs. Code keeps its own syntax.
 
 ## Checklist
 

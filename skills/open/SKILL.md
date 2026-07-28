@@ -32,4 +32,4 @@ Read the project's commands (format, lint, typecheck, test, build, run) from the
 
 ## 5. Confirm the codex CLI
 
-Confirm the codex CLI is installed and logged in with `codex login status`, since the run's codex reads go through it. Missing, logged out, or over quota: tell me now and continue, with fresh Claude workers taking those reads and the run recording the gap. Either the CLI is ready, or I know why it is not.
+Confirm the codex CLI is installed and logged in with `codex login status`, since the run's codex reads go through it. Missing, logged out, or over quota: tell me now and continue, with fresh Claude workers taking those reads and the run recording the gap. You are through this step once the CLI works, or I know what is wrong with it.

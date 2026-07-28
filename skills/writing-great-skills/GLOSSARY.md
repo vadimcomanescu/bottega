@@ -1,6 +1,6 @@
 # Glossary: writing great skills
 
-The domain model for what makes a skill great. A skill exists to wrangle determinism out of a stochastic system, and the root virtue is **Predictability**, with every term below a lever on it. This is the disclosed reference for [`writing-great-skills`](SKILL.md).
+The domain model for what makes a skill great. A skill exists to make a stochastic system behave the same way every run, so **Predictability** is what every term below serves. This is the disclosed reference for [`writing-great-skills`](SKILL.md).
 
 The terms are grouped by axis: **Invocation** (how a skill is reached), **Information Hierarchy** (how its content is arranged), **Steering** (how the agent's runtime behaviour is shaped), and **Pruning** (how it is kept lean). Each **failure mode** lives beside the lever that cures it, tagged _failure mode_.
 
@@ -8,7 +8,7 @@ The terms are grouped by axis: **Invocation** (how a skill is reached), **Inform
 
 ## Predictability
 
-The degree to which a skill makes the agent behave the same _way_ on every run: the same process, not the same output (a brainstorming skill should _predictably_ diverge, its tokens varying while its behaviour does not). The root virtue every other term serves. Cost and maintainability are symptoms of it, not rivals.
+The degree to which a skill makes the agent behave the same _way_ on every run: the same process, not the same output (a brainstorming skill should _predictably_ diverge, its tokens varying while its behaviour does not). The root virtue every other term serves. Cost and maintainability follow from it rather than competing with it.
 
 _Avoid_: consistency, reliability, robustness, output-determinism
 
@@ -30,7 +30,7 @@ _Avoid_: procedure, workflow, command
 
 ### Description
 
-The skill's machine-readable trigger, and the one **context pointer** a **model-invoked** skill is forced to keep loaded at all times. Its mere presence _is_ the invocation axis. Keep it and the skill is model-invoked (and reachable by other skills). Delete it and the skill is **user-invoked**, reachable only by the human. The source of a model-invoked skill's **context load**.
+The skill's machine-readable trigger, and the one **context pointer** a **model-invoked** skill is forced to keep loaded at all times. Whether the field is present is what decides the invocation mode. Keep it and the skill is model-invoked (and reachable by other skills). Delete it and the skill is **user-invoked**, reachable only by the human. The source of a model-invoked skill's **context load**.
 
 _Avoid_: frontmatter, summary
 
@@ -48,7 +48,7 @@ _Avoid_: token cost, context bloat
 
 ### Cognitive Load
 
-The cost a **user-invoked** skill imposes on the human: what they must hold in their head, which skills exist and when to reach for each (the human is the index). What **model-invocation** removes by being agent-discoverable, and the brake on splitting into more user-invoked skills. Not a cost to minimise: it is the price of human agency, the reason some skills stay user-invoked. Spend it where human judgement matters, and remove it where it does not.
+The cost a **user-invoked** skill imposes on the human: what they must hold in their head, which skills exist and when to reach for each, since nothing looks them up for them. What **model-invocation** removes by being agent-discoverable, and the brake on splitting into more user-invoked skills. Not a cost to minimise: you accept it whenever you want the human, not the agent, deciding that the skill runs. Spend it where human judgement matters, and remove it where it does not.
 
 _Avoid_: human index, burden, overhead
 
@@ -76,7 +76,7 @@ A skill's content ranked by how immediately the agent needs it: a single ladder,
 - **Reference**, in-file: secondary
 - **Reference**, disclosed: behind a **context pointer**
 
-A skill with no **steps** uses just the bottom two rungs, often a legitimately flat peer-set (e.g. every rule of a review on one rung), which is a fine arrangement, not a smell. The hierarchy is independent of invocation: a skill can be model- or user-invoked whether it is all steps, all reference, or both. When a skill has steps, in-file reference that should be disclosed buries them and turns attending to them into a coin-flip: a variance lever, not just a legibility one. Keep the top of the ladder legible, and push down it whatever you can.
+A skill with no **steps** uses just the bottom two rungs, often a legitimately flat peer-set (e.g. every rule of a review on one rung), which is a fine arrangement, not a smell. The hierarchy is independent of invocation: a skill can be model- or user-invoked whether it is all steps, all reference, or both. When a skill has steps, in-file reference that should be disclosed pushes the steps down the file, and whether the agent attends to them then varies run to run, which makes disclosure a predictability decision and not only a legibility one. Keep the top of the ladder legible, and push down it whatever you can.
 
 _Avoid_: structure, organization, layout
 
@@ -128,7 +128,7 @@ _Avoid_: path, case, fork
 
 ### Leading Word
 
-A compact concept (also called a _Leitwort_) already living in the model's pretraining, that the agent thinks with while running the skill. It encodes a behavioural principle in the fewest possible tokens by invoking priors the model already holds (e.g. _lesson_, _proximal zone of development_, _fog of war_, _tracer bullets_). Repeated as a token, never as a sentence, it accumulates a distributed definition across the skill and anchors a whole region of behaviour. Coining your own works if you define it clearly, but a made-up word recruits no priors: you pay in definition tokens what a pretrained word gives free. Reach for an existing word first.
+A compact concept (also called a _Leitwort_) already living in the model's pretraining, that the agent thinks with while running the skill. It encodes a behavioural principle in the fewest possible tokens by invoking priors the model already holds (e.g. _lesson_, _proximal zone of development_, _fog of war_, _tracer bullets_). Repeated as a token, never as a sentence, it accumulates a distributed definition across the skill and anchors a whole region of behaviour. Coining your own works if you define it clearly, but a made-up word recruits no priors, so you spend tokens defining what a pretrained word would have carried on its own. Reach for an existing word first.
 
 A leading word serves **predictability** twice. In the body it anchors _execution_: the agent reaches for the same behaviour every time the concept appears, and inside flat reference it focuses attention on a class of thing to look for, recruiting the right checks each run. In the **description** it anchors **invocation**, and not only within the skill: when the same word lives in your prompts, your docs, and your codebase, the agent links that shared language to the skill and fires it more reliably. Word a description with the leading words you actually use when you want the skill.
 
@@ -176,7 +176,7 @@ _Avoid_: home, canonical location
 
 ### Duplication
 
-_Failure mode._ The same meaning given more than one **single source of truth**. It costs maintenance (change one place, you must change the others), costs tokens, and inflates prominence: repeating a meaning weights it on the ladder past its real rank. The accidental inverse of a **leading word**, which raises attention on purpose by repeating a token, never the meaning.
+_Failure mode._ The same meaning given more than one **single source of truth**. It costs maintenance (change one place, you must change the others), costs tokens, and inflates prominence: repeating a meaning weights it on the ladder past its real rank. The opposite of what a **leading word** does on purpose: a leading word repeats the token and not the meaning, where duplication repeats the meaning without meaning to.
 
 _Avoid_: repetition, redundancy
 
@@ -194,8 +194,8 @@ _Avoid_: accretion, bloat, cruft, rot
 
 ### No-Op
 
-_Failure mode._ An instruction that changes nothing because the model already does it by default: you pay load to tell the agent what it would do anyway. The test: does a line change behaviour versus the default? A line can be perfectly **relevant** and still be a no-op. The same priors that make a **leading word** free make a no-op worthless.
+_Failure mode._ An instruction that changes nothing because the model already does it by default: you pay load to tell the agent what it would do anyway. The test: does a line change behaviour versus the default? A line can be perfectly **relevant** and still be a no-op. Both rest on the model's priors: a leading word is free because the model already holds the concept, and a no-op is worthless for the same reason.
 
-A leading word is a _technique_, and No-Op is a _verdict_ on a line, and they cross. A leading word too weak to beat the default is a no-op (_be thorough_ when the agent is already thorough-ish), and the fix is a stronger word that passes the verdict (_relentless_), not a different technique. So the No-Op test (does it change behaviour versus the default?) is also how you grade whether a leading word is earning its repetitions. This is model-relative, not reader-relative: two people disagreeing over whether a line is a no-op disagree about the default, and settle it by running the skill, not by debate.
+A leading word is a _technique_ and No-Op is a _verdict_ on a line, so the verdict applies to the technique. A leading word too weak to beat the default is a no-op (_be thorough_ when the agent is already thorough-ish), and the fix is a stronger word that passes the verdict (_relentless_), not a different technique. So the No-Op test (does it change behaviour versus the default?) is also how you grade whether a leading word is earning its repetitions. This is model-relative, not reader-relative: two people disagreeing over whether a line is a no-op disagree about the default, and settle it by running the skill, not by debate.
 
 _Avoid_: redundant instruction, restating the obvious, belaboring
