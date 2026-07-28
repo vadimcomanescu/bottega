@@ -8,7 +8,7 @@ argument-hint: "<the decision>"
 
 Run the whole panel yourself: frame the decision, dispatch the seats, and write the final answer. The panel neither votes nor decides. It returns independent drafts and a structured comparison.
 
-Pay for a seat only when three conditions are all true. The decision is open: several defensible answers, and neither the repository nor a standard solution settles it. Wrong is costly: expensive to reverse after merge, or hard to notice until it is. And no cheap check settles it: a question a test, spike, benchmark, or prototype can answer gets that check instead, because the check returns ground truth, while the seats, grounded but read-only, can only return arguments. A panel generates answers to a question nobody has answered yet. A critique of an existing answer (a plan, a diff, a spec) is a review, never a panel.
+Pay for a seat only when three conditions are all true. The decision is open: several defensible answers, and neither the repository nor a standard solution settles it. The wrong answer is costly: expensive to reverse after merge, or expensive by the time anyone notices it. And no cheap check settles it: a question a test, spike, benchmark, or prototype can answer gets that check instead, because the check shows what actually happens, while a seat can only argue about it. A panel generates answers to a question nobody has answered yet. A critique of an existing answer (a plan, a diff, a spec) is a review, never a panel.
 
 ## 1. Frame the task
 
@@ -32,11 +32,11 @@ Seat one model per company, and give every seat the same `task.md` verbatim. Kee
 | codex | one read-only codex dispatch per `bottega:using-codex`: gpt-5.6-sol at max, web search on, the draft to `<session>/codex-draft.md` |
 | claude | one subagent on opus-5, given `task.md` verbatim, the draft returned as its report |
 
-Give another company's CLI installed on the machine a further seat under the same task, read-only with its own web search. The seats are the panel's own: this table names their models, the way the review names its engines.
+Give another company's CLI installed on the machine a further seat under the same task, read-only with its own web search. This table names the model each seat runs on.
 
 ## 3. Fan out
 
-Dispatch every seat in parallel and wait for all of them. Record a seat that errors, times out, or returns an empty draft, and continue the panel. With two or more drafts, proceed. With one draft, take a second independent draft from the strongest seat that answered, same task verbatim, fresh dispatch: two runs of one strong model still fuse, because independent runs cover different considerations. Only when no seat answers at all is there no panel: report the failures and answer solo, saying so.
+Dispatch every seat in parallel and wait for all of them. Record a seat that errors, times out, or returns an empty draft, and continue the panel. With two or more drafts, proceed. With one draft, take a second independent draft from the strongest seat that answered, same task verbatim, fresh dispatch: two runs of one strong model still fuse, because independent runs cover different considerations. When no seat answers at all, there is no panel: report the failures, answer on your own, and say that is what you did.
 
 ## 4. Blind
 
@@ -55,4 +55,4 @@ Do not answer the task, merge the drafts, vote, grade, or pick one.
 
 ## 6. Synthesize
 
-Write the decision yourself, from the drafts and the comparison: build on the consensus after checking it against the repository the same way as anything else (agreement between models marks coverage, never correctness), resolve each contradiction by the stronger evidence, keep the unique insights that survive the same check, and close or explicitly flag the blind spots. Record the decision and what the panel changed wherever your context records decisions, so a run puts it in its design and the PR body, and a conversation puts it in the reply.
+Write the decision yourself, from the drafts and the comparison: build on the consensus after checking it against the repository the same way as anything else (when the drafts agree, that shows they covered the same ground, not that they are right), resolve each contradiction by the stronger evidence, keep the unique insights that survive the same check, and close or explicitly flag the blind spots. Record the decision and what the panel changed wherever your context records decisions, so a run puts it in its design and the PR body, and a conversation puts it in the reply.

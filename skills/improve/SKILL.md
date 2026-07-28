@@ -14,7 +14,7 @@ Start with the smallest map that routes you (root `CLAUDE.md` or `AGENTS.md`), t
 
 ## 2. Scope
 
-Scope to the direction I named, which wins over anything you would pick yourself. Without one, walk the commit history for hot spots (the files and modules that churn) and bias the scan there. A change scattered across the history widens the net. Deepening pays off where change keeps happening.
+Scope to the direction I named, which wins over anything you would pick yourself. Without one, walk the commit history for hot spots (the files and modules that churn) and bias the scan there. Scan wider when the churn is spread across the whole history, because deepening pays off where the code keeps changing.
 
 ## 3. Scan
 

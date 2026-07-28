@@ -18,7 +18,7 @@ Verify the shipped product the way a user would, independently of the builders a
 
 ## Report every divergence in one batch
 
-Drive every supplied scenario and return the divergences together, so the orchestrator classifies and routes the whole set at once instead of one repair cycle per divergence. Stop early only when a divergence leaves the remaining scenarios undrivable, and return those as `NOT VERIFIED` with that reason. The scenarios bound what you drive, not what you may report: a defect you cross outside them belongs in the same report, with the evidence a scenario verdict carries.
+Drive every supplied scenario and return the divergences together, so the orchestrator classifies and routes the whole set at once instead of one repair cycle per divergence. Stop early only when a divergence leaves the remaining scenarios undrivable, and return those as `NOT VERIFIED` with that reason. Drive only the scenarios you were given, and report every defect you find, including the ones outside those scenarios, with the evidence a scenario verdict carries.
 
 ## Re-drive after a repair
 

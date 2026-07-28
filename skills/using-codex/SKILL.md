@@ -23,7 +23,7 @@ codex exec --ignore-user-config -C <worktree> \
 
 - Send the brief to codex through a file and stdin, never through inline shell quoting. Name the brief, out, and log files by absolute path in one directory for the run, because shell variables do not survive between your Bash calls and a recovery needs those paths again.
 - `--ignore-user-config` keeps the machine's codex config out of the run, so your dispatch behaves the same on any host. Auth still resolves from `CODEX_HOME`.
-- The final message lands in the out file. Everything else (the session header, the commands codex runs, its messages) streams to the log. Read the out file as the report, and open the log to debug a failure, never whole into context.
+- The final message lands in the out file. Everything else (the session header, the commands codex runs, its messages) streams to the log. Read the out file as the report. Open the log only to debug a failure, and read the part you need rather than pulling the whole file into context.
 - Add `-c tools.web_search=true` when the run has to ground itself on the web. It composes with any sandbox.
 - When you need a report that parses, pass `--output-schema <schema-file>`, or end the brief with an output contract demanding a final JSON code block.
 - Outside a git repository, add `--skip-git-repo-check`.
@@ -56,7 +56,7 @@ Read the log file's age for liveness: codex streams every command it runs and ev
 A codex worker starts from zero: no session history, no `$CLAUDE_PLUGIN_ROOT`, no slash commands, no subagents. Naming any of those stalls the worker, and bulk work you would fan out to a Claude worker gets chunked inline instead. Write every brief self-contained:
 
 - the goal, the worktree, and every input by absolute path: the files themselves, never a summary standing in for one
-- constraints and non-goals, each hard constraint paired with its sanctioned exit ("if X fails after honest attempts, stop and report the numbers"): a cornered worker satisfies the letter of a gate it cannot meet honestly, and a stop report is a successful run
+- constraints and non-goals, each hard constraint paired with its sanctioned exit ("if X fails after honest attempts, stop and report the numbers"): a worker with no way out will fake passing a gate it cannot honestly meet, so a run that stops and reports the numbers counts as a success
 - the proof expected, as the exact command to run, and the output contract from Launch
 
 ## Read the report
