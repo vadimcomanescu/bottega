@@ -8,7 +8,7 @@ user-invocable: false
 
 Take the accepted head to a PR a reviewer could merge the moment they open it: readable, checks green, deferred work filed.
 
-The launch decided the release. Read the run's recorded answer, `.bottega/run/<slug>/release`, for whether the PR lands on green or holds for the user. Never merge a PR by hand and never approve one. Arm auto-merge on the PR you open where the repository's own merging procedure makes arming the opener's act, and let the repository's required checks and the `hold` label decide whether an armed PR lands. Review feedback that arrives after the PR opens goes through `bottega:code-review`.
+The launch decided the release. Read the run's recorded answer, `.bottega/run/<slug>/release`, for whether the PR lands on green or holds for me. Never merge a PR by hand and never approve one. Arm auto-merge on the PR you open where the repository's own merging procedure makes arming the opener's act, and let the repository's required checks and the `hold` label decide whether an armed PR lands. Review feedback that arrives after the PR opens goes through `bottega:code-review`.
 
 Everything you write for someone outside the run (the PR body, each followup issue) obeys one rule:
 
@@ -28,11 +28,11 @@ Turn each real finding the run deferred into one tracker issue before the PR ope
 
 ## Open the PR
 
-Read the release answer from `.bottega/run/<slug>/release` itself, never from memory of it. `land` and `hold` are the only two values, and a file missing or carrying anything else stops the run here, reported to the user.
+Read the release answer from `.bottega/run/<slug>/release` itself, never from memory of it. `land` and `hold` are the only two values, and a file missing or carrying anything else stops the run here, reported to me.
 
 When the answer is hold, make the label exist first (`gh label create hold --description "Blocks the merge until a person removes it" || true`), add `--label hold` on the same create call so the PR opens carrying it, and confirm the base branch has a required check that is red on this PR because the label is present. A repository where nothing enforces the label stops the run here, reported, because the PR would report held while free to land.
 
-Compose the body to a file and open with `gh pr create -F <file>`. An issue-born run closes its issue through a closing keyword. The body tells the story plainly for that outside reader: what changed and why, every decision made on the user's behalf with the one most likely to draw a different answer first, who built and who reviewed with their verdicts, and the QA evidence with its limits (what returned NOT VERIFIED, what no evidence covers). A Followups section links the issues just filed and nothing else. Keep tool, model, and company attribution badges and footers out.
+Compose the body to a file and open with `gh pr create -F <file>`. An issue-born run closes its issue through a closing keyword. The body tells the story plainly for that outside reader: what changed and why, every decision made on my behalf with the one most likely to draw a different answer first, who built and who reviewed with their verdicts, and the QA evidence with its limits (what returned NOT VERIFIED, what no evidence covers). A Followups section links the issues just filed and nothing else. Keep tool, model, and company attribution badges and footers out.
 
 Then arm it with the same credentials that opened it, where the repository's own merging procedure makes arming the opener's act: `gh pr merge --auto --squash <PR-URL>` right after the create call, on both release answers, since an armed held PR blocks on the hold check you just confirmed. Where the repository arms its own, arm nothing and say so in the report. Leave this step with the PR open, labeled when held, and armed or its arming accounted for.
 
@@ -48,6 +48,6 @@ Report only once every check has completed and each red is routed or reported.
 
 ## Report the outcome
 
-Name the PR, the head SHA, and the evidence links in every report. Merged (`state` is `MERGED`): report it and sweep the run's working state (the run directory, the worktree, the branch) from the project's main checkout, never from inside the worktree. Ready (checks green, merge state `CLEAN`): report it and say what lands it, read from `gh pr view <PR> --json autoMergeRequest` rather than guessed. A null where you armed it means the arm did not take, so re-arm. Held: report that the user removing the `hold` label is what lands it, because the user lands a held PR, never the run. Waiting on a person: report the action needed and leave the PR open.
+Name the PR, the head SHA, and the evidence links in every report. Merged (`state` is `MERGED`): report it and sweep the run's working state (the run directory, the worktree, the branch) from the project's main checkout, never from inside the worktree. Ready (checks green, merge state `CLEAN`): report it and say what lands it, read from `gh pr view <PR> --json autoMergeRequest` rather than guessed. A null where you armed it means the arm did not take, so re-arm. Held: report that my removing the `hold` label is what lands it, because I land a held PR, never the run. Waiting on a person: report the action needed and leave the PR open.
 
 An open PR's working state stands until the merge. `bottega:open` sweeps the state of any run whose PR has merged.

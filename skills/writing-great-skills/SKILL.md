@@ -95,6 +95,7 @@ Every skill in this repo shares one outer shape:
 Write the body to the agent that will do the work, the way one person briefs a capable colleague:
 
 - Address the reader directly and command: "you own the design", "send workers out", "fix it and say so in your report". Never describe the reader in the third person ("the builder is given one job") when you mean the agent holding the file.
+- Say who the other person in the file is by writing as them. A skill the agent runs while its owner is in the conversation is that owner's brief, so it speaks in their voice: "you" is the agent, "I" and "me" are the owner ("ask me where I am in my thinking"). A skill dispatched to a fresh worker has no owner in the room, so it addresses the worker and names the orchestrator it reports to. The frontmatter description stays third person either way, because it is the model-facing trigger and not part of the conversation.
 - Order the body as the work happens. Add a heading only when it shortens the read, and number headings only where the sequence itself is the instruction, a walkthrough someone resumes midway. Steps and reference mix freely, per the hierarchy above.
 - Put each rule in the sentence where the work happens, and each step's finish line in the step's own prose ("each one hands you its slice with the gates green"), never as a trailing formula.
 - Sentences end. A semicolon in prose is two sentences wearing one: split it. Periods, commas, colons, and parentheses do everything this repo's prose needs. Code keeps its own syntax.

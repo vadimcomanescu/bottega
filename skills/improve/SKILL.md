@@ -6,7 +6,7 @@ argument-hint: "<optional area or direction>"
 
 # Improve
 
-Find the refactors that turn shallow modules into deep ones, so the codebase gets easier to test and to navigate, agree the strongest one with the user, and hand it to a run.
+Find the refactors that turn shallow modules into deep ones, so the codebase gets easier to test and to navigate, agree the strongest one with me, and hand it to a run.
 
 ## 1. Read
 
@@ -14,7 +14,7 @@ Start with the smallest map that routes you (root `CLAUDE.md` or `AGENTS.md`), t
 
 ## 2. Scope
 
-Scope to the direction the user named, which wins over anything you would pick yourself. Without one, walk the commit history for hot spots (the files and modules that churn) and bias the scan there. A change scattered across the history widens the net. Deepening pays off where change keeps happening.
+Scope to the direction I named, which wins over anything you would pick yourself. Without one, walk the commit history for hot spots (the files and modules that churn) and bias the scan there. A change scattered across the history widens the net. Deepening pays off where change keeps happening.
 
 ## 3. Scan
 
@@ -38,10 +38,10 @@ Check open issues and PRs before proposing. An improvement already tracked or al
 
 ## 5. Propose
 
-Present the strongest candidates in the conversation, each a coherent unit per `bottega:codebase-design`: the files, the friction with its evidence, the change in product terms (interface design belongs to the run), the gain in leverage and locality, and a strength: strong, worth exploring, or speculative. Lead with the candidate you would take first and why. No HTML, no file report. The user picks one or rejects.
+Present the strongest candidates in the conversation, each a coherent unit per `bottega:codebase-design`: the files, the friction with its evidence, the change in product terms (interface design belongs to the run), the gain in leverage and locality, and a strength: strong, worth exploring, or speculative. Lead with the candidate you would take first and why. No HTML, no file report. I pick one or reject.
 
-When the user rejects a candidate for a reason a future scan would need, offer to record it as an ADR so the candidate is not re-proposed. Write that ADR yourself, because a rejected candidate never reaches a run. Skip ephemeral reasons.
+When I reject a candidate for a reason a future scan would need, offer to record it as an ADR so the candidate is not re-proposed. Write that ADR yourself, because a rejected candidate never reaches a run. Skip ephemeral reasons.
 
 ## 6. Hand off
 
-On the user's pick, create one tracker issue carrying that candidate, labelled for its area per the repository's conventions, and write it for a reader who was not in this session, defining or linking every non-standard term. Then use `bottega:maestro` on that issue, leaving the claim to the run rather than claiming the issue yourself, and tell the user which issue you filed with a one-line summary of it.
+On my pick, create one tracker issue carrying that candidate, labelled for its area per the repository's conventions, and write it for a reader who was not in this session, defining or linking every non-standard term. Then use `bottega:maestro` on that issue, leaving the claim to the run rather than claiming the issue yourself, and tell me which issue you filed with a one-line summary of it.

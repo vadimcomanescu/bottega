@@ -18,4 +18,4 @@ Then judge. Every sentence gets one of three outcomes, and every cut names the t
 
 Doubt splits by kind. A constraint in doubt stays, because cutting a failure-pin re-runs the failure. A restatement in doubt is checkable against its neighbor, so check it.
 
-Present the whole diff to the user, each change naming the test that fired, and name what you audited clean, so an absence of edits reads as a verdict and not a skip. Apply nothing silently. Once the user has answered, apply exactly what was accepted, move any test pins quoting edited lines in the same change, and end with the repo's own checks green.
+Present the whole diff to me, each change naming the test that fired, and name what you audited clean, so an absence of edits reads as a verdict and not a skip. Apply nothing silently. Once I have answered, apply exactly what was accepted, move any test pins quoting edited lines in the same change, and end with the repo's own checks green.
