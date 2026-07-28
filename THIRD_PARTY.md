@@ -2,14 +2,14 @@
 
 Every file in this repository that came from outside it, with the revision it was taken at and how to take a newer one. Vendored text is synced as its author wrote it: the register rules in `AGENTS.md` bind bottega's own prose, never these files.
 
-## `skills/code-review/references/autoreview.md` and the helpers beside it
+## `skills/code-review/SKILL.md` and the helpers beside it
 
-The review engine every review runs on.
+The review engine every review runs on. The skill's `SKILL.md` is the modified upstream document itself: bottega's frontmatter and title on top, the method beneath. A wrapper page existed until 2026-07-28 and was removed because every invocation loaded the whole document anyway, so the indirection carried nothing.
 
 - Upstream: `openclaw/agent-skills`, under `skills/autoreview`.
 - Pinned at `98122a3` (recorded by the import, bottega commit 8b7d021). `scripts/`, `tests/`, and `LICENSE` are upstream's bytes, re-copied unchanged on every sync.
 - Local edits to the document: openclaw material and Windows sections stripped, bottega run rules woven in, helper paths rewritten to this package. One sentence backported from upstream `575bed0` on 2026-07-21 (the exception for diffs that are prose only). The merge rule was locally scoped on 2026-07-24: upstream's "only when the user armed it" and its sensitive-path prohibition now apply to a standalone review, because in a run the recorded evidence is the merge gate and the Close phase merges on it. On 2026-07-28 the woven run rules dropped every Claude worker's effort (no subagent dispatch carries one) and restated the reviewer isolation rule as the run's own design decisions, since the run commits no spec or plan. On 2026-07-25 the run's fix builder was given its model (opus-5), because the route guard denies a dispatch that names none, and the helper path options now lead with the Claude Code plugin install shape (`${CLAUDE_PLUGIN_ROOT}/skills/code-review/scripts/autoreview`), which is what `bottega:setup` produces.
-- Sync: re-copy `scripts/`, `tests/`, and `LICENSE` whole, then apply the old-upstream-to-new-upstream diff of upstream's SKILL.md to `references/autoreview.md` and reconcile conflicts by hand. Record the new revision. A full sync takes the document and the scripts together. The fix builder's model (opus-5) is a local scoping stated in the document itself; `tests/worker-doctrine.test.ts` pins the line.
+- Sync: re-copy `scripts/`, `tests/`, and `LICENSE` whole, then apply the old-upstream-to-new-upstream diff of upstream's SKILL.md to `skills/code-review/SKILL.md` and reconcile conflicts by hand, keeping bottega's frontmatter and title. Record the new revision. A full sync takes the document and the scripts together. The fix builder's model (opus-5) is a local scoping stated in the document itself; `tests/worker-doctrine.test.ts` pins the line.
 
 ## `skills/codebase-design/references/CONTEXT-FORMAT.md` and `ADR-FORMAT.md`
 
@@ -20,4 +20,4 @@ The shapes a new `CONTEXT.md` entry or ADR follows when a file does not already 
 - Local edits: none. The domain-model doctrine that uses them is bottega's own prose in `skills/codebase-design/SKILL.md`.
 - Sync: re-copy both files and the license whole, then read the diff.
 
-Each package's own `SKILL.md` is bottega's, not vendored.
+Every other package's `SKILL.md` is bottega's own prose; `code-review`'s is the modified upstream document recorded above.

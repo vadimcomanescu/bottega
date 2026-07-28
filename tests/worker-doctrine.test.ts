@@ -61,7 +61,7 @@ describe("portable worker doctrine", () => {
       "README.md",
       ...filesUnder("skills", ".md").filter(
         (path) =>
-          path !== "skills/code-review/references/autoreview.md" &&
+          path !== "skills/code-review/SKILL.md" &&
           !path.startsWith("skills/code-review/tests/") &&
           !path.startsWith("skills/codebase-design/references/"),
       ),
@@ -110,7 +110,7 @@ describe("portable worker doctrine", () => {
     const owned = new Set([
       "skills/maestro/SKILL.md",
       "skills/panel/SKILL.md",
-      "skills/code-review/references/autoreview.md",
+      "skills/code-review/SKILL.md",
     ]);
     for (const file of filesUnder("skills", ".md")) {
       if (owned.has(file) || file.startsWith("skills/code-review/tests/")) continue;
@@ -135,7 +135,7 @@ describe("portable worker doctrine", () => {
 
     // The vendored engine names its engines and its fix builder itself; its
     // local scoping is recorded in THIRD_PARTY.md.
-    const review = read("skills/code-review/references/autoreview.md");
+    const review = read("skills/code-review/SKILL.md");
     expect(review).toContain("runs on opus-5");
     expect(review).toContain("--model codex=gpt-5.6-sol");
     expect(review).toContain("--model claude=claude-fable-5");
@@ -153,7 +153,7 @@ describe("portable worker doctrine", () => {
       ...filesUnder("docs", ".md"),
     ].filter(
       (path) =>
-        path !== "skills/code-review/references/autoreview.md" &&
+        path !== "skills/code-review/SKILL.md" &&
         !path.startsWith("skills/code-review/tests/"),
     );
 
@@ -187,7 +187,7 @@ describe("portable worker doctrine", () => {
 
     const files = filesUnder("skills", ".md").filter(
       (path) =>
-        path !== "skills/code-review/references/autoreview.md" &&
+        path !== "skills/code-review/SKILL.md" &&
         !path.startsWith("skills/code-review/scripts/") &&
         !path.startsWith("skills/code-review/tests/"),
     );
@@ -340,7 +340,7 @@ describe("portable worker doctrine", () => {
     expect(
       read("skills/code-review/SKILL.md"),
       "every finding is verified against the real code before the head is accepted",
-    ).toContain("verifying each finding against the real code");
+    ).toContain("Verify every finding by reading the real code path");
 
     const close = read("skills/close/SKILL.md");
     expect(close).toContain("put the rule where the repository enforces it best");
@@ -359,14 +359,9 @@ describe("portable worker doctrine", () => {
       "open and unmerged",
     );
 
-    const review = read("skills/code-review/SKILL.md");
-    expect(review).toContain("references/autoreview.md");
-
-    // The vendored document is present, carries upstream's identity, and the
-    // author's own convergence rule survives verbatim.
-    const autoreview = read("skills/code-review/references/autoreview.md");
-    expect(autoreview).toContain("name: autoreview");
-    expect(autoreview).toContain("# Auto Review");
+    // The skill is the modified vendored document itself (provenance in
+    // THIRD_PARTY.md), and the author's own convergence rule survives verbatim.
+    const autoreview = read("skills/code-review/SKILL.md");
     expect(autoreview).toContain("two review-triggered patch cycles have not converged");
     // The woven run rules: blind prompt, fresh-builder fix dispatch, rerun to clean.
     expect(autoreview).toContain("never the run's own design decisions");
