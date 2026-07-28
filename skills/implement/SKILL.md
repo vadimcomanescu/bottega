@@ -1,5 +1,5 @@
 ---
-name: implementing
+name: implement
 description: Implementation doctrine for one dispatched job in a bottega run, an assigned slice or a repair. Use when dispatched to build or fix code.
 user-invocable: false
 ---

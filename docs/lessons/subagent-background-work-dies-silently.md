@@ -4,4 +4,4 @@ What happened: designing issue #78's wrapper dispatch (2026-07-21), the first sh
 
 The rule: a worker's shell-out runs from the orchestrator's own turn as tracked background Bash, with an explicit timeout covering the whole run. A result reporting the command was moved to the background is a failed dispatch, reported immediately, never waited on.
 
-Enforced: skills/using-codex/SKILL.md (the harness-visibility rule).
+Enforced: skills/use-codex/SKILL.md (the harness-visibility rule).

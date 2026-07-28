@@ -27,7 +27,7 @@ Start a run with `/bottega:maestro <task, or issue URL>`.
 | calibrate | `/bottega:calibrate <repo root, or one doc>` | Audit agent docs against the Claude 5 calibration bar and propose the cuts |
 | bro | `/bottega:bro` | Restate the last reply in plain language, no jargon |
 
-During a run, maestro also uses the open, discover, implementing, code-review, QA, and close skills, and `bottega:panel` for a costly open decision; code-review is the one users also run directly, and its skill file is the vendored autoreview document itself, the engine every review runs on.
+During a run, maestro also uses the open, discover, implement, code-review, QA, and close skills, and `bottega:panel` for a costly open decision; code-review is the one users also run directly, and its skill file is the vendored autoreview document itself, the engine every review runs on.
 
 ## What it does
 
@@ -54,7 +54,7 @@ Nothing else is assumed about the project. A run leaves nothing behind but the P
 
 ## How workers run
 
-Claude workers are ordinary subagents, each naming its model. The GPT cross-reads run as plain `codex exec` calls ([`skills/using-codex`](skills/using-codex/SKILL.md)) that the orchestrator drives from its own turn as tracked background Bash, so every worker holds a visible row for its whole run and its completion re-invokes the orchestrator. Long builds are covered by raising the shell timeout ceiling in settings (`bottega:setup`) and by resuming a cut-short thread; a subagent never holds one of these calls, because it backgrounds it and returns a stub ([`docs/lessons/no-subagent-holds-a-long-dispatch.md`](docs/lessons/no-subagent-holds-a-long-dispatch.md)). A run whose machine lacks the codex CLI or its login runs those reads on fresh Claude workers instead, and the PR records the gap.
+Claude workers are ordinary subagents, each naming its model. The GPT cross-reads run as plain `codex exec` calls ([`skills/use-codex`](skills/use-codex/SKILL.md)) that the orchestrator drives from its own turn as tracked background Bash, so every worker holds a visible row for its whole run and its completion re-invokes the orchestrator. Long builds are covered by raising the shell timeout ceiling in settings (`bottega:setup`) and by resuming a cut-short thread; a subagent never holds one of these calls, because it backgrounds it and returns a stub ([`docs/lessons/no-subagent-holds-a-long-dispatch.md`](docs/lessons/no-subagent-holds-a-long-dispatch.md)). A run whose machine lacks the codex CLI or its login runs those reads on fresh Claude workers instead, and the PR records the gap.
 
 ## Design decisions
 
@@ -77,7 +77,7 @@ Skills define the reusable methods and independently invoked capabilities. Refer
 | Role | Job | Method |
 | --- | --- | --- |
 | orchestrator | design, model choices, review arbitration, architecture acceptance | [`skills/maestro/SKILL.md`](skills/maestro/SKILL.md) |
-| builder | builds one dispatched job (a slice or a repair), test-first, inside the orchestrator's fixed architecture | [`skills/implementing/SKILL.md`](skills/implementing/SKILL.md) |
+| builder | builds one dispatched job (a slice or a repair), test-first, inside the orchestrator's fixed architecture | [`skills/implement/SKILL.md`](skills/implement/SKILL.md) |
 | review panel | hunts defects in the integrated diff, isolated from the builders, its prompt never carrying the run's design decisions | [`skills/code-review/SKILL.md`](skills/code-review/SKILL.md) |
 | qa | drives the built artifact as a user, records the evidence, never edits product code | [`skills/qa/SKILL.md`](skills/qa/SKILL.md) |
 | panel seats and judge | produce independent drafts and compare them without writing the final answer | [`skills/panel/SKILL.md`](skills/panel/SKILL.md) |

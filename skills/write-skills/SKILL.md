@@ -1,5 +1,5 @@
 ---
-name: writing-great-skills
+name: write-skills
 description: Reference for predictable skill writing. Use when creating, editing, or evaluating any skill file, including SKILL.md, references, assets, schemas, and agent files.
 ---
 

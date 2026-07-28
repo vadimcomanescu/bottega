@@ -29,7 +29,7 @@ Seat one model per company, and give every seat the same `task.md` verbatim. Kee
 
 | seat | dispatch |
 | --- | --- |
-| codex | one read-only codex dispatch per `bottega:using-codex`: gpt-5.6-sol at max, web search on, the draft to `<session>/codex-draft.md` |
+| codex | one read-only codex dispatch per `bottega:use-codex`: gpt-5.6-sol at max, web search on, the draft to `<session>/codex-draft.md` |
 | claude | one subagent on opus-5, given `task.md` verbatim, the draft returned as its report |
 
 Give another company's CLI installed on the machine a further seat under the same task, read-only with its own web search. This table names the model each seat runs on.

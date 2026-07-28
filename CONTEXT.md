@@ -21,7 +21,7 @@ A fresh context given one dispatched job and returning one report: a builder, a 
 _Avoid_: seat (panel seats only), agent (the harness's word)
 
 **Builder**:
-The worker that changes product code, on one slice or one repair, under the implementing doctrine.
+The worker that changes product code, on one slice or one repair, under the implement doctrine.
 _Avoid_: building (collided with the Build phase; renamed 0.86.0)
 
 **Dispatch**:
