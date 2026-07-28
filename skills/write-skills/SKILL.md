@@ -11,7 +11,7 @@ Hold every skill you write to one virtue: **predictability**, the agent taking t
 
 ## Invocation
 
-You choose between two invocation modes, trading different costs:
+You choose between two invocation modes, and each one costs you something different:
 
 - A **model-invoked** skill keeps a **description**, so the agent can fire it autonomously _and_ other skills can reach it (you can still type its name too). It contributes to **context load**: the description sits in the window every turn. Mechanics: omit `disable-model-invocation`, and write a model-facing description with rich trigger phrasing ("Use when the user wants…, mentions…").
 - A **user-invoked** skill strips the description from the agent's reach. Only the user, typing its name, can invoke it, and no other skill can. Zero context load, but it spends **cognitive load**: nothing looks the skill up for the user, so they have to remember it exists. Mechanics: set `disable-model-invocation: true`. The `description` becomes human-facing, a one-line summary with trigger lists stripped.
@@ -34,9 +34,9 @@ Build a skill from two content types, **steps** and **reference**, mixed freely:
 
 1. **In-skill step**, an ordered action in `SKILL.md`, the primary tier: what the agent does, in order. Give each step a **finish line** the agent can check, stated in the step's own sentences, and make it _exhaustive_ where it matters ("every modified model accounted for", not "produce a change list"). A vague finish line invites **premature completion**.
 2. **In-skill reference**, a definition, rule, or fact in `SKILL.md`, consulted on demand. Often a legitimately flat peer-set (every rule of a review on one rung), a fine arrangement, not a smell. _This skill is all reference._
-3. **External reference**, reference pushed out of `SKILL.md` into a separate file, reached by a **context pointer**, loaded only when the pointer fires. (Spans _disclosed_ reference, a sibling file like `GLOSSARY.md` still part of the skill, through fully **external reference**, a plain file outside any one skill that several skills point at.) The outermost home is still inside what ships with the skills, for a plugin the delivered tree, never the surrounding repository: a skill's rule stands on its own sentences instead of citing the repository's decision records.
+3. **External reference**, reference pushed out of `SKILL.md` into a separate file, reached by a **context pointer**, loaded only when the pointer fires. (This rung spans _disclosed_ reference, a sibling file like `GLOSSARY.md` that is still part of the skill, through fully **external reference**, a plain file outside any one skill that several skills point at.) The outermost home is still inside what ships with the skills, which for a plugin is the delivered tree and never the surrounding repository. A skill's rule stands on its own sentences instead of citing the repository's decision records.
 
-A demanding **finish line** drives thorough **legwork**, the digging the agent does within the work, whether the skill has steps or not, since "every rule applied" binds flat reference just as "every step done" binds a sequence.
+A demanding **finish line** drives thorough **legwork**, the digging the agent does within the work, whether the skill has steps or not. "Every rule applied" binds flat reference just as "every step done" binds a sequence.
 
 Push too little down and the top bloats. Push too much and you hide material the agent actually needs. Deciding how far down each piece goes is the whole of this choice.
 
@@ -61,7 +61,7 @@ Then hunt **no-ops** sentence by sentence, not just line by line. Run the no-op 
 
 ## Leading words
 
-A **leading word** is a compact concept already living in the model's pretraining that the agent thinks with while running the skill (e.g. _lesson_, _fog of war_, _tracer bullets_). Repeated throughout the text (though not necessarily: a strong leading word might only be needed once), it accumulates a distributed definition and anchors a whole region of behaviour in the fewest tokens, by recruiting priors the model already holds.
+A **leading word** is a compact concept already living in the model's pretraining that the agent thinks with while running the skill (e.g. _lesson_, _fog of war_, _tracer bullets_). Repeated through the text, it accumulates a distributed definition and anchors a whole region of behaviour in the fewest tokens, by recruiting priors the model already holds. Repetition is not required: a strong leading word might be needed only once.
 
 It serves predictability twice. In the body it anchors _execution_: the agent reaches for the same behaviour every time the word appears. In the description it anchors _invocation_: when the same word lives in your prompts, docs, and code, the agent links that shared language to the skill and fires it more reliably.
 
@@ -76,7 +76,7 @@ You get both: fewer tokens, _and_ a word the agent reaches the same behaviour fr
 
 Use these to diagnose issues the user may be having with the skill.
 
-- **Premature completion**: ending a step before it's genuinely done, attention slipping to _being done_. Defence, in order: sharpen the step's **finish line** first (cheap, local), and only if it is irreducibly fuzzy _and_ you observe the rush, hide the post-completion steps by splitting (the sequence cut).
+- **Premature completion**: ending a step before it's genuinely done, attention slipping to _being done_. Defence, in order: sharpen the step's **finish line** first, which is cheap and local. Only when it is irreducibly fuzzy _and_ you observe the rush do you hide the post-completion steps by splitting (the sequence cut).
 - **Duplication**: the same meaning in more than one place. Costs maintenance and tokens, and inflates a meaning's prominence on the ladder past its real rank.
 - **Sediment**: stale layers that settle because adding feels safe and removing feels risky. The default fate of any skill without a pruning discipline.
 - **Sprawl**: a skill simply too long, even when every line is live and unique. Hurts readability and maintainability and wastes tokens. The cure is the ladder: disclose **reference** behind pointers, and split by **branch** or sequence so each path carries only what it needs.
@@ -87,7 +87,7 @@ Use these to diagnose issues the user may be having with the skill.
 
 Every skill in this repo shares one outer shape:
 
-- Frontmatter stays universal, the open standard's fields: `name` equal to the directory name, and `description`. A harness-specific key is an exception a harness need must justify, kept to the minimum that need requires.
+- Frontmatter stays universal, the open standard's fields: `name` equal to the directory name, and `description`. A harness-specific key is an exception, justified only by a harness need and kept to the minimum that need requires.
 - An H1 in sentence case naming the skill, then one imperative sentence stating the outcome the skill delivers.
 - A file loaded on demand is a markdown link (`[references/x.md](references/x.md)`). A skill that gets invoked is a backticked name (`bottega:panel`). Never a bare unlinked path.
 - The body stays under 500 lines, references one level deep.
