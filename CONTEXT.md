@@ -37,7 +37,7 @@ A project command whose green result a change must hold: format, lint, typecheck
 The fresh codex read of the run's settled design and execution plan before building, held to one bar: revise only where a strong maintainer would clearly agree the revision is necessary or materially better; otherwise the plan is ready.
 
 **Panel**:
-One open, costly decision that no cheap check settles, put as the same task to independent models, blinded, compared without a verdict; the caller synthesizes the decision. The review's both-engine invocation is the vendored engine document's own word for its reviewers, not this term.
+One open, costly decision that no cheap check settles, put as the same task to independent models, blinded, compared without a verdict; whoever ran the panel writes the decision from the drafts. The review's both-engine invocation is the vendored engine document's own word for its reviewers, not this term.
 _Avoid_: panel for any critique of an existing answer
 
 **Owner**:

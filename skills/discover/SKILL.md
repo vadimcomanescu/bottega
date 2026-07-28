@@ -51,6 +51,6 @@ Complete when you can predict how the user will judge the finished work.
 
 When the user can't find words for what they want, ask for code that already does it their way, in any repo or language; it beats any description. Read what they point at, and keep the pointer with the findings. Complete when no decision is waiting on words the user could not find.
 
-When nothing is left open, hand the caller the direction, its edges, and every decision with its answer, plus the artifacts that settled them: the approved prototype sources, the screenshots, the references. The caller keeps them while the work is built, and a brief that points at an approved render tells a builder more than prose describing it.
+You are done when nothing is left open and you hold the direction, its edges, and every decision with its answer. Keep what settled them, the approved prototype sources, the screenshots and the references, for as long as you are building: a brief that points at a render the user approved tells a builder more than prose describing it.
 
 An autonomous run has no user: settle each step from the repo's precedent and the standard way, and record each settlement with its reason.
