@@ -6,41 +6,51 @@ user-invocable: false
 
 # Discover
 
-Find what the user couldn't tell you before anything is built: what the request doesn't say, what they couldn't write down, what nobody thought to ask. Too specific a request gets followed where a pivot was better; too vague gets the standard answer where this product needed its own. The user can only settle what they understand, so every unknown found here reaches them as a plain-words explanation before any question rests on it.
+Find what the user couldn't tell you, before anything is built: what the request doesn't say, what they couldn't put into words, what nobody thought to ask. A request followed too literally gets built as written when a different approach was better; a vague one gets the generic answer when this product needed its own. The user can only settle what they understand, so explain every unknown in plain words before asking them to decide it.
 
 ## 1. Explore
 
-Read the request, then read what the repo already decided: its lessons and decision records (`docs/lessons`, `docs/adr`). Do not re-decide what they settled.
+Read the request, then read what this repo already decided: its lessons and decision records (`docs/lessons`, `docs/adr`). Do not re-decide what they settled.
 
-Then send Opus workers out, one job each, web search on:
+Then send Opus workers out, one job each:
 
-- the code this touches, and how this repo already does things like it;
-- how other people solved this;
-- what the installed versions actually do, read from their own docs and source, never from memory;
-- which agent skills this runtime has installed for this work. A worker reads the skill and says what it would change here, not that it exists.
+- the code this change touches, and how this repo already does things like it;
+- how other people have solved this problem;
+- the libraries and tools the work will use: what the version installed here actually does, read from its own documentation and source rather than from memory;
+- which agent skills this runtime has installed for work like this. A worker reads one and reports what it would change here, not that it exists.
 
 A worker returns findings, never a decision.
 
-Ask the user where they are in their thinking and what experience they have with this problem and this part of the code. Their answer sets which unknowns below they have, and how much every later step has to explain.
+Ask the user where they are in their thinking, and what experience they have with this problem and with this part of the code. Their answer decides which of the unknowns below are theirs, and how much every later step has to explain.
 
-A request this reading and sweeping shows fully settled runs none of the steps below. Complete when everything reading and sweeping can answer is answered and what stays open is listed.
+Complete when the reading and the sweep have answered everything they can and what is still open is written down. A request they leave fully settled skips the steps below.
 
 ## 2. Blind spot pass
 
-The user may not know what questions to ask, what good looks like, or what potholes the lessons record. Find their unknown unknowns and explain each one in plain words, so they can steer the rest. Complete when every one found is explained to the user.
+The user may not know what to ask, what good looks like here, or which potholes the lessons already record. Name what they have not thought to ask, and explain each one in plain words so they can steer the rest. Complete when every one is explained to the user.
 
 ## 3. Brainstorms and prototypes
 
-When the scope is still open, brainstorm: ways to intervene, cheapest to most ambitious, with your recommendation; the user's reactions set the direction. A criterion the user only knows when they see it gets built instead of asked: rough prototypes in wildly different directions, sources and screenshots kept with the findings, and a wireframe only when nothing can render, layout and flow, never an image posing as the finished product. A decision that is open, costly, and settled by no cheap check goes to `bottega:panel`; its comparison of the drafts feeds the interview. Complete when the direction is chosen and its edges stated: what is in, what is out.
+While the scope is still open, put the options on the table, cheapest to most ambitious, and say which one you would take. The user's reactions set the direction.
+
+Some things the user can only judge by seeing, so build those instead of asking: rough prototypes in genuinely different directions, their sources and screenshots kept with the findings. Draw a wireframe only when nothing can be rendered, keep it to layout and flow, and never show an image posing as the finished product.
+
+A decision that is open, costly to reverse, and settled by no cheap check goes to `bottega:panel`; what it returns feeds the questions below.
+
+Complete when the direction is chosen and its edges are stated: what is in, and what is out.
 
 ## 4. Interviews
 
-Ask about the ambiguities that remain, one question at a time, architecture-changing first, each with your recommended answer so a reply is a yes or a correction. Every question stands on an explanation given in the same message, in the product's own words with a concrete example: what exists today, what each answer would change, and what it would cost. A term the user hasn't been given, whatever the run called it while exploring, is explained before it is used. "I don't understand" means the explanation was missing, not that the question was too long: explain fuller and ask again, never shorter. Complete when you can predict the user's acceptance decisions.
+Ask what is still ambiguous, one question at a time, the ones that change the architecture first, each with your recommended answer so a reply can be a yes or a correction.
+
+Every question carries its explanation in the same message, in the product's own words and with a concrete example: what happens today, what each answer would change, and what it would cost. Explain any term the user has not been given before you use it, whatever the run called it while exploring. "I don't understand" means the explanation was missing, not that the question was too long: explain more fully and ask again, never shorter.
+
+Complete when you can predict how the user will judge the finished work.
 
 ## 5. References
 
-When the user can't find words for what they want, ask for source code that does it their way, in any repo or language; it beats any description. Read what they point at; the pointer travels with the findings. Complete when no decision rests on words the user could not find.
+When the user can't find words for what they want, ask for code that already does it their way, in any repo or language; it beats any description. Read what they point at, and keep the pointer with the findings. Complete when no decision is waiting on words the user could not find.
 
-When no unknown is left unaddressed, hand the caller the direction, its edges, and each decision with its answer, together with the artifacts that settled them: the approved prototype sources, the screenshots, the references. The caller keeps them while the work is built; a brief that points at an approved render tells a builder more than prose describing it.
+When nothing is left open, hand the caller the direction, its edges, and every decision with its answer, plus the artifacts that settled them: the approved prototype sources, the screenshots, the references. The caller keeps them while the work is built, and a brief that points at an approved render tells a builder more than prose describing it.
 
-An autonomous run has no user: resolve each step from the repo's precedent and the standard way, recording each resolution with its reason.
+An autonomous run has no user: settle each step from the repo's precedent and the standard way, and record each settlement with its reason.
