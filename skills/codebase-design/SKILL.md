@@ -6,7 +6,7 @@ user-invocable: false
 
 # Codebase design
 
-Model the domain before arranging files.
+Work out the domain model, the concepts, their states, and the rules, before you design the modules and interfaces that implement it.
 
 ## Domain model
 
