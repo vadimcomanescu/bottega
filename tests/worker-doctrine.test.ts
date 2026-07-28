@@ -74,7 +74,10 @@ describe("portable worker doctrine", () => {
           ? read(file).replace(/^- Banned tic-words.*$/m, "")
           : read(file);
       if (source.includes("—")) violations.push(`${file}: em dash`);
+      // "bearing" and its plain-verb disguise ("what bears on the task"): one
+      // banned word, two suits. Say what the thing does to the work.
       if (/\bbearing\b/i.test(source)) violations.push(`${file}: prohibited word bearing`);
+      if (/\bbears? on\b/i.test(source)) violations.push(`${file}: prohibited phrase bears on`);
       if (/\bledger\b/i.test(source)) violations.push(`${file}: prohibited word ledger`);
     }
     expect(violations).toEqual([]);

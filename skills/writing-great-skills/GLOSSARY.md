@@ -182,7 +182,7 @@ _Avoid_: repetition, redundancy
 
 ### Relevance
 
-Whether a line still bears on what the skill does: the lens for what to keep. A line loses relevance either because it never bore on the task (mere exposition, or a **branch** that should be disclosed) or by going stale, drifting out of date as the behaviour or world it describes changes. Shorter skills are easier to keep relevant, because each line is cheaper to check. Distinct from **no-op**: relevance asks whether a line bears on the task, not whether it changes behaviour.
+Whether a line still says something about what the skill does: the lens for what to keep. A line loses relevance either because it never said anything about the task (mere exposition, or a **branch** that should be disclosed) or by going stale, drifting out of date as the behaviour or world it describes changes. Shorter skills are easier to keep relevant, because each line is cheaper to check. Distinct from **no-op**: relevance asks whether a line says something about the task, not whether it changes behaviour.
 
 _Avoid_: staleness, freshness
 

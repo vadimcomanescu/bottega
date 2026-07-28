@@ -56,7 +56,7 @@ Where the ladder decides _how far down_ a piece sits, **co-location** decides _w
 
 Keep each meaning in a **single source of truth**: one authoritative place, so changing the behaviour is a one-place edit.
 
-Check every line for **relevance**: does it still bear on what the skill does?
+Check every line for **relevance**: does it still say something about what the skill does?
 
 Then hunt **no-ops** sentence by sentence, not just line by line: run the no-op test on each sentence in isolation, and when one fails, delete the whole sentence rather than trim words from it. Be aggressive; most prose that fails should go, not be rewritten.
 

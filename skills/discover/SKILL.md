@@ -10,7 +10,20 @@ Find what the user couldn't tell you before anything is built: what the request 
 
 ## 1. Explore
 
-Read what the request settles and what the repo records about the code and the problem it touches, the lessons and decision records (`docs/lessons`, `docs/adr`) before deciding anything they already decided. Then sweep outward before you settle anything: fan out Opus workers with web search on, one per job that applies, to find the affected code and its precedent, how others already solved this, what the installed versions actually do, read from their own docs and source rather than from memory, and which agent skills this runtime has installed that bear on the task, each read and judged for what it would change here rather than listed, so the briefs that follow name the ones worth following. A worker returns findings, never a decision. Ask the user where they are in their thinking and what experience they have with this problem and this part of the code: their starting point sets which unknowns below they have and how much every later step must explain. A request this reading and sweeping shows fully settled runs none of the steps below. Complete when everything reading and sweeping can answer is answered and what stays open is listed.
+Read the request, then read what the repo already decided: its lessons and decision records (`docs/lessons`, `docs/adr`). Do not re-decide what they settled.
+
+Then send Opus workers out, one job each, web search on:
+
+- the code this touches, and how this repo already does things like it;
+- how other people solved this;
+- what the installed versions actually do, read from their own docs and source, never from memory;
+- which agent skills this runtime has installed for this work. A worker reads the skill and says what it would change here, not that it exists.
+
+A worker returns findings, never a decision.
+
+Ask the user where they are in their thinking and what experience they have with this problem and this part of the code. Their answer sets which unknowns below they have, and how much every later step has to explain.
+
+A request this reading and sweeping shows fully settled runs none of the steps below. Complete when everything reading and sweeping can answer is answered and what stays open is listed.
 
 ## 2. Blind spot pass
 
