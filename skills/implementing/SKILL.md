@@ -14,6 +14,8 @@ Read the brief, everything it points at (the design decisions, the domain terms,
 
 When the code you touch contradicts the brief (it names an interface the code does not have, a pattern it assumes is absent, a term means something else here), stop and ask the orchestrator, which answers and resumes you. Use the same channel for anything bigger than your dispatch (an interface change, another slice's files, a redesign) and for being stuck: three failed attempts is a question, not a fourth attempt.
 
+An edge case that pushes you off the brief but is too small to be worth a question: take the conservative option, keep going, and say what you changed and why in your report.
+
 ## Test-first
 
 Work in vertical slices. Write one failing test, watch it fail, then write the minimum code that passes it, and repeat. Never write the whole test list up front against imagined behavior.
