@@ -1,6 +1,12 @@
-# Codex dispatch
+---
+name: using-codex
+description: Run one task through the codex CLI, from launch to the report read back. Use whenever a dispatch routes work to codex.
+user-invocable: false
+---
 
-Launch a codex worker with the codex CLI, keep it visible while it runs, and read its report back. The dispatch site names the model, effort, and sandbox; the mechanics here are the same for every seat.
+# Using codex
+
+Run the given task through the codex CLI: launch it, keep it visible while it runs, and read its report back. Whoever dispatches names the model, effort, and sandbox; the mechanics here are the same for every dispatch.
 
 ## Launch
 
