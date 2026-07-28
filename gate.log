@@ -3,13 +3,13 @@
 > vitest run && npm run test:autoreview-vendor
 
 
- RUN  v4.1.9 /home/vadim/Code/bottega-wt-decide
+ RUN  v4.1.9 /home/vadim/Code/bottega-wt-plain
 
 
  Test Files  4 passed (4)
       Tests  44 passed (44)
-   Start at  01:09:48
-   Duration  1.36s (transform 181ms, setup 0ms, import 285ms, tests 1.80s, environment 0ms)
+   Start at  01:12:10
+   Duration  1.38s (transform 153ms, setup 0ms, import 274ms, tests 1.81s, environment 0ms)
 
 
 > bottega@0.1.0 test:autoreview-vendor
@@ -21,7 +21,7 @@
 test-review-harness: error: argument --engine: invalid choice: 'cursor' (choose from codex, claude, pi)
 ..................................................................................................................................................................................................................................
 ----------------------------------------------------------------------
-Ran 247 tests in 22.275s
+Ran 247 tests in 22.514s
 
 OK
 self-test fallback scope: ok
