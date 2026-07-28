@@ -4,4 +4,4 @@ What happened: 0.66.0's QA evidence for the model proxy was `test -e` path check
 
 The rule: the QA scenario for an adopted integration sends a real request through it and records the response; a check that only reads the integration's description verifies the description. Scenario design is where this fails, so the orchestrator checks the scenario names the mechanism, not its docs.
 
-Enforced: skills/qa/SKILL.md ("the verdict comes from behavior observed through that interface"); REVIEW.md.
+Enforced: skills/qa/SKILL.md ("take the verdict from behavior you observed through that interface"); REVIEW.md.

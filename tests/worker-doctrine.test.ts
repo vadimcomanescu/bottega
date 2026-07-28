@@ -79,6 +79,14 @@ describe("portable worker doctrine", () => {
       if (/\bbearing\b/i.test(source)) violations.push(`${file}: prohibited word bearing`);
       if (/\bbears? on\b/i.test(source)) violations.push(`${file}: prohibited phrase bears on`);
       if (/\bledger\b/i.test(source)) violations.push(`${file}: prohibited word ledger`);
+      // A semicolon in skills prose is two sentences wearing one. Code blocks
+      // and inline code keep their own syntax, so strip them before checking.
+      if (file.startsWith("skills/")) {
+        const prose = source
+          .replace(/```[\s\S]*?```/g, "")
+          .replace(/`[^`\n]*`/g, "");
+        if (prose.includes(";")) violations.push(`${file}: semicolon in prose`);
+      }
     }
     expect(violations).toEqual([]);
   });
@@ -335,10 +343,13 @@ describe("portable worker doctrine", () => {
     ).toContain("verifying each finding against the real code");
 
     const close = read("skills/close/SKILL.md");
-    expect(close).toContain("puts the rule where the repository enforces it best");
+    expect(close).toContain("put the rule where the repository enforces it best");
     expect(close).toContain("fix the ones in the run's scope and file one issue for the rest");
-    expect(close, "the run never merges by hand; it arms what the repository lands with").toContain(
-      "A run never merges a PR by hand and never approves one; it arms auto-merge on the PR it opens",
+    expect(close, "the run never merges by hand").toContain(
+      "Never merge a PR by hand and never approve one",
+    );
+    expect(close, "the run arms what the repository lands with").toContain(
+      "Arm auto-merge on the PR you open",
     );
     expect(close, "a held PR needs a check that enforces its label").toContain(
       "a required check that is red on this PR because the label is present",
