@@ -5,13 +5,19 @@ The vendored hardening suite guards its Java-dependent tests with
 shutil.which("java"), but macOS ships a /usr/bin/java stub that resolves and
 then fails with "Unable to locate a Java Runtime". When the stub cannot report
 a version, hide java from shutil.which so those tests skip as upstream
-intended. Vendored files are never edited; this runner is the bottega-owned
-seam around them.
+intended. The suites also build fixture repos with files like .env that a
+host's global gitignore or hooks can silently hide or reject, and the engine
+under test reads the host's global git config through HOME by design, so the
+runner points HOME and XDG_CONFIG_HOME at an empty directory and git's global
+and system config at the null device for every suite subprocess. Vendored
+files are never edited; this runner is the bottega-owned seam around them.
 """
 
+import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -29,6 +35,12 @@ def java_runs() -> bool:
 
 
 def main() -> int:
+    hermetic_home = tempfile.mkdtemp(prefix="vendor-suites-home-")
+    os.environ["HOME"] = hermetic_home
+    os.environ["XDG_CONFIG_HOME"] = hermetic_home
+    os.environ["GIT_CONFIG_GLOBAL"] = os.devnull
+    os.environ["GIT_CONFIG_SYSTEM"] = os.devnull
+
     if not java_runs():
         real_which = shutil.which
         shutil.which = lambda cmd, *a, **kw: (
