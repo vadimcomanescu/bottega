@@ -1,6 +1,6 @@
 # Glossary: writing great skills
 
-The domain model for what makes a skill great. A skill exists to make a stochastic system behave the same way every run, so **Predictability** is what every term below serves. This is the disclosed reference for [`writing-great-skills`](SKILL.md).
+The domain model for what makes a skill great. A skill exists to make a stochastic system behave the same way every run, so **Predictability** is what every term below serves. This is the disclosed reference for [`write-skills`](SKILL.md).
 
 The terms are grouped by axis: **Invocation** (how a skill is reached), **Information Hierarchy** (how its content is arranged), **Steering** (how the agent's runtime behaviour is shaped), and **Pruning** (how it is kept lean). Each **failure mode** lives beside the lever that cures it, tagged _failure mode_.
 

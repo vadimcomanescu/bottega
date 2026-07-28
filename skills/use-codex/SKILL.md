@@ -1,5 +1,5 @@
 ---
-name: using-codex
+name: use-codex
 description: Run one task through the codex CLI, from launch to the report read back. Use whenever a dispatch routes work to codex.
 user-invocable: false
 ---
