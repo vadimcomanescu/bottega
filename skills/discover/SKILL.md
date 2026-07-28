@@ -8,14 +8,12 @@ user-invocable: false
 
 Find what I could not tell you, before anything is built: what my request does not say, what I could not put into words, what neither of us thought to ask. Follow it too literally and you build what I wrote when a different approach was better. Read it too loosely and I get the generic answer where this product needed its own. I can only settle what I understand, so explain every unknown in plain words before you ask me to decide it.
 
-Read my request, then read what this repo already decided in its lessons and decision records (`docs/lessons`, `docs/adr`). Do not re-decide what they settled. Then send Opus workers out, one job each:
+Read my request, then read what this repo already decided in its lessons and decision records (`docs/lessons`, `docs/adr`). Then send Opus workers out, one job each, to return findings on:
 
 - the code this change touches, and how this repo already does things like it
-- how other people have solved this problem
+- online search how other people have solved this problem - we wanna follow proven patterns instead of reinventing the wheel
 - the libraries and tools the work will use: what the version installed here actually does, read from its own documentation and source rather than from memory
-- which agent skills this runtime has installed for work like this. A worker reads one and reports what it would change here, not that it exists.
-
-A worker returns findings, never a decision.
+- what relevant installed agent skills teach
 
 Ask me where I am in my thinking, and what experience I have with this problem and with this part of the code. My answer decides which of the unknowns below are mine, and how much everything later has to explain. The sweep is finished when the reading and the workers have answered everything they can and what is still open is written down. A request I leave fully settled skips everything below.
 
