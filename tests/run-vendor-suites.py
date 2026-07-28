@@ -35,9 +35,9 @@ def java_runs() -> bool:
 
 
 def main() -> int:
-    hermetic_home = tempfile.mkdtemp(prefix="vendor-suites-home-")
-    os.environ["HOME"] = hermetic_home
-    os.environ["XDG_CONFIG_HOME"] = hermetic_home
+    temp_home = tempfile.mkdtemp(prefix="vendor-suites-home-")
+    os.environ["HOME"] = temp_home
+    os.environ["XDG_CONFIG_HOME"] = temp_home
     os.environ["GIT_CONFIG_GLOBAL"] = os.devnull
     os.environ["GIT_CONFIG_SYSTEM"] = os.devnull
 
