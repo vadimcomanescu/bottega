@@ -52,25 +52,26 @@ Do not require autoreview for a change whose entire diff is prose-only internal 
 
 Autoreview is a closeout gate, not permission to rewrite the task.
 
-Before the first review, freeze a scope baseline: original request or issue, target branch, intended behavior, owner boundary, changed files, and non-test LOC. For inherited or already-bloated branches, use the intended PR diff as the baseline rather than accepting all existing branch drift.
+Before the first review, freeze a scope baseline: original request or issue, target branch, intended behavior, owner boundary, changed files, non-test LOC, and one sentence of threat model: the class of input the changed code answers for (accidental states, adversarial input, untrusted data). For inherited or already-bloated branches, use the intended PR diff as the baseline rather than accepting all existing branch drift.
 
 Before patching a finding, classify it:
 
 - **In-scope blocker**: the finding is introduced by the current diff, affects the same owner boundary, and can be fixed without changing the task's contract.
 - **Follow-up**: the finding is real but belongs to an adjacent bug class, sibling surface, cleanup, or broader hardening track.
 - **Stop-and-escalate**: the finding requires a new protocol/config/storage/public API contract, a different owner boundary, a release-process change, or a design choice outside the original request.
+- **Out of threat model**: the finding is real and even reproducible, but its failure scenario requires an actor or input class outside the baseline's threat model. Reject it by rule, record it with its reason in the review evidence, and do not dispatch a fix. A constructed repro proves reachability by an attacker, not by an accident; it does not move a finding into the model, and widening the model is a scope expansion only the owner grants.
 
 In a bottega maestro run, the maestro verifies each finding against the real code, then dispatches the accepted findings to one fresh builder, briefed as any builder with the implement doctrine, the findings, and the project's commands; the maestro never edits production code. That builder runs on opus-5. Outside a run, fix directly as this contract states.
 
 Stop patching and report the scope break instead of continuing when:
 
 - a narrow PR turns into an architecture change, protocol change, migration, or release-process change;
-- the diff grows past 2x the original files or non-test LOC without explicit approval to expand scope;
+- the diff grows past 2x the original files or non-test LOC without explicit approval to expand scope; compute both numbers against the frozen baseline before each fix dispatch, never judge growth by feel;
 - two review-triggered patch cycles have not converged; pause and reclassify every remaining finding before another edit;
 - the best fix is "define the canonical contract first" rather than another local inference layer;
 - fixing the accepted finding would make the PR no longer describe the same behavior, issue, or owner boundary.
 
-After the two-cycle pause, continue only when every remaining accepted finding is still an in-scope blocker. Otherwise preserve the useful analysis, identify the smallest safe landed subset if one exists, and open or request a follow-up for the larger fix. Do not keep committing speculative fixes just to satisfy the reviewer.
+After the two-cycle pause, continue only when every remaining accepted finding is still an in-scope blocker inside the threat model and the cycles are narrowing: each cycle's accepted findings fewer than the last, none reopening a fixed one. A series that is not narrowing is the reviewer's imagination keeping pace with the armor, not progress toward clean. Otherwise preserve the useful analysis, identify the smallest safe landed subset if one exists, and open or request a follow-up for the larger fix. Do not keep committing speculative fixes just to satisfy the reviewer.
 
 Do not stack or push review-triggered fix commits while scope classification or focused proof is unresolved. Keep exploratory edits local until the cycle is proven in scope; if scope breaks, remove them from the landing lane instead of preserving them as branch history.
 
@@ -146,7 +147,7 @@ Optional review context is first-class. Prompt files and datasets must be repo-r
 "$AUTOREVIEW" --mode branch --base origin/main --prompt-file review-notes.md --dataset evidence.json
 ```
 
-In a bottega maestro run the prompt carries the reviewed repository's root `REVIEW.md` when one exists and the fixed standards baseline ([references/smell-baseline.md](references/smell-baseline.md)), never the run's own design decisions. A decision record the run committed on the branch arrives in the bundle as changed content and is reviewed as any file; the isolation rule governs the prompt, not the diff. Write any prompt to a file outside the reviewed repo and pass it as `--prompt "$(cat <file>)"`; never paste PR text into the command source, and keep `--json-output` outside the reviewed repo.
+In a bottega maestro run the prompt carries the reviewed repository's root `REVIEW.md` when one exists, the fixed standards baseline ([references/smell-baseline.md](references/smell-baseline.md)), and the scope baseline's threat-model sentence, so the reviewer weighs each finding's reachability against the class of input the code answers for; never the run's other design decisions. A decision record the run committed on the branch arrives in the bundle as changed content and is reviewed as any file; the isolation rule governs the prompt, not the diff. Write any prompt to a file outside the reviewed repo and pass it as `--prompt "$(cat <file>)"`; never paste PR text into the command source, and keep `--json-output` outside the reviewed repo.
 
 If an open PR exists, use its actual base:
 
