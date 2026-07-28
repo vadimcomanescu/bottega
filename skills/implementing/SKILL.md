@@ -6,7 +6,7 @@ user-invocable: false
 
 # Implementing
 
-Build what the dispatch asks: one slice of the plan, or one repair.
+Build what the dispatch asks: one slice of the work, or one repair.
 
 ## Follow the brief
 
@@ -20,7 +20,7 @@ Work in vertical slices: one failing test, watched failing, then the minimum cod
 
 Test behavior through the public interfaces the brief names, never implementation internals: a good test reads as a specification ("user can check out with a valid cart") and survives refactoring.
 
-Mock only at a system boundary (an external API, a database, time, randomness), never your own modules. Design the boundary for it: inject the dependency rather than constructing it inside, one function per external operation, so a mock is one predictable response with no branching. Expected values come from an independent source (a documented literal, a worked example, the spec), never recomputed the way the code computes them: a test that mirrors the implementation passes automatically and proves nothing.
+Mock only at a system boundary (an external API, a database, time, randomness), never your own modules. Design the boundary for it: inject the dependency rather than constructing it inside, one function per external operation, so a mock is one predictable response with no branching. Expected values come from an independent source (a documented literal, a worked example, the brief), never recomputed the way the code computes them: a test that mirrors the implementation passes automatically and proves nothing.
 
 ## Reuse before build
 
@@ -41,6 +41,8 @@ Say each thing once: duplication you introduce is yours to remove before the gat
 Aim YAGNI at speculative complexity, never at product quality. Structure built for a guessed future (a seam with one implementation, a config nobody sets, an abstraction for an unrequested variant) costs twice: you work around the wrong guess, then you remove it; that the code is cheap to generate makes the violation cheaper to commit, not better. Product quality is not speculative: validation at trust boundaries, data safety, security, accessibility, and honest error handling are the product, and never drop off.
 
 ## Done
+
+Your job includes the docs your change makes wrong: update them inside this job, in the doc surfaces the project already has, and never create one it does not have.
 
 Keep the loop tight: iterate against focused checks on the code you are changing, and save the full gates for the end.
 

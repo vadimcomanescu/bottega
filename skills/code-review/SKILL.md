@@ -6,14 +6,6 @@ argument-hint: "<PR, ref range, or worktree>"
 
 # Code review
 
-Review one diff and leave nothing blocking at its head. The engine is vendored in this package: [references/autoreview.md](references/autoreview.md) carries the whole review mechanics and the obligations on the agent that uses it, and its helper lives in `scripts/`. Used standalone on a PR, ref range, or working diff, run that contract on the target and stop. A run's Review phase uses the full method below, and the orchestrator keeps the verdict: verifying findings and accepting or rejecting the head stay its call.
+Review one diff and leave nothing blocking at its head. The engine is vendored in this package: [references/autoreview.md](references/autoreview.md) carries the whole method (the run's both-family panel, the blind prompt, how a finding is classified blocker or follow-up, the fix dispatch to a fresh builder, and the rerun until nothing blocking remains) and the obligations on the agent that uses it; its helper lives in `scripts/`.
 
-## 1. Doc coverage
-
-Docs were updated inside each slice, so the only doc question here is coverage: does the diff change a user-facing surface whose docs did not change? A gap is a builder dispatch under `bottega:implementing`, before the review's base freezes; never create a doc surface the project doesn't have.
-
-## 2. The review
-
-Run the review per [references/autoreview.md](references/autoreview.md) on the integrated diff; that document carries the whole review method: the run's both-family panel, the blind prompt, the fix dispatch to a fresh builder, and the rerun until nothing blocking remains.
-
-Severity gates that loop. An accepted finding that blocks (correctness, security, data safety, a broken contract) goes to the fix dispatch and the rerun; a real finding below that bar is classified follow-up and filed, which leaves the head standing and the loop where it was.
+Run that contract on the target: a PR, a ref range, or the working diff when used on its own, the integrated diff when a run reaches its Review phase. In a run the orchestrator keeps the verdict, so verifying each finding against the real code and accepting or rejecting the head stay its call.

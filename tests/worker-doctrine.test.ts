@@ -87,14 +87,14 @@ describe("portable worker doctrine", () => {
     // file stays model-free, the references included, since a reference is
     // where a restated pin would go unnoticed and drift.
     const maestro = read("skills/maestro/SKILL.md");
-    expect(maestro, "the orchestrator model is named").toContain("orchestrated on fable-5");
-    expect(maestro, "Claude workers run on opus-5").toContain("Claude workers run on opus-5");
+    expect(maestro, "the orchestrator model is named").toContain("running on fable-5");
+    expect(maestro, "every dispatch names its worker's model").toContain(
+      "Every dispatch names its worker's model: Opus for the workers",
+    );
     expect(maestro, "the second opinion names its model and effort").toContain(
       "gpt-5.6-sol at high effort",
     );
-    expect(maestro, "fable is never dispatched as a worker").toContain(
-      "never dispatched as a worker",
-    );
+    expect(maestro, "fable is never a worker").toContain("never fable, which stays yours");
 
     const owned = new Set([
       "skills/maestro/SKILL.md",
@@ -107,13 +107,25 @@ describe("portable worker doctrine", () => {
       expect(named?.[0], `${file} names ${named?.[0]}; the dispatch site owns it`).toBe(undefined);
     }
     expect(read("skills/panel/SKILL.md"), "the panel names its own seats").toContain(
-      "opus-5 at max effort",
+      "one subagent on opus-5",
     );
+
+    // Effort is named only where a dispatch can carry it: the codex CLI's
+    // model_reasoning_effort flag. A subagent dispatch has no effort field, so
+    // a Claude worker's effort is a value nothing applies
+    // (docs/adr/0033-one-simple-maestro-code-is-the-record.md).
+    for (const file of filesUnder("skills", ".md")) {
+      if (file.startsWith("skills/code-review/")) continue;
+      const claudeEffort = read(file).match(/\b(opus-5|Opus)\b[^.\n]{0,40}?\beffort\b/);
+      expect(claudeEffort?.[0], `${file} gives a Claude worker an effort no dispatch carries`).toBe(
+        undefined,
+      );
+    }
 
     // The vendored engine names its engines and its fix builder itself; its
     // local scoping is recorded in THIRD_PARTY.md.
     const review = read("skills/code-review/references/autoreview.md");
-    expect(review).toContain("runs on opus-5 at medium");
+    expect(review).toContain("runs on opus-5");
     expect(review).toContain("--model codex=gpt-5.6-sol");
     expect(review).toContain("--model claude=claude-fable-5");
     expect(review, "the rerun engine never comes from the company that wrote the fix").toContain(
@@ -311,12 +323,13 @@ describe("portable worker doctrine", () => {
   it("pins the review interlock and its quantifiers", () => {
     const maestro = read("skills/maestro/SKILL.md");
     expect(maestro).toContain("bottega:code-review");
-    expect(maestro, "every finding is checked before acceptance").toContain(
-      "Check each finding against the real code before you accept it",
-    );
     expect(maestro, "a reversal names the verdict it reverses").toContain(
-      "names that verdict and the evidence that changed the call",
+      "naming the verdict it reverses when it reverses one",
     );
+    expect(
+      read("skills/code-review/SKILL.md"),
+      "every finding is verified against the real code before the head is accepted",
+    ).toContain("verifying each finding against the real code");
 
     const close = read("skills/close/SKILL.md");
     expect(close).toContain("puts the rule where the repository enforces it best");
@@ -342,7 +355,7 @@ describe("portable worker doctrine", () => {
     expect(autoreview).toContain("# Auto Review");
     expect(autoreview).toContain("two review-triggered patch cycles have not converged");
     // The woven run rules: blind prompt, fresh-builder fix dispatch, rerun to clean.
-    expect(autoreview).toContain("never the spec or the plan");
+    expect(autoreview).toContain("never the run's own design decisions");
     expect(autoreview).toContain(
       "dispatches the accepted findings to one fresh builder, briefed as any builder with the implementing doctrine, the findings, and the project's commands; the maestro never edits production code",
     );

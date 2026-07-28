@@ -16,7 +16,7 @@ Each smell reads what it is, then the fix:
 - **Repeated Switches**: the same switch or if-cascade on the same type recurs across the change. Replace with polymorphism, or one map both sites share.
 - **Shotgun Surgery**: one logical change forces scattered edits across many files in the diff. Gather what changes together into one module.
 - **Divergent Change**: one file or module edited for several unrelated reasons. Split so each module changes for one reason.
-- **Speculative Generality**: abstraction, parameters, or hooks added for needs the spec does not have. Delete it; inline back until a real need shows.
+- **Speculative Generality**: abstraction, parameters, or hooks added for needs the work does not have. Delete it; inline back until a real need shows.
 - **Message Chains**: long a.b().c().d() navigation the caller should not depend on. Hide the walk behind one method on the first object.
 - **Middle Man**: a class or function that mostly delegates onward. Cut it, call the real target directly.
 - **Refused Bequest**: a subclass or implementer that ignores or overrides most of what it inherits. Drop the inheritance, use composition.

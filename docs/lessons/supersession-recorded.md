@@ -4,4 +4,4 @@ What happened: on 2026-07-19 the model proxy was evaluated and declined for caus
 
 The rule: when a decision reverses an earlier verdict, the record that carries the decision (the spec or the ADR) states the supersession and the evidence that changed the call, in the same delivery. Recording, not gating: the owner's decision is already made; the record is so the trail exists.
 
-Enforced: skills/maestro/SKILL.md, Design ("names that verdict and the evidence that changed the call"); tests/worker-doctrine.test.ts ("pins the review interlock and its quantifiers").
+Enforced: skills/maestro/SKILL.md ("naming the verdict it reverses when it reverses one"); tests/worker-doctrine.test.ts ("pins the review interlock and its quantifiers").

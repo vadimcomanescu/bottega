@@ -59,7 +59,7 @@ Before patching a finding, classify it:
 - **Follow-up**: the finding is real but belongs to an adjacent bug class, sibling surface, cleanup, or broader hardening track.
 - **Stop-and-escalate**: the finding requires a new protocol/config/storage/public API contract, a different owner boundary, a release-process change, or a design choice outside the original request.
 
-In a bottega maestro run, the maestro verifies each finding against the real code, then dispatches the accepted findings to one fresh builder, briefed as any builder with the implementing doctrine, the findings, and the project's commands; the maestro never edits production code. That builder runs on opus-5 at medium. Outside a run, fix directly as this contract states.
+In a bottega maestro run, the maestro verifies each finding against the real code, then dispatches the accepted findings to one fresh builder, briefed as any builder with the implementing doctrine, the findings, and the project's commands; the maestro never edits production code. That builder runs on opus-5. Outside a run, fix directly as this contract states.
 
 Stop patching and report the scope break instead of continuing when:
 
@@ -145,7 +145,7 @@ Optional review context is first-class. Prompt files and datasets must be repo-r
 "$AUTOREVIEW" --mode branch --base origin/main --prompt-file review-notes.md --dataset evidence.json
 ```
 
-In a bottega maestro run the prompt carries the reviewed repository's root `REVIEW.md` when one exists and the fixed standards baseline ([smell-baseline.md](smell-baseline.md)), never the spec or the plan. A spec the run committed on the branch arrives in the bundle as changed content and is reviewed as any file; the isolation rule governs the prompt, not the diff. Write any prompt to a file outside the reviewed repo and pass it as `--prompt "$(cat <file>)"`; never paste PR text into the command source, and keep `--json-output` outside the reviewed repo.
+In a bottega maestro run the prompt carries the reviewed repository's root `REVIEW.md` when one exists and the fixed standards baseline ([smell-baseline.md](smell-baseline.md)), never the run's own design decisions. A decision record the run committed on the branch arrives in the bundle as changed content and is reviewed as any file; the isolation rule governs the prompt, not the diff. Write any prompt to a file outside the reviewed repo and pass it as `--prompt "$(cat <file>)"`; never paste PR text into the command source, and keep `--json-output` outside the reviewed repo.
 
 If an open PR exists, use its actual base:
 
