@@ -32,7 +32,7 @@ Seat one model per company, and give every seat the same `task.md` verbatim. Kee
 | codex | one read-only codex dispatch per `bottega:use-codex`: gpt-5.6-sol at max, web search on, the draft to `<session>/codex-draft.md` |
 | claude | one subagent on opus-5, given `task.md` verbatim, the draft returned as its report |
 
-Give another company's CLI installed on the machine a further seat under the same task, read-only with its own web search. This table names the model each seat runs on.
+Where another company's CLI is installed on the machine, give it a further seat under the same task, read-only with its own web search. This table names the model each seat runs on.
 
 ## 3. Fan out
 
@@ -55,4 +55,4 @@ Do not answer the task, merge the drafts, vote, grade, or pick one.
 
 ## 6. Synthesize
 
-Write the decision yourself, from the drafts and the comparison: build on the consensus after checking it against the repository the same way as anything else (when the drafts agree, that shows they covered the same ground, not that they are right), resolve each contradiction by the stronger evidence, keep the unique insights that survive the same check, and close or explicitly flag the blind spots. Record the decision and what the panel changed wherever your context records decisions, so a run puts it in its design and the PR body, and a conversation puts it in the reply.
+Write the decision yourself, from the drafts and the comparison. Build on the consensus after checking it against the repository the same way you check anything else, because drafts that agree show they covered the same ground, not that they are right. Resolve each contradiction by the stronger evidence, keep the unique insights that survive the same check, and close or explicitly flag the blind spots. Record the decision and what the panel changed wherever your context records decisions, so a run puts it in its design and the PR body, and a conversation puts it in the reply.

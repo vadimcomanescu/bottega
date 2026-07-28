@@ -8,7 +8,7 @@ argument-hint: "<repo root, or one doc>"
 
 Hold every sentence of a repo's agent docs to what a Claude 5 model actually needs told, and deliver the diff that removes the rest. The bar below is distilled from Anthropic's own guidance for this model generation.
 
-Read the target whole: the named doc, or the repo's agent surface (the root `CLAUDE.md` or `AGENTS.md`, and the skills and rules files it routes to), together with what else loads for the same reader, because you can only spot a fact stated in two places when both files are in front of you. Vendored and third-party text is out of scope. You are done reading when everything in scope is read.
+Read the target whole: the named doc, or the repo's agent surface (the root `CLAUDE.md` or `AGENTS.md`, and the skills and rules files it routes to), together with what else loads for the same reader. You can only spot a fact stated in two places when both files are in front of you. Vendored and third-party text is out of scope. You are done reading when everything in scope is read.
 
 Then judge. Every sentence gets one of three outcomes, and every cut names the test that fired:
 
@@ -16,6 +16,6 @@ Then judge. Every sentence gets one of three outcomes, and every cut names the t
 - **Keep** when it is a decision made (a model, a gate, a path, an ownership), a contract (a report shape, a verdict set, CLI mechanics), or a constraint pinning an observed failure or a costly mistake. Keep an always or a never only when it pins an observed failure or a costly mistake.
 - **Convert** when the form is wrong: prose describing an artifact becomes the artifact kept and pointed at, an example teaching a format becomes the schema or enum that enforces it, and detail only some readers need moves behind a loaded-on-demand file.
 
-When you are unsure about a sentence, decide by what kind of sentence it is. A constraint in doubt stays, because cutting a failure-pin re-runs the failure. A restatement in doubt is checkable against its neighbor, so check it.
+When you are unsure about a sentence, decide by what kind of sentence it is. A constraint in doubt stays, because cutting a failure-pin re-runs the failure. A restatement in doubt can be checked against its neighbor, so check it.
 
-Present the whole diff to me, each change naming the test that fired, and name what you audited clean, so I can tell you checked a file and found nothing rather than skipped it. Apply nothing silently. Once I have answered, apply exactly what was accepted, move any test pins quoting edited lines in the same change, and end with the repo's own checks green.
+Present the whole diff to me, each change naming the test that fired, and name what you audited clean, so I can see you checked a file and found nothing rather than skipping it. Apply nothing silently. Once I have answered, apply exactly what was accepted, move any test pins quoting edited lines in the same change, and end with the repo's own checks green.

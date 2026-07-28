@@ -32,13 +32,13 @@ All of this is verified on codex-cli 0.144. When a flag is in doubt, run `codex 
 
 ## Keep it visible
 
-Run the launch from your own turn as tracked background Bash: the harness holds a visible row from launch to exit and re-invokes you when it finishes, and stopping that task kills the run. Use one tracked command per worker, chain the setup steps (worktree prep, installs) inside it, and set an explicit timeout above the run's expected time (`bottega:setup` raises the shell ceiling so long runs fit). Keep the call in your own turn: a subagent asked to hold a long call backgrounds it and ends with a waiting stub, whatever its brief says, and a shell forked with `&` leaves an invisible orphan nothing reports on.
+Run the launch from your own turn as tracked background Bash. The harness holds a visible row from launch to exit and re-invokes you when it finishes, and stopping that task kills the run. Use one tracked command per worker, chain the setup steps (worktree prep, installs) inside it, and set an explicit timeout above the run's expected time (`bottega:setup` raises the shell ceiling so long runs fit). Keep the call in your own turn. A subagent asked to hold a long call backgrounds it and ends with a waiting stub, whatever its brief says, and a shell forked with `&` leaves an invisible orphan nothing reports on.
 
 Capture the session id as soon as the run starts with `grep -m1 "session id:" <log-file>`. Once you have the id saved, any recovery is deterministic.
 
 ## Liveness and recovery
 
-Read the log file's age for liveness: codex streams every command it runs and every message it writes there, so a log that has not grown while the task is still alive is a run making no progress. Check it with the harness's monitor primitive rather than a loop of your own, and give it a window wide enough for the slowest step your brief asks for (a full test suite is minutes of silence). Stop a run you judge stalled by stopping its task, which kills the process and its children, then resume it. Resume the same way after a run cut short any other way (the shell timeout ceiling, an interrupted session, a crash).
+Read the log file's age for liveness: codex streams every command it runs and every message it writes there, so a log that has not grown while the task is still alive is a run making no progress. Check it with the harness's monitor primitive rather than a loop of your own, and give it a window wide enough for the slowest step your brief asks for (a full test suite is minutes of silence). To stop a run you judge stalled, stop its task, which kills the process and its children, then resume it. Resume the same way after a run that was cut short for any other reason (the shell timeout ceiling, an interrupted session, a crash).
 
 ```bash
 (cd <worktree> && codex exec resume <session-id> --ignore-user-config \
@@ -47,7 +47,7 @@ Read the log file's age for liveness: codex streams every command it runs and ev
 ```
 
 - Resume by explicit session id, read from the log. `--last` filters by cwd and still races any parallel codex on the machine.
-- The session id is `resume`'s first positional argument. It has no `-s`, and no `-C` either. Carry the model, effort, and config isolation exactly as your launch did, re-assert the sandbox as `-c sandbox_mode="..."`, and give the worktree as the process cwd. A resume that omits any of them runs at the host config's values instead of your dispatch's: measured on a session pinned to `low` effort and `read-only`, a bare resume came back at the host's `xhigh` and `danger-full-access`. Whatever the dispatch site chose is what has to survive the recovery.
+- The session id is `resume`'s first positional argument. It has no `-s`, and no `-C` either. Carry the model, effort, and config isolation exactly as your launch did, re-assert the sandbox as `-c sandbox_mode="..."`, and give the worktree as the process cwd. A resume that omits any of them runs at the host config's values instead of your dispatch's: measured on a session pinned to `low` effort and `read-only`, a bare resume came back at the host's `xhigh` and `danger-full-access`. Whatever the dispatch site chose has to survive the recovery.
 - Sessions live in the machine's `CODEX_HOME` and die with it. Give a session that is gone a fresh dispatch, with a brief carrying whatever the interrupted run had already reported.
 - Resume to continue the same job (a follow-up fix, a recovery). Give a new job a fresh `codex exec`: a long session fed a new work order reads it as configuration and no-ops.
 
