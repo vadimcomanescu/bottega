@@ -41,7 +41,7 @@ One open, costly decision that no cheap check settles, put as the same task to i
 _Avoid_: panel for any critique of an existing answer
 
 **Owner**:
-The person the work is for: they give the request, approve the spec, and receive what only a person can clear. Prose inside a run says "the user" for this same person; prefer that word there.
+The person the work is for: they give the request, settle the unknowns with the run, and receive what only a person can clear. A skill the run uses while they are in the conversation is written in their voice, so it says "I" and "me" for this same person. A skill dispatched to a fresh worker has no one in the room and names the orchestrator instead.
 _Avoid_: owner for the session that claims a run (that meaning belongs to the owner file below)
 
 **Owner file**:
