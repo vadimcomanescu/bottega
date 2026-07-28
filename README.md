@@ -20,7 +20,7 @@ Start a run with `/bottega:maestro <task, or issue URL>`.
 | Skill | Command | What it does |
 | --- | --- | --- |
 | maestro | `/bottega:maestro <task, or issue URL>` | The whole run: discovery, design, a codex second opinion, build, review, QA, and a PR ready to merge |
-| improve | `/bottega:improve [area or direction]` | Scan for deepening opportunities, agree the strongest candidate, file it, and take it through a run |
+| improve | `/bottega:improve [area or direction]` | Scan for deepening opportunities, agree the strongest candidate, and take it through a run |
 | code-review | `/bottega:code-review <PR, ref range, or worktree>` | Review the working diff, a ref range, or a PR through the vendored review gate |
 | panel | `/bottega:panel <the decision>` | Produce independent drafts from different companies' models and a compare-only judgment |
 | setup | `/bottega:setup` | Reconcile the project and register the harness once per repo |
