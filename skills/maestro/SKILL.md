@@ -6,48 +6,18 @@ argument-hint: "<task, or issue URL>"
 
 # Maestro
 
-Take one piece of work (a run) from request to a PR ready to merge, as its orchestrator. Make every judgment call yourself: the design, deciding which review findings are real, and accepting or rejecting the finished code. Workers write the production code; code you write yourself gets reviewed like any worker's. When the user says to run autonomously, deliver straight through without stopping to ask, settling the user's part as each phase's method says; how big the work is never changes that.
+Take this to a green PR: `$ARGUMENTS`. Ask me first whether to hold it or let it merge itself on green, and check you are running on fable-5; if you are not, tell me you should switch and go on only when I say it is fine. Keep the conversation simple the whole way, no jargon, one human talking to another. Start the work with `bottega:open`, which sets everything up: the run's own worktree and branch, the owner and my answer recorded, the repo's commands read from its map. Every dispatch names its worker's model: Opus for the workers, gpt-5.6-sol for the codex reads, never fable, which stays yours. When the codex CLI cannot serve one of those reads, a fresh Opus worker takes it and the PR says so.
 
-Everything the user reads from you is one human talking to another: simple, concise, no jargon, what happened rather than a label for it. A domain term the reader needs is used the way the repo's `CONTEXT.md` defines it, its meaning plain in the sentence; invent no vocabulary of your own.
+Run discovery with me, per `bottega:discover`. It is time to discover the unknowns and get everything clear: Opus workers out to look at the code, search online for how this is already solved, and judge which installed agent skills are relevant here, then the unknowns settled between us, with prototypes wherever I will only know it when I see it. What discovery produces stays with the run while you build, briefs pointing at it and QA judging against it, and never merges.
 
-Check your model before anything else. A run is orchestrated from Claude Code on fable-5 at xhigh. On any other model or harness, stop and tell the user; offer opus-5 at xhigh when fable-5 is unavailable, and continue only when the user says so.
+You own the code design and every important decision along the way; take a look at `bottega:codebase-design`. Put a decision to `bottega:panel` when its three conditions hold: open, costly to reverse after merge, and settled by no cheap check. Make sure the acceptance criteria and the definition of done are clear and measurable, and where a criterion can be enforced it ships as a test. A decision that is hard to reverse, surprising without context, and a real trade-off lands its ADR in the repo's decision home in the same diff, naming the verdict it reverses when it reverses one. Then decide the work to be done, clearly, in vertical slices that subagents can do independently, in parallel as much as possible and reasonably small.
 
-Every dispatch names the model and effort from its row of the worker table, [references/workers.md](references/workers.md). A worker that fails what it was asked for gets one rerun, and only after you work out why it failed; that rerun is the one dispatch allowed a model its row does not give it. Use dynamic workflows for the phases that are many independent jobs at once (exploration, checking review findings), and every `agent()` call in one still names its worker's model from the table, which the route guard enforces.
+When everything is clear and you have a clear picture of what and how you want to do it, get a second opinion: one read-only codex dispatch, gpt-5.6-sol at high effort, per [references/codex-dispatch.md](references/codex-dispatch.md), given the discovery discussion, your architecture, and your execution plan, and told this: "Would a strong maintainer, after seeing both the current plan and your proposed change, clearly agree that your revision is necessary to satisfy the user or materially better for durable engineering reasons? If yes, revise. If no, the plan is ready." Take what you accept; the design stays yours.
 
-## 1. Launch
+Fan out to Opus subagents, each tackling its own slice, following `bottega:implementing` for good engineering practice. Parallel slices work in their own worktrees so they never overlap. Tell them they are autonomous: they manage the slice as needed and can fan out themselves when it is too much, and when they genuinely hit a blocker or a doubt they ask you back, because this is collaboration to get things done the right way. Each one hands you its slice with the gates green, so each brief carries the repo's quality gates. For every builder, dispatch a fresh Opus reviewer over what it built, architecture and code quality included; the builder fixes the findings and reports the gates green again. You integrate the slices yourself.
 
-Settle how the PR ends before anything else: it merges itself once the checks are green, or it waits for the user. The request usually says which. "Land it" means merge on green, and "hold this" means wait. "Autonomous" answers a different question: it means work without stopping to ask, not merge without asking. When the request says neither, ask the user outright, offering those two answers, and wait for the reply; never guess it and never fall back to one. Then use `bottega:open`, which isolates the run and records the answer for close. Every phase below runs inside that worktree, under the guard that reads its owner file.
+On the final diff run `bottega:code-review`, and dispatch the fixes to Opus builders under `bottega:implementing`. When that is clean, dispatch Opus subagents to `bottega:qa` to go through every visible product surface the work touched the way a user would; triage what comes back, dispatch Opus fixers, and /loop this on the failed scenarios until they are all green.
 
-## 2. Discover
+Then close the work with `bottega:close`: held or merging on green as I answered at the start, a PR description a person can read that says what happened, the QA evidence linked, and the PR watched until green with fixes dispatched for what turns it red.
 
-Use `bottega:discover` to find and settle the unknowns.
-
-## 3. Choose which phases run
-
-Read what discovery found, decide which phases below this work needs, and tell the user what you decided. A phase runs when discovery left one of its questions open, or when getting it wrong would be expensive to undo. The more discovery settled, the less spec and plan have left to say: where the work is small but a mistake would be costly, a paragraph of fixed decisions replaces both documents; where nothing is open and a mistake is cheap to undo, neither document is written, and the work is built in your own turns or by one builder and taken straight to Review. Change this decision whenever the work proves it wrong: work that turns out to hide an open question or a costly call goes back to Spec, and a phase whose questions get settled mid-run shrinks to what is left.
-
-## 4. Spec
-
-Use `bottega:spec` to agree the spec and commit it.
-
-## 5. Plan
-
-Use `bottega:plan` to fix what the builders must not decide.
-
-## 6. Build
-
-Use `bottega:build` to deliver the slices. When a worker hits a case the plan did not anticipate, it asks you: choose the cautious option, note on the plan what was done differently and why, and let the worker continue. Review reads those notes; work with no plan carries them in the PR body.
-
-## 7. Review
-
-Use `bottega:code-review` on the integrated diff. Check every finding against the real code yourself, and check what the run built against every fixed decision in the plan, against the spec's decisions when there is no plan, and against the request plus the decisions phase 3 recorded when there is neither. Accepting or rejecting the reviewed code is your call.
-
-## 8. QA
-
-Use `bottega:qa` on the accepted head and every product scenario the work changed, taken from the agreed spec's behaviors, the diff, and the repo's tagged end-to-end suite (the changed flows, plus any the diff touches). QA reports everything that came out wrong in one batch. Work out the cause of each and route it: a coding defect goes back to a builder, with the defect and its evidence in the brief; a wrong spec, domain model, or architecture goes back to Plan. A repair updates the docs its change touches, ends with the gates green, and goes through review and your acceptance again, then a fresh QA drive covering what `bottega:qa` says a re-drive covers.
-
-## 9. Close
-
-First check the work is actually finished: for every requirement in the spec, point at the evidence that proves it (a file, a command's output, a QA verdict), and treat anything you cannot prove as not done. Then use `bottega:close`, sending every failure the diff caused through the repair path phase 8 describes. When close stops at something only a person can clear, tell the user what it is and leave the branch and its PR standing for them.
-
-The run's state is the worktree, its plan, its commits, and the PR; a later session picks it up by reading them, re-running `bottega:open` against the branch, and committing any finished worker output it finds. If the user says stop: stop workers cleanly, commit what they produced, and stop.
+A worker that fails what you asked gets one rerun, once you have worked out why it failed. The run's state is the worktree, its commits, and the PR, so a later session picks it up from those. If I say stop, stop the workers, commit what they finished, and stop.

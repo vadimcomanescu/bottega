@@ -1,6 +1,6 @@
 ---
 name: qa
-description: Drive the shipped interface and return a product verdict per changed scenario. A run reaches here at its QA phase after architecture acceptance, and at a landed slice's drive during Build; not user-invocable.
+description: Drive the shipped interface and return a product verdict per changed scenario. A run reaches here at its QA phase, after the review's head is accepted; not user-invocable.
 user-invocable: false
 ---
 
@@ -26,7 +26,7 @@ A re-drive after a repair covers the scenarios that failed and the scenarios the
 
 ## Stay inside QA
 
-Repair only disposable drive setup and evidence capture. Never edit product code, product tests, the spec, the domain glossary, or the plan.
+Repair only disposable drive setup and evidence capture. Never edit product code, product tests, the domain glossary, or the run's design records.
 
 ## Report
 
