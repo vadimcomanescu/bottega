@@ -33,6 +33,9 @@ One vertical unit of the work with named owned files, buildable and gated on its
 **Gate**:
 A project command whose green result a change must hold: format, lint, typecheck, tests, build. The map is the commands' one home.
 
+**Threat model**:
+The sentence a check, gate, or validator ships with, naming the class of input it answers for (accidental states, adversarial input, untrusted data) and what it deliberately does not catch. The review judges each finding's reachability against it: a finding whose failure scenario needs an actor outside the model is real but not work.
+
 **Second opinion**:
 The fresh codex read of the run's settled design and execution plan before building, held to one bar: revise only where a strong maintainer would clearly agree the revision is necessary or materially better; otherwise the plan is ready.
 

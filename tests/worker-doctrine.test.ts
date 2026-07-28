@@ -367,7 +367,9 @@ describe("portable worker doctrine", () => {
     const autoreview = read("skills/code-review/SKILL.md");
     expect(autoreview).toContain("two review-triggered patch cycles have not converged");
     // The woven run rules: blind prompt, fresh-builder fix dispatch, rerun to clean.
-    expect(autoreview).toContain("never the run's own design decisions");
+    expect(autoreview).toContain("never the run's other design decisions");
+    expect(autoreview).toContain("one sentence of threat model");
+    expect(autoreview).toContain("**Out of threat model**");
     expect(autoreview).toContain(
       "dispatches the accepted findings to one fresh builder, briefed as any builder with the implement doctrine, the findings, and the project's commands; the maestro never edits production code",
     );
