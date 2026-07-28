@@ -8,7 +8,7 @@ user-invocable: false
 
 Find what I could not tell you, before anything is built: what my request does not say, what I could not put into words, what neither of us thought to ask. Follow it too literally and you build what I wrote when a different approach was better. Read it too loosely and I get the generic answer where this product needed its own. I can only settle what I understand, so explain every unknown in plain words before you ask me to decide it.
 
-Read my request, then read what this repo already decided in its lessons and decision records (`docs/lessons`, `docs/adr`), and take what they settled as settled. Then send Opus workers out, one job each, to return findings on:
+Read what this repo already decided in its lessons and decision records (`docs/lessons`, `docs/adr`), and take what they settled as settled. Then send Opus workers out, one job each, to return findings on:
 
 - the code this change touches, and how this repo already does things like it
 - how other people already solved this, searched online, so the build takes a proven pattern rather than an invented one
@@ -23,7 +23,7 @@ While the scope is still open, put the options on the table, cheapest to most am
 
 Ask me what is still ambiguous, one question at a time, the ones that change the architecture first, each with your recommended answer so my reply can be a yes or a correction. Every question carries its explanation in the same message, in the product's own words and with a concrete example: what happens today, what each answer would change, and what it would cost. Explain any term I have not been given before you use it, whatever the run called it while exploring. "I don't understand" means the explanation was missing, not that the question was too long: explain more fully and ask again, never shorter. Keep asking until you can predict how I will judge the finished work.
 
-When I cannot find words for what I want, ask me for code that already does it my way, in any repo or language. It beats any description. Read what I point at.
+When I cannot find words for what I want, ask me for code that already does it my way, in any repo or language. It beats any description.
 
 Keep everything that settled a decision for as long as you are building: the approved prototype sources, their screenshots, the references I pointed at. A brief that points at a render I approved tells a builder more than prose describing it.
 
