@@ -15,7 +15,9 @@ Read this repo's lessons and decision records (`docs/lessons`, `docs/adr`). Send
 - the libraries and tools the work will use: what the version installed here actually does, read from its own documentation and source rather than from memory
 - what the relevant installed agent skills would change here, not that they exist
 
-Ask me where I am in my thinking, and what experience I have with this problem and with this part of the code. Where the work turns on something I do not know, teach me that first, in as much depth as judging your choices takes: I cannot steer a decision whose terms I do not hold. The sweep is finished when the reading and the workers have answered everything they can and what is still open is written down. A request I leave fully settled skips everything below.
+You are finished here when the reading and the workers have answered everything they can and what is still open is written down. A request I leave fully settled skips everything below.
+
+Ask me where I am in my thinking, and what experience I have with this problem and with this part of the code. Where the work turns on something I do not know, teach me that first, in as much depth as judging your choices takes: I cannot steer a decision whose terms I do not hold.
 
 Name my blind spots: what I have not thought to ask, each explained in plain words, until you have covered all of them.
 
