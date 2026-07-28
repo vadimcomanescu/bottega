@@ -351,8 +351,11 @@ describe("portable worker doctrine", () => {
     expect(close, "the run arms what the repository lands with").toContain(
       "Arm auto-merge on the PR you open",
     );
-    expect(close, "a held PR needs a check that enforces its label").toContain(
-      "a required check that is red on this PR because the label is present",
+    expect(close, "a held PR needs the repository enforcing its label, queue or check").toContain(
+      "a merge queue that refuses the PR while the label is present",
+    );
+    expect(close, "the fallback hold shape stays accepted").toContain(
+      "a required check that is red because the label is present",
     );
     expect(close, "a hold run's PR arrives carrying its label").toContain("--label hold");
     expect(close, "a requirement only a person can satisfy ends the run at an open PR").toContain(
