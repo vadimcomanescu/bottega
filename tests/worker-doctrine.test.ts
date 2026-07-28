@@ -63,7 +63,7 @@ describe("portable worker doctrine", () => {
         (path) =>
           path !== "skills/code-review/SKILL.md" &&
           !path.startsWith("skills/code-review/tests/") &&
-          !path.startsWith("skills/codebase-design/references/"),
+          !path.startsWith("skills/architect/references/"),
       ),
     ];
 
