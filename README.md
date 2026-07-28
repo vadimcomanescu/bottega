@@ -54,7 +54,7 @@ Nothing else is assumed about the project. A run leaves nothing behind but the P
 
 ## How workers run
 
-Claude workers are ordinary subagents, each naming its model. The GPT cross-reads run as plain `codex exec` calls ([the codex dispatch method](skills/maestro/references/codex-dispatch.md)) that the orchestrator drives from its own turn as tracked background Bash, so every worker holds a visible row for its whole run and its completion re-invokes the orchestrator. Long builds are covered by raising the shell timeout ceiling in settings (`bottega:setup`) and by resuming a cut-short thread; a subagent never holds one of these calls, because it backgrounds it and returns a stub ([`docs/lessons/no-subagent-holds-a-long-dispatch.md`](docs/lessons/no-subagent-holds-a-long-dispatch.md)). A run whose machine lacks the codex CLI or its login runs those reads on fresh Claude workers instead, and the PR records the gap.
+Claude workers are ordinary subagents, each naming its model. The GPT cross-reads run as plain `codex exec` calls ([`skills/using-codex`](skills/using-codex/SKILL.md)) that the orchestrator drives from its own turn as tracked background Bash, so every worker holds a visible row for its whole run and its completion re-invokes the orchestrator. Long builds are covered by raising the shell timeout ceiling in settings (`bottega:setup`) and by resuming a cut-short thread; a subagent never holds one of these calls, because it backgrounds it and returns a stub ([`docs/lessons/no-subagent-holds-a-long-dispatch.md`](docs/lessons/no-subagent-holds-a-long-dispatch.md)). A run whose machine lacks the codex CLI or its login runs those reads on fresh Claude workers instead, and the PR records the gap.
 
 ## Design decisions
 
