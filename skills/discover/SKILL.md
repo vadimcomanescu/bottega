@@ -8,7 +8,7 @@ user-invocable: false
 
 Find what I could not tell you, before anything is built: what my request does not say, what I could not put into words, what neither of us thought to ask. Follow it too literally and you build what I wrote when a different approach was better. Read it too loosely and I get the generic answer where this product needed its own. I can only settle what I understand, so explain every unknown in plain words before you ask me to decide it.
 
-Read what this repo already decided in its lessons and decision records (`docs/lessons`, `docs/adr`), and take what they settled as settled. Then send Opus workers out, one job each, to return findings on:
+Read this repo's lessons and decision records (`docs/lessons`, `docs/adr`). Send Opus workers out, one job each, to return findings on:
 
 - the code this change touches, and how this repo already does things like it
 - how other people already solved this, searched online, so the build takes a proven pattern rather than an invented one
