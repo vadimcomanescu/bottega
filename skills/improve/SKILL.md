@@ -44,4 +44,4 @@ When I reject a candidate for a reason a future scan would need, offer to record
 
 ## 6. Run it
 
-On my pick, sharpen the candidate with me until its acceptance criteria are measurable, then take it through `bottega:maestro`, handing over the friction evidence, the agreed change, and the criteria. The scan was the discovery, so the run starts at the design.
+On my pick, sharpen the candidate with me until its acceptance criteria are measurable, then take it through `bottega:maestro`, handing over the friction evidence, the agreed change, and the criteria.
