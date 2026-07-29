@@ -131,6 +131,57 @@ describe("route guard codex dispatch rule", () => {
       expect(run(ownedEvent({ command }, "Bash"))).toBe("");
     }
   });
+
+  it("denies an owner-session companion task without a model", () => {
+    const reason = claudeDenial(
+      run(ownedEvent({ command: 'node "/plugin/scripts/codex-companion.mjs" task --background "review the diff"' }, "Bash")),
+    );
+    expect(reason).toMatch(/codex dispatch names no model/i);
+    expect(reason).toMatch(/opus-5/);
+  });
+
+  it("denies an owner-session companion task routed to fable", () => {
+    const reason = claudeDenial(
+      run(
+        ownedEvent(
+          { command: 'node "/plugin/scripts/codex-companion.mjs" task --model claude-fable-5 "review the diff"' },
+          "Bash",
+        ),
+      ),
+    );
+    expect(reason).toMatch(/fable/i);
+  });
+
+  it("allows an owner-session companion task naming a model, resume included", () => {
+    for (const command of [
+      'node "/plugin/scripts/codex-companion.mjs" task --model gpt-5.6-sol --effort xhigh --background "review the diff"',
+      'node "/plugin/scripts/codex-companion.mjs" task --resume-last --model gpt-5.6-sol --write "fix the finding"',
+    ]) {
+      expect(run(ownedEvent({ command }, "Bash"))).toBe("");
+    }
+  });
+
+  it("ignores companion subcommands other than task in an owner session", () => {
+    for (const command of [
+      'node "/plugin/scripts/codex-companion.mjs" status job-7 --wait --timeout-ms 900000',
+      'node "/plugin/scripts/codex-companion.mjs" result job-7',
+      'node "/plugin/scripts/codex-companion.mjs" cancel job-7',
+      'node "/plugin/scripts/codex-companion.mjs" task-resume-candidate --json',
+    ]) {
+      expect(run(ownedEvent({ command }, "Bash"))).toBe("");
+    }
+  });
+
+  it("allows a companion task from a non-owner session", () => {
+    expect(
+      run({
+        cwd: repoWithRun(OWNER),
+        session_id: "bystander-session",
+        tool_name: "Bash",
+        tool_input: { command: 'node "/plugin/scripts/codex-companion.mjs" task "review the diff"' },
+      }),
+    ).toBe("");
+  });
 });
 
 describe("route guard workflow rule", () => {
