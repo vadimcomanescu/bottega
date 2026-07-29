@@ -16,7 +16,7 @@ Configure Claude Code. Anything missing, report it rather than installing it sil
 - **Codex CLI.** Verify `codex` is installed and logged in (`codex login status`). The run's GPT cross-reads go through it.
 - **Skill discovery.** Claude Code installs the plugin from this repo's marketplace (the README's install commands). Confirm it lists the bottega skills. When it does not, walk me through the install commands rather than symlinking anything.
 - **Route guard.** Confirm the guard from `hooks/` is registered.
-- **Dispatch timeout ceiling.** The orchestrator runs a codex worker as one tracked background shell call, so the shell timeout ceiling must exceed the longest expected run. Read the current variable from the harness's environment-variable documentation (`BASH_MAX_TIMEOUT_MS` at last claim). Set it in the settings `env` block to a few hours. Leave the default timeout alone, so ordinary commands keep their short limit. Verify it with one live call whose requested timeout exceeds ten minutes.
+- **Dispatch timeout ceiling.** The orchestrator watches a codex job with one tracked background shell call that waits for the whole run, so the shell timeout ceiling must exceed the longest expected run. Read the current variable from the harness's environment-variable documentation (`BASH_MAX_TIMEOUT_MS` at last claim). Set it in the settings `env` block to a few hours. Leave the default timeout alone, so ordinary commands keep their short limit. Verify it with one live call whose requested timeout exceeds ten minutes.
 
 ## 2. Discover what the repo already has
 

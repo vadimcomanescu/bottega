@@ -4,6 +4,6 @@ What happened: run #524 (nadicodeai, 2026-07-23) launched codex workers through 
 
 The rule: a shell-out dispatch runs from the orchestrator's own turn, as tracked background Bash with a resume chain. A subagent never holds a shell-out longer than a routine command.
 
-Enforced: skills/use-codex/SKILL.md (the harness-visibility rule) and docs/adr/0022-codex-dispatch-is-mechanics-only.md.
+Enforced: skills/use-codex/SKILL.md (a long dispatch goes out `--background`, the subagent returns the receipt in seconds, and the orchestrator holds the watch) and docs/adr/0038-codex-dispatches-run-through-the-vendored-runtime.md.
 
 Related: [subagent-background-work-dies-silently](subagent-background-work-dies-silently.md), docs/adr/0020-dispatch-from-the-orchestrators-turn.md.

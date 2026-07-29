@@ -5,6 +5,10 @@ import { isAbsolute, join } from "node:path";
 
 const FABLE = /fable/i;
 const MODEL_LITERAL = /\bmodel\s*:\s*(['"])([^'"]*)\1/;
+const MODEL_FLAG = /(?:^|\s)(?:-m|--model)[=\s]+(\S+)/;
+// The companion runtime takes its subcommand first, so only "task" starts a run.
+// "task-worker" and "task-resume-candidate" are other subcommands and pass.
+const COMPANION_TASK = /codex-companion\.mjs["']?\s+task(?![\w-])/;
 
 const NAME_IT = "Name the worker's model (Claude workers run on opus-5) and retry.";
 const DIRECT_UNPINNED = `This live run dispatch names no model. ${NAME_IT}`;
@@ -143,8 +147,9 @@ if (!ownsLiveRun(cwd, session)) process.exit(0);
 
 if (event.tool_name === "Bash") {
   const command = typeof input.command === "string" ? input.command : "";
-  if (!/\bcodex\s+exec\b/.test(command) || command.includes("--help")) process.exit(0);
-  const model = command.match(/(?:^|\s)(?:-m|--model)[=\s]+(\S+)/)?.[1] ?? "";
+  const exec = /\bcodex\s+exec\b/.test(command) && !command.includes("--help");
+  if (!exec && !COMPANION_TASK.test(command)) process.exit(0);
+  const model = command.match(MODEL_FLAG)?.[1] ?? "";
   if (!model) {
     deny(CODEX_UNPINNED);
     process.exit(0);
