@@ -27,6 +27,6 @@ Ask me what is still ambiguous, one question at a time, the ones that change the
 
 When I cannot find words for what I want, ask me for code that already does it my way, in any repo or language. That tells you more than anything I could describe.
 
-Keep everything that settled a decision for as long as you are building: the approved prototype sources, their screenshots, the references I pointed at. Point a builder's brief at a render I approved instead of describing it in prose.
+Keep everything that settled a decision for as long as you are building: the approved prototype sources, their screenshots, the references I pointed at. Point a builder's brief at a render I approved instead of describing it in prose. None of it merges: once its record has landed in the tests, the decision records, the agent map, and the PR body, delete it before the PR opens.
 
 When the run is autonomous I am not there: settle each step from the repo's precedent and the standard way, and record each settlement with its reason.
