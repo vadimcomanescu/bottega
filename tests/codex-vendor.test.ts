@@ -6,7 +6,7 @@ import { parse as parseYaml } from "yaml";
 const ROOT = join(import.meta.dirname, "..");
 
 const VENDORED_FILES = [
-  "agents/codex-rescue.md",
+  "agents/codex.md",
   "skills/codex-cli-runtime/SKILL.md",
   "skills/codex-cli-runtime/LICENSE",
   "skills/codex-cli-runtime/NOTICE",
@@ -54,9 +54,9 @@ describe("vendored codex runtime installation", () => {
   });
 
   it("names the subagent and the model the orchestrator dispatches", () => {
-    const agent = read("agents/codex-rescue.md");
+    const agent = read("agents/codex.md");
     const frontmatter = parseYaml(agent.split("---")[1]);
-    expect(frontmatter.name).toBe("codex-rescue");
+    expect(frontmatter.name).toBe("codex");
     expect(frontmatter.model).toBe("sonnet");
   });
 
@@ -84,13 +84,13 @@ describe("vendored codex runtime installation", () => {
 
   it("keeps the recorded scoping of the vendored prose", () => {
     const runtime = read("skills/codex-cli-runtime/SKILL.md");
-    expect(runtime).toContain("`bottega:codex-rescue`");
+    expect(runtime).toContain("`bottega:codex`");
     expect(runtime).toContain("pass it through to `task`");
     expect(runtime).toContain("`--cwd <path>`");
     expect(runtime).toContain("`max`, `ultra`");
-    const agent = read("agents/codex-rescue.md");
+    const agent = read("agents/codex.md");
     expect(agent).toContain("Treat `--background` and `--cwd <path>` as runtime controls too");
-    expect(read("skills/gpt-5-4-prompting/SKILL.md")).toContain("`bottega:codex-rescue`");
+    expect(read("skills/gpt-5-4-prompting/SKILL.md")).toContain("`bottega:codex`");
   });
 
   it("registers the session lifecycle hook on both ends of a session", () => {

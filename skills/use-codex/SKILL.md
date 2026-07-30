@@ -10,7 +10,7 @@ Run the given task through the codex runtime: dispatch it, watch it to the end, 
 
 ## Dispatch
 
-In Claude Code, send the work to the `bottega:codex-rescue` subagent, naming the model the dispatch that sent you here carries for it. That subagent is a forwarder: it makes one call to `node "${CLAUDE_PLUGIN_ROOT}/scripts/codex-companion.mjs" task ...` and returns its stdout to you unchanged. On a harness without subagents or a plugin root, make that `task` call yourself with the same controls. Your dispatch is the brief plus the controls it forwards:
+In Claude Code, send the work to the `bottega:codex` subagent, naming the model the dispatch that sent you here carries for it. That subagent is a forwarder: it makes one call to `node "${CLAUDE_PLUGIN_ROOT}/scripts/codex-companion.mjs" task ...` and returns its stdout to you unchanged. On a harness without subagents or a plugin root, make that `task` call yourself with the same controls. Your dispatch is the brief plus the controls it forwards:
 
 - `--model <model> --effort <effort>`, in every dispatch. The forwarder leaves both unset otherwise, which runs codex at the machine's defaults, and the route guard denies a codex dispatch that names no model. The runtime accepts `none`, `minimal`, `low`, `medium`, `high`, `xhigh`, `max`, and `ultra`, but the API serving the pinned model may accept fewer, and a rejected effort fails the job at start, so pin an effort the model serves. `--model spark` is the alias for `gpt-5.3-codex-spark`.
 - The words "read-only" when the run must not write. The forwarder makes a run write-capable (`--write`) by default, so a cross-read that leaves this out comes back able to edit the tree.
