@@ -54,7 +54,7 @@ Nothing else is assumed about the project. A run leaves nothing behind but the P
 
 ## How workers run
 
-Claude workers are ordinary subagents, each naming its model. The codex second opinion and the panel's codex seat run through the vendored codex companion runtime ([`skills/use-codex`](skills/use-codex/SKILL.md)): the orchestrator dispatches the codex rescue subagent, which forwards the brief once to the companion script and hands back a job receipt in seconds, and the orchestrator then watches that job from its own turn as one tracked background call, so the run holds a visible row until it finishes and its completion re-invokes the orchestrator. The review's GPT engine is the one codex path outside the runtime: the vendored autoreview helper drives its own codex invocation ([`skills/code-review/SKILL.md`](skills/code-review/SKILL.md)). Watching is the orchestrator's own job because a subagent asked to hold a long call backgrounds it and returns a stub ([`docs/lessons/no-subagent-holds-a-long-dispatch.md`](docs/lessons/no-subagent-holds-a-long-dispatch.md)). Jobs and their codex threads live on disk per workspace, so a watch cut short by the shell timeout ceiling (`bottega:setup` raises it) is simply rerun, a follow-up or repair continues the same job, and a run judged stalled is cancelled by id. The session's broker and jobs are torn down by the SessionEnd hook. A run whose machine lacks the codex CLI or its login runs those reads on fresh Claude workers instead, and the PR records the gap.
+Claude workers are ordinary subagents, each naming its model. The codex second opinion and the panel's codex seat run through the vendored codex companion runtime ([`skills/use-codex`](skills/use-codex/SKILL.md)): the orchestrator dispatches the `bottega:codex` subagent, which forwards the brief once to the companion script and hands back a job receipt in seconds, and the orchestrator then watches that job from its own turn as one tracked background call, so the run holds a visible row until it finishes and its completion re-invokes the orchestrator. The review's GPT engine is the one codex path outside the runtime: the vendored autoreview helper drives its own codex invocation ([`skills/code-review/SKILL.md`](skills/code-review/SKILL.md)). Watching is the orchestrator's own job because a subagent asked to hold a long call backgrounds it and returns a stub ([`docs/lessons/no-subagent-holds-a-long-dispatch.md`](docs/lessons/no-subagent-holds-a-long-dispatch.md)). Jobs and their codex threads live on disk per workspace, so a watch cut short by the shell timeout ceiling (`bottega:setup` raises it) is simply rerun, a follow-up or repair continues the same job, and a run judged stalled is cancelled by id. The session's broker and jobs are torn down by the SessionEnd hook. A run whose machine lacks the codex CLI or its login runs those reads on fresh Claude workers instead, and the PR records the gap.
 
 ## Design decisions
 
@@ -88,12 +88,12 @@ Skills define the reusable methods and independently invoked capabilities. Refer
 ## Repo layout
 
 ```
-skills/           the canonical methods and orchestration entry points, plus two vendored preloads of the rescue agent
+skills/           the canonical methods and orchestration entry points, plus two vendored preloads of the codex agent
 .agents/          in-repo skill discovery links
 .claude-plugin/   Claude Code packaging
 hooks/            the route guard and the session lifecycle hooks' registration
 scripts/          GitHub mutations and the vendored codex companion runtime
-agents/           the vendored codex rescue agent
+agents/           the vendored codex agent
 prompts/          the vendored runtime's prompts
 schemas/          the vendored runtime's review output schema
 tests/            the verification gate's suites
@@ -118,7 +118,7 @@ These files are other people's work. The scripts and suites are used unchanged; 
 
 - the vendored autoreview engine in `skills/code-review/` (`SKILL.md`, `scripts/`, `tests/`) from [openclaw/agent-skills](https://github.com/openclaw/agent-skills), under `skills/code-review/LICENSE` (MIT, Copyright (c) 2026 openclaw).
 - `skills/architect/references/CONTEXT-FORMAT.md` and `ADR-FORMAT.md` from [mattpocock/skills](https://github.com/mattpocock/skills), under `skills/architect/references/LICENSE` (MIT, Copyright (c) 2026 Matt Pocock).
-- the codex companion runtime every codex dispatch runs on, from OpenAI's [codex plugin for Claude Code](https://github.com/openai/codex-plugin-cc) (Apache 2.0, with upstream's NOTICE): the rescue agent in `agents/`, the runtime in `scripts/`, its `prompts/` and `schemas/`, and the two skill documents that describe it (`codex-cli-runtime`, `gpt-5-4-prompting`), under `skills/codex-cli-runtime/LICENSE` and `NOTICE`.
+- the codex companion runtime every codex dispatch runs on, from OpenAI's [codex plugin for Claude Code](https://github.com/openai/codex-plugin-cc) (Apache 2.0, with upstream's NOTICE): the codex agent in `agents/`, the runtime in `scripts/`, its `prompts/` and `schemas/`, and the two skill documents that describe it (`codex-cli-runtime`, `gpt-5-4-prompting`), under `skills/codex-cli-runtime/LICENSE` and `NOTICE`.
 
 Edit any of them upstream, not here. Bringing in a newer version means copying it again and reading the diff. [`THIRD_PARTY.md`](THIRD_PARTY.md) carries each one's pinned revision, local scoping, and sync procedure.
 
