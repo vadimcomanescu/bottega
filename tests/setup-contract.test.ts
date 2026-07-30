@@ -15,7 +15,8 @@ describe("setup v2 semantic reconciliation", () => {
     expect(setup).toContain("An existing map route or owner doc wins wherever it lives");
     expect(setup).toContain("A conforming repository receives no file or GitHub changes.");
     expect(setup).toContain("<!-- bottega:setup v2 begin -->");
-    expect(setup).toContain("Treat an existing v1 block as setup-owned routes to reconcile");
+    expect(setup).toContain("<!-- bottega:setup v1 begin -->");
+    expect(setup).toContain("First reconcile an existing v1 block as setup-owned routes");
     expect(setup).toContain("Never leave both versions.");
     expect(setup).toContain("When no equivalent owner exists, use `docs/agents/issue-tracker.md` and `docs/agents/domain.md`");
   });
@@ -49,5 +50,6 @@ describe("setup v2 semantic reconciliation", () => {
     expect(open).toContain("reserve that claim from the isolated worktree");
     expect(open).toContain("complete any assignment or other human-visible signal");
     expect(open).toContain("Preserve the tracker owner's force-push rule.");
+    expect(open).toContain("When no map or command owner exists, discover the commands from the repository");
   });
 });

@@ -28,7 +28,7 @@ Write your session id to `.bottega/run/<slug>/owner` before the run's first disp
 
 ## 4. Read the commands
 
-Read the project's commands (format, lint, typecheck, test, build, run) from the repo's agent map, `AGENTS.md` or `CLAUDE.md`. Setup keeps one a symlink of the other, so Claude Code and the codex CLI read the one copy. The map is the commands' one home: a brief quotes them from it, and never defines them elsewhere. Discover a missing or broken command once, and write it back to the map as part of the run's diff. The same rule covers any operating fact a worker had to dig for: how the app boots from a worktree, seed data, migration steps. Read every command the run will brief from the map before you move on.
+Read the project's commands (format, lint, typecheck, test, build, run) from the smallest existing agent map, `AGENTS.md` or `CLAUDE.md`. When both exist independently, use the one the repository declares canonical. When no map or command owner exists, discover the commands from the repository, verify them, and add the missing owner or route to the run's diff. The map is the commands' one home: a brief quotes them from it, and never defines them elsewhere. Discover a missing or broken command once, and write it back to the map as part of the run's diff. The same rule covers any operating fact a worker had to dig for: how the app boots from a worktree, seed data, migration steps. Continue once every command the run will brief is verified and has one proposed or existing home.
 
 ## 5. Confirm the codex CLI
 
