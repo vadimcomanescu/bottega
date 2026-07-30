@@ -1,11 +1,13 @@
 ---
-name: write-skills
-description: Reference for predictable skill writing. Use when creating, editing, or evaluating any skill file, including SKILL.md, references, assets, schemas, and agent files.
+name: write-bottega-skills
+description: Bottega's own skill-writing doctrine, the house format, and the closing checklist. Use when creating, editing, or evaluating any skill file in this repository.
 ---
 
-# Writing great skills
+# Writing bottega skills
 
 Hold every skill you write to one virtue: **predictability**, the agent taking the same _process_ every run, not producing the same output. Every lever below serves it.
+
+Calibrate what you write to the current model generation. The bar comes from Anthropic's own guidance, currently [A field guide to Claude Fable 5: finding your unknowns](https://claude.com/blog/a-field-guide-to-claude-fable-finding-your-unknowns) and [The new rules of context engineering for Claude 5 generation models](https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models). Read them before setting a rule, and cut any instruction they make a no-op.
 
 **Bold terms** are defined in [`GLOSSARY.md`](GLOSSARY.md). Look them up there for the full meaning.
 

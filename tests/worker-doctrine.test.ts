@@ -37,12 +37,14 @@ function symlinksUnder(path: string): string[] {
 
 describe("portable worker doctrine", () => {
   it("gives every skill matching name and description frontmatter", () => {
-    const skillDirectories = readdirSync(join(ROOT, "skills"), {
-      withFileTypes: true,
-    }).filter((entry) => entry.isDirectory());
+    const skillDirectories = ["skills", "skills-internal"].flatMap((root) =>
+      readdirSync(join(ROOT, root), { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => ({ root, name: entry.name })),
+    );
 
     for (const directory of skillDirectories) {
-      const path = `skills/${directory.name}/SKILL.md`;
+      const path = `${directory.root}/${directory.name}/SKILL.md`;
       const source = read(path);
       const frontmatter = source.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
       expect(frontmatter, `${path} must start with YAML frontmatter`).not.toBeNull();
@@ -65,6 +67,7 @@ describe("portable worker doctrine", () => {
           !path.startsWith("skills/code-review/tests/") &&
           !path.startsWith("skills/architect/references/"),
       ),
+      ...filesUnder("skills-internal", ".md"),
     ];
 
     const violations: string[] = [];
@@ -81,7 +84,7 @@ describe("portable worker doctrine", () => {
       if (/\bledger\b/i.test(source)) violations.push(`${file}: prohibited word ledger`);
       // A semicolon in skills prose is two sentences wearing one. Code blocks
       // and inline code keep their own syntax, so strip them before checking.
-      if (file.startsWith("skills/")) {
+      if (file.startsWith("skills/") || file.startsWith("skills-internal/")) {
         const prose = source
           .replace(/```[\s\S]*?```/g, "")
           .replace(/`[^`\n]*`/g, "");
