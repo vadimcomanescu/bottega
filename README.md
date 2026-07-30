@@ -23,7 +23,7 @@ Start a run with `/bottega:maestro <task, or issue URL>`.
 | improve | `/bottega:improve [area or direction]` | Scan for deepening opportunities, agree the strongest candidate, and take it through a run |
 | code-review | `/bottega:code-review <PR, ref range, or worktree>` | Review the working diff, a ref range, or a PR through the vendored review gate |
 | panel | `/bottega:panel <the decision>` | Produce independent drafts from different companies' models and a compare-only judgment |
-| setup | `/bottega:setup` | Reconcile the project and register the harness once per repo |
+| setup | `/bottega:setup` | Rerun reconciliation of the harness and the repository's existing maps and owners |
 | calibrate | `/bottega:calibrate <repo root, or one doc>` | Audit agent docs against the Claude 5 calibration bar and propose the cuts |
 | bro | `/bottega:bro` | Restate the last reply in plain language, no jargon |
 
