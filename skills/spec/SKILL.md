@@ -8,7 +8,7 @@ user-invocable: false
 
 Write what we settled into one spec on the run's tracker issue, so anyone can open the issue and see what was agreed before the code existed.
 
-Everything in the spec was settled before you write it: in the conversation, in a prototype, or in the repo. Writing it is synthesis. One check comes to me first: sketch the seams you will test the feature at. Prefer seams the codebase already has, place any new one as high as you can, and hold the count as low as it goes, one is the ideal. Confirm they match what I expect, then write.
+Everything in the spec was settled before you write it: in the conversation, in a prototype, or in the repo. Writing it is synthesis. One check comes to me first: sketch the seams you will test the feature at, the places where behavior can change without editing the callers, per `bottega:architect`. Prefer seams the codebase already has, place any new one as high as you can, and hold the count as low as it goes, one is the ideal. Confirm they match what I expect, then write.
 
 Write in the domain's own vocabulary and respect the decision records in the area. Use the sections below, each present when it carries real content:
 
@@ -20,4 +20,4 @@ Write in the domain's own vocabulary and respect the decision records in the are
 6. **Acceptance criteria.** The observable conditions that decide the build is correct. A criterion that can be enforced becomes a test in the build.
 7. **Out of scope.** What the work deliberately excludes, so the boundary is explicit.
 
-Publish it where the run is anchored. A run that started from an issue posts the spec as a comment there. A run that started from my message opens the issue, spec as body, and that issue is the run's anchor from then on: the claim, the branch, and the PR's closing reference all point at it.
+Publish it where the run is anchored. A run that started from an issue posts the spec as a comment there. A run that started from my message opens the issue, spec as body, and that issue is the run's anchor from then on: followups land beside it and the PR closes it.
