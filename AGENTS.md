@@ -51,7 +51,6 @@ Autonomous issue-to-PR runs, orchestrated from Claude Code with Claude workers a
 - Put durable constraints where the worker that must obey them will receive them. The orchestrator owns gates, routing, architecture, and exceptions. Do not script decisions that Fable can make from the repository and evidence.
 - When a decision replaces an old direction, strip the old one completely and stop. Never add a test, guard, or doctrine line asserting the removed thing stays absent, because you then maintain a rule about a decision nobody follows any more. Git history is the record of what was removed and why. Tests assert what the current direction requires, never the absence of a past one.
 - Use one placement rule everywhere. A skill defines reusable method or an independently invoked capability; a worker receives it per dispatch, never as a standing identity. A reference is supporting detail for one parent skill and is loaded only in the phase that needs it. Hooks, schemas, tests, and workflow code enforce deterministic rules.
-- Each dispatch gives one task a fresh context and returns a finished answer. The dispatcher reads the answer, not the transcript. Workers ask the orchestrator; the orchestrator answers and resumes them. Workers do not coordinate with each other directly.
 - Keep `CLAUDE.md` symlinked to this file.
 - PR bodies contain review-relevant content only. Omit tool, model, and company attribution badges or footers.
 
