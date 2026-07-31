@@ -28,4 +28,4 @@ Keep everything that settles a decision close while we work: the prototype sourc
 
 You are done here when nothing between us is open: the direction is chosen, its edges are stated, and every decision carries my answer or a recorded settlement. Take what we settled to `bottega:spec`.
 
-When the run is autonomous I am not there: settle each step from the repo's precedent and the standard way, and record each settlement with its reason.
+When the run is autonomous I am not there: settle each step from the repo's precedent and the standard way, and record each settlement with its reason. When neither settles it, take the reversible option and record it.

@@ -21,3 +21,5 @@ Write in the domain's own vocabulary and respect the decision records in the are
 7. **Out of scope.** What the work deliberately excludes, so the boundary is explicit.
 
 Publish it where the run is anchored. A run that started from an issue posts the spec as a comment there. A run that started from my message opens the issue, spec as body, and that issue is the run's anchor from then on: followups land beside it and the PR closes it.
+
+When the run is autonomous I am not there: choose the seams from the repo's precedent and record the choice in the spec.
