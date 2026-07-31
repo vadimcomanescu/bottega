@@ -12,7 +12,7 @@ Reconcile a machine and repository with bottega without replacing the repository
 
 Configure Claude Code. Anything missing, report it rather than installing it silently.
 
-- **Requirements.** `git`, `node`, and `gh`.
+- **Requirements.** `git`, `node`, `gh`, and `trufflehog`. The review engine's secret preflight requires the TruffleHog binary and never installs it itself.
 - **Codex CLI.** Verify `codex` is installed and logged in (`codex login status`). The run's GPT cross-reads go through it.
 - **Skill discovery.** Install the plugin with `/plugin marketplace add vadimcomanescu/bottega`, then `/plugin install bottega@bottega`. Confirm Claude Code lists the bottega skills. When it does not, walk me through those commands rather than symlinking anything.
 - **Route guard.** Confirm the guard from `hooks/` is registered.
