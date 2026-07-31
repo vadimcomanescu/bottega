@@ -88,7 +88,7 @@ Skills define the reusable methods and independently invoked capabilities. Refer
 ## Repo layout
 
 ```
-skills/           the canonical methods and orchestration entry points, plus two vendored preloads of the codex agent
+skills/           the canonical methods and orchestration entry points
 .agents/          in-repo skill discovery links
 .claude-plugin/   Claude Code packaging
 hooks/            the route guard and the session lifecycle hooks' registration
@@ -118,7 +118,7 @@ These files are other people's work. The scripts and suites are used unchanged; 
 
 - the vendored autoreview engine in `skills/code-review/` (`SKILL.md`, `scripts/`, `tests/`) from [openclaw/agent-skills](https://github.com/openclaw/agent-skills), under `skills/code-review/LICENSE` (MIT, Copyright (c) 2026 openclaw).
 - `skills/architect/references/CONTEXT-FORMAT.md` and `ADR-FORMAT.md` from [mattpocock/skills](https://github.com/mattpocock/skills), under `skills/architect/references/LICENSE` (MIT, Copyright (c) 2026 Matt Pocock).
-- the codex companion runtime every codex dispatch runs on, from OpenAI's [codex plugin for Claude Code](https://github.com/openai/codex-plugin-cc) (Apache 2.0, with upstream's NOTICE): the codex agent in `agents/`, the runtime in `scripts/`, its `prompts/` and `schemas/`, and the two skill documents that describe it (`codex-cli-runtime`, `gpt-5-4-prompting`), under `skills/codex-cli-runtime/LICENSE` and `NOTICE`.
+- the codex companion runtime every codex dispatch runs on, from OpenAI's [codex plugin for Claude Code](https://github.com/openai/codex-plugin-cc) (Apache 2.0, with upstream's NOTICE): the codex agent in `agents/`, the runtime in `scripts/`, and its `prompts/` and `schemas/`, under `agents/LICENSE` and `NOTICE`.
 
 Edit any of them upstream, not here. Bringing in a newer version means copying it again and reading the diff. [`THIRD_PARTY.md`](THIRD_PARTY.md) carries each one's pinned revision, local scoping, and sync procedure.
 
