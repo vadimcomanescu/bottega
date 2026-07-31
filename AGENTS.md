@@ -1,6 +1,6 @@
 # bottega
 
-Autonomous issue-to-PR runs, orchestrated from Claude Code with Claude workers and GPT cross-reads of finished work: `/bottega:maestro` takes a task or issue to a reviewed, evidence-backed PR ready to merge, and code-review, improve, panel, setup, calibrate, and bro are also available on their own. Read `README.md` for the model. This file is the map: where each thing lives, and when to read it.
+Autonomous issue-to-PR runs, orchestrated from Claude Code with Claude workers and GPT cross-reads of finished work: `/bottega:maestro` takes a task or issue to a reviewed, evidence-backed PR ready to merge, and code-review, improve, panel, setup, and bro are also available on their own. Read `README.md` for the model. This file is the map: where each thing lives, and when to read it.
 
 ## Map
 
@@ -20,7 +20,6 @@ Autonomous issue-to-PR runs, orchestrated from Claude Code with Claude workers a
 | `skills/close/SKILL.md` | The closing method a run's Close phase routes to: confirm the accepted head, file followups, open the PR written for a reader outside the run, labeled hold when the launch said hold, watch its checks, and report it merged, ready, or waiting on what only a person can clear; not user-invocable | Anything touches PR opening, followup filing, the PR body's writing rule, the check watch, or the ready report |
 | `skills/panel/SKILL.md` | `/bottega:panel`, independent drafts from different companies' models and a compare-only judge for one costly decision; a run calls it too, and it states the three conditions that make a panel worth its cost | Changing panel seats, judging, or when a panel is worth running |
 | `skills/bro/SKILL.md` | `/bottega:bro`, restate the last reply in plain language; user-invoked only | Changing the restatement instruction |
-| `skills/calibrate/SKILL.md` | `/bottega:calibrate`, sentence-level audit of a repo's agent docs against the Claude 5 calibration bar | Changing the calibration bar or how the audit proposes and applies cuts |
 | `skills/architect` | House design doctrine: domain model, deep modules, architecture evolution, documentation architecture | Any design, review, or setup doctrine question |
 | `skills-internal/write-bottega-skills` | Bottega's own skill-writing doctrine, the house format, and the closing checklist; repo-only, never installed with the plugin | Creating or editing any skill file |
 | `agents/` | The vendored codex agent, a thin forwarder to the companion runtime, synced with recorded local scoping per `THIRD_PARTY.md`, with upstream's `LICENSE` and `NOTICE` beside it | Anything touches what a codex dispatch hands the runtime |

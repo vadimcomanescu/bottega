@@ -2,7 +2,7 @@
 
 Autonomous issue-to-PR runs, orchestrated from Claude Code with Claude workers and GPT cross-reads of finished work.
 
-`/bottega:maestro` takes a task, bug, or GitHub issue to a reviewed, evidence-backed pull request; code-review, improve, panel, setup, calibrate, and bro are also available on their own.
+`/bottega:maestro` takes a task, bug, or GitHub issue to a reviewed, evidence-backed pull request; code-review, improve, panel, setup, and bro are also available on their own.
 
 ## Install
 
@@ -24,7 +24,6 @@ Start a run with `/bottega:maestro <task, or issue URL>`.
 | code-review | `/bottega:code-review <PR, ref range, or worktree>` | Review the working diff, a ref range, or a PR through the vendored review gate |
 | panel | `/bottega:panel <the decision>` | Produce independent drafts from different companies' models and a compare-only judgment |
 | setup | `/bottega:setup` | Rerun reconciliation of the harness and the repository's existing maps and owners |
-| calibrate | `/bottega:calibrate <repo root, or one doc>` | Audit agent docs against the Claude 5 calibration bar and propose the cuts |
 | bro | `/bottega:bro` | Restate the last reply in plain language, no jargon |
 
 During a run, maestro also uses the open, discover, implement, code-review, QA, and close skills, and `bottega:panel` for a costly open decision; code-review is the one users also run directly, and its skill file is the vendored autoreview document itself, the engine every review runs on.
