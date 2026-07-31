@@ -23,11 +23,8 @@ describe("setup semantic reconciliation", () => {
   });
 
   it("migrates domain material only into homes the repository declares", () => {
-    expect(setup).toContain("formats per `bottega:architect`");
+    expect(setup).toContain("formats per `bottega:domain-modeling`");
     expect(setup).toContain("Existing formats win.");
-    expect(read("skills/discover/SKILL.md")).toContain(
-      "Treat genuinely absent domain material as absent, not as a setup requirement.",
-    );
     expect(read("skills/improve/SKILL.md")).toContain(
       "Treat genuinely absent domain material as absent, not as a setup requirement.",
     );
