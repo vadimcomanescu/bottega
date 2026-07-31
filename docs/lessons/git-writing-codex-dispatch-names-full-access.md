@@ -1,0 +1,7 @@
+# A git-writing codex dispatch names full access
+
+What happened: a 2026-07-31 session in a host repository fanned four codex builders into their own git worktrees, each brief ordering git fetch, git worktree add, and a closing commit. The companion runtime pins every write dispatch to the workspace-write sandbox, which keeps the top-level `.git` of every writable root read-only, resolves a linked worktree's gitdir pointer and carves that out too, and blocks the network. All four workers died at their first git command (`Operation not permitted` writing `FETCH_HEAD` and the branch lock), one full fan-out burned with zero files touched, and the orchestrator had to rebuild the worktrees itself and re-dispatch with all git work stripped. The machine's own `config.toml` saying `danger-full-access` changed nothing, because the per-thread sandbox the companion sends overrides it. The carve-out is the codex CLI's own design: its maintainers name `danger-full-access` as the only way out, and the upstream patches for scoped git writes were abandoned unmerged.
+
+The rule: a codex dispatch whose job includes git writes (fetch, branch, commit, worktree) carries `--full-access`. A brief that orders git work without it is wrong at dispatch time, not a worker failure.
+
+Enforced: tests/codex-vendor.test.ts ("keeps the full-access sandbox hunk on the task path"), the dispatch controls in skills/use-codex/SKILL.md.
