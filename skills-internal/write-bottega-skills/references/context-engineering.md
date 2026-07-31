@@ -1,0 +1,19 @@
+# Context engineering for Claude 5 generation models
+
+Source: The new rules of context engineering for Claude 5 generation models, Thariq Shihipar, Anthropic, July 2026 (https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models). A distillation for the skill writer: reread the source when the model generation moves.
+
+Context is what the model sees across many requests: the system prompt, skills, CLAUDE.md, memory. Unlike a prompt it cannot be specific, because you do not know what the user will ask. Anthropic found all three surfaces overconstrained the model and removed over 80% of Claude Code's system prompt for Claude 5 era models with no measurable loss on their coding evaluations. Reading their own transcripts, they saw a single request carrying clashing messages from the system prompt, skills, and the user at once, and while the model usually interprets intent correctly, it must think through the conflict before acting. Six former best practices reversed:
+
+- Rules became judgment. The old system prompt defaulted to no comments and capped any comment at one short line, guidance that was wrong for a real subset of prompts. The replacement states the outcome once: "Write code that reads like the surrounding code: match its comment density, naming, and idiom." Guardrails written for worst cases can go, because the model now handles the decision from surrounding context.
+- Examples became interfaces. Examples of tool usage constrain the exploration space. Design the tools, scripts, and files themselves instead, asking what parameters the model has and how they can be more expressive: an enum of pending, in_progress, and completed, plus one line about keeping a single item in progress, defines the behavior an example used to hint at.
+- Everything upfront became progressive disclosure. The myth is a CLAUDE.md or SKILL.md as a central repository of every practice the model might run into. Build a tree of files loaded at the right time instead, the way verification and code review moved out of Claude Code's system prompt into skills it calls selectively, and rarely-needed tools defer their full definitions until searched for.
+- Repetition became saying it once. Older models listened better to repeated instructions and to the end of the context window. Now an instruction lives where it is used, in the tool description rather than in the system prompt and the tool description both.
+- Memory prompts became auto-memory. The model saves what matters on its own instead of being told to maintain CLAUDE.md entries, and CLAUDE.md's old jobs (memory, information, guidance) are now split across memory, artifacts, and skills, each its own way of loading and sharing context across sessions.
+- Simple specs became rich references. The model handles increasingly complicated references: an HTML artifact over a markdown plan, code as the spec (a test suite, a function in another codebase to port), rubrics that encode your taste, checked by verifier agents spun up through dynamic workflows.
+
+Per surface:
+
+- A system prompt belongs to the product. Spend time there only when building your own harness.
+- Keep CLAUDE.md lightweight: briefly what the repo is for, most tokens on gotchas inside the codebase, nothing the model can see by looking at the file system. Several unique verification instructions become a verification skill it references.
+- Skills are lightweight guides that let the model find information when needed, best when they encode opinions, knowledge, or practices particular to you, your team, or the product. Avoid overconstraining them except in highly important areas, and split long ones into many files.
+- Prefer references in code, up to entire codebases, because code is clear high-fidelity instruction in a language the model knows well: an HTML mockup of a design produces better results than a description of the design or a screenshot.
