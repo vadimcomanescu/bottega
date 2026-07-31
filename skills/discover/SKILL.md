@@ -1,21 +1,25 @@
 ---
 name: discover
-description: The discovery method a run's Discover phase uses whole. Find what the request does not say and settle it with the owner before anything is built. Not user-invocable.
+description: The discovery method a run's Discover phase uses whole. Read the code the request touches to state its intent, then find what the request does not say and settle it with the owner before anything is built. Not user-invocable.
 user-invocable: false
 ---
 
 # Discover
 
-Find what I could not tell you, before anything is built: what my request does not say, what I could not put into words, what neither of us thought to ask. Follow it too literally and you build what I wrote when a different approach was better. Read it too loosely and you build something generic when this product needed its own answer. I can only settle what I understand, so explain every unknown in plain words before you ask me to decide it.
+State what my request means here, then find what it does not say, and settle both with me before anything is built.
 
-Read the canonical agent map when one exists, then the domain owner it routes you to. When either route is absent, locate the smallest existing map and domain material by what they govern. Treat genuinely absent domain material as absent, not as a setup requirement. Use the vocabulary you find in the work you report. Read only the contexts, lessons, and decisions relevant to this request. A missing context map, glossary, or ADR is not a gap. Surface a relevant ADR conflict before you design around it. Send Opus workers out, one job each, to return findings on:
+Start with the intent. Read the code my request touches yourself, in your own context, until you can state in this repo's terms what I am asking for and what it would change. Treat genuinely absent domain material as absent, not as a setup requirement.
 
-- the code this change touches, and how this repo already does things like it
+With the intent stated, write the questions you now need answered that the code, the internet, or an installed package can settle, and send one Opus worker per question, each briefed from what you read. These four are always among them:
+
+- the code around what you read, and how this repo already does things like it
 - how other people already solved this, searched online, so the build takes a proven pattern rather than an invented one
 - the libraries and tools the work will use: what the version installed here actually does, read from its own documentation and source rather than from memory
 - what the relevant installed agent skills would change here, not that they exist
 
 You are finished here when the reading and the workers have answered everything they can and what is still open is written down. When I have already settled everything, skip the rest of this skill.
+
+Now find what my request does not say: what I could not put into words, what neither of us thought to ask. Follow it too literally and you build what I wrote when a different approach was better. Read it too loosely and you build something generic when this product needed its own answer. I can only settle what I understand, so explain every unknown in plain words before you ask me to decide it.
 
 Ask me where I am in my thinking, and what experience I have with this problem and with this part of the code. Where the work turns on something I do not know, teach me that first, in as much depth as it takes for me to judge your choices, because I cannot decide anything when I do not know what its words mean.
 
