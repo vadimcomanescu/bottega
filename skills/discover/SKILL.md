@@ -1,7 +1,6 @@
 ---
 name: discover
-description: The discovery method a run's Discover phase uses whole. Understand what the request means in the repository, then find its unknowns and settle them with the owner before anything is built. Not user-invocable.
-user-invocable: false
+description: The discovery method a run's Discover phase uses whole. Understand what the request means in the repository, then find its unknowns and settle them with the owner before anything is built. Use bottega:discover to run discovery on its own.
 ---
 
 # Discover

@@ -21,6 +21,7 @@ Start a run with `/bottega:maestro <task, or issue URL>`.
 | --- | --- | --- |
 | maestro | `/bottega:maestro <task, or issue URL>` | The whole run: discovery, design, a codex second opinion, build, review, QA, and a PR ready to merge |
 | improve | `/bottega:improve [area or direction]` | Scan for deepening opportunities, agree the strongest candidate, and take it through a run |
+| discover | `/bottega:discover <request or issue>` | Understand the request, fan out readers, and settle the unknowns with you |
 | code-review | `/bottega:code-review <PR, ref range, or worktree>` | Review the working diff, a ref range, or a PR through the vendored review gate |
 | panel | `/bottega:panel <the decision>` | Produce independent drafts from different companies' models and a compare-only judgment |
 | prototype | `/bottega:prototype <the question>` | Build a throwaway prototype that answers one design question: logic in a terminal app, looks as UI variants |
