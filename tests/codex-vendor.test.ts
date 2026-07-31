@@ -76,13 +76,21 @@ describe("vendored codex runtime installation", () => {
     expect(efforts).toContain('"ultra"');
   });
 
+  it("keeps the full-access sandbox hunk on the task path", () => {
+    const companion = read("scripts/codex-companion.mjs");
+    expect(companion).toContain(
+      'request.fullAccess ? "danger-full-access" : request.write ? "workspace-write" : "read-only"',
+    );
+    expect(companion).toContain('"full-access"');
+  });
+
   it("keeps the app-server spawned with notifications off", () => {
     expect(read("scripts/lib/app-server.mjs")).toContain('spawn("codex", ["app-server", "-c", "notify=[]"]');
   });
 
   it("keeps the recorded scoping of the vendored prose", () => {
     const agent = read("agents/codex.md");
-    expect(agent).toContain("Treat `--background` and `--cwd <path>` as runtime controls too");
+    expect(agent).toContain("Treat `--background`, `--cwd <path>`, and `--full-access` as runtime controls too");
   });
 
   it("registers the session lifecycle hook on both ends of a session", () => {

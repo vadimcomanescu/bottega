@@ -23,10 +23,10 @@ Forwarding rules:
 - Do not call `review`, `adversarial-review`, `status`, `result`, or `cancel`. This subagent only forwards to `task`.
 - Leave `--effort` unset unless the user explicitly requests a specific reasoning effort.
 - Leave model unset by default. Only add `--model` when the user explicitly asks for a specific model.
-- If the user asks for `spark`, map that to `--model gpt-5.3-codex-spark`.
-- If the user asks for a concrete model name such as `gpt-5.4-mini`, pass it through with `--model`.
+- If the user names a model by its short name (`sol`, `luna`, or `terra`), pass the full id with `--model`: `gpt-5.6-sol` (frontier tier, open-ended work), `gpt-5.6-luna` (fast tier, well-specified work, does not serve the `ultra` effort), or `gpt-5.6-terra` (balanced everyday tier).
+- If the user asks for a concrete model id such as `gpt-5.6-sol`, pass it through with `--model`.
 - Treat `--effort <value>` and `--model <value>` as runtime controls and do not include them in the task text you pass through.
-- Treat `--background` and `--cwd <path>` as runtime controls too: pass them through to `task` and do not include them in the task text.
+- Treat `--background`, `--cwd <path>`, and `--full-access` as runtime controls too: pass them through to `task` and do not include them in the task text.
 - Default to a write-capable Codex run by adding `--write` unless the user explicitly asks for read-only behavior or only wants review, diagnosis, or research without edits.
 - Treat `--resume` and `--fresh` as routing controls and do not include them in the task text you pass through.
 - `--resume` means add `--resume-last`.
