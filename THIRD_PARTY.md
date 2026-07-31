@@ -11,14 +11,23 @@ The review engine every review runs on. The skill's `SKILL.md` is the modified u
 - Local edits to the document: openclaw material and Windows sections stripped, bottega run rules woven in, helper paths rewritten to this package. One sentence backported from upstream `575bed0` on 2026-07-21 (the exception for diffs that are prose only). The merge rule was locally scoped on 2026-07-24: upstream's "only when the user armed it" and its sensitive-path prohibition now apply to a standalone review, because in a run the recorded evidence is the merge gate and the Close phase merges on it. On 2026-07-28 the woven run rules dropped every Claude worker's effort (no subagent dispatch carries one) and restated the reviewer isolation rule as the run's own design decisions, since the run commits no spec or plan. On 2026-07-25 the run's fix builder was given its model (opus-5), because the route guard denies a dispatch that names none, and the helper path options now lead with the Claude Code plugin install shape (`${CLAUDE_PLUGIN_ROOT}/skills/code-review/scripts/autoreview`), which is what `bottega:setup` produces. On 2026-07-28 the scope governor gained a threat-model axis (bottega issue #172, ADR 0035): the frozen baseline and the review prompt carry one threat-model sentence, findings can classify out of threat model, the growth numbers are computed before each fix dispatch, and continuing past the two-cycle pause requires a narrowing series. On 2026-07-30 the scope baseline and the run's review prompt gained the design's agreed test interfaces beside the threat-model sentence, so the reviewer reports tests written off those interfaces or against implementation internals as findings.
 - Sync: re-copy `scripts/`, `tests/`, and `LICENSE` whole, then apply the old-upstream-to-new-upstream diff of upstream's SKILL.md to `skills/code-review/SKILL.md` and reconcile conflicts by hand, keeping bottega's frontmatter and title. Record the new revision. A full sync takes the document and the scripts together. The fix builder's model (opus-5) is a local scoping stated in the document itself; `tests/worker-doctrine.test.ts` pins the line.
 
-## `skills/architect/references/CONTEXT-FORMAT.md` and `ADR-FORMAT.md`
+## `skills/prototype/SKILL.md`, `UI.md`, and `LOGIC.md`
+
+The prototype method a run's discovery brainstorms with.
+
+- Upstream: `mattpocock/skills`, under `skills/engineering/prototype`.
+- Pinned at `2ab9580` (synced 2026-07-31), with upstream's `LICENSE` (MIT, Matt Pocock) beside them.
+- Local edits, exactly two. In `SKILL.md` step 6, "Fold any validated decision into the real code" reads "Fold any validated decision into the spec", because a run folds decisions into the spec and the builder takes them to code from there. In `UI.md`, step 2's "Hold each one to" list carries one added bullet pointing variants at the repo's design doc when one exists.
+- Sync: re-copy all three files and the license whole, reapply the two edits, and read the diff.
+
+## `skills/domain-modeling/CONTEXT-FORMAT.md` and `ADR-FORMAT.md`
 
 The shapes a new `CONTEXT.md` entry or ADR follows when a file does not already set its own.
 
 - Upstream: `mattpocock/skills`, under `skills/engineering/domain-modeling`.
-- Copied unchanged, with upstream's `LICENSE` (MIT, Matt Pocock) beside them. Verified byte-identical to upstream `ed37663` on 2026-07-25.
-- Local edits: none. The domain-model doctrine that uses them is bottega's own prose in `skills/architect/SKILL.md`.
-- Sync: re-copy both files and the license whole, then read the diff.
+- Copied unchanged, with upstream's `LICENSE` (MIT, Matt Pocock) beside them. Verified byte-identical to upstream `ed37663` on 2026-07-25, moved from `skills/architect/references/` on 2026-07-31.
+- Local edits: none. The `SKILL.md` beside them is bottega's own prose, adapted from the same upstream skill: Matt's structure and session moves in the owner's voice and the house register. The grilling interview (upstream `skills/productivity/grilling`) is absorbed into `skills/discover/SKILL.md`, and the spec skill's shape follows upstream `skills/engineering/to-spec`. Adapted prose takes a sync as a re-read of upstream's diff, applied by hand where it still fits.
+- Sync: re-copy both format files and the license whole, then read the diff.
 
 ## `agents/codex.md` and the codex companion runtime beside it
 

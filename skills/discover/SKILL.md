@@ -1,36 +1,32 @@
 ---
 name: discover
-description: The discovery method a run's Discover phase uses whole. Read the code the request touches to state its intent, then find what the request does not say and settle it with the owner before anything is built. Not user-invocable.
+description: The discovery method a run's Discover phase uses whole. Understand what the request means in the repository, then find its unknowns and settle them with the owner before anything is built. Not user-invocable.
 user-invocable: false
 ---
 
 # Discover
 
-State what my request means here, then find what it does not say, and settle both with me before anything is built.
+Understand what I am asking for, help me find what I could not tell you, and settle all of it with me before anything is built.
 
-Start with the intent. Read the code my request touches yourself, in your own context, until you can state in this repo's terms what I am asking for and what it would change. Treat genuinely absent domain material as absent, not as a setup requirement.
+The run opens with an intent: something I typed, a ticket, an issue, a feature. Before anything else, understand it yourself. Read the code it touches until you can tell me, in this repo's own words, what I am asking for and what would have to change. This reading leaves you holding the questions you still need answered.
 
-With the intent stated, write the questions you now need answered that the code, the internet, or an installed package can settle, and send one Opus worker per question, each briefed from what you read. These four are always among them:
+Fan out Opus workers on medium, one per question:
 
-- the code around what you read, and how this repo already does things like it
-- how other people already solved this, searched online, so the build takes a proven pattern rather than an invented one
-- the libraries and tools the work will use: what the version installed here actually does, read from its own documentation and source rather than from memory
-- what the relevant installed agent skills would change here, not that they exist
+- One into the repo: how do we already do things like this, and how is this area built? It starts from the agent map and follows it into the glossary, the domain material, the decision records, and the lessons.
+- One into the world: how do people credibly solve this, in official docs and in the docs and source of the libraries installed here?
+- One through the installed agent skills: which ones matter for this work, and what do they teach?
+- One for any other question your reading has raised so far.
 
-You are finished here when the reading and the workers have answered everything they can and what is still open is written down. When I have already settled everything, skip the rest of this skill.
+Now decide how much of the method below this work actually needs. A serious feature earns all of it. A small fix earns almost none: answer what remains from precedent and the standard way, record what deserves recording, and go build. Bring me in when you hit a decision the repo cannot settle and a wrong guess would cost something.
 
-Now find what my request does not say: what I could not put into words, what neither of us thought to ask. Follow it too literally and you build what I wrote when a different approach was better. Read it too loosely and you build something generic when this product needed its own answer. I can only settle what I understand, so explain every unknown in plain words before you ask me to decide it.
+When unknowns remain, work through them with me, the blind spot pass first. Ask me where I am in my thinking and what experience I have with this problem and this part of the code. Then walk me through my unknown unknowns: name what I have not thought to ask, each in plain words, tell me what good looks like here from your side, and show me the prior work and the potholes, so that I can steer you better through the rest.
 
-Ask me where I am in my thinking, and what experience I have with this problem and with this part of the code. Where the work turns on something I do not know, teach me that first, in as much depth as it takes for me to judge your choices, because I cannot decide anything when I do not know what its words mean.
+While the direction is open, lay out the options, cheapest to most ambitious, with the one you would take: my reactions set the direction. Some of the work's questions only get settled by looking at something concrete. For those, brainstorm with me in prototypes per `bottega:prototype`, several genuinely different directions I can react to: a tiny terminal app that pushes the state model through the cases we cannot reason about on paper, or radically different variants of a screen on a real route. A prototype is throwaway code that answers a question, and it stays deliberately cheap: a frame with nothing wired behind it is enough when the question is the look. My reactions tell you what I could not describe. When I would not recognize good even on sight, teach me the domain first, in as much depth as it takes for me to judge, and then show me directions. Every image I see is a screenshot of something that actually rendered, and when nothing can render yet, a wireframe of layout and flow stands in. When I cannot find words for what I want, ask me for code that already does it my way, in any repo or language.
 
-Name my blind spots: what I have not thought to ask, each explained in plain words, until you have covered all of them.
+When the brainstorming still leaves unknowns, interview me, one question at a time, waiting for my answer before the next. Ask first the questions whose answer would change the architecture. Give each question your recommended answer, so my reply can be a yes or a correction. When a question can be answered from the codebase or a tool, answer it yourself and bring me one that needs me. The decisions are mine: put each one to me and wait. When I say "I don't understand", explain more fully and ask again. A decision that is open, costly to reverse, and settled by no cheap check goes to `bottega:panel`. While we talk, keep the glossary and the decision records current per `bottega:domain-modeling`, each entry written the moment it settles.
 
-While the scope is still open, put the options on the table, cheapest to most ambitious, and say which one you would take. My reactions set the direction. Some things I can only judge by seeing, so build those instead of asking: rough prototypes in genuinely different directions. Draw a wireframe only when nothing can be rendered, keep it to layout and flow, and never show me an image posing as the finished product. A decision that is open, costly to reverse, and settled by no cheap check goes to `bottega:panel`, and what it returns feeds the questions you ask next. You are through this when the direction is chosen and its edges are stated: what is in, and what is out.
+Keep everything that settles a decision close while we work: the prototype sources, their screenshots, the references I pointed at. Briefs point at an approved render, and QA judges against it. Each validated decision lands in the spec, and the prototype that settled it is captured per `bottega:prototype`: committed to a throwaway branch off main, with the pointer and the verdict on the run's issue. Main keeps only the validated decisions.
 
-Ask me what is still ambiguous, one question at a time, the ones that change the architecture first. Give each question your recommended answer, so my reply can be a yes or a correction. Every question carries its explanation in the same message, in the product's own words and with a concrete example: what happens today, what each answer would change, and what it would cost. Explain any term I have not been given before you use it, whatever the run called it while exploring. When I say "I don't understand", something was missing from the explanation. Explain more fully and ask again, never shorter. Keep asking until you can predict how I will judge the finished work.
-
-When I cannot find words for what I want, ask me for code that already does it my way, in any repo or language. That tells you more than anything I could describe.
-
-Keep everything that settled a decision for as long as you are building: the approved prototype sources, their screenshots, the references I pointed at. Point a builder's brief at a render I approved instead of describing it in prose. None of it merges: once its record has landed in the tests, the decision records, the agent map, and the PR body, delete it before the PR opens.
+You are done here when nothing between us is open: the direction is chosen, its edges are stated, and every decision carries my answer or a recorded settlement. Take what we settled to `bottega:spec`.
 
 When the run is autonomous I am not there: settle each step from the repo's precedent and the standard way, and record each settlement with its reason.

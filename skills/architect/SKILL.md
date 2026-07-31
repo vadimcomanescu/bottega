@@ -1,20 +1,12 @@
 ---
 name: architect
-description: Shared architecture doctrine for defining or checking a Bottega domain model, ownership, interfaces, dependencies, change scope, how the architecture evolves, and the documentation architecture (one home per fact, maps route to it).
+description: Shared architecture doctrine for ownership, interfaces, dependencies, change scope, how the architecture evolves, and the documentation architecture (one home per fact, maps route to it).
 user-invocable: false
 ---
 
 # Architect
 
-Work out the domain model, the concepts, their states, and the rules, before you design the modules and interfaces that implement it.
-
-## Domain model
-
-- Define the concepts, states, relationships, and invariants that the change depends on. Resolve overloaded or conflicting terms with concrete scenarios and current code.
-- Use one term for one concept across the design, glossary, interfaces, implementation, errors, and tests.
-- `CONTEXT.md` is the per-context glossary of the ubiquitous language: domain meaning only, never implementation. Update it the moment a term resolves, never as a batch at the end. Add an `_Avoid_` synonym line only for a synonym that caused real ambiguity. `CONTEXT-MAP.md` at the root exists only for a multi-context repo, naming each bounded context and its relationships. `docs/adr/` holds append-only dated decisions, written only when the decision is hard to reverse, surprising without context, and the result of a real trade-off. Outside reading is not an artifact of its own. Put what a source said in the sentence of the decision it changed, and name the source's URL there. A decision that meets the bar then becomes one ADR stating plainly what was decided and why. Commit no research, findings, or reading note as a file. Create each lazily, only when you have something to write.
-- Writing any of these files, let an existing file's format win. For a new file or a new entry, follow the vendored format references: [CONTEXT-FORMAT.md](references/CONTEXT-FORMAT.md) and [ADR-FORMAT.md](references/ADR-FORMAT.md).
-- Put behavior with the state and rules it protects. Where a file boundary or an existing class conflicts with the model, treat it as information about the current code, never as a reason to keep the model wrong.
+Work out the domain model, the concepts, their states, and the rules, per `bottega:domain-modeling`, before you design the modules and interfaces that implement it. An existing file's format wins over the formats that skill carries.
 
 ## Documentation architecture
 
@@ -22,9 +14,11 @@ Work out the domain model, the concepts, their states, and the rules, before you
 - A document's path shows its authority: living truth, decisions under `docs/adr/`, open plans, and archive. Living docs never cite archived docs.
 - Read the smallest map that routes the task, then only the contexts and ADRs the task touches.
 - Changing covered behavior, update the owning living doc in the same change.
+- Outside reading is not an artifact of its own. Put what a source said in the sentence of the decision it changed, and name the source's URL there. A decision that meets the record bar becomes one ADR stating plainly what was decided and why. Commit no research, findings, or reading note as a file.
 
 ## Design the current change
 
+- Put behavior with the state and rules it protects. Where a file boundary or an existing class conflicts with the model, treat it as information about the current code, never as a reason to keep the model wrong.
 - An interface is everything a caller must know: operations, inputs, outputs, invariants, ordering, failure modes, side effects, configuration, and relevant performance limits. Keep it smaller than the behavior it hides.
 - A seam is a place where behavior can change without editing the callers. Where the seam goes is its own decision, separate from what goes behind it. Add a seam only for a present reason such as real variation, external ownership, deployment isolation, or deterministic test control. One adapter satisfying an interface means a hypothetical seam, two mean a real one. A module may keep internal seams for its own tests. Those stay out of the interface.
 - Prefer deep, cohesive modules: substantial behavior behind a small interface, with changeable decisions hidden from callers. If removing a wrapper makes complexity disappear instead of returning to callers, the wrapper was not useful. Depth gives you two things: leverage for callers (more behavior per unit of interface a caller or test must learn, one implementation paying back across many call sites and tests) and locality for maintainers (change, bugs, knowledge, and verification concentrating in one place). When you extract pure functions to make them testable but the bugs live in how those functions are called, the tests cover the easy part and the bugs stay untested.

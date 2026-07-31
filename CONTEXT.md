@@ -59,8 +59,12 @@ A real finding or deferred item filed as one tracker issue before the PR opens, 
 **Lesson**:
 A failure record in docs/lessons: what happened, the rule, and where the rule is enforced; its rule lands where the repository enforces it best.
 
+**Spec**:
+The synthesis of a closed discovery, published on the run's tracker issue: the problem, the announcement, user stories, implementation decisions, testing direction, acceptance criteria, out of scope. The issue that carries it anchors the run.
+_Avoid_: PRD, plan
+
 **Discovery artifacts**:
-What discovery produces and the run keeps while it builds: the approved prototypes, the settled decisions, the references. Briefs point at them and QA judges against them; none of them merges, and they are deleted before the PR opens, once their record has landed in the tests, the decision records, the agent map, and the PR body.
+What discovery produces and the run keeps close while it builds: the prototypes, their screenshots, the settled decisions, the references. Briefs point at them and QA judges against them. Each validated decision lands in the spec, each prototype is captured to a throwaway branch off main with its pointer and verdict on the run's issue, and main keeps only the validated decisions.
 
 **Harness**:
 The runtime a session runs in: Claude Code. The project is the repository a run works on; the two are never the same word.
