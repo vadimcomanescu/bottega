@@ -73,7 +73,7 @@ describe("portable worker doctrine", () => {
     const violations: string[] = [];
     for (const file of files) {
       const source =
-        file === "AGENTS.md"
+        file === "skills-internal/write-bottega-skills/SKILL.md"
           ? read(file).replace(/^- Banned tic-words.*$/m, "")
           : read(file);
       if (source.includes("—")) violations.push(`${file}: em dash`);

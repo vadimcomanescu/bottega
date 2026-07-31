@@ -85,12 +85,26 @@ Use these to diagnose issues the user may be having with the skill.
 - **No-op**: a line the model already obeys by default, so you pay load to say nothing. The test: does it change behaviour versus the default? A weak leading word (_be thorough_ when the agent is already thorough-ish) is a no-op. The fix is a stronger word (_relentless_), not a different technique.
 - **Negation**: steering by prohibition backfires. _Don't think of an elephant_ names the elephant and makes it more available, not less. Prompt the positive: state the target behaviour so the banned one is never spoken. Keep a prohibition only as a hard guardrail you cannot phrase positively, and even then pair it with what to do instead.
 
+## House rules
+
+These rules govern every file's prose in this repo, code comments, UI strings, and hook messages included, not only skills.
+
+- Write plain engineering English. Standard engineering terms only: no metaphors, no invented vocabulary, no theatrical naming.
+- No em dashes, anywhere. Use periods, commas, colons, or parentheses.
+- Banned tic-words, no exceptions: "bearing" (e.g. "judgment-bearing"), "bears on" (e.g. "the skills that bear on the task"), "ledger". Say the plain thing: "makes judgment calls", "the skills this work needs", "the log". The register binds bottega's own prose, so text vendored under a sync contract is synced as its author wrote it, never reworded to it.
+- A claim about harness behavior (frontmatter keys, hooks, dispatch mechanics, model resolution) is read from the harness documentation at claim time, never from memory or another skill's prose.
+- Skills are packaged per the Agent Skills open standard: one directory per capability, `SKILL.md` on top, supporting material inside it loaded on demand. An engine or reference a skill wraps lives inside that skill's directory, never as a sibling skill. The authoring and packaging contract is the harness documentation (https://code.claude.com/docs/en/skills) and the standard (https://agentskills.io), read at claim time. A skill references only its own directory, another skill, or a component the plugin ships. This repository's record under `docs/` and the root doctrine files never appear in a skill, because they do not install with it. A rule a skill states stands on its own sentences, with the decision record behind it left in the repository.
+- Editing the skills, two tests per line: could the worker derive it from the repo or from competence, and would plain Fable already do it better with no instruction? Either way, cut it. The workers are frontier models. A rule that only prevents a mistake a competent engineer would not make is noise, so constrain only where a real failure was observed or the cost of the mistake is high. Read every worker rule as the weakest-equipped worker that will receive it: a codex worker has no slash commands, no subagents, no plugin root. Instruction text is calibrated to the model generation it was written for: when the pinned worker models move to a new generation, re-run these two tests over every worker-facing skill.
+- Put durable constraints where the worker that must obey them will receive them. The orchestrator owns gates, routing, architecture, and exceptions. Do not script decisions that Fable can make from the repository and evidence.
+- One placement rule everywhere. A skill defines reusable method or an independently invoked capability. A worker receives it per dispatch, never as a standing identity. A reference is supporting detail for one parent skill, loaded only in the phase that needs it. Hooks, schemas, tests, and workflow code enforce deterministic rules.
+- Orchestrate with the harness primitives (subagents, tracked background Bash, workflows). The models already know them, so never add a polling loop, a hand-written scheduler, or prose that restates what the harness does.
+
 ## House format
 
 Every skill in this repo shares one outer shape:
 
 - Frontmatter stays universal, the open standard's fields: `name` equal to the directory name, and `description`. A harness-specific key is an exception, justified only by a harness need and kept to the minimum that need requires.
-- An H1 in sentence case naming the skill, then one imperative sentence stating the outcome the skill delivers.
+- An H1 in sentence case naming the skill, then one imperative sentence stating the outcome the skill delivers. A "You are" opening belongs only to an agent definition, whose body is a system prompt.
 - A file loaded on demand is a markdown link (`[references/x.md](references/x.md)`). A skill that gets invoked is a backticked name (`bottega:panel`). Never a bare unlinked path.
 - The body stays under 500 lines, references one level deep.
 

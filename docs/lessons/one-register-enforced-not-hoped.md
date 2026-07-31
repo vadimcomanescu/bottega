@@ -4,4 +4,4 @@ What happened: the instruction "align every skill's opening; no agent-style 'You
 
 The rule: skill bodies open with an imperative orienting sentence and read as procedure; "You are" openings belong only to agent definitions, whose body is a system prompt. A register rule is pinned by a test the moment it is adopted, and a file used as the reference for a sweep is checked against the rule first.
 
-Enforced: AGENTS.md, Rules ("Skill bodies open with an imperative orienting sentence"); tests/worker-doctrine.test.ts ("keeps skill openings imperative and oriented").
+Enforced: skills-internal/write-bottega-skills/SKILL.md, House format ("one imperative sentence stating the outcome the skill delivers"); tests/worker-doctrine.test.ts ("keeps skill openings imperative and oriented").

@@ -4,4 +4,4 @@ What happened: on 2026-07-20 the assistant asserted that the `user-invocable` sk
 
 The rule: a claim about harness behavior (frontmatter keys, hooks, dispatch mechanics, model resolution) is read from the harness documentation at claim time. Another skill's text, a vendored reference, or memory of the docs is not a source.
 
-Enforced: AGENTS.md, Rules ("read from the harness documentation at claim time").
+Enforced: skills-internal/write-bottega-skills/SKILL.md, House rules ("read from the harness documentation at claim time").
