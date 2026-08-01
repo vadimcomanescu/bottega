@@ -21,14 +21,23 @@ The prototype method a run's discovery brainstorms with.
 - Local edits, exactly two. In `SKILL.md` step 6, "Fold any validated decision into the real code" reads "Fold any validated decision into the spec", because a run folds decisions into the spec and the builder takes them to code from there. In `UI.md`, step 2's "Hold each one to" list carries one added bullet pointing variants at the repo's design doc when one exists.
 - Sync: re-copy all three files and the license whole, reapply the two edits, and read the diff.
 
-## `skills/domain-modeling/CONTEXT-FORMAT.md` and `ADR-FORMAT.md`
+## `skills/domain-modeling/` (`SKILL.md`, `CONTEXT-FORMAT.md`, `ADR-FORMAT.md`)
 
-The shapes a new `CONTEXT.md` entry or ADR follows when a file does not already set its own.
+The domain modeling method a run's design and discovery keep the glossary and decision records current with, and the shapes a new `CONTEXT.md` entry or ADR follows when a file does not already set its own.
 
 - Upstream: `mattpocock/skills`, under `skills/engineering/domain-modeling`.
-- Copied unchanged, with upstream's `LICENSE` (MIT, Matt Pocock) beside them. Verified byte-identical to upstream `ed37663` on 2026-07-25, moved from `skills/architect/references/` on 2026-07-31.
-- Local edits: none. The `SKILL.md` beside them is bottega's own prose, adapted from the same upstream skill: Matt's structure and session moves in the owner's voice and the house register. The grilling interview (upstream `skills/productivity/grilling`) is absorbed into `skills/discover/SKILL.md`, and the spec skill's shape follows upstream `skills/engineering/to-spec`. Adapted prose takes a sync as a re-read of upstream's diff, applied by hand where it still fits.
-- Sync: re-copy both format files and the license whole, then read the diff.
+- Pinned at `2ab9580` (synced 2026-08-01), all three files upstream's bytes, with upstream's `LICENSE` (MIT, Matt Pocock) beside them. Upstream's `agents/` registration file is not taken. The `SKILL.md` replaces the house rewrite that stood here through 0.179.0; the format files were first verified byte-identical at `ed37663` on 2026-07-25.
+- Local edits: none. The grilling interview (upstream `skills/productivity/grilling`) stays absorbed into `skills/discover/SKILL.md`, and the spec skill's shape follows upstream `skills/engineering/to-spec`; that adapted prose takes a sync as a re-read of upstream's diff, applied by hand where it still fits.
+- Sync: re-copy the three files and the license whole, then read the diff.
+
+## `skills/codebase-design/` (`SKILL.md`, `DEEPENING.md`, `DESIGN-IT-TWICE.md`)
+
+The deep-module vocabulary and principles design work speaks in: module, interface, depth, seam, adapter, leverage, locality, with the deepening method and the design-it-twice sub-agent pattern beside them.
+
+- Upstream: `mattpocock/skills`, under `skills/engineering/codebase-design`.
+- Pinned at `2ab9580` (synced 2026-08-01), all three files upstream's bytes, with upstream's `LICENSE` (MIT, Matt Pocock) beside them. Upstream's `agents/` registration file is not taken.
+- Local edits: none.
+- Sync: re-copy the three files and the license whole, then read the diff.
 
 ## `vendor/codex/`, the codex agent and the companion runtime
 

@@ -70,7 +70,7 @@ What survives a run beyond the code: enforceable acceptance criteria as tests, d
 These files are other people's work. Each copy carries its upstream license file, and [`THIRD_PARTY.md`](THIRD_PARTY.md) records the pinned revision, every local edit, and how to sync a newer version:
 
 - the vendored autoreview engine in `skills/code-review/` (`SKILL.md`, `scripts/`, `tests/`) from [openclaw/agent-skills](https://github.com/openclaw/agent-skills), under `skills/code-review/LICENSE` (MIT, Copyright (c) 2026 openclaw).
-- `skills/prototype/` (`SKILL.md`, `UI.md`, `LOGIC.md`) and, in `skills/domain-modeling/`, the entry formats `CONTEXT-FORMAT.md` and `ADR-FORMAT.md`, all from [mattpocock/skills](https://github.com/mattpocock/skills), each set under its directory's `LICENSE` (MIT, Copyright (c) 2026 Matt Pocock).
+- `skills/prototype/` (`SKILL.md`, `UI.md`, `LOGIC.md`), the whole of `skills/domain-modeling/`, and the whole of `skills/codebase-design/`, all from [mattpocock/skills](https://github.com/mattpocock/skills), each set under its directory's `LICENSE` (MIT, Copyright (c) 2026 Matt Pocock).
 - the codex agent and the companion runtime every codex dispatch runs on, from OpenAI's [codex plugin for Claude Code](https://github.com/openai/codex-plugin-cc) (Apache 2.0, with upstream's NOTICE): the whole of `vendor/codex/`, under `vendor/codex/LICENSE` and `NOTICE`.
 
 Edit any of them upstream, not here. Bringing in a newer version means copying it again and reading the diff.
@@ -82,7 +82,7 @@ Edit any of them upstream, not here. Bringing in a newer version means copying i
 - The restraint the skills are written with (few constraints, the orchestrator trusted with judgment) is calibrated to Anthropic's [Prompting Claude Fable 5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5).
 - The design vocabulary is John Ousterhout's deep modules.
 - The builder's reuse-before-build order and root-cause repair rule come from [Ponytail](https://github.com/DietrichGebert/ponytail).
-- Interface-level TDD, the mocking doctrine, the domain-modeling session moves, the grilling interview absorbed into discovery, and the spec's tracker-issue shape draw from [Matt Pocock's engineering skills](https://github.com/mattpocock/skills).
+- Interface-level TDD, the mocking doctrine, the grilling interview absorbed into discovery, and the spec's tracker-issue shape draw from [Matt Pocock's engineering skills](https://github.com/mattpocock/skills).
 - Selective technology-skill loading and the repair's reproduce-first test draw from [Addy Osmani's agent skills](https://github.com/addyosmani/agent-skills).
 - The exact-plan-to-implementer-to-reviewer handoff is reinforced by [Superpowers](https://github.com/obra/superpowers).
 - The brief discipline a codex dispatch follows, the whole brief handed over as written text with every input by absolute path rather than squeezed through shell quoting, draws from [Peter Steinberger's agent scripts](https://github.com/steipete/agent-scripts).
