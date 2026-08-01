@@ -1,6 +1,6 @@
 ---
 name: open
-description: The opening method a run's Launch phase invokes whole. Settle ownership, isolate the run in a worktree and branch, write the owner file and the release answer, read the project's commands from the agent map, and confirm the codex CLI is logged in. Not user-invocable.
+description: The opening method a run's Launch phase invokes whole. Settle ownership, isolate the run in a worktree and branch, write the owner file and the release answer, read the project's commands and landing procedure from the agent map, and confirm the codex CLI is logged in. Not user-invocable.
 user-invocable: false
 ---
 
@@ -26,9 +26,11 @@ The empty expected value means the remote ref must not exist, so exactly one cre
 
 Write your session id to `.bottega/run/<slug>/owner` before the run's first dispatch. The route guard polices the session named there. Write the release answer the launch settled, `land` or `hold`, to `.bottega/run/<slug>/release`. Close reads that file before the PR opens. Resuming in a later session, rewrite the owner file before dispatching anything. Write the release file too when the run predates it, and ask me when no answer was ever settled. Both files are set once the owner file names this session and the release file carries the run's answer.
 
-## 4. Read the commands
+## 4. Read the commands and the landing procedure
 
-Read the project's commands (format, lint, typecheck, test, build, run) from the smallest existing agent map, `AGENTS.md` or `CLAUDE.md`. When both exist independently, use the one the repository declares canonical. When no map or command owner exists, discover the commands from the repository, verify them, and add the missing owner or route to the run's diff. The map is the commands' one home: a brief quotes them from it, and never defines them elsewhere. Discover a missing or broken command once, and write it back to the map as part of the run's diff. The same rule covers any operating fact a worker had to dig for: how the app boots from a worktree, seed data, migration steps. Continue once every command the run will brief is verified and has one proposed or existing home.
+Read the project's commands (format, lint, typecheck, test, build, run) from the smallest existing agent map, `AGENTS.md` or `CLAUDE.md`. When both exist independently, use the one the repository declares canonical. When no map or command owner exists, discover the commands from the repository, verify them, and add the missing owner or route to the run's diff. The map is the commands' one home: a brief quotes them from it, and never defines them elsewhere. Discover a missing or broken command once, and write it back to the map as part of the run's diff. The same rule covers any operating fact a worker had to dig for: how the app boots from a worktree, seed data, migration steps.
+
+The landing procedure is one of those facts and close delivers the run under it, so read it from the same map: the brake that holds a PR out of the merge and whether the repository's own machinery enforces it, what arms a PR to land (the opener arms it, a merge queue takes every non-draft PR, or nothing does), and which check decides the merge. Missing from the map, it is discovered once from the repository's own documented procedure and written back like any command. Where the repository documents none, tell me and leave close on its fallback. Continue once every command the run will brief is verified, the landing procedure is read or reported absent, and each has one proposed or existing home.
 
 ## 5. Confirm the codex CLI
 

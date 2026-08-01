@@ -57,6 +57,10 @@ The gitignored file naming the session that claims a run, a session and never a 
 **Release file**:
 The gitignored file beside the owner file carrying the run's launch answer, `land` or `hold`; close reads it before the PR opens.
 
+**Landing procedure**:
+The project's own answer to what lands a pull request: the brake that holds one out of the merge, what arms it (the opener, a merge queue taking every non-draft PR, or nothing), and the check that decides the merge. Open reads it from the agent map and writes back what it had to discover, close delivers under it, and no run carries a copy of one project's answer to the next.
+_Avoid_: merge contract, landing rules
+
 **Followup**:
 A real finding or deferred item filed as one tracker issue before the PR opens, so the PR body links it.
 
