@@ -349,6 +349,10 @@ describe("portable worker doctrine", () => {
       read("skills/code-review/SKILL.md"),
       "every finding is verified against the real code before the head is accepted",
     ).toContain("Verify every finding by reading the real code path");
+    expect(
+      read("skills/code-review/SKILL.md"),
+      "a finding with a runnable check is settled by running it",
+    ).toContain("running the check that settles it when one exists");
 
     const close = read("skills/close/SKILL.md");
     expect(close).toContain("put the rule where the repository enforces it best");

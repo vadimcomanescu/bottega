@@ -34,7 +34,7 @@ Do not require autoreview for a change whose entire diff is prose-only internal 
   probe is the tiebreak. Probe passed, trust the exit; no probe ran this
   session, run it before trusting.
 - Treat review output as advisory. Never blindly apply it.
-- Verify every finding by reading the real code path and adjacent files.
+- Verify every finding by reading the real code path and adjacent files, and by running the check that settles it when one exists.
 - Read dependency docs/source/types when the finding depends on external behavior.
 - Reject unrealistic edge cases, speculative risks, broad rewrites, and fixes that over-complicate the codebase.
 - Prefer small fixes at the right ownership boundary; no refactor unless it clearly improves the bug class.
