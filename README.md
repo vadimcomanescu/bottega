@@ -1,130 +1,94 @@
 # bottega
 
-Autonomous issue-to-PR runs, orchestrated from Claude Code with Claude workers and GPT cross-reads of finished work.
+Bottega is a Claude Code plugin that takes a piece of work from a request to a pull request that is designed, built, reviewed, and verified, without a person driving each step.
 
-`/bottega:maestro` takes a task, bug, or GitHub issue to a reviewed, evidence-backed pull request; code-review, improve, panel, setup, and bro are also available on their own.
+`/bottega:maestro` runs the whole thing: it settles the unknowns with you, owns the design, builds through worker agents, has the integrated result reviewed and repaired, drives QA over every product surface the work touched, and opens the PR. Eight other commands run one piece of that on its own.
 
 ## Install
-
-Install from the Bottega marketplace in Claude Code:
 
 ```text
 /plugin marketplace add vadimcomanescu/bottega
 /plugin install bottega@bottega
 ```
 
-Start a run with `/bottega:maestro <task, or issue URL>`.
+Then start a run with `/bottega:maestro <task, or issue URL>`.
+
+A run needs `git`, `node`, and the [GitHub CLI](https://cli.github.com/) on PATH, plus `trufflehog`, which the review's secret scan requires and never installs itself. It needs the codex CLI logged in for the reads that go to a GPT model. Without that CLI, fresh Claude workers take those reads and the PR says so. `/bottega:setup` checks all of this against your machine and repository and reports what is missing. A run also checks at launch that the session is on the orchestrator model the maestro skill names, and tells you when it is not. Nothing else is assumed about the project.
 
 ## Commands
 
-| Skill | Command | What it does |
-| --- | --- | --- |
-| maestro | `/bottega:maestro <task, or issue URL>` | The whole run: discovery, design, a codex second opinion, build, review, QA, and a PR ready to merge |
-| improve | `/bottega:improve [area or direction]` | Scan for deepening opportunities, agree the strongest candidate, and take it through a run |
-| discover | `/bottega:discover <request or issue>` | Understand the request, fan out readers, and settle the unknowns with you |
-| code-review | `/bottega:code-review <PR, ref range, or worktree>` | Review the working diff, a ref range, or a PR through the vendored review gate and fix what it finds, looping to a converged head |
-| panel | `/bottega:panel <the decision>` | Produce independent drafts from different companies' models and a compare-only judgment |
-| prototype | `/bottega:prototype <the question>` | Build a throwaway prototype that answers one design question: logic in a terminal app, looks as UI variants |
-| domain-modeling | `/bottega:domain-modeling` | Sharpen the project's glossary and decision records while designing |
-| setup | `/bottega:setup` | Rerun reconciliation of the harness and the repository's existing maps and owners |
-| bro | `/bottega:bro` | Restate the last reply and talk plainly from here on, technical content in Simplified Technical English |
+| Command | What it does |
+| --- | --- |
+| `/bottega:maestro <task, or issue URL>` | Take a task, bug, or issue to a reviewed, evidence-backed PR ready to merge |
+| `/bottega:improve [area or direction]` | Scan the codebase for deepening opportunities, agree the strongest one, then take it through a run |
+| `/bottega:discover <request or issue>` | Understand what the request means in the repository, then find its unknowns and settle them with you |
+| `/bottega:code-review <PR, ref range, or worktree>` | Review a diff through the vendored review engine and fix what it finds, looping to a converged head |
+| `/bottega:panel <the decision>` | Put one costly decision to blinded independent drafts from different companies' models, with a judge that only compares them |
+| `/bottega:prototype <the question>` | Build a throwaway prototype that answers one design question, in a terminal app or as UI variants on one route |
+| `/bottega:domain-modeling` | Build and sharpen the project's domain model, its terminology and its decision records |
+| `/bottega:setup` | Reconcile a machine and repository with bottega, keeping what exists and filling only actual gaps |
+| `/bottega:bro` | Talk and write like one human to another, technical content in Simplified Technical English |
 
-During a run, maestro also uses the open, discover, spec, implement, code-review, QA, and close skills, `bottega:bro` for how it talks, `bottega:panel` for a costly open decision, and prototype and domain-modeling inside discovery; code-review and bro are the ones users also run directly, and its skill file is the vendored autoreview document itself, the engine every review runs on.
+A run uses further methods that have no command of their own: open, spec, implement, qa, close, architect, and use-codex. The run reaches them itself.
 
-## What it does
+## How a run works
 
-`/bottega:maestro` turns the current harness session into an orchestrator that:
+`/bottega:maestro` turns the session into the run's orchestrator. It designs, decides, and rules on what comes back, and dispatches everything else to fresh workers.
 
-1. Settles how the PR lands (merge itself on green, or hold for the user), confirms it is running on the orchestrator model, and opens the run in its own worktree and branch, reading the project's commands and its landing procedure (what brakes a PR, what arms one, which check decides the merge) from the repo's agent map.
-2. Discovers with the user: it reads the code the intent touches until it can state what the request means in the repo's own terms, fans out one Opus worker per question that reading left open, sizes the rest of discovery to the work, then runs the unknowns moves: the blind spot pass, options and prototypes brainstormed for reaction, and an interview one question at a time that keeps the glossary and decision records current. When discovery settled anything the request does not already say, it writes the spec on the run's tracker issue (opening the issue when the run started from a typed request), and otherwise the request stands as the spec. The spec's sections: the problem, the announcement of the finished behavior with the winning prototype screenshots inline, user stories, implementation decisions, testing direction, acceptance criteria, and what is out of scope. Approved renders and references stay with the run while it builds: briefs point at them, QA judges against them, and each prototype is captured to a throwaway branch with its pointer on the issue.
-3. Designs before building, and keeps every important decision its own: the domain model, the boundaries, acceptance criteria that are measurable (a criterion that can be enforced becomes a test), and vertical slices subagents can build independently, in parallel where the work allows. A decision that is open, costly to reverse, and settled by no cheap check goes to a panel of different companies' models.
-4. Puts the settled picture to a codex second opinion, held to one bar: revise only where a strong maintainer, seeing both the current plan and the proposed change, would clearly agree the revision is necessary or materially better; otherwise the plan is ready.
-5. Ultracodes the build, one builder per slice under the implementation doctrine, asking back mid-run on real blockers. Every finished slice gets a fresh reviewer for bugs, architecture, and code quality, the builder fixes accepted findings, and the orchestrator integrates with the full suite green at every step.
-6. Reviews the whole integrated diff through the vendored review skill: two isolated engines, one Claude and one GPT, isolated from the builders and judging against the repository's own review doctrine. The orchestrator verifies every finding, dispatches accepted fixes to fresh builders, and the review reruns until nothing blocking remains. Once that converges, two further reads the bug hunt cannot see through: the diff against the spec (what is missing, what nobody asked for, what looks implemented but wrong), and, when a bad design here would hurt to undo, the diff against the design and the house architecture doctrine. The two reports stay apart so neither masks the other.
-7. Drives every visible product surface the work touched through QA workers, the way a user would, triages what comes back, and ultracodes the repair, fixers and the drive looping on failed scenarios until every scenario passes with recorded evidence.
-8. Closes: files followups, opens the PR with a plain story of what happened for a reader who was not in the run, links the QA evidence, brakes or arms it per the launch answer and the project's landing procedure, watches the checks and routes a red the diff caused back to a builder, and ends with the PR merged, ready, held, or waiting on what only a person can clear.
+1. **Launch.** It asks the one question the request does not answer: does the PR land itself on green, or hold for you. Then it claims the work, opens its own worktree and branch so your checkout is untouched, records the release answer, and reads the project's commands and landing procedure from the repository's agent map ([`skills/open`](skills/open/SKILL.md)).
+2. **Discover.** It reads the code the request touches until it can say what the request means in this repository's terms, sends one worker per question that reading left open, and then works the unknowns with you: naming what you have not thought to ask, laying out options and prototypes to react to, and interviewing you one question at a time. Discovery sizes itself, so a small fix comes back fast and a serious feature takes the whole method ([`skills/discover`](skills/discover/SKILL.md)).
+3. **Spec.** When discovery settled anything your request does not already say, the run publishes a spec on its tracker issue: the problem, the finished behavior announced to the people who will use it, user stories, implementation decisions, testing direction, acceptance criteria, and what is out of scope. It confirms the test seams with you before writing. Otherwise your request is the spec, quoted verbatim into every brief that judges against it ([`skills/spec`](skills/spec/SKILL.md)).
+4. **Design.** The orchestrator owns the domain model, the boundaries, the acceptance criteria, and the split into vertical slices that workers can build in parallel. A criterion that can be enforced ships as a test. A new check, gate, or validator ships with one sentence naming what it must catch and what it deliberately does not. A decision that is open, costly to reverse after merge, and settled by no cheap check goes to a panel ([`skills/architect`](skills/architect/SKILL.md), [`skills/panel`](skills/panel/SKILL.md)).
+5. **Second opinion.** When a bad design here would hurt to undo after the merge, the settled design and plan go to one read-only codex dispatch, held to a single bar: revise only where a strong maintainer, seeing both the current plan and the proposed change, would clearly agree the revision is necessary or materially better.
+6. **Build.** As many slices run at once as their files and dependencies allow, each in its own worktree. A builder writes the slice test-first, a fresh reviewer reads what that builder built, the builder fixes what is accepted, and the orchestrator integrates the slices with the project's gates green ([`skills/implement`](skills/implement/SKILL.md)).
+7. **Review.** One fresh worker runs the whole review method over the integrated diff. The vendored engine reads a frozen bundle in an isolated sandbox at `--max-priority P2`, blind to the builders and to the run's design decisions, and a Standards lens and a Spec lens read the same diff in parallel and report apart so neither masks the other. That worker verifies each finding against the real code, fixes what is in scope, and reruns to one converged head. The orchestrator rules on its report and never edits code. When the design would be costly to undo, a separate read checks the same diff against the design and the house architecture doctrine ([`skills/code-review`](skills/code-review/SKILL.md)).
+8. **QA.** Workers drive every visible product surface the work touched the way a user would, judged against the spec, and return a verdict per scenario. They never edit product code. Failed scenarios loop through fixers and another drive until all of them pass, and each scenario's recording is published ([`skills/qa`](skills/qa/SKILL.md)).
+9. **Close.** The run confirms that the head it accepted, the head QA verified, and the head it publishes are one commit, files every deferred finding as its own issue, and opens the PR written for a reader who was not in the run. It applies the project's brake when you said hold, arms auto-merge only where the project's landing procedure makes arming the opener's act, watches the checks, and reports the PR merged, ready, held, or waiting on what only a person can clear ([`skills/close`](skills/close/SKILL.md)).
 
-The user takes part in three places: discovery, the spec's seam check, and the launch answer (land on green, or hold) when the request does not carry it. What survives the run beyond the code: enforceable acceptance criteria as tests, decisions meeting the decision-record bar as ADRs, operating facts in the agent map, and everything else in the PR body.
+You take part in three places: the launch answer, discovery, and the spec's seam check. A worker that hits a question only you can settle sends it to the conversation mid-run.
 
-## Requirements
-
-- Claude Code running the orchestrator model the maestro skill names.
-- Git, Node.js, and the [GitHub CLI](https://cli.github.com/).
-- The codex CLI, logged in, for the GPT cross-reads; without it fresh Claude workers take those reads and the run records the gap.
-
-Nothing else is assumed about the project. A run leaves nothing behind but the PR, what it distilled into the repo (tests, decision records, agent map facts), and the permanent branch holding QA evidence: working state is the worktree and two gitignored files, the owner file and the release answer, all removed at delivery.
-
-## How workers run
-
-Claude workers are ordinary subagents, each naming its model. The codex second opinion and the panel's codex seat run through the vendored codex companion runtime ([`skills/use-codex`](skills/use-codex/SKILL.md)): the orchestrator dispatches the `bottega:codex` subagent, which forwards the brief once to the companion script and hands back a job receipt in seconds, and the orchestrator then watches that job from its own turn as one tracked background call, so the run holds a visible row until it finishes and its completion re-invokes the orchestrator. The review's GPT engine is the one codex path outside the runtime: the vendored autoreview helper drives its own codex invocation ([`skills/code-review/SKILL.md`](skills/code-review/SKILL.md)). Watching is the orchestrator's own job because a subagent asked to hold a long call backgrounds it and returns a stub ([`docs/lessons/no-subagent-holds-a-long-dispatch.md`](docs/lessons/no-subagent-holds-a-long-dispatch.md)). Jobs and their codex threads live on disk per workspace, so a watch cut short by the shell timeout ceiling (`bottega:setup` raises it) is simply rerun, a follow-up or repair continues the same job, and a run judged stalled is cancelled by id. The session's broker and jobs are torn down by the SessionEnd hook. A run whose machine lacks the codex CLI or its login runs those reads on fresh Claude workers instead, and the PR records the gap.
+What survives a run beyond the code: enforceable acceptance criteria as tests, decisions that meet the decision-record bar as ADRs, operating facts a worker had to dig for in the agent map, and the rest of the story in the PR body. QA recordings live in a separate private repository, linked from the PR. The run's working state is a worktree, a branch, and two gitignored files, cleared once the PR merges.
 
 ## Design decisions
 
-**No engine.** This repo is Markdown skills, one small guard, and GitHub scripts. There is no scheduler, queue, or state machine; orchestration uses the harness's visible subagents, workflows, and tracked background work. Why: any orchestration machinery written here would duplicate the harness and drift from it, and prompts that lean on the harness get its reliability for free.
+**No engine of its own.** Bottega is Markdown skills, one guard hook, and one GitHub script. There is no scheduler, queue, or state machine: orchestration uses the harness's own subagents, workflows, and tracked background work, and a run's state is its worktree, its commits, and its PR, so a later session picks it up from those. Machinery written here would duplicate the harness and drift from it.
 
-**GPT cross-reads finished work; the panel is the one other place it sits.** GPT holds three reads: the second opinion on the settled design and plan before building, the review's default engine, and the review's Spec lens; the panel's codex seat stands beside them because model diversity on one costly decision is the panel's whole point. Claude does every other job in a run: the sweep, the prototypes, the building, the QA drive. The integrated diff is reviewed by one fresh closeout seat that runs the vendored review skill whole: the engine reads the frozen bundle in an isolated sandbox, blind to the builders and to the run's design decisions, the Standards and Spec lenses read the same diff in parallel, and the seat verifies each finding against the real code, classifies it under the vendored contract's scope governor, fixes what is in scope, and reruns to a converged head under the contract's own pause-and-reclassify rule ([`skills/code-review/SKILL.md`](skills/code-review/SKILL.md)). The orchestrator decides the panel at dispatch when the diff warrants the spend, rules on the seat's report, and never edits code. When the codex CLI is unavailable, fresh Claude workers take the GPT reads and the PR records the gap. Why: a builder cannot certify the design it implemented, and the orchestrator should not be the sole verifier of the design it authored.
+**Claude does the work, and codex cross-reads finished work.** Every worker in a run is a Claude subagent. Codex sits at four places: the second opinion on the settled plan, the review engine, the review's Spec lens, and one seat on a panel, where drafts from different companies' models are the whole point. A builder cannot certify the design it implemented, and the orchestrator should not be the only verifier of the design it authored.
 
-**Model choices are enforced, not suggested.** Every dispatch names its worker's model on the call, and the models are named in the sentences that dispatch them: the orchestrator and its workers in [`skills/maestro`](skills/maestro/SKILL.md), the panel's seats in [`skills/panel`](skills/panel/SKILL.md), the review engines in the vendored engine document. The route guard rejects a live run owner's subagent or workflow dispatch when it names no model, rejects fable as a worker, and fails open when it cannot identify that owner; it reads a `codex-companion.mjs task` command the same way. The codex dispatch itself is guarded at the subagent layer, where the guard verifiably sees the owner's session; the forwarded `task` command fires the same hook from inside the subagent, but whether that event carries the owner's session id is not documented, so verifying that layer is an open followup (#180). Why: an omitted model can silently inherit the orchestrator's model, the most expensive one, and in a measured run 103 of 132 dispatches did exactly that before this guard existed.
+**Every dispatch names its worker's model.** The models are named in the sentences that dispatch the workers, in [`skills/maestro`](skills/maestro/SKILL.md), [`skills/panel`](skills/panel/SKILL.md), and the vendored review engine document, and nowhere else. A hook rejects a live run's subagent, workflow, or codex dispatch that names no model, and rejects the orchestrator's own model as a worker, because an omitted model silently inherits the orchestrator's, the most expensive one.
 
-**The agreement lives in the conversation and ships as code.** Discovery's prototypes and decisions stay with the run while it builds and never merge; what must outlive the run lands where it is enforced or read: an enforceable acceptance criterion becomes a test, a decision meeting the decision-record bar becomes an ADR in the host repo's decision home, an operating fact a worker had to dig for goes to the agent map, and the PR body carries the rest of the story. A tracker issue is the user's own task tracking: handed to a run it is task input, never an agreement.
+**The PR is the only path to trunk, and you decide the release.** Every run builds on its own branch in its own worktree, and its PR reaches ready only once the review, QA, and the project's checks are green on the exact head being delivered. The run verifies, and you authorize the release at launch: land on green, or hold. A held PR carries the brake the project's landing procedure names, or the `hold` label where it names none, and waits for you to lift it. The run never merges a PR by hand and never approves one. Anything only a person can clear, such as a required review, is reported with the PR left open.
 
-**QA owns the product drive.** Builders prove their slice through code and tests, and per-slice reviewers read each slice before it integrates. Only after the orchestrator accepts the reviewed head does QA drive it: fresh workers through every visible product surface the work touched, the way a user would, recording the verdict; QA never edits product code. Every drive reports its divergences in one batch, including defects found outside the scenarios it was given, so one repair cycle clears the set, and the drive loops on failed scenarios until every scenario passes. Evidence is read from the PR, never in local folders: each scenario's walkthrough gif plays in the browser from its blob page in the private evidence repository, one click from the PR body, with the full recording linked beside it (`docs/adr/0009-qa-evidence-repository.md`).
+## Changing bottega
 
-**The PR is the only path to trunk.** Every run builds on its own branch in its own worktree; the user's checkout is never touched, and the run's PR reaches ready only after the integrated review, QA, and the project's checks are green on the exact head being delivered. Why: the run does the verifying, and only the user authorizes the release, which they do at launch: land on green, or hold (`docs/adr/0028-the-launch-decides-the-release.md`). Where the project's landing procedure makes arming the opener's act, the run arms the PR it opens and green lands it; where a merge queue takes every non-draft PR, or the project arms its own, the run arms nothing and reports what lands it. A held PR carries the brake that procedure names, the `hold` label where the project documents none, and waits for the user to lift it; the run itself never merges by hand and never approves. Any further requirement only a person can clear, a required review or a label, is reported the same way, the PR left open (`docs/adr/0017-close-respects-human-gates.md`).
-
-## Roles
-
-Skills define the reusable methods and independently invoked capabilities. References hold phase-specific detail for one parent skill. Hooks, schemas, tests, and workflow code enforce deterministic rules. Worker models are named where the dispatch happens, so role definitions carry no model of their own.
-
-| Role | Job | Method |
-| --- | --- | --- |
-| orchestrator | design, model choices, review arbitration, architecture acceptance | [`skills/maestro/SKILL.md`](skills/maestro/SKILL.md) |
-| builder | builds one dispatched job (a slice or a repair), test-first, inside the orchestrator's fixed architecture | [`skills/implement/SKILL.md`](skills/implement/SKILL.md) |
-| review panel | hunts defects in the integrated diff, isolated from the builders, its prompt never carrying the run's design decisions | [`skills/code-review/SKILL.md`](skills/code-review/SKILL.md) |
-| qa | drives the built artifact as a user, records the evidence, never edits product code | [`skills/qa/SKILL.md`](skills/qa/SKILL.md) |
-| panel seats and judge | produce independent drafts and compare them without writing the final answer | [`skills/panel/SKILL.md`](skills/panel/SKILL.md) |
-| closer | confirms the accepted head, opens the PR (braked when the launch said hold, armed only where the landing procedure makes that the opener's act), watches checks, and reports it merged, ready, or waiting on what only a person can clear | [`skills/close/SKILL.md`](skills/close/SKILL.md) |
-
-[`skills/architect`](skills/architect/SKILL.md) is shared by the roles that make and judge architecture: the orchestrator uses it to fix the design, keeping the domain model per [`skills/domain-modeling`](skills/domain-modeling/SKILL.md). Builders receive that design and the glossary as fixed input in their briefs.
-
-## Repo layout
-
-```
-skills/           the canonical methods and orchestration entry points
-.agents/          in-repo skill discovery links
-.claude-plugin/   Claude Code packaging
-hooks/            the route guard and the session lifecycle hooks' registration
-scripts/          GitHub mutations
-vendor/codex/     the codex agent and the companion runtime, copied from upstream
-tests/            the verification gate's suites
-docs/adr/         append-only decision records
-docs/lessons/     failure records: what happened, the rule, where it is enforced
-```
-
-## Development
-
-```bash
-npm install
-npm test        # vitest suites plus the vendored autoreview Python suites (needs python3 and git on PATH)
-```
-
-Changes to this repo are authored directly with the owner and delivered by a PR that lands itself once its required checks are green; `/bottega:maestro` runs the changes to what the software does (hooks, scripts, schemas, workflows). The procedure, including releases, is in `AGENTS.md` under "Developing bottega".
+`AGENTS.md` maps this repository and states the procedure for changing it. The gate is `npm test`, which runs the vitest suites plus the vendored review engine's Python suites and needs `python3` and `git` on PATH.
 
 ## Credits
 
 ### Copied into this repo
 
-These files are other people's work. The scripts and suites are used unchanged; the review document carries local edits recorded in [`THIRD_PARTY.md`](THIRD_PARTY.md). Each copy carries its upstream license file:
+These files are other people's work. Each copy carries its upstream license file, and [`THIRD_PARTY.md`](THIRD_PARTY.md) records the pinned revision, every local edit, and how to sync a newer version:
 
 - the vendored autoreview engine in `skills/code-review/` (`SKILL.md`, `scripts/`, `tests/`) from [openclaw/agent-skills](https://github.com/openclaw/agent-skills), under `skills/code-review/LICENSE` (MIT, Copyright (c) 2026 openclaw).
 - `skills/prototype/` (`SKILL.md`, `UI.md`, `LOGIC.md`) and, in `skills/domain-modeling/`, the entry formats `CONTEXT-FORMAT.md` and `ADR-FORMAT.md`, all from [mattpocock/skills](https://github.com/mattpocock/skills), each set under its directory's `LICENSE` (MIT, Copyright (c) 2026 Matt Pocock).
-- the codex companion runtime every codex dispatch runs on, from OpenAI's [codex plugin for Claude Code](https://github.com/openai/codex-plugin-cc) (Apache 2.0, with upstream's NOTICE): the whole of `vendor/codex/`, under `vendor/codex/LICENSE` and `NOTICE`.
+- the codex agent and the companion runtime every codex dispatch runs on, from OpenAI's [codex plugin for Claude Code](https://github.com/openai/codex-plugin-cc) (Apache 2.0, with upstream's NOTICE): the whole of `vendor/codex/`, under `vendor/codex/LICENSE` and `NOTICE`.
 
-Edit any of them upstream, not here. Bringing in a newer version means copying it again and reading the diff. [`THIRD_PARTY.md`](THIRD_PARTY.md) carries each one's pinned revision, local scoping, and sync procedure.
+Edit any of them upstream, not here. Bringing in a newer version means copying it again and reading the diff.
 
 ### Drawn on, not copied
 
-The discovery method (interviewing for unknowns) follows Thariq Shihipar's unknowns framework, published as [A field guide to Claude Fable 5: finding your unknowns](https://claude.com/blog/a-field-guide-to-claude-fable-finding-your-unknowns). The run's context shape (each dispatch a fresh context returning one finished answer, supporting material loaded only in the phase that needs it) follows Shihipar's [The new rules of context engineering for Claude 5 generation models](https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models), and the restraint the skills are written with (few constraints, the orchestrator trusted with judgment) is calibrated to Anthropic's [Prompting Claude Fable 5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5). The design vocabulary is John Ousterhout's deep modules. The builder's reuse-before-build order and root-cause repair rule come from [Ponytail](https://github.com/DietrichGebert/ponytail); interface-level TDD, the mocking doctrine, the domain-modeling session moves, the grilling interview absorbed into discovery, and the spec's tracker-issue shape draw from [Matt Pocock's engineering skills](https://github.com/mattpocock/skills); selective technology-skill loading and the repair's reproduce-first test draw from [Addy Osmani's agent skills](https://github.com/addyosmani/agent-skills); and the exact-plan-to-implementer-to-reviewer handoff is reinforced by [Superpowers](https://github.com/obra/superpowers). The brief discipline a codex dispatch follows, the whole brief handed over as written text with every input by absolute path rather than squeezed through shell quoting, draws from [Peter Steinberger's agent scripts](https://github.com/steipete/agent-scripts). The review gate is openclaw's autoreview itself, vendored and locally adapted: its document is the whole closeout method, its helper runs the engines, and bottega's additions (the reviewed repo's REVIEW.md self-read, the two-axis lenses adapted from Matt Pocock's code-review skill, the panel-across-reruns rule) stand beside it with no run woven in. The panel (blinded frontier drafts, a judge held to structured comparison) follows OpenRouter's [Fusion](https://openrouter.ai/blog/announcements/fusion-beats-frontier/), which measured fused frontier models beating any single one; bottega deviates in one place: the judge never writes the answer, which stays with the session that ran the panel, because that session holds the context the judge never sees. The talk register's technical branch distills [danyuchn's ASD-STE100 skill](https://github.com/danyuchn/asd-ste100-skill), which itself carries the standard's discipline without its dictionary.
+- The discovery method (interviewing for unknowns) follows Thariq Shihipar's unknowns framework, published as [A field guide to Claude Fable 5: finding your unknowns](https://claude.com/blog/a-field-guide-to-claude-fable-finding-your-unknowns).
+- The run's context shape (each dispatch a fresh context returning one finished answer, supporting material loaded only in the phase that needs it) follows Shihipar's [The new rules of context engineering for Claude 5 generation models](https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models).
+- The restraint the skills are written with (few constraints, the orchestrator trusted with judgment) is calibrated to Anthropic's [Prompting Claude Fable 5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5).
+- The design vocabulary is John Ousterhout's deep modules.
+- The builder's reuse-before-build order and root-cause repair rule come from [Ponytail](https://github.com/DietrichGebert/ponytail).
+- Interface-level TDD, the mocking doctrine, the domain-modeling session moves, the grilling interview absorbed into discovery, and the spec's tracker-issue shape draw from [Matt Pocock's engineering skills](https://github.com/mattpocock/skills).
+- Selective technology-skill loading and the repair's reproduce-first test draw from [Addy Osmani's agent skills](https://github.com/addyosmani/agent-skills).
+- The exact-plan-to-implementer-to-reviewer handoff is reinforced by [Superpowers](https://github.com/obra/superpowers).
+- The brief discipline a codex dispatch follows, the whole brief handed over as written text with every input by absolute path rather than squeezed through shell quoting, draws from [Peter Steinberger's agent scripts](https://github.com/steipete/agent-scripts).
+- The review gate is openclaw's autoreview itself, vendored and locally adapted: its document is the whole closeout method and its helper runs the engines. Bottega's additions stand beside it with no run woven in: the reviewed repository's `REVIEW.md` self-read, the two-axis lenses adapted from Matt Pocock's code-review skill, and the panel held across reruns.
+- The panel (blinded frontier drafts, a judge held to structured comparison) follows OpenRouter's [Fusion](https://openrouter.ai/blog/announcements/fusion-beats-frontier/), which measured fused frontier models beating any single one. Bottega deviates in one place: the judge never writes the answer, which stays with the session that ran the panel, because that session holds the context the judge never sees.
+- The talk register's technical branch distills [danyuchn's ASD-STE100 skill](https://github.com/danyuchn/asd-ste100-skill), which itself carries the standard's discipline without its dictionary.
 
 ## License
 
