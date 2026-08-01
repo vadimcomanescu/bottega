@@ -31,8 +31,14 @@ Use these terms exactly. Never substitute "component," "service," "API," or "bou
 
 ## Principles 
 - Behavior lives with the state and rules it protects. Split modules by what each one knows, not by when it runs. A file boundary or class that fights the model is information about the current code, not a reason to keep the model wrong.
+- Draw the boundary around the invariant: what must change together lives inside, one entry point guards it, outside code holds an ID.
 - Dependencies point at the module that owns the domain rule. Adapters translate at the edge and never redefine the domain.
+- Contexts never share domain types. The seam between two contexts is an adapter that translates.
+- One folder per concept, its rules, storage, endpoints, and tests inside. The top of the repo names what the system does, not the framework.
+- A module hides a decision likely to change: the format, the vendor, the algorithm. When it changes and no caller notices, the module did its job.
 - Depth belongs to the interface, not the implementation. Inside, a deep module can be small swappable parts with internal seams for its own tests. Neither one shows at the interface.
+- Pull complexity downward. Absorb the hard cases inside the module. A config knob that makes the caller decide what the module could decide itself pushes the complexity up, times every call site.
+- Keep the rules pure: they compute decisions, the shell does the I/O. A pure core tests with inputs and outputs, no mocks.
 - The deletion test. Delete the module in your head. If the complexity vanishes, it was a pass-through. If it lands back on the callers, it earned its keep.
 - The interface is the test surface. Callers and tests cross the same seam. Needing to test past it means the shape is wrong.
 - One adapter is a hypothetical seam. Two are real. Cut a seam only where something varies.
