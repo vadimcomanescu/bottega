@@ -134,7 +134,7 @@ describe("route guard codex dispatch rule", () => {
 
   it("denies an owner-session companion task without a model", () => {
     const reason = claudeDenial(
-      run(ownedEvent({ command: 'node "/plugin/scripts/codex-companion.mjs" task --background "review the diff"' }, "Bash")),
+      run(ownedEvent({ command: 'node "/plugin/vendor/codex/scripts/codex-companion.mjs" task --background "review the diff"' }, "Bash")),
     );
     expect(reason).toMatch(/codex dispatch names no model/i);
     expect(reason).toMatch(/opus-5/);
@@ -144,7 +144,7 @@ describe("route guard codex dispatch rule", () => {
     const reason = claudeDenial(
       run(
         ownedEvent(
-          { command: 'node "/plugin/scripts/codex-companion.mjs" task --model claude-fable-5 "review the diff"' },
+          { command: 'node "/plugin/vendor/codex/scripts/codex-companion.mjs" task --model claude-fable-5 "review the diff"' },
           "Bash",
         ),
       ),
@@ -154,8 +154,8 @@ describe("route guard codex dispatch rule", () => {
 
   it("allows an owner-session companion task naming a model, resume included", () => {
     for (const command of [
-      'node "/plugin/scripts/codex-companion.mjs" task --model gpt-5.6-sol --effort xhigh --background "review the diff"',
-      'node "/plugin/scripts/codex-companion.mjs" task --resume-last --model gpt-5.6-sol --write "fix the finding"',
+      'node "/plugin/vendor/codex/scripts/codex-companion.mjs" task --model gpt-5.6-sol --effort xhigh --background "review the diff"',
+      'node "/plugin/vendor/codex/scripts/codex-companion.mjs" task --resume-last --model gpt-5.6-sol --write "fix the finding"',
     ]) {
       expect(run(ownedEvent({ command }, "Bash"))).toBe("");
     }
@@ -163,10 +163,10 @@ describe("route guard codex dispatch rule", () => {
 
   it("ignores companion subcommands other than task in an owner session", () => {
     for (const command of [
-      'node "/plugin/scripts/codex-companion.mjs" status job-7 --wait --timeout-ms 900000',
-      'node "/plugin/scripts/codex-companion.mjs" result job-7',
-      'node "/plugin/scripts/codex-companion.mjs" cancel job-7',
-      'node "/plugin/scripts/codex-companion.mjs" task-resume-candidate --json',
+      'node "/plugin/vendor/codex/scripts/codex-companion.mjs" status job-7 --wait --timeout-ms 900000',
+      'node "/plugin/vendor/codex/scripts/codex-companion.mjs" result job-7',
+      'node "/plugin/vendor/codex/scripts/codex-companion.mjs" cancel job-7',
+      'node "/plugin/vendor/codex/scripts/codex-companion.mjs" task-resume-candidate --json',
     ]) {
       expect(run(ownedEvent({ command }, "Bash"))).toBe("");
     }
@@ -178,7 +178,7 @@ describe("route guard codex dispatch rule", () => {
         cwd: repoWithRun(OWNER),
         session_id: "bystander-session",
         tool_name: "Bash",
-        tool_input: { command: 'node "/plugin/scripts/codex-companion.mjs" task "review the diff"' },
+        tool_input: { command: 'node "/plugin/vendor/codex/scripts/codex-companion.mjs" task "review the diff"' },
       }),
     ).toBe("");
   });

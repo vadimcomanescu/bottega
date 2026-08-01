@@ -5,18 +5,17 @@ import { parse as parseYaml } from "yaml";
 
 const ROOT = join(import.meta.dirname, "..");
 
+const VENDOR = "vendor/codex";
+
 const VENDORED_FILES = [
-  "agents/codex.md",
-  "agents/LICENSE",
-  "agents/NOTICE",
-  "scripts/codex-companion.mjs",
-  "scripts/app-server-broker.mjs",
-  "scripts/session-lifecycle-hook.mjs",
-  "scripts/stop-review-gate-hook.mjs",
-  "scripts/lib/app-server.mjs",
-  "prompts/adversarial-review.md",
-  "prompts/stop-review-gate.md",
-  "schemas/review-output.schema.json",
+  `${VENDOR}/agents/codex.md`,
+  `${VENDOR}/LICENSE`,
+  `${VENDOR}/NOTICE`,
+  `${VENDOR}/.claude-plugin/plugin.json`,
+  `${VENDOR}/scripts/codex-companion.mjs`,
+  `${VENDOR}/scripts/app-server-broker.mjs`,
+  `${VENDOR}/scripts/session-lifecycle-hook.mjs`,
+  `${VENDOR}/scripts/lib/app-server.mjs`,
 ];
 
 function read(path: string): string {
@@ -41,7 +40,7 @@ describe("vendored codex runtime installation", () => {
 
   it("resolves every relative import the vendored scripts make", () => {
     const imports = /from\s+"(\.[^"]+)"/g;
-    for (const script of scriptsUnder("scripts")) {
+    for (const script of scriptsUnder(`${VENDOR}/scripts`)) {
       const source = read(script);
       let match: RegExpExecArray | null;
       while ((match = imports.exec(source))) {
@@ -51,15 +50,24 @@ describe("vendored codex runtime installation", () => {
     }
   });
 
+  it("keeps the manifest the app-server reads by walking up from itself", () => {
+    // app-server.mjs reads ../../.claude-plugin/plugin.json at import, so the
+    // vendored tree carries its own manifest. Move it without one and every
+    // dispatch dies before it starts.
+    const manifest = join(ROOT, VENDOR, "scripts", "lib", "..", "..", ".claude-plugin", "plugin.json");
+    expect(existsSync(manifest)).toBe(true);
+    expect(JSON.parse(readFileSync(manifest, "utf8")).name).toBe("codex");
+  });
+
   it("names the subagent and the model the orchestrator dispatches", () => {
-    const agent = read("agents/codex.md");
+    const agent = read(`${VENDOR}/agents/codex.md`);
     const frontmatter = parseYaml(agent.split("---")[1]);
     expect(frontmatter.name).toBe("codex");
     expect(frontmatter.model).toBe("sonnet");
   });
 
   it("serves the subcommands a dispatch, a watch, and a recovery use", () => {
-    const companion = read("scripts/codex-companion.mjs");
+    const companion = read(`${VENDOR}/scripts/codex-companion.mjs`);
     for (const subcommand of ["task", "status", "result", "cancel"]) {
       expect(companion, subcommand).toContain(`case "${subcommand}":`);
     }
@@ -69,7 +77,7 @@ describe("vendored codex runtime installation", () => {
   });
 
   it("keeps the effort set extended to max and ultra", () => {
-    const efforts = read("scripts/codex-companion.mjs").match(
+    const efforts = read(`${VENDOR}/scripts/codex-companion.mjs`).match(
       /const VALID_REASONING_EFFORTS = new Set\(\[([^\]]*)\]\)/,
     )?.[1];
     expect(efforts).toContain('"max"');
@@ -77,7 +85,7 @@ describe("vendored codex runtime installation", () => {
   });
 
   it("keeps the full-access sandbox hunk on the task path", () => {
-    const companion = read("scripts/codex-companion.mjs");
+    const companion = read(`${VENDOR}/scripts/codex-companion.mjs`);
     expect(companion).toContain(
       'request.fullAccess ? "danger-full-access" : request.write ? "workspace-write" : "read-only"',
     );
@@ -85,11 +93,11 @@ describe("vendored codex runtime installation", () => {
   });
 
   it("keeps the app-server spawned with notifications off", () => {
-    expect(read("scripts/lib/app-server.mjs")).toContain('spawn("codex", ["app-server", "-c", "notify=[]"]');
+    expect(read(`${VENDOR}/scripts/lib/app-server.mjs`)).toContain('spawn("codex", ["app-server", "-c", "notify=[]"]');
   });
 
   it("keeps the recorded scoping of the vendored prose", () => {
-    const agent = read("agents/codex.md");
+    const agent = read(`${VENDOR}/agents/codex.md`);
     expect(agent).toContain("Treat `--background`, `--cwd <path>`, and `--full-access` as runtime controls too");
   });
 
@@ -100,7 +108,7 @@ describe("vendored codex runtime installation", () => {
       expect(entry.hooks, event).toEqual([
         {
           type: "command",
-          command: `node "\${CLAUDE_PLUGIN_ROOT}/scripts/session-lifecycle-hook.mjs" ${event}`,
+          command: `node "\${CLAUDE_PLUGIN_ROOT}/${VENDOR}/scripts/session-lifecycle-hook.mjs" ${event}`,
           timeout: 5,
         },
       ]);

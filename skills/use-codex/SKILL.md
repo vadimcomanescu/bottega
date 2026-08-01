@@ -10,7 +10,7 @@ Run the given task through the codex runtime: dispatch it, watch it to the end, 
 
 ## Dispatch
 
-In Claude Code, send the work to the `bottega:codex` subagent, naming the model the dispatch that sent you here carries for it. That subagent is a forwarder: it makes one call to `node "${CLAUDE_PLUGIN_ROOT}/scripts/codex-companion.mjs" task ...` and returns its stdout to you unchanged. On a harness without subagents or a plugin root, make that `task` call yourself with the same controls. Your dispatch is the brief plus the controls it forwards:
+In Claude Code, send the work to the `bottega:codex` subagent, naming the model the dispatch that sent you here carries for it. That subagent is a forwarder: it makes one call to `node "${CLAUDE_PLUGIN_ROOT}/vendor/codex/scripts/codex-companion.mjs" task ...` and returns its stdout to you unchanged. On a harness without subagents or a plugin root, make that `task` call yourself with the same controls. Your dispatch is the brief plus the controls it forwards:
 
 - `--model <model> --effort <effort>`, in every dispatch. The forwarder leaves both unset otherwise, which runs codex at the machine's defaults, and the route guard denies a codex dispatch that names no model. The runtime accepts `none`, `minimal`, `low`, `medium`, `high`, `xhigh`, `max`, and `ultra`, but the API serving the pinned model may accept fewer, and a rejected effort fails the job at start, so pin an effort the model serves (`ultra` in particular is not served by every model).
 - The words "read-only" when the run must not write. The forwarder makes a run write-capable (`--write`) by default, so a cross-read that leaves this out comes back able to edit the tree.
@@ -24,7 +24,7 @@ In Claude Code, send the work to the `bottega:codex` subagent, naming the model 
 The receipt names the job id. Its follow-up hints name `/codex:` commands from the runtime's upstream plugin, which bottega does not ship: use the calls below instead. Watch the job from your own turn as tracked background Bash, one call per job:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/codex-companion.mjs" status <job-id> --wait --timeout-ms <ms>
+node "${CLAUDE_PLUGIN_ROOT}/vendor/codex/scripts/codex-companion.mjs" status <job-id> --wait --timeout-ms <ms>
 ```
 
 The harness holds a visible row while the wait runs and re-invokes you when it returns. Give `--timeout-ms` a window wider than the slowest step the brief asks for (a full test suite is minutes of silence), and give the Bash call a timeout above that (`bottega:setup` raises the shell ceiling so long waits fit).
@@ -32,7 +32,7 @@ The harness holds a visible row while the wait runs and re-invokes you when it r
 When the job is done, read its report:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/codex-companion.mjs" result <job-id>
+node "${CLAUDE_PLUGIN_ROOT}/vendor/codex/scripts/codex-companion.mjs" result <job-id>
 ```
 
 ## Recovery
