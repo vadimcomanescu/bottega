@@ -70,7 +70,7 @@ What survives a run beyond the code: enforceable acceptance criteria as tests, d
 These files are other people's work. Each copy carries its upstream license file, and [`THIRD_PARTY.md`](THIRD_PARTY.md) records the pinned revision, every local edit, and how to sync a newer version:
 
 - the vendored autoreview engine in `skills/code-review/` (`SKILL.md`, `scripts/`, `tests/`) from [openclaw/agent-skills](https://github.com/openclaw/agent-skills), under `skills/code-review/LICENSE` (MIT, Copyright (c) 2026 openclaw).
-- `skills/prototype/` (`SKILL.md`, `UI.md`, `LOGIC.md`), the whole of `skills/domain-modeling/`, and `skills/codebase-design/`'s two reference files (`DEEPENING.md`, `DESIGN-IT-TWICE.md`), all from [mattpocock/skills](https://github.com/mattpocock/skills), each set under its directory's `LICENSE` (MIT, Copyright (c) 2026 Matt Pocock).
+- `skills/prototype/` (`SKILL.md`, `UI.md`, `LOGIC.md`) and the whole of `skills/domain-modeling/`, both from [mattpocock/skills](https://github.com/mattpocock/skills), each set under its directory's `LICENSE` (MIT, Copyright (c) 2026 Matt Pocock).
 - the codex agent and the companion runtime every codex dispatch runs on, from OpenAI's [codex plugin for Claude Code](https://github.com/openai/codex-plugin-cc) (Apache 2.0, with upstream's NOTICE): the whole of `vendor/codex/`, under `vendor/codex/LICENSE` and `NOTICE`.
 
 Edit any of them upstream, not here. Bringing in a newer version means copying it again and reading the diff.
