@@ -94,10 +94,8 @@ skills/           the canonical methods and orchestration entry points
 .agents/          in-repo skill discovery links
 .claude-plugin/   Claude Code packaging
 hooks/            the route guard and the session lifecycle hooks' registration
-scripts/          GitHub mutations and the vendored codex companion runtime
-agents/           the vendored codex agent
-prompts/          the vendored runtime's prompts
-schemas/          the vendored runtime's review output schema
+scripts/          GitHub mutations
+vendor/codex/     the codex agent and the companion runtime, copied from upstream
 tests/            the verification gate's suites
 docs/adr/         append-only decision records
 docs/lessons/     failure records: what happened, the rule, where it is enforced
@@ -120,7 +118,7 @@ These files are other people's work. The scripts and suites are used unchanged; 
 
 - the vendored autoreview engine in `skills/code-review/` (`SKILL.md`, `scripts/`, `tests/`) from [openclaw/agent-skills](https://github.com/openclaw/agent-skills), under `skills/code-review/LICENSE` (MIT, Copyright (c) 2026 openclaw).
 - `skills/prototype/` (`SKILL.md`, `UI.md`, `LOGIC.md`) and, in `skills/domain-modeling/`, the entry formats `CONTEXT-FORMAT.md` and `ADR-FORMAT.md`, all from [mattpocock/skills](https://github.com/mattpocock/skills), each set under its directory's `LICENSE` (MIT, Copyright (c) 2026 Matt Pocock).
-- the codex companion runtime every codex dispatch runs on, from OpenAI's [codex plugin for Claude Code](https://github.com/openai/codex-plugin-cc) (Apache 2.0, with upstream's NOTICE): the codex agent in `agents/`, the runtime in `scripts/`, and its `prompts/` and `schemas/`, under `agents/LICENSE` and `NOTICE`.
+- the codex companion runtime every codex dispatch runs on, from OpenAI's [codex plugin for Claude Code](https://github.com/openai/codex-plugin-cc) (Apache 2.0, with upstream's NOTICE): the whole of `vendor/codex/`, under `vendor/codex/LICENSE` and `NOTICE`.
 
 Edit any of them upstream, not here. Bringing in a newer version means copying it again and reading the diff. [`THIRD_PARTY.md`](THIRD_PARTY.md) carries each one's pinned revision, local scoping, and sync procedure.
 
