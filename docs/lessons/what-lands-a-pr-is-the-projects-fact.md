@@ -1,0 +1,7 @@
+# What lands a PR is the project's fact, not the closer's default
+
+What happened: close carried one repository's landing procedure as its default. It created a `hold` label by that literal name, and it armed `gh pr merge --auto --squash` on every PR it opened. Both are per-project facts. In a repository owned by a merge queue, where the queue takes every non-draft PR and auto-merge stays enabled for the bots that need it, the armed PR lands on green beside the queue, so it never gets tested against the base it lands on, which is the one property the queue exists for. The hedge close carried ("where the repository arms its own, arm nothing") did not save it, because it asked the closer to already know the procedure nothing had read.
+
+The rule: a run reads the project's landing procedure where it reads the project's commands, from the agent map, and writes back what it had to discover. Close then brakes with the brake that procedure names, arms only where the procedure makes arming the opener's act, arms nothing where a merge queue owns the merge, and reports what lands the PR from the procedure rather than from the platform's answer alone. A repository that documents none keeps the old behavior, so nothing regresses on a mapless project.
+
+Enforced: skills/open/SKILL.md ("The landing procedure is one of those facts"), skills/close/SKILL.md ("Arm auto-merge only where that procedure makes arming the opener's act"), tests/worker-doctrine.test.ts, tests/setup-contract.test.ts.

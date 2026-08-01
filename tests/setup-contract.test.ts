@@ -46,5 +46,14 @@ describe("setup semantic reconciliation", () => {
     expect(open).toContain("complete any assignment or other human-visible signal");
     expect(open).toContain("Preserve the tracker owner's force-push rule.");
     expect(open).toContain("When no map or command owner exists, discover the commands from the repository");
+    // What lands a PR is read where the commands are read, so close delivers
+    // under the project's own procedure instead of one repository's defaults
+    // (docs/lessons/what-lands-a-pr-is-the-projects-fact.md).
+    expect(open, "the run reads what lands a PR beside the commands").toContain(
+      "The landing procedure is one of those facts",
+    );
+    expect(open, "the three facts close needs are named where they are read").toContain(
+      "what arms a PR to land (the opener arms it, a merge queue takes every non-draft PR, or nothing does)",
+    );
   });
 });

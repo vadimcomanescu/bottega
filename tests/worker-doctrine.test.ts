@@ -356,8 +356,11 @@ describe("portable worker doctrine", () => {
     expect(close, "the run never merges by hand").toContain(
       "Never merge a PR by hand and never approve one",
     );
-    expect(close, "the run arms what the repository lands with").toContain(
-      "Arm auto-merge on the PR you open",
+    expect(close, "arming is the opener's act only where the project says so").toContain(
+      "Arm auto-merge only where that procedure makes arming the opener's act",
+    );
+    expect(close, "a queue-owned merge is armed by the open PR and nothing else").toContain(
+      "Where a merge queue owns the merge",
     );
     expect(close, "a held PR needs the repository enforcing its label, queue or check").toContain(
       "a merge queue that refuses the PR while the label is present",
@@ -365,7 +368,12 @@ describe("portable worker doctrine", () => {
     expect(close, "the fallback hold shape stays accepted").toContain(
       "a required check that is red because the label is present",
     );
-    expect(close, "a hold run's PR arrives carrying its label").toContain("--label hold");
+    expect(close, "a held PR carries the brake its project names").toContain(
+      "apply the brake the landing procedure names",
+    );
+    expect(close, "a project documenting no brake still gets the hold label").toContain(
+      "--label hold",
+    );
     expect(close, "a requirement only a person can satisfy ends the run at an open PR").toContain(
       "open and unmerged",
     );
