@@ -136,3 +136,4 @@ Walk this list against the finished file after creating or editing any skill. Fi
 - [ ] Restated ideas are collapsed into a **leading word** where one exists.
 - [ ] One term per concept and one concept per term, checked against the glossary the text belongs to. Prohibitions rephrased to their positive target.
 - [ ] No semicolons and no em dashes in prose, the frontmatter description included.
+- [ ] The path holds: read each skill this file routes to and each skill that routes into it. Every meaning keeps its one home across those files, every section this file relies on is named by the sentence that routes to it, and every sentence agrees with those files and the decision records behind them.

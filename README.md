@@ -20,7 +20,7 @@ A run needs `git`, `node`, and the [GitHub CLI](https://cli.github.com/) on PATH
 | Command | What it does |
 | --- | --- |
 | `/bottega:maestro <task, or issue URL>` | Take a task, bug, or issue to a reviewed, evidence-backed PR ready to merge |
-| `/bottega:improve [area or direction]` | Scan the codebase for deepening opportunities, agree the strongest one, then take it through a run |
+| `/bottega:improve [area or direction]` | Scan the codebase for deepening opportunities, verify the strongest one, then take it through a run |
 | `/bottega:discover <request or issue>` | Understand what the request means in the repository, then find its unknowns and settle them with you |
 | `/bottega:code-review <PR, ref range, or worktree>` | Review a diff through the vendored review engine and fix what it finds, looping to a converged head |
 | `/bottega:panel <the decision>` | Put one costly decision to blinded independent drafts from different companies' models, with a judge that only compares them |

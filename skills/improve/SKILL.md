@@ -1,12 +1,12 @@
 ---
 name: improve
-description: Scan a codebase for deepening opportunities, present the strongest candidates, agree one, then take it through a run with the scan standing as its discovery. Use bottega:improve when the user wants the codebase scanned for what to improve next. Never use proactively. It opens a run, which costs hours of autonomous agent work.
+description: Scan a codebase for deepening opportunities, verify the strongest candidate on the code, then take it through a run to a reviewed PR. Use bottega:improve when the user wants the codebase scanned for what to improve next. Never use proactively. It opens a run, which costs hours of autonomous agent work.
 argument-hint: "<optional area or direction>"
 ---
 
 # Improve
 
-Find the refactors that turn shallow modules into deep ones, so the codebase gets easier to test and to navigate. Agree the strongest one with me, and hand it to a run.
+Find the refactors that turn shallow modules into deep ones, so the codebase gets easier to test and to navigate. Pick the strongest, verify it on the code, and hand it to a run.
 
 ## 1. Read
 
@@ -36,12 +36,10 @@ Let the ADRs constrain your scan. Surface a conflict with an ADR only when the f
 
 Check open issues and PRs before proposing. An improvement already tracked or already in flight is not a finding.
 
-## 5. Propose
+## 5. Pick and verify
 
-Present the strongest candidates in the conversation, each a coherent unit per `bottega:architect`: the files, the friction with its evidence, the change in product terms (interface design belongs to the run), the gain in leverage and locality, and a strength (strong, worth exploring, or speculative). Lead with the candidate you would take first and why. No HTML, no file report. I pick one or reject.
-
-When I reject a candidate for a reason a future scan would need, offer to record it as an ADR so the candidate is not re-proposed. Write that ADR yourself, because a rejected candidate never reaches a run. Skip ephemeral reasons.
+Rank the candidates per `bottega:architect`, each a coherent unit: the files, the problem with its proof from the code, the change in product terms (interface design belongs to the run), and the gain in leverage and locality. Take the strongest and verify it on the real code before spending a run on it: apply the deletion test and say what complexity concentrates where, name a test the current interface makes hard to write, and check the change against the ADRs covering the area. When a candidate fails verification, take the next one, and record the failure as an ADR when a future scan would rediscover the same dead end. When every candidate fails, report what the scan found and stop.
 
 ## 6. Run it
 
-On my pick, sharpen the candidate with me until its acceptance criteria are measurable, then take it through `bottega:maestro`, handing over the friction evidence, the agreed change, and the criteria.
+Take the verified candidate through `bottega:maestro`, handing over the problem with its proof, the change in product terms, and measurable acceptance criteria. The handoff stands as the run's discovery and spec, and the run starts at the plan.
