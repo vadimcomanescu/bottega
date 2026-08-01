@@ -30,14 +30,14 @@ The domain modeling method a run's design and discovery keep the glossary and de
 - Local edits: none. The grilling interview (upstream `skills/productivity/grilling`) stays absorbed into `skills/discover/SKILL.md`, and the spec skill's shape follows upstream `skills/engineering/to-spec`; that adapted prose takes a sync as a re-read of upstream's diff, applied by hand where it still fits.
 - Sync: re-copy the three files and the license whole, then read the diff.
 
-## `skills/codebase-design/` (`SKILL.md`, `DEEPENING.md`, `DESIGN-IT-TWICE.md`)
+## `skills/codebase-design/DEEPENING.md` and `DESIGN-IT-TWICE.md`
 
-The deep-module vocabulary and principles design work speaks in: module, interface, depth, seam, adapter, leverage, locality, with the deepening method and the design-it-twice sub-agent pattern beside them.
+How to deepen a cluster of shallow modules given its dependencies, and how to design one interface several radically different ways at once.
 
 - Upstream: `mattpocock/skills`, under `skills/engineering/codebase-design`.
-- Pinned at `2ab9580` (synced 2026-08-01), all three files upstream's bytes, with upstream's `LICENSE` (MIT, Matt Pocock) beside them. Upstream's `agents/` registration file is not taken.
-- Local edits: none.
-- Sync: re-copy the three files and the license whole, then read the diff.
+- Pinned at `2ab9580` (synced 2026-08-01), both files upstream's bytes, with upstream's `LICENSE` (MIT, Matt Pocock) beside them. Upstream's `agents/` registration file is not taken.
+- Local edits: none. The `SKILL.md` beside them is bottega's own prose. It started from the same upstream skill and keeps its glossary and its avoid-words, because the vocabulary is what the skill is for. It carries no sync contract: a later upstream release is read for what is worth taking, never applied.
+- Sync: re-copy both files and the license whole, then read the diff.
 
 ## `vendor/codex/`, the codex agent and the companion runtime
 
