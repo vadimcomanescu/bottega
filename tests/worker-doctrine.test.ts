@@ -138,14 +138,14 @@ describe("portable worker doctrine", () => {
       );
     }
 
-    // The vendored engine names its engines and its fix builder itself; its
+    // The vendored engine names its engines and its lens seats itself; its
     // local scoping is recorded in THIRD_PARTY.md.
     const review = read("skills/code-review/SKILL.md");
     expect(review).toContain("runs on opus-5");
     expect(review).toContain("--model codex=gpt-5.6-sol");
     expect(review).toContain("--model claude=claude-fable-5");
-    expect(review, "the rerun engine never comes from the company that wrote the fix").toContain(
-      "never comes from the company whose model wrote the fix",
+    expect(review, "the Spec lens names its model and its fallback").toContain(
+      "gpt-5.6-sol at high effort, per `bottega:use-codex` where that runtime is installed",
     );
   });
 
@@ -374,14 +374,21 @@ describe("portable worker doctrine", () => {
     // THIRD_PARTY.md), and the author's own convergence rule survives verbatim.
     const autoreview = read("skills/code-review/SKILL.md");
     expect(autoreview).toContain("two review-triggered patch cycles have not converged");
-    // The woven run rules: blind prompt, fresh-builder fix dispatch, rerun to clean.
-    expect(autoreview).toContain("never the run's other design decisions");
+    // The local additions: the blind prompt, the self-read of REVIEW.md, the
+    // lenses, and the panel held across reruns.
+    expect(autoreview).toContain("nothing else about the caller's design");
     expect(autoreview).toContain("one sentence of threat model");
     expect(autoreview).toContain("**Out of threat model**");
-    expect(autoreview).toContain(
-      "dispatches the accepted findings to one fresh builder, briefed as any builder with the implement doctrine, the findings, and the project's commands; the maestro never edits production code",
-    );
+    expect(autoreview).toContain("Check the reviewed repository's root for `REVIEW.md`");
+    expect(autoreview).toContain("report each axis apart so one cannot mask the other");
+    expect(autoreview).toContain("A panel set at invocation stays the panel on every rerun");
     expect(autoreview).toContain("repeated until the helper exits clean at the accepted head");
+    // The run's closeout seat: the seat runs the loop whole, the maestro rules
+    // on its report and never edits.
+    expect(maestro).toContain("dispatch the closeout seat");
+    expect(maestro).toContain("a panel set at dispatch stays the panel on every rerun");
+    expect(maestro).toContain("Rule on the report, not on each routine finding again");
+    expect(maestro).toContain("You never edit production code");
   });
 
   it("keeps every lesson enforced somewhere that exists", () => {

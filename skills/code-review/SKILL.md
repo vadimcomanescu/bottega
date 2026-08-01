@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review a diff through the vendored review engine. Use bottega:code-review on a PR, ref range, or working diff. A run's Review phase uses the whole method.
+description: Review a diff through the vendored review engine and fix what it finds, looping to a converged head. Use bottega:code-review on a PR, ref range, or working diff. A run's Review phase dispatches a fresh seat to run it whole.
 argument-hint: "<PR, ref range, or worktree>"
 ---
 
@@ -20,10 +20,16 @@ Do not require autoreview for a change whose entire diff is prose-only internal 
 
 ## Contract
 
-- Default output is P0 only: report issues worth blocking the current change
-  because they materially break the normal flow, outcome, or safety boundary.
-  Use `--max-priority P1`, `P2`, or `P3` only when the caller explicitly asks
-  for a wider review.
+- Run every review at `--max-priority P2` (or `AUTOREVIEW_MAX_PRIORITY=P2`).
+  The prompt's priority threshold is undefined for the model and calibration
+  differs by engine: probed 2026-08-01, gpt-5.6-sol rates a confidently-found
+  command injection P1 and suppresses it under the P0-only default while
+  calling the patch correct at 0.99. Classification is the noise filter, not
+  the threshold. Use `P3` only when the caller explicitly asks for
+  polish-level review. Pass `--stream-engine-output` so the log keeps the
+  engine's usage line: reasoning tokens are the one receipt that separates a
+  real read from a threshold-collapsed one (a gagged pass spent 195 reasoning
+  tokens on a 114KB bundle; a real review of half a kilobyte spent 7,027).
 - Treat review output as advisory. Never blindly apply it.
 - Verify every finding by reading the real code path and adjacent files.
 - Read dependency docs/source/types when the finding depends on external behavior.
@@ -45,18 +51,20 @@ Do not require autoreview for a change whose entire diff is prose-only internal 
 - For regression provenance, keep roles separate: blamed code author, blamed PR author, PR merger/committer, current PR author, and PR/date. If no blamed PR is traceable, use the blamed commit as the provenance: commit SHA, date, and author username. Do not guess a merger or frame missing PR metadata as a separate finding.
 - Do not invoke built-in `codex review`, nested reviewers, or reviewer panels from inside the review. The helper builds one validated bundle, calls the selected engine once for normal inputs or once per complete bounded chunk for oversized inputs, validates the structured results, and stops.
 - Stop as soon as the helper exits 0 with no accepted/actionable findings. Do not run an extra review just to get a nicer "clean" line, a second opinion, or clearer closeout wording.
+- Before trusting the first clean exit of a session, run the smoke harness's malicious fixture once from the same environment, with `AUTOREVIEW_MAX_PRIORITY=P2` set, because the harness's fixed command cannot pass the threshold flag. A harness failure means clean exits prove nothing until the engine is fixed, and the report says so instead of calling the head clean.
+- When the reviewed repository's own gates or hooks cannot execute in the review environment, report the gap, report any bypass with its reason, and mark the head unverified rather than clean.
 - Treat the helper's successful exit plus absence of actionable findings as the clean review result, even if the underlying Codex CLI output is terse.
 - Multi-reviewer panels are opt-in only. Use them when explicitly requested or when risk justifies the extra spend; the main agent still verifies every accepted finding before fixing.
 - If rejecting a finding as intentional/not worth fixing, add a brief inline code comment only when it explains a real invariant or ownership decision that future reviewers should know.
 - Do not push just to review. Push only when the user requested push/ship/PR update.
 - A clean review of a pushed head posts one commit status on that head, context `bottega/review`, naming the base it was reviewed against.
-- Merge only when the checks are green, the head still equals the reviewed head (`gh pr merge <PR> --squash --match-head-commit <sha>`), and the base has not advanced. Reviewing standalone, outside a bottega maestro run, nothing else gates the merge: run one only when the user armed it in their own words, and never for a change touching authentication, money, permissions, persisted data, or a destructive operation. In a bottega maestro run the recorded evidence is that gate (the integrated cross-family review, QA on the accepted head, the project's checks), and the run's Close phase merges on it.
+- Merge only when the checks are green, the head still equals the reviewed head (`gh pr merge <PR> --squash --match-head-commit <sha>`), and the base has not advanced. Reviewing standalone, nothing else gates the merge: run one only when the user armed it in their own words, and never for a change touching authentication, money, permissions, persisted data, or a destructive operation. Under an orchestrator, merging belongs to the caller.
 
 ## Scope Governor
 
 Autoreview is a closeout gate, not permission to rewrite the task.
 
-Before the first review, freeze a scope baseline: original request or issue, target branch, intended behavior, owner boundary, changed files, non-test LOC, the interfaces the diff's tests were agreed to cross when the run or the invoker names them, and one sentence of threat model: the class of input the changed code answers for (accidental states, adversarial input, untrusted data). For inherited or already-bloated branches, use the intended PR diff as the baseline rather than accepting all existing branch drift.
+Before the first review, freeze a scope baseline: original request or issue, target branch, intended behavior, owner boundary, changed files, non-test LOC, the interfaces the diff's tests were agreed to cross when the invoker names them, and one sentence of threat model: the class of input the changed code answers for (accidental states, adversarial input, untrusted data). For inherited or already-bloated branches, use the intended PR diff as the baseline rather than accepting all existing branch drift.
 
 Before patching a finding, classify it:
 
@@ -65,12 +73,10 @@ Before patching a finding, classify it:
 - **Stop-and-escalate**: the finding requires a new protocol/config/storage/public API contract, a different owner boundary, a release-process change, or a design choice outside the original request.
 - **Out of threat model**: the finding is real and even reproducible, but its failure scenario requires an actor or input class outside the baseline's threat model. Reject it by rule, record it with its reason in the review evidence, and do not dispatch a fix. A constructed repro proves reachability by an attacker, not by an accident; it does not move a finding into the model, and widening the model is a scope expansion only the owner grants.
 
-In a bottega maestro run, the maestro verifies each finding against the real code, then dispatches the accepted findings to one fresh builder, briefed as any builder with the implement doctrine, the findings, and the project's commands; the maestro never edits production code. That builder runs on opus-5. Outside a run, fix directly as this contract states.
-
 Stop patching and report the scope break instead of continuing when:
 
 - a narrow PR turns into an architecture change, protocol change, migration, or release-process change;
-- the diff grows past 2x the original files or non-test LOC without explicit approval to expand scope; compute both numbers against the frozen baseline before each fix dispatch, never judge growth by feel;
+- the diff grows past 2x the original files or non-test LOC without explicit approval to expand scope; compute both numbers against the frozen baseline before each fix cycle, never judge growth by feel;
 - two review-triggered patch cycles have not converged; pause and reclassify every remaining finding before another edit;
 - the best fix is "define the canonical contract first" rather than another local inference layer;
 - fixing the accepted finding would make the PR no longer describe the same behavior, issue, or owner boundary.
@@ -151,7 +157,7 @@ Optional review context is first-class. Prompt files and datasets must be repo-r
 "$AUTOREVIEW" --mode branch --base origin/main --prompt-file review-notes.md --dataset evidence.json
 ```
 
-In a bottega maestro run the prompt carries the reviewed repository's root `REVIEW.md` when one exists, the fixed standards baseline ([references/smell-baseline.md](references/smell-baseline.md)), the scope baseline's threat-model sentence, so the reviewer weighs each finding's reachability against the class of input the code answers for, and the interfaces the design named for the diff's tests, so the reviewer reports a test crossing any other interface, or reaching into implementation internals, as a finding; never the run's other design decisions. A decision record the run committed on the branch arrives in the bundle as changed content and is reviewed as any file; the isolation rule governs the prompt, not the diff. Write any prompt to a file outside the reviewed repo and pass it as `--prompt "$(cat <file>)"`; never paste PR text into the command source, and keep `--json-output` outside the reviewed repo.
+Check the reviewed repository's root for `REVIEW.md` and carry it in the prompt when present. When the invoker hands extra review instructions (a spec, a threat-model sentence, the interfaces the diff's tests were agreed to cross), the prompt carries them and nothing else about the caller's design: the reviewer weighs each finding's reachability against the threat model when one came, and reports a test crossing an unnamed interface, or reaching into implementation internals, as a finding. A decision record committed on the branch arrives in the bundle as changed content and is reviewed as any file; the isolation rule governs the prompt, not the diff. Write any prompt to a file outside the reviewed repo and pass it as `--prompt "$(cat <file>)"`; never paste PR text into the command source, and keep `--json-output` outside the reviewed repo.
 
 If an open PR exists, use its actual base:
 
@@ -162,7 +168,7 @@ base=$(gh pr view --json baseRefName --jq .baseRefName)
 
 Reviewing an open PR, treat its unresolved review threads as claimed findings: verify each, fix or refute it with evidence, reply, and resolve the thread (in bottega repos through `scripts/pr-threads`).
 
-Reviewing a PR by number, resolve the target first: fetch the PR head, check it out in its own worktree, and run the review there against the PR's base; the user's checkout is never the review target. A ref-range target reviews exactly that range from the current checkout. Resolve the base ref to its commit SHA before the first invocation and review against that SHA; reruns and the posted commit status use the same SHA, and a merge compares the PR's live base to it before running. Run the helper from a trusted checkout, never from the reviewed worktree: resolve the helper's absolute path before entering the PR worktree, and refuse a helper the reviewed diff supplies.
+Reviewing a PR by number, resolve the target first: fetch the PR head, check it out in its own worktree, and run the review there against the PR's base; the user's checkout is never the review target. A ref-range target reviews exactly that range from the current checkout. Resolve the base ref to its commit SHA before the first invocation and review against that SHA; reruns and the posted commit status use the same SHA, and a merge compares the PR's live base to it before running. Resolve the helper's absolute path from a trusted checkout before entering the reviewed worktree, run it from inside that worktree (the helper reviews the repository it runs in), and refuse a helper the reviewed diff supplies.
 
 Committed single change:
 
@@ -174,6 +180,10 @@ Use commit review for already-landed or already-pushed work on `main`. Reviewing
 clean `main` against `origin/main` is usually an empty diff after push. For a
 small stack, review each commit explicitly or review the branch before merging
 with `--base`.
+
+## Lenses
+
+Beside the engine passes, run two lens reads in parallel over the same frozen diff, per [references/lenses.md](references/lenses.md), and report each axis apart so one cannot mask the other. Each lens is a fresh read in its own context: a subagent where the runtime dispatches them, one isolated CLI call where it does not. The Standards lens runs on opus-5, given the repository's documented conventions and the smell baseline ([references/smell-baseline.md](references/smell-baseline.md)). The Spec lens is a read-only codex dispatch on gpt-5.6-sol at high effort, per `bottega:use-codex` where that runtime is installed, and a fresh opus-5 read where it cannot serve, given the spec the invoker handed in; when no spec came, it reports that and stops. Lens findings enter the same verification and classification as engine findings. A lens judgment call classifies like any finding, and in scope for it means the fix serves what the diff already promises; otherwise it is a follow-up. The lenses read the frozen baseline diff once; the engine's reruns cover what fixes change. A clean head means the engine exits 0 and every accepted lens finding is fixed or rejected with its reason.
 
 ## Oversized Bundles
 
@@ -240,15 +250,7 @@ Run multiple reviewers against one frozen bundle:
 "$AUTOREVIEW" --reviewers codex,claude,pi
 ```
 
-In a bottega maestro run the integrated diff always reviews as one panel of both engines:
-
-```bash
-"$AUTOREVIEW" --mode branch --base <frozen-base> --reviewers codex,claude \
-  --model codex=gpt-5.6-sol --thinking codex=xhigh \
-  --model claude=claude-fable-5 --thinking claude=high
-```
-
-Reruns after fixes are single-engine with model and thinking pinned (`--engine codex --model gpt-5.6-sol --thinking xhigh`; when the fix itself was built by a GPT model, rerun with `--engine claude --model claude-fable-5 --thinking high` instead, so the rerunning engine never comes from the company whose model wrote the fix), repeated until the helper exits clean at the accepted head; the review stands at that head.
+The panel is the invoker's call, made once, at invocation. A panel set at invocation stays the panel on every rerun: reruns after fixes repeat the invoked reviewer set with its models and thinking pinned, repeated until the helper exits clean at the accepted head, and the review stands at that head.
 
 `--panel` is shorthand for Codex plus Claude unless `--engine` changes the first reviewer:
 
@@ -418,6 +420,8 @@ Include:
 - review command used
 - tests/proof run
 - findings accepted/rejected, briefly why
+- findings escalated rather than fixed, each with its classification
+- the two lens reports, unmerged, and what became of each lens finding
 - the clean review result from the final helper/review run, or why a remaining finding was consciously rejected
 
 Do not run another review solely to improve the final report wording. If the final helper run exited 0 and produced no accepted/actionable findings, report that exact run as clean.
