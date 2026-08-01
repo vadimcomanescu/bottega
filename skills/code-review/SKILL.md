@@ -30,6 +30,9 @@ Do not require autoreview for a change whose entire diff is prose-only internal 
   engine's usage line: reasoning tokens are the one receipt that separates a
   real read from a threshold-collapsed one (a gagged pass spent 195 reasoning
   tokens on a 114KB bundle; a real review of half a kilobyte spent 7,027).
+  A receipt between those marks decides nothing alone: the session's smoke
+  probe is the tiebreak. Probe passed, trust the exit; no probe ran this
+  session, run it before trusting.
 - Treat review output as advisory. Never blindly apply it.
 - Verify every finding by reading the real code path and adjacent files.
 - Read dependency docs/source/types when the finding depends on external behavior.
@@ -52,7 +55,7 @@ Do not require autoreview for a change whose entire diff is prose-only internal 
 - Do not invoke built-in `codex review`, nested reviewers, or reviewer panels from inside the review. The helper builds one validated bundle, calls the selected engine once for normal inputs or once per complete bounded chunk for oversized inputs, validates the structured results, and stops.
 - Stop as soon as the helper exits 0 with no accepted/actionable findings. Do not run an extra review just to get a nicer "clean" line, a second opinion, or clearer closeout wording.
 - Before trusting the first clean exit of a session, run the smoke harness's malicious fixture once from the same environment, with `AUTOREVIEW_MAX_PRIORITY=P2` set, because the harness's fixed command cannot pass the threshold flag. A harness failure means clean exits prove nothing until the engine is fixed, and the report says so instead of calling the head clean.
-- When the reviewed repository's own gates or hooks cannot execute in the review environment, report the gap, report any bypass with its reason, and mark the head unverified rather than clean.
+- When the reviewed repository's own gates or hooks cannot execute in the review environment, report the gap, report any bypass with its reason, and mark the head unverified rather than clean. Unverified outranks the clean-head definition wherever both apply.
 - Treat the helper's successful exit plus absence of actionable findings as the clean review result, even if the underlying Codex CLI output is terse.
 - Multi-reviewer panels are opt-in only. Use them when explicitly requested or when risk justifies the extra spend; the main agent still verifies every accepted finding before fixing.
 - If rejecting a finding as intentional/not worth fixing, add a brief inline code comment only when it explains a real invariant or ownership decision that future reviewers should know.
@@ -64,7 +67,7 @@ Do not require autoreview for a change whose entire diff is prose-only internal 
 
 Autoreview is a closeout gate, not permission to rewrite the task.
 
-Before the first review, freeze a scope baseline: original request or issue, target branch, intended behavior, owner boundary, changed files, non-test LOC, the interfaces the diff's tests were agreed to cross when the invoker names them, and one sentence of threat model: the class of input the changed code answers for (accidental states, adversarial input, untrusted data). For inherited or already-bloated branches, use the intended PR diff as the baseline rather than accepting all existing branch drift.
+Before the first review, freeze a scope baseline: original request or issue, target branch, intended behavior, owner boundary, changed files, non-test LOC (test-support helpers count as test), the interfaces the diff's tests were agreed to cross when the invoker names them, and one sentence of threat model: the class of input the changed code answers for (accidental states, adversarial input, untrusted data). For inherited or already-bloated branches, use the intended PR diff as the baseline rather than accepting all existing branch drift.
 
 Before patching a finding, classify it:
 
@@ -157,7 +160,7 @@ Optional review context is first-class. Prompt files and datasets must be repo-r
 "$AUTOREVIEW" --mode branch --base origin/main --prompt-file review-notes.md --dataset evidence.json
 ```
 
-Check the reviewed repository's root for `REVIEW.md` and carry it in the prompt when present. When the invoker hands extra review instructions (a spec, a threat-model sentence, the interfaces the diff's tests were agreed to cross), the prompt carries them and nothing else about the caller's design: the reviewer weighs each finding's reachability against the threat model when one came, and reports a test crossing an unnamed interface, or reaching into implementation internals, as a finding. A decision record committed on the branch arrives in the bundle as changed content and is reviewed as any file; the isolation rule governs the prompt, not the diff. Write any prompt to a file outside the reviewed repo and pass it as `--prompt "$(cat <file>)"`; never paste PR text into the command source, and keep `--json-output` outside the reviewed repo.
+Check the reviewed repository's root for `REVIEW.md` and carry it in the prompt when present. When the invoker hands extra review instructions (a spec, a threat-model sentence, the interfaces the diff's tests were agreed to cross), the prompt carries them and nothing else about the caller's design: the reviewer weighs each finding's reachability against the threat model when one came, and reports a test crossing an unnamed interface, or reaching into implementation internals, as a finding. A decision record committed on the branch arrives in the bundle as changed content and is reviewed as any file; the isolation rule governs the prompt, not the diff. Write any prompt to a file outside the reviewed repo and pass it as `--prompt "$(cat <file>)"`; never paste PR text into the command source, and keep `--json-output` outside the reviewed repo. Where this conflicts with the repo-relative `--prompt-file` example above, the outside-the-repo rule wins: a prompt never lives inside the reviewed repository.
 
 If an open PR exists, use its actual base:
 
@@ -183,7 +186,7 @@ with `--base`.
 
 ## Lenses
 
-Beside the engine passes, run two lens reads in parallel over the same frozen diff, per [references/lenses.md](references/lenses.md), and report each axis apart so one cannot mask the other. Each lens is a fresh read in its own context: a subagent where the runtime dispatches them, one isolated CLI call where it does not. The Standards lens runs on opus-5, given the repository's documented conventions and the smell baseline ([references/smell-baseline.md](references/smell-baseline.md)). The Spec lens is a read-only codex dispatch on gpt-5.6-sol at high effort, per `bottega:use-codex` where that runtime is installed, and a fresh opus-5 read where it cannot serve, given the spec the invoker handed in; when no spec came, it reports that and stops. Lens findings enter the same verification and classification as engine findings. A lens judgment call classifies like any finding, and in scope for it means the fix serves what the diff already promises; otherwise it is a follow-up. The lenses read the frozen baseline diff once; the engine's reruns cover what fixes change. A clean head means the engine exits 0 and every accepted lens finding is fixed or rejected with its reason.
+Beside the engine passes, run two lens reads in parallel over the same frozen diff, per [references/lenses.md](references/lenses.md), and report each axis apart so one cannot mask the other. Each lens is a fresh read in its own context: a subagent where the runtime dispatches them, one isolated CLI call where it does not. The Standards lens runs on opus-5, given the repository's documented conventions and the smell baseline ([references/smell-baseline.md](references/smell-baseline.md)). The Spec lens is a read-only codex dispatch on gpt-5.6-sol at high effort, per `bottega:use-codex` where that runtime is installed (installed means the codex agent is registered in the dispatching runtime, not merely a codex binary on PATH), and a fresh opus-5 read where it cannot serve, given the spec the invoker handed in; when no spec came, it reports that and stops. Lens findings enter the same verification and classification as engine findings. A lens judgment call classifies like any finding, and in scope for it means the fix serves what the diff already promises; otherwise it is a follow-up. The lenses read the frozen baseline diff once; the engine's reruns cover what fixes change. A clean head means the engine exits 0 and every accepted lens finding is fixed or rejected with its reason.
 
 ## Oversized Bundles
 
