@@ -353,6 +353,9 @@ describe("portable worker doctrine", () => {
       read("skills/code-review/SKILL.md"),
       "a finding with a runnable check is settled by running it",
     ).toContain("running the check that settles it when one exists");
+    // The word alone routes nowhere from skill prose: the sentence names the tool.
+    expect(maestro).toContain("Ultracode the build through the Workflow tool");
+    expect(maestro).toContain("ultracode the repair through the Workflow tool");
 
     const close = read("skills/close/SKILL.md");
     expect(close).toContain("put the rule where the repository enforces it best");
