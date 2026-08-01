@@ -11,7 +11,7 @@
     {
       "name": "bottega",
       "source": "./",
-      "description": "/bottega:maestro is the whole pipeline: the orchestrator settles the unknowns with the user, owns the design, puts a costly decision to a panel of different companies' models, builds with worker agents under per-slice review, has the integrated diff reviewed by both Claude and GPT, drives QA on every surface the work touched, and delivers a PR that merges itself on green or waits held, as the user answered at launch. The user takes part in two places, discovery and that launch answer. code-review, improve, panel, setup, and bro are available on their own.",
+      "description": "/bottega:maestro is the whole pipeline: the orchestrator settles the unknowns with the user, owns the design, puts a costly decision to a panel of different companies' models, builds with worker agents under per-slice review, has the integrated diff reviewed and repaired by a fresh closeout seat with a two-engine panel when the diff warrants the spend, drives QA on every surface the work touched, and delivers a PR that merges itself on green or waits held, as the user answered at launch. The user takes part in two places, discovery and that launch answer. code-review, improve, panel, setup, and bro are available on their own.",
       "author": {
         "name": "Vadim Comanescu"
       },

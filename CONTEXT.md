@@ -17,8 +17,12 @@ The session running the maestro method: it keeps design and arbitration in its o
 _Avoid_: maestro (the skill's name, not the actor's), coordinator
 
 **Worker**:
-A fresh context given one dispatched job and returning one report: a builder, a reviewer, the QA driver, a panel seat, the codex second opinion.
-_Avoid_: seat (panel seats only), agent (the harness's word)
+A fresh context given one dispatched job and returning one report: a builder, a reviewer, the QA driver, a panel seat, the closeout seat, the codex second opinion.
+_Avoid_: agent (the harness's word)
+
+**Seat**:
+A dispatched position one model occupies whole: a panel seat holding one draft, or the closeout seat running the review method to its converged head.
+_Avoid_: seat for any other worker
 
 **Builder**:
 The worker that changes product code, on one slice or one repair, under the implement doctrine.
