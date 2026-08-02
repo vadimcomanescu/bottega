@@ -66,7 +66,8 @@ describe("portable worker doctrine", () => {
           path !== "skills/autoreview/SKILL.md" &&
           !path.startsWith("skills/autoreview/tests/") &&
           !path.startsWith("skills/prototype/") &&
-          !path.startsWith("skills/domain-modeling/"),
+          !path.startsWith("skills/domain-modeling/") &&
+          !path.startsWith("skills/setup/"),
       ),
       ...filesUnder("skills-internal", ".md"),
     ];

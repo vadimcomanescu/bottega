@@ -13,7 +13,7 @@ Bottega is a Claude Code plugin that takes a piece of work from a request to a p
 
 Then start a run with `/bottega:maestro <task, or issue URL>`.
 
-A run needs `git`, `node`, and the [GitHub CLI](https://cli.github.com/) on PATH, plus `trufflehog`, which the review's secret scan requires and never installs itself. It needs the codex CLI logged in for the reads that go to a GPT model. Without that CLI, fresh Claude workers take those reads and the PR says so. `/bottega:setup` checks all of this against your machine and repository and reports what is missing. A run also checks at launch that the session is on the orchestrator model the maestro skill names, and tells you when it is not. Nothing else is assumed about the project.
+A run needs `git`, `node`, and the [GitHub CLI](https://cli.github.com/) on PATH, plus `trufflehog`, which the review's secret scan requires and never installs itself. It needs the codex CLI logged in for the reads that go to a GPT model. Without that CLI, fresh Claude workers take those reads and the PR says so. A run reports anything else missing at the moment it reaches for it. A run also checks at launch that the session is on the orchestrator model the maestro skill names, and tells you when it is not. Nothing else is assumed about the project.
 
 ## Commands
 
@@ -27,7 +27,7 @@ A run needs `git`, `node`, and the [GitHub CLI](https://cli.github.com/) on PATH
 | `/bottega:panel <the decision>` | Put one costly decision to blinded independent drafts from different companies' models, with a judge that only compares them |
 | `/bottega:prototype <the question>` | Build a throwaway prototype that answers one design question, in a terminal app or as UI variants on one route |
 | `/bottega:domain-modeling` | Build and sharpen the project's domain model, its terminology and its decision records |
-| `/bottega:setup` | Reconcile a machine and repository with bottega, keeping what exists and filling only actual gaps |
+| `/bottega:setup` | Set up the repo's issue tracker, triage label vocabulary, branch claim, and domain doc layout |
 | `/bottega:bro` | Talk and write like one human to another, technical content in Simplified Technical English |
 
 A run uses further methods that have no command of their own: open, spec, implement, qa, close, architect, and use-codex. The run reaches them itself.

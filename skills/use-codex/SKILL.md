@@ -27,7 +27,7 @@ The receipt names the job id. Its follow-up hints name `/codex:` commands from t
 node "${CLAUDE_PLUGIN_ROOT}/vendor/codex/scripts/codex-companion.mjs" status <job-id> --wait --timeout-ms <ms>
 ```
 
-The harness holds a visible row while the wait runs and re-invokes you when it returns. Give `--timeout-ms` a window wider than the slowest step the brief asks for (a full test suite is minutes of silence), and give the Bash call a timeout above that (`bottega:setup` raises the shell ceiling so long waits fit).
+The harness holds a visible row while the wait runs and re-invokes you when it returns. Give `--timeout-ms` a window wider than the slowest step the brief asks for (a full test suite is minutes of silence), and give the Bash call a timeout above that.
 
 When the job is done, read its report:
 
