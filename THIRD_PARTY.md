@@ -36,8 +36,17 @@ The setup skill `/bottega:setup` runs whole: the repo's issue tracker, triage la
 
 - Upstream: `mattpocock/skills`, under `skills/engineering/setup-matt-pocock-skills`.
 - Pinned at `2ab9580` (synced 2026-08-02), with upstream's `LICENSE` (MIT, Matt Pocock) beside them. Upstream's `agents/` registration file is not taken. This replaces the house setup skill that stood here through 0.181.0, whose harness checks, command verification, and merge-governance discovery retired because a run performs each at the moment it needs it (ADR 0045); `references/merge-governance.md` retired with them.
-- Local edits, additions only, no upstream sentence rewritten. In `SKILL.md`: the frontmatter (`name: setup`, the description), the H1, three spots where "the engineering skills" named upstream's own skill family, one bullet and Section D for the branch claim, and step 4's label creation on the remote (get-or-create every label named in `docs/agents/triage-labels.md`, read the list back). In `issue-tracker-github.md` and `issue-tracker-gitlab.md`: the "Claiming an issue" section, the atomic branch-push claim with assignment as the human-visible signal. `issue-tracker-local.md`, `triage-labels.md`, and `domain.md` are upstream's bytes.
+- Local edits, additions only, no upstream sentence rewritten. In `SKILL.md`: the frontmatter (`name: setup`, the description), the H1, three spots where "the engineering skills" named upstream's own skill family, one bullet and Section D for the branch claim, and step 4's label creation on the remote, and Section B's gate (with its exploration bullet) widened to run when `triage` or `to-tickets` is installed, because `to-tickets` applies the `ready-for-agent` label and ships with this plugin while `triage` does not (get-or-create every label named in `docs/agents/triage-labels.md`, read the list back). In `issue-tracker-github.md` and `issue-tracker-gitlab.md`: the "Claiming an issue" section, the atomic branch-push claim with assignment as the human-visible signal. `issue-tracker-local.md`, `triage-labels.md`, and `domain.md` are upstream's bytes.
 - Sync: re-copy the six files and the license whole, reapply the edits above, and read the diff.
+
+## `skills/to-tickets/SKILL.md`
+
+The tickets skill `/bottega:to-tickets` runs whole: break a plan, spec, or conversation into tracer-bullet tickets, each declaring its blocking edges, published to the configured tracker.
+
+- Upstream: `mattpocock/skills`, under `skills/engineering/to-tickets`.
+- Pinned at `2ab9580` (synced 2026-08-02), with upstream's `LICENSE` (MIT, Matt Pocock) beside it. Upstream's `agents/` registration file is not taken.
+- Local edits, exactly one: the setup pointer reads `bottega:setup` where upstream names its own setup skill. A ticket the skill publishes is launchable as its own bottega run: maestro takes the issue URL, and the tracker owner's claim procedure covers the collision between sessions. Working the frontier (launching only tickets whose blockers are closed) and closing the parent issue stay the user's acts, as upstream designs them.
+- Sync: re-copy the file and the license whole, reapply the one edit, and read the diff.
 
 ## `vendor/codex/`, the codex agent and the companion runtime
 

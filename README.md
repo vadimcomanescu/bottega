@@ -28,6 +28,7 @@ A run needs `git`, `node`, and the [GitHub CLI](https://cli.github.com/) on PATH
 | `/bottega:prototype <the question>` | Build a throwaway prototype that answers one design question, in a terminal app or as UI variants on one route |
 | `/bottega:domain-modeling` | Build and sharpen the project's domain model, its terminology and its decision records |
 | `/bottega:setup` | Set up the repo's issue tracker, triage label vocabulary, branch claim, and domain doc layout |
+| `/bottega:to-tickets` | Break a plan, spec, or conversation into tickets with blocking edges, published to the tracker |
 | `/bottega:bro` | Talk and write like one human to another, technical content in Simplified Technical English |
 
 A run uses further methods that have no command of their own: open, spec, implement, qa, close, architect, and use-codex. The run reaches them itself.

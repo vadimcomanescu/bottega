@@ -13,7 +13,9 @@ describe("setup contract", () => {
 
   it("carries the vendored sections and the five triage roles", () => {
     expect(setup).toContain("name: setup");
-    expect(setup).toContain("Skip this section entirely if the `triage` skill isn't installed");
+    expect(setup).toContain(
+      "Skip this section entirely if neither the `triage` nor the `to-tickets` skill is installed",
+    );
     expect(setup).toContain(
       "`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`",
     );
