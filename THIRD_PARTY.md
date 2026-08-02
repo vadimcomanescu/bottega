@@ -30,6 +30,15 @@ The domain modeling method a run's design and discovery keep the glossary and de
 - Local edits: none. The grilling interview (upstream `skills/productivity/grilling`) stays absorbed into `skills/discover/SKILL.md`, and the spec skill's shape follows upstream `skills/engineering/to-spec`; that adapted prose takes a sync as a re-read of upstream's diff, applied by hand where it still fits.
 - Sync: re-copy the three files and the license whole, then read the diff.
 
+## `skills/setup/` (`SKILL.md`, the tracker templates, `triage-labels.md`, `domain.md`)
+
+The setup skill `/bottega:setup` runs whole: the repo's issue tracker, triage label vocabulary, and domain doc layout, configured once per repository.
+
+- Upstream: `mattpocock/skills`, under `skills/engineering/setup-matt-pocock-skills`.
+- Pinned at `2ab9580` (synced 2026-08-02), with upstream's `LICENSE` (MIT, Matt Pocock) beside them. Upstream's `agents/` registration file is not taken. This replaces the house setup skill that stood here through 0.181.0, whose harness checks, command verification, and merge-governance discovery retired because a run performs each at the moment it needs it (ADR 0045); `references/merge-governance.md` retired with them.
+- Local edits, additions only, no upstream sentence rewritten. In `SKILL.md`: the frontmatter (`name: setup`, the description), the H1, three spots where "the engineering skills" named upstream's own skill family, one bullet and Section D for the branch claim, and step 4's label creation on the remote (get-or-create every label named in `docs/agents/triage-labels.md`, read the list back). In `issue-tracker-github.md` and `issue-tracker-gitlab.md`: the "Claiming an issue" section, the atomic branch-push claim with assignment as the human-visible signal. `issue-tracker-local.md`, `triage-labels.md`, and `domain.md` are upstream's bytes.
+- Sync: re-copy the six files and the license whole, reapply the edits above, and read the diff.
+
 ## `vendor/codex/`, the codex agent and the companion runtime
 
 The mechanics every codex dispatch runs on. The codex agent forwards one task to `vendor/codex/scripts/codex-companion.mjs`, which drives the codex app-server through a broker, keeps job state and threads on disk per workspace, and tears down with the session.
@@ -44,4 +53,4 @@ The mechanics every codex dispatch runs on. The codex agent forwards one task to
 - Not taken, because a dispatch reaches none of it. Upstream `commands/` holds slash wrappers giving a person interactive control of codex jobs, a role bottega's orchestrator holds. Upstream `hooks/hooks.json` would register a stop-time review gate, where bottega registers SessionStart and SessionEnd in its own `hooks/hooks.json` and gates review through `skills/autoreview`, so `scripts/stop-review-gate-hook.mjs` and its prompt stay out with it. `prompts/` and `schemas/` serve only the `review` and `adversarial-review` subcommands, which `agents/codex.md` forbids and no wrapper exposes. The companion reads both inside those handlers rather than at import, so leaving them out costs no edit to upstream's bytes: run `adversarial-review` by hand and it fails on the missing prompt, which is the only reachable consequence. Upstream `skills/` is not taken at all: `codex-cli-runtime` restates the forwarding contract the agent file already carries, `gpt-5-4-prompting` is prompt guidance for a model generation the dispatch sites no longer pin, and `codex-result-handling`'s rule to stop and ask the user before applying any review fix contradicts the run's review phase, which verifies findings and dispatches the accepted ones itself. The brief a dispatch hands codex is written per `skills/use-codex`.
 - Sync: copy upstream's `plugins/codex/` over `vendor/codex/`, delete the paths listed above as not taken, apply the upstream-to-upstream diff of `agents/codex-rescue.md` to `vendor/codex/agents/codex.md` and reconcile by hand, reapply the three script hunks (fewer as upstream lands #454 and #147), rerun `tests/codex-vendor.test.ts`, and record the new revision here.
 
-Bottega's own prose is every `SKILL.md` under `skills/` except `autoreview`'s, which is the modified upstream document recorded above.
+Bottega's own prose is every `SKILL.md` under `skills/` except `autoreview`'s and `setup`'s, the modified upstream documents recorded above.

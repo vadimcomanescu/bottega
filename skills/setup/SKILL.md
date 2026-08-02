@@ -1,62 +1,132 @@
 ---
 name: setup
-description: Reconcile a machine and repository with bottega by finding its existing maps and owners, filling only actual gaps, and proposing GitHub conventions and labels for approval.
+description: Configure this repo — set up its issue tracker, triage label vocabulary, branch claim, and domain doc layout. Run once per repository.
 disable-model-invocation: true
 ---
 
 # Setup
 
-Reconcile a machine and repository with bottega, keeping the repository's own documentation architecture and filling only actual gaps. A conforming repository receives no file or GitHub changes.
+Scaffold the per-repo configuration that the skills that read and write this repo's tracker and domain docs assume:
 
-## 1. Configure the harness
+- **Issue tracker** — where issues live (GitHub by default; local markdown is also supported out of the box)
+- **Triage labels** — the strings used for the five canonical triage roles, created on the remote
+- **Domain docs** — where `CONTEXT.md` and ADRs live, and the consumer rules for reading them
+- **The branch claim** — how two sessions taking work from the same tracker avoid taking the same issue
 
-Report anything missing rather than installing it silently.
+This is a prompt-driven skill, not a deterministic script. Explore, present what you found, confirm with the user, then write.
 
-- Requirements: `git`, `node`, `gh`, and `trufflehog` (the review engine's secret preflight needs the binary and never installs it).
-- The codex CLI installed and logged in (`codex login status`). The run's GPT cross-reads go through it.
-- The route guard from `hooks/` registered.
-- The dispatch timeout ceiling: the orchestrator watches a codex job with one tracked background shell call that waits for the whole run. Read the ceiling variable from the harness's environment-variable documentation (`BASH_MAX_TIMEOUT_MS` at last claim), set it to a few hours in the settings `env` block, leave the default timeout alone, and verify with one live call requesting more than ten minutes.
+## Process
 
-## 2. Find the existing owners
+### 1. Explore
 
-Resolve symlinks, then find the repository's equivalent owners by what they govern, not by a prescribed path. An existing map route or owner doc wins wherever it lives. Finish with a named owner or nowhere for each:
+Look at the current repo to understand its starting state. Read whatever exists; don't assume:
 
-- The canonical agent map: root `AGENTS.md` and `CLAUDE.md`, their symlink state, any existing bottega:setup block, and the map's routes.
-- The issue tracker: the GitHub remote, issue and label permissions, conventions, and labels.
-- The domain owner: the doc a consumer reads for vocabulary, contexts, and decisions, and wherever ADRs live.
-- The project's commands (test, lint, format, typecheck, build, run) and `.gitignore`.
-- The end-to-end suite where the repository ships a user-facing surface: the flows it drives and how its runner names a subset.
-- The default branch's merge governance: rulesets or protection, auto-merge, and automation that merges.
-- Any index the repository declares for its own agent skills.
+- `git remote -v` and `.git/config` — is this a GitHub repo? Which one?
+- `AGENTS.md` and `CLAUDE.md` at the repo root — does either exist? Is there already an `## Agent skills` section in either?
+- `CONTEXT.md` and `CONTEXT-MAP.md` at the repo root
+- `docs/adr/` and any `src/*/docs/adr/` directories
+- `docs/agents/` — does this skill's prior output already exist?
+- `.scratch/` — sign that a local-markdown issue tracker convention is already in use
+- Is the `triage` skill installed? (a `triage` skill folder alongside this one, or `triage` in your available skills.) This decides whether Section B runs at all.
+- Monorepo signals — a `pnpm-workspace.yaml`, a `workspaces` field in `package.json`, or a populated `packages/*` with its own `src/`. Present only in a genuinely large multi-package repo; their absence means single-context, which is almost every repo.
 
-## 3. Settle only missing choices
+### 2. Present findings and ask
 
-Present the findings, then ask one question at a time only where the repository cannot settle it, each led by a recommended answer I can accept in a word:
+Summarise what's present and what's missing. Then take the sections in order — one section, one answer, then the next.
 
-- Canonical map, when both root files are independent. A symlink's target is the map. When neither exists, default to `CLAUDE.md` and let me veto it.
-- Tracker location, when no GitHub remote settles it.
-- Context count and area labels, when the code suggests multiple bounded contexts the tree does not name. A single-context repository needs no area labels.
-- The branch claim, when the repository says multiple agents take tracker work and no concurrency-safe claim exists. Preserve an existing force-push rule, and put a conflict between the two to me.
+Lead each section with the recommended answer so the user can accept it in a word. Give a one-line explainer only when the choice genuinely branches; skip the section entirely when exploration already settled it (Section B when `triage` isn't installed, Section C when there's no monorepo).
 
-## 4. Propose the exact edits
+**Section A — Issue tracker.**
 
-Show every change for approval. Reuse what exists and invent nothing: no empty glossary, no ADR scaffold, no marker or heading added merely to identify setup.
+> Explainer: The "issue tracker" is where issues live for this repo. Skills like `to-tickets`, `triage`, `to-spec`, and `qa` read from and write to it — they need to know whether to call `gh issue create`, write a markdown file under `.scratch/`, or follow some other workflow you describe. Pick the place you actually track work for this repo.
 
-- The managed block, between `<!-- bottega:setup begin -->` and `<!-- bottega:setup end -->` in the canonical map, only when a missing route needs setup-owned text. It routes to the tracker and domain owners without restating them and records the non-map symlink. An existing bottega:setup block, whatever its markers, is the same setup-owned text: fold its routes into the map or replace it with the one current block, never leave two. When no equivalent owner exists, `docs/agents/issue-tracker.md` and `docs/agents/domain.md` are the fallback owners: the tracker owner records the remote, the concrete read, assign, comment, and close operations, any approved claim, and a pointer to the landing procedure without copying it, and the domain owner tells consumers where vocabulary, contexts, and ADRs live.
-- Migrations, formats per `bottega:domain-modeling`: real domain terms move to the vocabulary home and qualifying decisions to the ADR home, every reference updated in the same change. Existing formats win. When source and target both hold material, bring the merge to me before writing.
-- Commands, in the canonical map only when no equivalent owner states them. Verify each by running it once, the run command from a disposable worktree: start it, wait for readiness, stop it.
-- The map symlink, when only one root map exists. When both hold material, bring the merge to me.
-- End-to-end coverage: a product flow with no named executable check gets its spec drafted in the suite's own conventions for my approval, and where the suite cannot run, one issue naming the uncovered flows.
-- The branch claim, where step 3 approved one, documented in the tracker owner exactly as:
+Default posture: these skills were designed for GitHub. If a `git remote` points at GitHub, propose that. If a `git remote` points at GitLab (`gitlab.com` or a self-hosted host), propose GitLab. Otherwise (or if the user prefers), offer:
 
-  ```bash
-  git push -u origin <branch> --force-with-lease=refs/heads/<branch>:
-  ```
+- **GitHub** — issues live in the repo's GitHub Issues (uses the `gh` CLI)
+- **GitLab** — issues live in the repo's GitLab Issues (uses the [`glab`](https://gitlab.com/gitlab-org/cli) CLI)
+- **Local markdown** — issues live as files under `.scratch/<feature>/` in this repo (good for solo projects or repos without a remote)
+- **Other** (Jira, Linear, etc.) — ask the user to describe the workflow in one paragraph; the skill will record it as freeform prose
 
-  The empty expected value requires the ref not to exist, so exactly one creation wins and a rejected push means another agent owns the branch. Assignment is the human-visible signal, not the lock. The claim releases when the branch is deleted on merge.
-- Merge governance: reuse the repository's documented procedure, and where it has none, form an exact proposal from the [merge-governance reference](references/merge-governance.md).
-- `.bottega/` in `.gitignore` when missing, and the approved `area:*` labels plus `hold`, each get-or-create with `gh` and read back. Existing labels stay as they are.
+Record the choice in `docs/agents/issue-tracker.md`. The GitHub and GitLab templates carry a "PRs as a request surface" flag, defaulted **off** — leave it off and don't raise it; a user who wants external PRs in the triage queue can flip the flag in the file later.
 
-## 5. Apply and report
+**Section B — Triage label vocabulary.** Skip this section entirely if the `triage` skill isn't installed (exploration told you) — an uninstalled skill needs no labels.
 
-Apply only what I approved, exactly as shown, until every proposed edit is applied or declined. A declined edit remains a reported gap for the next reconciliation. Report what changed, what I declined, and what only I can fix: missing issue or label permissions, no discoverable project gate, an app that cannot boot from a fresh worktree, or broken links in a repository-declared agent-skill index. A rerun reads state from the repository: a setup-owned route becomes repository-owned once written, so validate it and propose a diff rather than overwriting it.
+If it is installed, ask exactly one question:
+
+> Do you want to keep the default triage labels? (recommended: **yes**)
+
+The defaults are the five canonical roles, each label string equal to its name: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. On **yes**, write them as-is. Only if the user says no — usually because their tracker already uses other names (e.g. `bug:triage` for `needs-triage`) — collect the overrides so `triage` applies existing labels instead of creating duplicates.
+
+**Section C — Domain docs.** Default to **single-context** — one `CONTEXT.md` + `docs/adr/` at the repo root. This fits almost every repo; write it without asking.
+
+Offer **multi-context** — a root `CONTEXT-MAP.md` pointing to per-context `CONTEXT.md` files — only when exploration found monorepo signals. Then confirm which layout they want.
+
+**Section D — The branch claim.** Skip this section on a local-markdown tracker. Otherwise ask exactly one question:
+
+> Should an agent claim an issue by creating its branch? (recommended: **yes**)
+
+On **yes**, the tracker template's "Claiming an issue" section ships as-is. On **no**, remove that section when writing the file, and claiming falls back to assignment.
+
+### 3. Confirm and edit
+
+Show the user a draft of:
+
+- The `## Agent skills` block to add to whichever of `CLAUDE.md` / `AGENTS.md` is being edited (see step 4 for selection rules)
+- The contents of `docs/agents/issue-tracker.md`, `docs/agents/domain.md`, and `docs/agents/triage-labels.md` (the last only when `triage` is installed)
+
+Let them edit before writing.
+
+### 4. Write
+
+**Pick the file to edit:**
+
+- If `CLAUDE.md` exists, edit it.
+- Else if `AGENTS.md` exists, edit it.
+- If neither exists, ask the user which one to create — don't pick for them.
+
+Never create `AGENTS.md` when `CLAUDE.md` already exists (or vice versa) — always edit the one that's already there.
+
+If an `## Agent skills` block already exists in the chosen file, update its contents in-place rather than appending a duplicate. Don't overwrite user edits to the surrounding sections.
+
+The block:
+
+```markdown
+## Agent skills
+
+### Issue tracker
+
+[one-line summary of where issues are tracked]. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+[one-line summary of the label vocabulary]. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+[one-line summary of layout — "single-context" or "multi-context"]. See `docs/agents/domain.md`.
+```
+
+Include the `### Triage labels` sub-block, and write `docs/agents/triage-labels.md`, only when `triage` is installed and Section B ran. When it isn't, both are omitted.
+
+Then write the docs files using the seed templates in this skill folder as a starting point:
+
+- [issue-tracker-github.md](./issue-tracker-github.md) — GitHub issue tracker
+- [issue-tracker-gitlab.md](./issue-tracker-gitlab.md) — GitLab issue tracker
+- [issue-tracker-local.md](./issue-tracker-local.md) — local-markdown issue tracker
+- [triage-labels.md](./triage-labels.md) — label mapping (only if `triage` is installed)
+- [domain.md](./domain.md) — domain doc consumer rules + layout
+
+For "other" issue trackers, write `docs/agents/issue-tracker.md` from scratch using the user's description.
+
+Then, when Section B ran on a remote tracker, create every label named in `docs/agents/triage-labels.md`, get-or-create, and read the list back to confirm. Existing labels stay exactly as they are.
+
+```bash
+gh label list --json name --jq '.[].name'
+gh label create <label> --description "<meaning>" || true
+```
+
+On GitLab, `glab label create` does the same job.
+
+### 5. Done
+
+Tell the user the setup is complete and which skills will now read from these files. Mention they can edit `docs/agents/*.md` directly later — re-running this skill is only necessary if they want to switch issue trackers or restart from scratch.
