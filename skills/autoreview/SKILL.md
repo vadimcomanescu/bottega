@@ -8,11 +8,11 @@ argument-hint: "<PR, ref range, or worktree>"
 
 Run the bundled structured review helper as a closeout check.
 
-Codex review is the default when no engine is set. It uses `gpt-5.6-sol` with `high` reasoning by default, then retries once with `gpt-5.6-terra` only when the account cannot access Sol. Claude review is optional and uses `claude-fable-5` by default.
+Codex review is the default when no engine is set. It uses `gpt-5.6-sol` with `high` reasoning by default, then retries once with `gpt-5.6-terra` only when the account cannot access Sol. Claude review is optional and uses `claude-fable-5` by default. Pi and Kimi use the model configured by their respective CLIs unless `--model` overrides it.
 
 Use when:
 
-- user asks for Codex review / Claude review / Pi review / autoreview / second-model review
+- user asks for Codex review / Claude review / Pi review / Kimi review / autoreview / second-model review
 - after non-trivial code edits, before final/commit/ship
 - reviewing a local branch or PR branch after fixes
 
@@ -24,11 +24,11 @@ Do not require code-review for a change whose entire diff is prose-only internal
 - Treat review output as advisory. Never blindly apply it.
 - Verify every finding by reading the real code path and adjacent files, and by running the check that settles it when one exists.
 - Read dependency docs/source/types when the finding depends on external behavior.
-- Reject unrealistic edge cases, speculative risks, broad rewrites, and fixes that over-complicate the codebase.
-- Prefer small fixes at the right ownership boundary; no refactor unless it clearly improves the bug class.
-- When an accepted finding shows a bug class or repeated pattern, inspect the current PR scope for sibling instances before fixing.
-- Fix the scoped bug class at once when practical; stop at touched surfaces, owner boundaries, and clear follow-up territory.
-- Keep going until structured review returns no accepted/actionable findings only while the work remains inside the original task scope.
+- Reject unrealistic edge cases, speculative risks, unrelated rewrites, and fixes that over-complicate the codebase.
+- Prefer root-cause fixes at the right ownership boundary. A coherent refactor is appropriate when it removes the bug class, duplicate policy, stale paths, or ownership confusion; do not default to a symptom patch.
+- When an accepted finding exposes a bug class or repeated pattern, inspect its owner and relevant sibling implementations before fixing.
+- Fix the same bug class across its owner-boundary neighborhood when practical; stop at unrelated invariants, different owners, and unapproved contract changes.
+- Keep going until structured review returns no accepted/actionable findings only while the work remains inside the authorized architectural and task scope.
 - If a review-triggered fix changes code, rerun focused tests and rerun the structured review helper.
 - For security-audit suppression changes, verify accepted findings remain auditable: suppressed findings stay in structured output, active output keeps an unsuppressible suppression notice, and aggregate findings cannot hide unrelated active risk.
 - Never switch or override the requested review engine/model except for the documented Codex Sol-to-Terra account-access fallback. Capacity, rate-limit, and unrelated failures keep the same engine/model.
@@ -53,26 +53,26 @@ Do not require code-review for a change whose entire diff is prose-only internal
 
 ## Scope Governor
 
-Code review is a closeout gate, not permission to rewrite the task.
+Autoreview is a closeout gate, not permission to change the task's product contract. Define scope by the authorized invariant and its architectural owner, not by the first patch.
 
-Before the first review, freeze a scope baseline: original request or issue, target branch, intended behavior, owner boundary, changed files, non-test LOC (test-support helpers count as test), the interfaces the diff's tests were agreed to cross when the invoker names them, and one sentence of threat model: the class of input the changed code answers for (accidental states, adversarial input, untrusted data). For inherited or already-bloated branches, use the intended PR diff as the baseline rather than accepting all existing branch drift.
+Before the first review, record a scope baseline: original request or issue, violated invariant, target branch, intended behavior, owner boundary, relevant sibling surfaces, public/security/product contracts, the interfaces the diff's tests were agreed to cross when the invoker names them, and one sentence of threat model: the class of input the changed code answers for (accidental states, adversarial input, untrusted data). Record changed files and non-test LOC as measurements, not hard caps (test-support helpers count as test). For inherited or already-bloated branches, distinguish the intended architectural fix from unrelated branch drift.
 
 Before patching a finding, classify it:
 
-- **In-scope blocker**: the finding is introduced by the current diff, affects the same owner boundary, and can be fixed without changing the task's contract.
-- **Follow-up**: the finding is real but belongs to an adjacent bug class, sibling surface, cleanup, or broader hardening track.
+- **In-scope blocker**: the finding affects the same violated invariant or owner-boundary neighborhood, including relevant sibling implementations and connected obsolete paths, and can be fixed without changing the task's contract.
+- **Follow-up**: the finding is real but belongs to an unrelated bug class, different owner, independent cleanup, or broader hardening track.
 - **Stop-and-escalate**: the finding requires a new protocol/config/storage/public API contract, a different owner boundary, a release-process change, or a design choice outside the original request.
 - **Out of threat model**: the finding is real and even reproducible, but its failure scenario requires an actor or input class outside the baseline's threat model. Reject it by rule, record it with its reason in the review evidence, and do not dispatch a fix. A constructed repro proves reachability by an attacker, not by an accident; it does not move a finding into the model, and widening the model is a scope expansion only the owner grants.
 
 Stop patching and report the scope break instead of continuing when:
 
-- a narrow PR turns into an architecture change, protocol change, migration, or release-process change;
-- the diff grows past 2x the original files or non-test LOC without explicit approval to expand scope; compute both numbers against the frozen baseline before each fix cycle, never judge growth by feel;
+- a task turns into an unauthorized product, protocol, migration, storage, security, or release-process change;
+- added files or production LOC no longer serve the authorized invariant, owner boundary, or meaningful simplification; file counts, initial diff size, and arbitrary LOC multipliers are never automatic stop conditions;
 - two review-triggered patch cycles have not converged; pause and reclassify every remaining finding before another edit;
 - the best fix is "define the canonical contract first" rather than another local inference layer;
 - fixing the accepted finding would make the PR no longer describe the same behavior, issue, or owner boundary.
 
-After the two-cycle pause, continue only when every remaining accepted finding is still an in-scope blocker inside the threat model and the cycles are narrowing: each cycle's accepted findings fewer than the last, none reopening a fixed one. A series that is not narrowing is the reviewer's imagination keeping pace with the armor, not progress toward clean. Otherwise preserve the useful analysis, identify the smallest safe landed subset if one exists, and open or request a follow-up for the larger fix. Do not keep committing speculative fixes just to satisfy the reviewer.
+After the two-cycle pause, continue only when every remaining accepted finding is still an in-scope blocker inside the threat model and the cycles are narrowing: each cycle's accepted findings fewer than the last, none reopening a fixed one. A series that is not narrowing is the reviewer's imagination keeping pace with the armor, not progress toward clean. Otherwise preserve the useful analysis, identify a coherent root-cause-safe landed subset if one exists, and open or request a follow-up for unrelated work. Do not land a symptom patch or keep committing speculative fixes just to satisfy the reviewer.
 
 Do not stack or push review-triggered fix commits while scope classification or focused proof is unresolved. Keep exploratory edits local until the cycle is proven in scope; if scope breaks, remove them from the landing lane instead of preserving them as branch history.
 
@@ -238,7 +238,7 @@ Tradeoff: tests may force code changes that stale the review. If tests or review
 Run multiple reviewers against one frozen bundle:
 
 ```bash
-"$AUTOREVIEW" --reviewers codex,claude,pi
+"$AUTOREVIEW" --reviewers codex,claude,pi,kimi
 ```
 
 The panel is the invoker's call, made once, at invocation. A panel set at invocation stays the panel on every rerun: reruns after fixes repeat the invoked reviewer set with its models and thinking pinned, repeated until the helper exits clean at the accepted head, and the review stands at that head.
@@ -268,7 +268,7 @@ For models with slashes or extra colons, prefer keyed form:
 "$AUTOREVIEW" --reviewers codex,pi --model codex=gpt-5.6-sol --model pi=anthropic/claude-sonnet-4
 ```
 
-`--reviewers all` covers Codex, Claude, and Pi. Droid, Copilot, Cursor, and OpenCode selections fail closed because their current CLI contracts cannot confine project instructions, filesystem reads, or network fetches to the review boundary.
+`--reviewers all` covers Codex, Claude, Pi, and Kimi. Droid, Copilot, Cursor, and OpenCode selections fail closed because their current CLI contracts cannot confine project instructions, filesystem reads, or network fetches to the review boundary.
 
 ## Models and thinking
 
@@ -281,7 +281,7 @@ Recommended model defaults:
 | **codex** (default) | `gpt-5.6-sol` -> `gpt-5.6-terra` on access failure | Helper default                           |
 | **claude**          | `claude-fable-5`                                   | Anthropic's most capable widely released Claude model |
 
-CLI flags and environment variables override these defaults. Pi does not get a built-in model default because its provider catalog may vary by installation. Droid, Copilot, Cursor, and OpenCode are currently refused.
+CLI flags and environment variables override these defaults. Pi and Kimi do not get built-in model defaults because their configured model catalogs may vary by installation. Droid, Copilot, Cursor, and OpenCode are currently refused.
 
 | Engine              | Model flag                 | Example model IDs                                                            | Thinking flag                 | Accepted levels                                            |
 | ------------------- | -------------------------- | ---------------------------------------------------------------------------- | ----------------------------- | ---------------------------------------------------------- |
@@ -290,6 +290,7 @@ CLI flags and environment variables override these defaults. Pi does not get a b
 | **droid**           | currently refused          | Factory model IDs                                                            | `-r, --reasoning-effort Y`    | `off`, `none`, `low`, `medium`, `high`, `xhigh`, `max`     |
 | **copilot**         | currently refused          | Copilot model aliases                                                        | not supported                 | n/a                                                        |
 | **pi**              | `pi --model X`             | `anthropic/claude-sonnet-4`, `openai/gpt-4o`                                 | `--thinking Y`                | `off`, `minimal`, `low`, `medium`, `high`, `xhigh`         |
+| **kimi**            | `kimi --model X`           | A model alias from the user's Kimi config                                    | `[thinking] enabled` in the staged config | `on`, `off`                                |
 | **cursor**          | currently refused          | Cursor model aliases                                                         | not supported                 | n/a                                                        |
 | **opencode**        | currently refused          | OpenCode provider/model IDs                                                  | not supported                 | n/a                                                        |
 
@@ -316,6 +317,10 @@ Examples matching current `main` behavior:
 # Pi with explicit model and thinking level
 "$AUTOREVIEW" --engine pi --model anthropic/claude-sonnet-4 --thinking high --pi-bin pi
 
+# Kimi with its configured default model, or a configured model alias
+"$AUTOREVIEW" --engine kimi --thinking on --kimi-bin kimi
+"$AUTOREVIEW" --engine kimi --model kimi-model-alias
+
 ```
 
 `--cursor-agent-bin` and `CURSOR_AGENT_BIN` remain compatibility aliases for
@@ -341,7 +346,7 @@ loader such as an untracked `.envrc`; the helper does not write a config file.
 | `AUTOREVIEW_CLAUDE_FALLBACK_MODEL` | Claude-only fallback chain                                                                                                       |
 | `AUTOREVIEW_PROVIDER_ENV_ALLOW`    | Comma-separated custom Pi/OpenCode credential variable names; names must end in a recognized credential suffix                   |
 
-Codex maps thinking to `model_reasoning_effort`. Claude maps thinking to `--effort`. Pi maps thinking to `--thinking`. Only Claude accepts `--fallback-model`; global CLI/env fallback requires at least one Claude reviewer, and engine-specific fallback overrides require that reviewer to be selected. Non-Claude fallback overrides, including `AUTOREVIEW_<NONCLAUDE>_FALLBACK_MODEL`, fail closed instead of being silently ignored.
+Codex maps thinking to `model_reasoning_effort`. Claude maps thinking to `--effort`. Pi maps thinking to `--thinking`. Kimi maps `on` and `off` to `[thinking] enabled` in the staged review config. Only Claude accepts `--fallback-model`; global CLI/env fallback requires at least one Claude reviewer, and engine-specific fallback overrides require that reviewer to be selected. Non-Claude fallback overrides, including `AUTOREVIEW_<NONCLAUDE>_FALLBACK_MODEL`, fail closed instead of being silently ignored.
 
 ## Review engine isolation
 
@@ -354,6 +359,7 @@ When autoreview runs inside the repository under review, external reviewer CLIs 
 | **droid**    | Fails closed: current CLI cannot disable both project instructions and all tools                                                                                                                 | Droid CLI `exec --help` and `--list-tools`                                  |
 | **copilot**  | Fails closed: repository read tools also expose ignored files outside the reviewed bundle                                                                                                        | GitHub Copilot CLI command reference                                        |
 | **pi**       | `--no-approve --no-session --no-context-files --no-extensions --no-skills --no-prompt-templates --no-themes --no-tools`                                                                          | Pi CLI `--help`; requires Pi `v0.79.0+`                                     |
+| **kimi**     | Empty external workspace; staged `KIMI_CODE_HOME` with sanitized config; Markdown custom agent with no tools/subagents; explicit empty `--skills-dir`; isolated runtime state | Kimi Code CLI `--help`; requires Kimi `v0.30.0+` |
 | **opencode** | Fails closed: project/global config isolation and private-network fetch denial are not both proven                                                                                               | OpenCode CLI contract                                                       |
 | **cursor**   | Fails closed: documented read permissions can target absolute host paths and no proven repository-only filesystem sandbox is exposed                                                             | Cursor CLI [permissions](https://cursor.com/docs/cli/reference/permissions) |
 
