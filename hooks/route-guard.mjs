@@ -178,6 +178,10 @@ if (event.tool_name === "Workflow") {
 }
 
 if (event.tool_name !== "Agent" && event.tool_name !== "Task") process.exit(0);
+// The codex forwarder dispatch carries no model parameter: the forwarder's own
+// model is pinned in its agent file, and the codex model rides in the brief,
+// checked above when the forwarder runs the companion task command.
+if (input.subagent_type === "bottega:codex") process.exit(0);
 const model = typeof input.model === "string" ? input.model.trim() : "";
 if (!model) {
   deny(DIRECT_UNPINNED);
