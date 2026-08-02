@@ -79,6 +79,12 @@ describe("route guard ownership rule", () => {
     expect(run(ownedEvent({ subagent_type: "general-purpose", model: "claude-opus-5" }))).toBe("");
   });
 
+  it("allows an owner-session codex forwarder dispatch without a model", () => {
+    expect(
+      run(ownedEvent({ subagent_type: "bottega:codex", prompt: "task --model gpt-5.6-sol ..." })),
+    ).toBe("");
+  });
+
   it("allows a non-owner session regardless of model", () => {
     const cwd = repoWithRun(OWNER);
     for (const tool_input of [
