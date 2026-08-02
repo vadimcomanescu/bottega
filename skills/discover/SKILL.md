@@ -14,7 +14,7 @@ You have too ways of operating: if I asked for autonomous run, follow the same d
 Understand the intent, exploring yourself, and in repos own words, state whats being asked for and what theoretically would change. Take note of the questions you have. If this is a trivial, small fix, just state it plainly and tell what there is to do - your discovery is done. 
 
 If not, fan out Opus workers on medium, decide how many:
-- repo exploration for: how do we already do things like this, and how is this area built? Glossary, domain modeling, ADRs (`docs/adr`), lessons (`docs/lessons`), etc. What these records settled is settled, don't re-decide it.
+- repo exploration for: how do we already do things like this, and how is this area built? Glossary, domain modeling, ADRs (`docs/adr`), lessons (`docs/lessons`), etc.
 - search online: how do others solved the same problem so we don't reinvent? Credible sources always.
 - what do local agents skills relevant to this task and technology teach? 
 - any other question your reading has raised so far.
