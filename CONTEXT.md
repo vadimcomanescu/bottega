@@ -40,8 +40,12 @@ A project command whose green result a change must hold: format, lint, typecheck
 **Threat model**:
 The sentence a check, gate, or validator ships with, naming the class of input it answers for (accidental states, adversarial input, untrusted data) and what it deliberately does not catch. The review judges each finding's reachability against it: a finding whose failure scenario needs an actor outside the model is real but not work.
 
+**Plan**:
+The run's design written down per the architect doctrine: what a builder must not decide, the interfaces the tests cross, any threat model, and the vertical slices. Posted as one comment on the run's issue, beside the spec, before any builder starts. A run with no tracker issue keeps it in the conversation.
+_Avoid_: execution plan, design (design stays the activity, plan is the artifact)
+
 **Second opinion**:
-The fresh codex read of the run's settled design and execution plan before building, held to one bar: revise only where a strong maintainer would clearly agree the revision is necessary or materially better; otherwise the plan is ready.
+The fresh codex read of the run's spec and plan before building, held to one bar: revise only where a strong maintainer would clearly agree the revision is necessary or materially better. Otherwise the plan is ready.
 
 **Panel**:
 One open, costly decision that no cheap check settles, put as the same task to independent models, blinded, compared without a verdict; whoever ran the panel writes the decision from the drafts. The review's both-engine invocation is the vendored engine document's own word for its reviewers, not this term.

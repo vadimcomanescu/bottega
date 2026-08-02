@@ -1,31 +1,26 @@
 ---
 name: discover
-description: The discovery method a run's Discover phase uses whole. Understand what the request means in the repository, then find its unknowns and settle them with the owner before anything is built. Use bottega:discover to run discovery on its own.
+description: A discovery method to sharpen the understanding of a task, discover the unknowns, create ADRs and reach a common understanding. 
 ---
 
 # Discover
 
-Understand what I am asking for, help me find what I could not tell you, and settle all of it with me before anything is built.
+Actively discover the unknowns, understand the intent, and brainstorm and prototype how good looks like for the task at hand.
 
-The run opens with an intent: something I typed, a ticket, an issue, a feature. Before anything else, understand it yourself. Read the code it touches until you can tell me, in this repo's own words, what I am asking for and what would have to change. This reading leaves you holding the questions you still need answered.
+## Process
 
-Fan out Opus workers on medium, one per question:
+You have too ways of operating: if I asked for autonomous run, follow the same discovery process and answer yourself the questions you have along the way, looking for product strategy, high level goals and trying to make the best decisions along that direction, like the best product person and architect you know. Otherwise we go together through the process, interactively. With or without me, use bottega:bro for clear, normal english - you have a tendency to talk in fables. 
 
-- One into the repo: how do we already do things like this, and how is this area built? It starts from the agent map and follows it into the glossary, the domain material, the decision records, and the lessons.
-- One into the world: how do people credibly solve this, in official docs and in the docs and source of the libraries installed here?
-- One through the installed agent skills: which ones matter for this work, and what do they teach?
-- One for any other question your reading has raised so far.
+Understand the intent, exploring yourself, and in repos own words, state whats being asked for and what theoretically would change. Take note of the questions you have. If this is a trivial, small fix, just state it plainly and tell what there is to do - your discovery is done. 
 
-Now decide how much of the method below this work actually needs. A serious feature earns all of it. A small fix earns almost none: answer what remains from precedent and the standard way, record what deserves recording, and go build. Bring me in when you hit a decision the repo cannot settle and a wrong guess would cost something.
+If not, fan out Opus workers on medium, decide how many:
+- repo exploration for: how do we already do things like this, and how is this area built? Glossary, domain modeling, ADRs, lessons, etc.
+- search online: how do others solved the same problem so we don't reinvent? Credible sources always.
+- what do local agents skills relevant to this task and technology teach? 
+- any other question your reading has raised so far.
 
-When unknowns remain, work through them with me, the blind spot pass first. Ask me where I am in my thinking and what experience I have with this problem and this part of the code. Then walk me through my unknown unknowns: name what I have not thought to ask, each in plain words, tell me what good looks like here from your side, and show me the prior work and the potholes, so that I can steer you better through the rest.
+When unknowns remain, do a blind spot pass, find the unknown unknowns. Using `bottega:domain-modeling`, if you run autonomously respond yourself, if not interview me relentlessly about every aspect of this until we reach a shared understanding. Walk down each branch of the decision tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer, describing clearly what good looks like. Ask the questions one at a time, waiting for feedback on each question before continuing. Asking multiple questions at once is bewildering. If a fact can be found by exploring the environment (filesystem, tools, etc.), look it up rather than asking me. The decisions, though, are mine — put each one to me and wait for my answer. When questions are related to design - architecture, visual design use `bottega:prototype`, an image is worth a thousand words. Its how, we can get to a common understanding faster and its how you, if running autonomously can evaluate multiple directions. 
 
-While the direction is open, lay out the options, cheapest to most ambitious, with the one you would take: my reactions set the direction. Some of the work's questions only get settled by looking at something concrete. For those, brainstorm with me in prototypes per `bottega:prototype`, several genuinely different directions I can react to: a tiny terminal app that pushes the state model through the cases we cannot reason about on paper, or radically different variants of a screen on a real route. A prototype is throwaway code that answers a question, and it stays deliberately cheap: a frame with nothing wired behind it is enough when the question is the look. My reactions tell you what I could not describe. When I would not recognize good even on sight, teach me the domain first, in as much depth as it takes for me to judge, and then show me directions. Every image I see is a screenshot of something that actually rendered, and when nothing can render yet, a wireframe of layout and flow stands in. When I cannot find words for what I want, ask me for code that already does it my way, in any repo or language.
+Do not act on it until I confirm we have reached a shared understanding. If you think its worth it, and see we struggle, ask me for external references, something I was inspired by or saw in the past. 
 
-When the brainstorming still leaves unknowns, interview me, one question at a time, waiting for my answer before the next. Ask first the questions whose answer would change the architecture. Give each question your recommended answer, so my reply can be a yes or a correction. When a question can be answered from the codebase or a tool, answer it yourself and bring me one that needs me. The decisions are mine: put each one to me and wait. When I say "I don't understand", explain more fully and ask again. A decision that is open, costly to reverse, and settled by no cheap check goes to `bottega:panel`. While we talk, keep the glossary and the decision records current per `bottega:domain-modeling`, each entry written the moment it settles.
-
-Keep everything that settles a decision close while we work: the prototype sources, their screenshots, the references I pointed at. Briefs point at an approved render, and QA judges against it. Each validated decision lands in the spec, and the prototype that settled it is captured per `bottega:prototype`: committed to a throwaway branch off main, with the pointer and the verdict on the run's issue. Main keeps only the validated decisions.
-
-You are done here when nothing between us is open: the direction is chosen, its edges are stated, and every decision carries my answer or a recorded settlement. Take what we settled to `bottega:spec`.
-
-When the run is autonomous I am not there: settle each step from the repo's precedent and the standard way, and record each settlement with its reason. When neither settles it, take the reversible option and record it.
+Keep all the artifacts generated along the way. Prototypes, screenshots, sources, references.

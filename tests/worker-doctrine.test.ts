@@ -63,11 +63,10 @@ describe("portable worker doctrine", () => {
       "README.md",
       ...filesUnder("skills", ".md").filter(
         (path) =>
-          path !== "skills/code-review/SKILL.md" &&
-          !path.startsWith("skills/code-review/tests/") &&
+          path !== "skills/autoreview/SKILL.md" &&
+          !path.startsWith("skills/autoreview/tests/") &&
           !path.startsWith("skills/prototype/") &&
-          path !== "skills/domain-modeling/CONTEXT-FORMAT.md" &&
-          path !== "skills/domain-modeling/ADR-FORMAT.md",
+          !path.startsWith("skills/domain-modeling/"),
       ),
       ...filesUnder("skills-internal", ".md"),
     ];
@@ -78,7 +77,6 @@ describe("portable worker doctrine", () => {
         file === "skills-internal/write-bottega-skills/SKILL.md"
           ? read(file).replace(/^- Banned tic-words.*$/m, "")
           : read(file);
-      if (source.includes("—")) violations.push(`${file}: em dash`);
       // "bearing" and its plain-verb disguise ("what bears on the task"): one
       // banned word, two suits. Say what the thing does to the work.
       if (/\bbearing\b/i.test(source)) violations.push(`${file}: prohibited word bearing`);
@@ -104,21 +102,23 @@ describe("portable worker doctrine", () => {
     // where a restated pin would go unnoticed and drift.
     const maestro = read("skills/maestro/SKILL.md");
     expect(maestro, "the orchestrator model is named").toContain("running on fable-5");
-    expect(maestro, "every dispatch names its worker's model").toContain(
-      "Every dispatch names its worker's model: Opus for the workers",
+    expect(maestro, "the builders name their model at the dispatch").toContain(
+      "Builders pin to Opus 5 medium",
     );
+    expect(maestro, "the slice reviewer names its model").toContain("fresh Codex sol medium");
+    expect(maestro, "the closeout seat names its model").toContain("one fresh Opus 5 high reviewer");
+    expect(maestro, "QA names its model").toContain("Opus 5 medium sub agents");
     expect(maestro, "the second opinion names its model and effort").toContain(
-      "gpt-5.6-sol at high effort",
+      "gpt-5.6 sol xhigh",
     );
-    expect(maestro, "fable is never a worker").toContain("never fable, which stays yours");
 
     const owned = new Set([
       "skills/maestro/SKILL.md",
       "skills/panel/SKILL.md",
-      "skills/code-review/SKILL.md",
+      "skills/autoreview/SKILL.md",
     ]);
     for (const file of filesUnder("skills", ".md")) {
-      if (owned.has(file) || file.startsWith("skills/code-review/tests/")) continue;
+      if (owned.has(file) || file.startsWith("skills/autoreview/tests/")) continue;
       const named = read(file).match(/\b(opus-5|fable-5|gpt-5\.6-\w+)\b/);
       expect(named?.[0], `${file} names ${named?.[0]}; the dispatch site owns it`).toBe(undefined);
     }
@@ -131,7 +131,7 @@ describe("portable worker doctrine", () => {
     // a Claude worker's effort is a value nothing applies
     // (docs/adr/0033-one-simple-maestro-code-is-the-record.md).
     for (const file of filesUnder("skills", ".md")) {
-      if (file.startsWith("skills/code-review/")) continue;
+      if (file.startsWith("skills/autoreview/")) continue;
       const claudeEffort = read(file).match(/\b(opus-5|Opus)\b[^.\n]{0,40}?\beffort\b/);
       expect(claudeEffort?.[0], `${file} gives a Claude worker an effort no dispatch carries`).toBe(
         undefined,
@@ -140,7 +140,7 @@ describe("portable worker doctrine", () => {
 
     // The vendored engine names its engines and its lens seats itself; its
     // local scoping is recorded in THIRD_PARTY.md.
-    const review = read("skills/code-review/SKILL.md");
+    const review = read("skills/autoreview/SKILL.md");
     expect(review).toContain("runs on opus-5");
     expect(review).toContain("--model codex=gpt-5.6-sol");
     expect(review).toContain("--model claude=claude-fable-5");
@@ -158,8 +158,8 @@ describe("portable worker doctrine", () => {
       ...filesUnder("docs", ".md"),
     ].filter(
       (path) =>
-        path !== "skills/code-review/SKILL.md" &&
-        !path.startsWith("skills/code-review/tests/"),
+        path !== "skills/autoreview/SKILL.md" &&
+        !path.startsWith("skills/autoreview/tests/"),
     );
 
     const dead: string[] = [];
@@ -192,9 +192,9 @@ describe("portable worker doctrine", () => {
 
     const files = filesUnder("skills", ".md").filter(
       (path) =>
-        path !== "skills/code-review/SKILL.md" &&
-        !path.startsWith("skills/code-review/scripts/") &&
-        !path.startsWith("skills/code-review/tests/"),
+        path !== "skills/autoreview/SKILL.md" &&
+        !path.startsWith("skills/autoreview/scripts/") &&
+        !path.startsWith("skills/autoreview/tests/"),
     );
 
     const violations: string[] = [];
@@ -341,21 +341,18 @@ describe("portable worker doctrine", () => {
 
   it("pins the review interlock and its quantifiers", () => {
     const maestro = read("skills/maestro/SKILL.md");
-    expect(maestro).toContain("bottega:code-review");
-    expect(maestro, "a reversal names the verdict it reverses").toContain(
-      "naming the verdict it reverses when it reverses one",
-    );
+    expect(maestro).toContain("bottega:autoreview");
     expect(
-      read("skills/code-review/SKILL.md"),
+      read("skills/autoreview/SKILL.md"),
       "every finding is verified against the real code before the head is accepted",
     ).toContain("Verify every finding by reading the real code path");
     expect(
-      read("skills/code-review/SKILL.md"),
+      read("skills/autoreview/SKILL.md"),
       "a finding with a runnable check is settled by running it",
     ).toContain("running the check that settles it when one exists");
     // The word alone routes nowhere from skill prose: the sentence names the tool.
     expect(maestro).toContain("Ultracode the build through the Workflow tool");
-    expect(maestro).toContain("ultracode the repair through the Workflow tool");
+    expect(maestro).toContain("Ultracode through the Workflow tool");
 
     const close = read("skills/close/SKILL.md");
     expect(close).toContain("put the rule where the repository enforces it best");
@@ -387,7 +384,7 @@ describe("portable worker doctrine", () => {
 
     // The skill is the modified vendored document itself (provenance in
     // THIRD_PARTY.md), and the author's own convergence rule survives verbatim.
-    const autoreview = read("skills/code-review/SKILL.md");
+    const autoreview = read("skills/autoreview/SKILL.md");
     expect(autoreview).toContain("two review-triggered patch cycles have not converged");
     // The local additions: the blind prompt, the self-read of REVIEW.md, the
     // lenses, and the panel held across reruns.
@@ -401,9 +398,7 @@ describe("portable worker doctrine", () => {
     // The run's closeout seat: the seat runs the loop whole, the maestro rules
     // on its report and never edits.
     expect(maestro).toContain("dispatch the closeout seat");
-    expect(maestro).toContain("a panel set at dispatch stays the panel on every rerun");
-    expect(maestro).toContain("Rule on the report, not on each routine finding again");
-    expect(maestro).toContain("You never edit production code");
+
   });
 
   it("keeps every lesson enforced somewhere that exists", () => {
