@@ -1,7 +1,0 @@
-# Claude does the work; codex only cross-reads finished work
-
-The owner set the boundary: bottega runs on Claude. Codex is dispatched only where the value is another company's eyes, and only when its CLI is available: the plan editor's cold read (gpt-5.6-sol at high), the integrated review's GPT engine, the spec-conformance check, and the panel's codex seat. The first three are cross-reads of finished work; the panel seat stands beside them because model diversity on one costly open decision is the panel's recorded purpose (ADR 0023), and a panel of one company answers a different, weaker question. Codex orchestrates nothing and builds nothing; the discovery sweep, once codex-optional, runs on Opus at low effort. When the codex CLI is unavailable, a fresh Opus worker at the same effort takes each codex read under the same contract and the run records the gap; no read is dropped for the CLI's absence.
-
-Amendment, same day: the first landing of this decision (0.125.0) converted the panel's seats to three fresh Opus contexts, applying "Claude only" to the one skill whose value is cross-company independence. The owner reversed it: the panel keeps one seat per company, and this ADR records the panel seat as the boundary's fourth site.
-
-Grounds: the codex weekly quota is a hard cutoff a run cannot budget against mid-flight, and prose that gave codex standing roles beyond reading kept suggesting codex could act as a second orchestrator. One company everywhere but the cross-reads keeps the run's spend on one metered plan and the orchestration unambiguous.

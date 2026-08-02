@@ -4,7 +4,7 @@ description: Review a diff through the vendored review engine and fix what it fi
 argument-hint: "<PR, ref range, or worktree>"
 ---
 
-# Code review
+# Autoreview
 
 Run the bundled structured review helper as a closeout check.
 
@@ -16,7 +16,7 @@ Use when:
 - after non-trivial code edits, before final/commit/ship
 - reviewing a local branch or PR branch after fixes
 
-Do not require code-review for a change whose entire diff is prose-only internal notes or `SKILL.md` documentation. Still inspect the diff directly and run the repository's lightweight documentation validation, if any. This exception does not cover user-facing documentation, executable examples, configuration, scripts, generated files, or behavior changes.
+Do not require autoreview for a change whose entire diff is prose-only internal notes or `SKILL.md` documentation. Still inspect the diff directly and run the repository's lightweight documentation validation, if any. This exception does not cover user-facing documentation, executable examples, configuration, scripts, generated files, or behavior changes.
 
 ## Contract
 

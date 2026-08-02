@@ -100,7 +100,6 @@ Use these to diagnose issues the user may be having with the skill.
 These rules govern every file's prose in this repo, code comments, UI strings, and hook messages included, not only skills.
 
 - Write plain engineering English. Standard engineering terms only: no metaphors, no invented vocabulary, no theatrical naming.
-- No em dashes, anywhere. Use periods, commas, colons, or parentheses.
 - Banned tic-words, no exceptions: "bearing" (e.g. "judgment-bearing"), "bears on" (e.g. "the skills that bear on the task"), "ledger". Say the plain thing: "makes judgment calls", "the skills this work needs", "the log". The register binds bottega's own prose, so text vendored under a sync contract is synced as its author wrote it, never reworded to it.
 - A claim about harness behavior (frontmatter keys, hooks, dispatch mechanics, model resolution) is read from the harness documentation at claim time, never from memory or another skill's prose.
 - Skills are packaged per the Agent Skills open standard: one directory per capability, `SKILL.md` on top, supporting material inside it loaded on demand. An engine or reference a skill wraps lives inside that skill's directory, never as a sibling skill. The authoring and packaging contract is the harness documentation (https://code.claude.com/docs/en/skills) and the standard (https://agentskills.io), read at claim time. A skill references only its own directory, another skill, or a component the plugin ships. This repository's record under `docs/` and the root doctrine files never appear in a skill, because they do not install with it. A rule a skill states stands on its own sentences, with the decision record behind it left in the repository.
@@ -135,5 +134,5 @@ Walk this list against the finished file after creating or editing any skill. Fi
 - [ ] Each meaning has one home. No sentence fails the **no-op** test. No **sediment** survives the edit.
 - [ ] Restated ideas are collapsed into a **leading word** where one exists.
 - [ ] One term per concept and one concept per term, checked against the glossary the text belongs to. Prohibitions rephrased to their positive target.
-- [ ] No semicolons and no em dashes in prose, the frontmatter description included.
+- [ ] No semicolons in prose, the frontmatter description included.
 - [ ] The path holds: read each skill this file routes to and each skill that routes into it. Every meaning keeps its one home across those files, every section this file relies on is named by the sentence that routes to it, and every sentence agrees with those files and the decision records behind them.

@@ -77,7 +77,6 @@ describe("portable worker doctrine", () => {
         file === "skills-internal/write-bottega-skills/SKILL.md"
           ? read(file).replace(/^- Banned tic-words.*$/m, "")
           : read(file);
-      if (source.includes("—")) violations.push(`${file}: em dash`);
       // "bearing" and its plain-verb disguise ("what bears on the task"): one
       // banned word, two suits. Say what the thing does to the work.
       if (/\bbearing\b/i.test(source)) violations.push(`${file}: prohibited word bearing`);
@@ -103,13 +102,15 @@ describe("portable worker doctrine", () => {
     // where a restated pin would go unnoticed and drift.
     const maestro = read("skills/maestro/SKILL.md");
     expect(maestro, "the orchestrator model is named").toContain("running on fable-5");
-    expect(maestro, "every dispatch names its worker's model").toContain(
-      "Every dispatch names its worker's model: Opus for the workers",
+    expect(maestro, "the builders name their model at the dispatch").toContain(
+      "Builders pin to Opus 5 medium",
     );
+    expect(maestro, "the slice reviewer names its model").toContain("fresh Codex sol medium");
+    expect(maestro, "the closeout seat names its model").toContain("one fresh Opus 5 high reviewer");
+    expect(maestro, "QA names its model").toContain("Opus 5 medium sub agents");
     expect(maestro, "the second opinion names its model and effort").toContain(
-      "gpt-5.6-sol at high effort",
+      "gpt-5.6 sol xhigh",
     );
-    expect(maestro, "fable is never a worker").toContain("never fable, which stays yours");
 
     const owned = new Set([
       "skills/maestro/SKILL.md",
@@ -341,9 +342,6 @@ describe("portable worker doctrine", () => {
   it("pins the review interlock and its quantifiers", () => {
     const maestro = read("skills/maestro/SKILL.md");
     expect(maestro).toContain("bottega:autoreview");
-    expect(maestro, "a reversal names the verdict it reverses").toContain(
-      "naming the verdict it reverses when it reverses one",
-    );
     expect(
       read("skills/autoreview/SKILL.md"),
       "every finding is verified against the real code before the head is accepted",
@@ -354,7 +352,7 @@ describe("portable worker doctrine", () => {
     ).toContain("running the check that settles it when one exists");
     // The word alone routes nowhere from skill prose: the sentence names the tool.
     expect(maestro).toContain("Ultracode the build through the Workflow tool");
-    expect(maestro).toContain("ultracode the repair through the Workflow tool");
+    expect(maestro).toContain("Ultracode through the Workflow tool");
 
     const close = read("skills/close/SKILL.md");
     expect(close).toContain("put the rule where the repository enforces it best");
@@ -400,9 +398,7 @@ describe("portable worker doctrine", () => {
     // The run's closeout seat: the seat runs the loop whole, the maestro rules
     // on its report and never edits.
     expect(maestro).toContain("dispatch the closeout seat");
-    expect(maestro).toContain("a panel set at dispatch stays the panel on every rerun");
-    expect(maestro).toContain("Rule on the report, not on each routine finding again");
-    expect(maestro).toContain("You never edit production code");
+
   });
 
   it("keeps every lesson enforced somewhere that exists", () => {

@@ -1,25 +1,72 @@
 ---
 name: spec
-description: Turn a closed discovery into a spec published on the run's tracker issue. Reached by a run when discovery ends. Not user-invocable.
-user-invocable: false
+description: Turn the current conversation into a spec and publish it on the run's tracker issue. No interview, just synthesis of what is already settled. Use bottega:spec, or when a run's discovery ends having settled more than the request says.
 ---
 
 # Spec
 
-Write what we settled into one spec on the run's tracker issue, so anyone can open the issue and see what was agreed before the code existed.
+Turn the current conversation and your understanding of the codebase into a spec. Do not interview me, just synthesize what you already know.
 
-Everything in the spec was settled before you write it: in the conversation, in a prototype, or in the repo. Writing it is synthesis. One check comes to me first: sketch the seams you will test the feature at, the places where behavior can change without editing the callers, per `bottega:architect`. Prefer seams the codebase already has, place any new one as high as you can, and hold the count as low as it goes, one is the ideal. Confirm they match what I expect, then write.
+## Process
 
-Write in the domain's own vocabulary and respect the decision records in the area. Use the sections below, each present when it carries real content:
+1. Explore the repo to understand the current state of the codebase, if you haven't already. Use the project's domain glossary vocabulary throughout the spec, and respect any ADRs in the area you're touching.
 
-1. **Problem.** The problem from the user's perspective, in the user's language, stated before any solution.
-2. **The announcement.** The finished behavior announced to the people who will use it. Writing the announcement before the sections below it surfaces the edge cases and forces the priorities. Winning prototype screenshots sit inline, each beside the decision it settled.
-3. **User stories.** A long, numbered list: as an actor, I want a feature, so that benefit. Extensive, covering every aspect of the feature.
-4. **Implementation decisions.** The modules built or modified, their interfaces, schema changes, API contracts, and the architectural calls, in prose that outlives the code's current layout. The one snippet that belongs is prototype-derived and pins a decision more precisely than prose can, a state machine, a schema, a type shape, trimmed to the decision.
-5. **Testing direction.** What a good test is here, external behavior only, which modules get tested, and the prior art for such tests in this codebase.
-6. **Acceptance criteria.** The observable conditions that decide the build is correct. A criterion that can be enforced becomes a test in the build.
-7. **Out of scope.** What the work deliberately excludes, so the boundary is explicit.
+2. Sketch out the seams at which you're going to test the feature. Existing seams should be preferred to new ones. Use the highest seam possible. If new seams are needed, propose them at the highest point you can. The fewer seams across the codebase, the better, the ideal number is one.
 
-Publish it where the run is anchored. A run that started from an issue posts the spec as a comment there. A run that started from my message opens the issue, spec as body, and that issue is the run's anchor from then on: followups land beside it and the PR closes it.
+Check with me that these seams match my expectations. On an autonomous run, choose them from the repo's precedent and record the choice in the spec.
 
-When the run is autonomous I am not there: choose the seams from the repo's precedent and record the choice in the spec.
+3. Write the spec in the sections below, then publish it on the run's tracker issue. A run that started from an issue posts the spec as a comment there. A run that started from my message opens the issue with the spec as its body.
+
+The spec works backwards from the launch: it announces a finished product, then supports the announcement. This is Amazon's working-backwards press release, and its purpose is the job this shape serves: writing the announcement first surfaces the edge cases and forces the prioritization. 
+
+## Problem Statement
+
+The problem that the user is facing, from the user's perspective.
+
+## How We Measure Success
+
+The signals after delivery that say the product worked, when the work's shape allows them. These are distinct from acceptance criteria, which say only that the build is correct. Conflating the two lets tests passing stand in for the product working.
+
+## The Announcement
+
+The finished behavior, announced the way you would announce it to the people who will use it. Winning prototype screenshots sit inline, each beside the decision it settled. Every section below supports this one.
+
+## User Stories
+
+A LONG, extremely extensive, numbered list of user stories, covering all aspects of the feature. The classic As an <actor>, I want a <feature>, so that <benefit>.
+
+## Implementation Decisions
+
+A list of implementation decisions that were made. This can include:
+
+- The modules that will be built/modified
+- The interfaces of those modules that will be modified
+- Technical clarifications from the developer
+- Architectural decisions
+- Schema changes
+- API contracts
+- Specific interactions
+
+Do NOT include specific file paths or code snippets. They may end up being outdated very quickly.
+
+Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it within the relevant decision and note briefly that it came from a prototype. Trim to the decision-rich parts, not a working demo, just the important bits.
+
+## Testing Decisions
+
+A list of testing decisions that were made. Include:
+
+- A description of what makes a good test (only test external behavior, not implementation details)
+- Which modules will be tested
+- Prior art for the tests (i.e. similar types of tests in the codebase)
+
+## Acceptance Criteria
+
+Write each acceptance criterion as an observable condition someone can check on the finished product, in the user's words, so that it either passes or fails with no judgment call.
+
+## Out of Scope
+
+A description of the things that are out of scope for this spec.
+
+## Further Notes
+
+Any further notes about the feature.
