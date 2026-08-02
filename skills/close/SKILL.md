@@ -8,7 +8,7 @@ user-invocable: false
 
 Take the accepted head to a PR a reviewer could merge the moment they open it: readable, checks green, deferred work filed.
 
-The launch decided the release. Read the run's recorded answer, `.bottega/run/<slug>/release`, for whether the PR lands on green or holds for me. Read the project's landing procedure beside it, from the agent map where `bottega:open` settled it, since it decides how this PR is braked, armed, and landed. Never merge a PR by hand and never approve one. Arm auto-merge only where that procedure makes arming the opener's act, and let the repository's required checks and its brake decide whether an armed PR lands. Review feedback that arrives after the PR opens goes through `bottega:code-review`.
+The launch decided the release. Read the run's recorded answer, `.bottega/run/<slug>/release`, for whether the PR lands on green or holds for me. Read the project's landing procedure beside it, from the agent map where `bottega:open` settled it, since it decides how this PR is braked, armed, and landed. Never merge a PR by hand and never approve one. Arm auto-merge only where that procedure makes arming the opener's act, and let the repository's required checks and its brake decide whether an armed PR lands. Review feedback that arrives after the PR opens goes through `bottega:autoreview`.
 
 Everything you write for someone outside the run (the PR body, each followup issue) obeys one rule:
 
@@ -20,7 +20,7 @@ The head the run accepted, the head QA verified, and the head the PR publishes a
 
 ## Publish
 
-Push the branch. Post the `bottega/review` success status on the accepted head, naming the reviewed base (the commit-status rule in [the review skill](../code-review/SKILL.md)). When QA ran, put its evidence where the PR can read it, per [references/qa-evidence.md](references/qa-evidence.md). Leave the head upstream carrying its marker, with its evidence reachable.
+Push the branch. Post the `bottega/review` success status on the accepted head, naming the reviewed base (the commit-status rule in [the review skill](../autoreview/SKILL.md)). When QA ran, put its evidence where the PR can read it, per [references/qa-evidence.md](references/qa-evidence.md). Leave the head upstream carrying its marker, with its evidence reachable.
 
 ## File the followups
 

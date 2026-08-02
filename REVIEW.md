@@ -2,7 +2,7 @@
 
 Bottega is a method in markdown; most defects are false claims, drifted duplicates, and register violations, not crashing code.
 
-- Worker models are named where the dispatch happens: `skills/maestro` states the orchestrator model and its workers' models in the sentences that dispatch them, the panel's seats are named in `skills/panel`, and the review engines in `skills/code-review/SKILL.md`. A second home for any of these is a defect, and so is a caller restating a callee's facts instead of carrying the invocation.
+- Worker models are named where the dispatch happens: `skills/maestro` states the orchestrator model and its workers' models in the sentences that dispatch them, the panel's seats are named in `skills/panel`, and the review engines in `skills/autoreview/SKILL.md`. A second home for any of these is a defect, and so is a caller restating a callee's facts instead of carrying the invocation.
 - Enforcement lives in `hooks/route-guard.mjs`, which states its own policy; review a guard change against that file and `tests/route-guard.test.ts`, and treat any prose restating the guard's policy as a drifted duplicate.
 - The one agent identity file, `vendor/codex/agents/codex.md`, is vendored and synced per `THIRD_PARTY.md`. Worker method arrives per dispatch from skills (`implement`, `qa`).
 - The skills tree is the product and must stay harness-portable: nothing in `skills/` may assume slash commands, subagents, or a plugin root exists, except where a harness is named.

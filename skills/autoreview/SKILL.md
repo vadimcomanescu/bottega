@@ -1,6 +1,6 @@
 ---
-name: code-review
-description: Review a diff through the vendored review engine and fix what it finds, looping to a converged head. Use bottega:code-review on a PR, ref range, or working diff. A run's Review phase dispatches a fresh seat to run it whole.
+name: autoreview
+description: Review a diff through the vendored review engine and fix what it finds, looping to a converged head. Use bottega:autoreview on a PR, ref range, or working diff. A run's Review phase dispatches a fresh seat to run it whole.
 argument-hint: "<PR, ref range, or worktree>"
 ---
 
@@ -16,23 +16,11 @@ Use when:
 - after non-trivial code edits, before final/commit/ship
 - reviewing a local branch or PR branch after fixes
 
-Do not require autoreview for a change whose entire diff is prose-only internal notes or `SKILL.md` documentation. Still inspect the diff directly and run the repository's lightweight documentation validation, if any. This exception does not cover user-facing documentation, executable examples, configuration, scripts, generated files, or behavior changes.
+Do not require code-review for a change whose entire diff is prose-only internal notes or `SKILL.md` documentation. Still inspect the diff directly and run the repository's lightweight documentation validation, if any. This exception does not cover user-facing documentation, executable examples, configuration, scripts, generated files, or behavior changes.
 
 ## Contract
 
-- Run every review at `--max-priority P2` (or `AUTOREVIEW_MAX_PRIORITY=P2`).
-  The prompt's priority threshold is undefined for the model and calibration
-  differs by engine: probed 2026-08-01, gpt-5.6-sol rates a confidently-found
-  command injection P1 and suppresses it under the P0-only default while
-  calling the patch correct at 0.99. Classification is the noise filter, not
-  the threshold. Use `P3` only when the caller explicitly asks for
-  polish-level review. Pass `--stream-engine-output` so the log keeps the
-  engine's usage line: reasoning tokens are the one receipt that separates a
-  real read from a threshold-collapsed one (a gagged pass spent 195 reasoning
-  tokens on a 114KB bundle; a real review of half a kilobyte spent 7,027).
-  A receipt between those marks decides nothing alone: the session's smoke
-  probe is the tiebreak. Probe passed, trust the exit; no probe ran this
-  session, run it before trusting.
+- Default output is P0 only: report issues worth blocking the current change because they materially break the normal flow, outcome, or safety boundary. Use --max-priority P1, P2, or P3 only when the caller explicitly asks for a wider review.
 - Treat review output as advisory. Never blindly apply it.
 - Verify every finding by reading the real code path and adjacent files, and by running the check that settles it when one exists.
 - Read dependency docs/source/types when the finding depends on external behavior.
@@ -65,7 +53,7 @@ Do not require autoreview for a change whose entire diff is prose-only internal 
 
 ## Scope Governor
 
-Autoreview is a closeout gate, not permission to rewrite the task.
+Code review is a closeout gate, not permission to rewrite the task.
 
 Before the first review, freeze a scope baseline: original request or issue, target branch, intended behavior, owner boundary, changed files, non-test LOC (test-support helpers count as test), the interfaces the diff's tests were agreed to cross when the invoker names them, and one sentence of threat model: the class of input the changed code answers for (accidental states, adversarial input, untrusted data). For inherited or already-bloated branches, use the intended PR diff as the baseline rather than accepting all existing branch drift.
 
@@ -108,27 +96,27 @@ Choose one:
 
 ```bash
 # Claude Code plugin install, the shape bottega:setup produces:
-export AUTOREVIEW="${CLAUDE_PLUGIN_ROOT}/skills/code-review/scripts/autoreview"
-export AUTOREVIEW_HARNESS="${CLAUDE_PLUGIN_ROOT}/skills/code-review/scripts/test-review-harness"
+export AUTOREVIEW="${CLAUDE_PLUGIN_ROOT}/skills/autoreview/scripts/autoreview"
+export AUTOREVIEW_HARNESS="${CLAUDE_PLUGIN_ROOT}/skills/autoreview/scripts/test-review-harness"
 ```
 
 ```bash
 # Project-local skill in the current repo for Codex and other agents:
-export AUTOREVIEW=".agents/skills/code-review/scripts/autoreview"
-export AUTOREVIEW_HARNESS=".agents/skills/code-review/scripts/test-review-harness"
+export AUTOREVIEW=".agents/skills/autoreview/scripts/autoreview"
+export AUTOREVIEW_HARNESS=".agents/skills/autoreview/scripts/test-review-harness"
 ```
 
 ```bash
 # Claude Code project-local skill in the current repo:
-export AUTOREVIEW=".claude/skills/code-review/scripts/autoreview"
-export AUTOREVIEW_HARNESS=".claude/skills/code-review/scripts/test-review-harness"
+export AUTOREVIEW=".claude/skills/autoreview/scripts/autoreview"
+export AUTOREVIEW_HARNESS=".claude/skills/autoreview/scripts/test-review-harness"
 ```
 
 ```bash
 # Global skill:
 export AGENTS_HOME="${AGENTS_HOME:-$HOME/.agents}"
-export AUTOREVIEW="$AGENTS_HOME/skills/code-review/scripts/autoreview"
-export AUTOREVIEW_HARNESS="$AGENTS_HOME/skills/code-review/scripts/test-review-harness"
+export AUTOREVIEW="$AGENTS_HOME/skills/autoreview/scripts/autoreview"
+export AUTOREVIEW_HARNESS="$AGENTS_HOME/skills/autoreview/scripts/test-review-harness"
 ```
 
 When using Claude Code, set `AGENTS_HOME="$HOME/.claude"` for global skills.

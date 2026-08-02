@@ -13,7 +13,7 @@
     "autonomous",
     "agents",
     "orchestration",
-    "code-review",
+    "autoreview",
     "qa"
   ],
   "skills": "./skills/",

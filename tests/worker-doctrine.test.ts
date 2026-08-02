@@ -63,8 +63,8 @@ describe("portable worker doctrine", () => {
       "README.md",
       ...filesUnder("skills", ".md").filter(
         (path) =>
-          path !== "skills/code-review/SKILL.md" &&
-          !path.startsWith("skills/code-review/tests/") &&
+          path !== "skills/autoreview/SKILL.md" &&
+          !path.startsWith("skills/autoreview/tests/") &&
           !path.startsWith("skills/prototype/") &&
           !path.startsWith("skills/domain-modeling/"),
       ),
@@ -114,10 +114,10 @@ describe("portable worker doctrine", () => {
     const owned = new Set([
       "skills/maestro/SKILL.md",
       "skills/panel/SKILL.md",
-      "skills/code-review/SKILL.md",
+      "skills/autoreview/SKILL.md",
     ]);
     for (const file of filesUnder("skills", ".md")) {
-      if (owned.has(file) || file.startsWith("skills/code-review/tests/")) continue;
+      if (owned.has(file) || file.startsWith("skills/autoreview/tests/")) continue;
       const named = read(file).match(/\b(opus-5|fable-5|gpt-5\.6-\w+)\b/);
       expect(named?.[0], `${file} names ${named?.[0]}; the dispatch site owns it`).toBe(undefined);
     }
@@ -130,7 +130,7 @@ describe("portable worker doctrine", () => {
     // a Claude worker's effort is a value nothing applies
     // (docs/adr/0033-one-simple-maestro-code-is-the-record.md).
     for (const file of filesUnder("skills", ".md")) {
-      if (file.startsWith("skills/code-review/")) continue;
+      if (file.startsWith("skills/autoreview/")) continue;
       const claudeEffort = read(file).match(/\b(opus-5|Opus)\b[^.\n]{0,40}?\beffort\b/);
       expect(claudeEffort?.[0], `${file} gives a Claude worker an effort no dispatch carries`).toBe(
         undefined,
@@ -139,7 +139,7 @@ describe("portable worker doctrine", () => {
 
     // The vendored engine names its engines and its lens seats itself; its
     // local scoping is recorded in THIRD_PARTY.md.
-    const review = read("skills/code-review/SKILL.md");
+    const review = read("skills/autoreview/SKILL.md");
     expect(review).toContain("runs on opus-5");
     expect(review).toContain("--model codex=gpt-5.6-sol");
     expect(review).toContain("--model claude=claude-fable-5");
@@ -157,8 +157,8 @@ describe("portable worker doctrine", () => {
       ...filesUnder("docs", ".md"),
     ].filter(
       (path) =>
-        path !== "skills/code-review/SKILL.md" &&
-        !path.startsWith("skills/code-review/tests/"),
+        path !== "skills/autoreview/SKILL.md" &&
+        !path.startsWith("skills/autoreview/tests/"),
     );
 
     const dead: string[] = [];
@@ -191,9 +191,9 @@ describe("portable worker doctrine", () => {
 
     const files = filesUnder("skills", ".md").filter(
       (path) =>
-        path !== "skills/code-review/SKILL.md" &&
-        !path.startsWith("skills/code-review/scripts/") &&
-        !path.startsWith("skills/code-review/tests/"),
+        path !== "skills/autoreview/SKILL.md" &&
+        !path.startsWith("skills/autoreview/scripts/") &&
+        !path.startsWith("skills/autoreview/tests/"),
     );
 
     const violations: string[] = [];
@@ -340,16 +340,16 @@ describe("portable worker doctrine", () => {
 
   it("pins the review interlock and its quantifiers", () => {
     const maestro = read("skills/maestro/SKILL.md");
-    expect(maestro).toContain("bottega:code-review");
+    expect(maestro).toContain("bottega:autoreview");
     expect(maestro, "a reversal names the verdict it reverses").toContain(
       "naming the verdict it reverses when it reverses one",
     );
     expect(
-      read("skills/code-review/SKILL.md"),
+      read("skills/autoreview/SKILL.md"),
       "every finding is verified against the real code before the head is accepted",
     ).toContain("Verify every finding by reading the real code path");
     expect(
-      read("skills/code-review/SKILL.md"),
+      read("skills/autoreview/SKILL.md"),
       "a finding with a runnable check is settled by running it",
     ).toContain("running the check that settles it when one exists");
     // The word alone routes nowhere from skill prose: the sentence names the tool.
@@ -386,7 +386,7 @@ describe("portable worker doctrine", () => {
 
     // The skill is the modified vendored document itself (provenance in
     // THIRD_PARTY.md), and the author's own convergence rule survives verbatim.
-    const autoreview = read("skills/code-review/SKILL.md");
+    const autoreview = read("skills/autoreview/SKILL.md");
     expect(autoreview).toContain("two review-triggered patch cycles have not converged");
     // The local additions: the blind prompt, the self-read of REVIEW.md, the
     // lenses, and the panel held across reruns.
