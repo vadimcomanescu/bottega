@@ -12,7 +12,7 @@ Work out the domain model, the concepts, their states, and the rules, per `botte
 
 - Every normative fact has exactly one authoritative home. `CLAUDE.md` and `AGENTS.md` are maps that route to those homes and never restate their contents. The rule crosses repository boundaries. Where a sibling repository already owns a fact, link that owner's stable home by full URL and restate nothing of it. Delete a second copy you find in the change's scope rather than keeping it in sync.
 - A document's path shows its authority: living truth, decisions under `docs/adr/`, open plans, and archive. Living docs never cite archived docs.
-- Read the nearest map that routes the task, then only the contexts and ADRs the task touches.
+- Read the map that governs the files the task touches, then only the contexts and ADRs the task touches.
 - Changing covered behavior, update the owning living doc in the same change.
 - Outside reading is not an artifact of its own. Put what a source said in the sentence of the decision it changed, and name the source's URL there. A decision that meets the record bar becomes one ADR stating plainly what was decided and why. Commit no research, findings, or reading note as a file.
 
