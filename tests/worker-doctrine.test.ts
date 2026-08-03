@@ -84,6 +84,10 @@ describe("portable worker doctrine", () => {
       if (/\bbearing\b/i.test(source)) violations.push(`${file}: prohibited word bearing`);
       if (/\bbears? on\b/i.test(source)) violations.push(`${file}: prohibited phrase bears on`);
       if (/\bledger\b/i.test(source)) violations.push(`${file}: prohibited word ledger`);
+      // An adjective that selects among no real alternatives says nothing
+      // ("the smallest existing agent map" named no scale, 0.187.0).
+      if (/\bsmallest existing\b/i.test(source))
+        violations.push(`${file}: empty adjective smallest existing`);
       // A semicolon in skills prose is two sentences wearing one. Code blocks
       // and inline code keep their own syntax, so strip them before checking.
       if (file.startsWith("skills/") || file.startsWith("skills-internal/")) {
@@ -94,6 +98,32 @@ describe("portable worker doctrine", () => {
       }
     }
     expect(violations).toEqual([]);
+  });
+
+  it("keeps the test tiers where each actor receives them", () => {
+    // The builder iterates on the single-test run and closes on the brief's
+    // checks. The integrated diff gets the checks the map names. The mutation
+    // method lives in one reference the implement doctrine routes to.
+    const maestro = read("skills/maestro/SKILL.md");
+    expect(maestro, "briefs carry the single-test run").toContain(
+      "Each brief carries the single-test run",
+    );
+    expect(maestro, "the integrated diff gets its checks").toContain(
+      "checks the map names for the integrated diff",
+    );
+    const openSkill = read("skills/open/SKILL.md");
+    expect(openSkill, "open discovers the single-test run").toContain("single-test run");
+    const implement = read("skills/implement/SKILL.md");
+    expect(implement, "the loop runs on the single-test run").toContain(
+      "single-test run your brief carries",
+    );
+    expect(implement, "the builder mutates its diff through the reference").toContain(
+      "references/mutation.md",
+    );
+    expect(
+      read("skills-internal/write-bottega-skills/SKILL.md"),
+      "the skill doctrine names the register",
+    ).toContain("the standard `bottega:bro` states");
   });
 
   it("names worker models where the dispatch happens and nowhere else", () => {
