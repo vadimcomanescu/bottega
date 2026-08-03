@@ -88,6 +88,8 @@ describe("portable worker doctrine", () => {
       // ("the smallest existing agent map" named no scale, 0.187.0).
       if (/\bsmallest existing\b/i.test(source))
         violations.push(`${file}: empty adjective smallest existing`);
+      if (/\bnearest map\b/i.test(source))
+        violations.push(`${file}: empty adjective nearest map`);
       // A semicolon in skills prose is two sentences wearing one. Code blocks
       // and inline code keep their own syntax, so strip them before checking.
       if (file.startsWith("skills/") || file.startsWith("skills-internal/")) {
