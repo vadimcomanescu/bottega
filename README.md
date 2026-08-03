@@ -20,7 +20,8 @@ A run needs `git`, `node`, and the [GitHub CLI](https://cli.github.com/) on PATH
 | Command | What it does |
 | --- | --- |
 | `/bottega:maestro <task, or issue URL>` | Take a task, bug, or issue to a reviewed, evidence-backed PR ready to merge |
-| `/bottega:improve [area or direction]` | Scan the codebase for deepening opportunities, verify the strongest one, then take it through a run |
+| `/bottega:improve-codebase-architecture` | Scan the codebase for deepening opportunities and render them as a visual HTML report to explore with you |
+| `/bottega:auto-improve [area or direction]` | Run the improvement scan, verify the strongest candidate on the code, then take it through a run |
 | `/bottega:discover <request or issue>` | Understand what the request means in the repository, then find its unknowns and settle them with you |
 | `/bottega:interview-and-capture` | Interview you one question at a time about a plan or decision, capturing terms and decisions as they settle |
 | `/bottega:spec` | Turn the settled conversation into a spec and publish it on the run's tracker issue |
@@ -30,6 +31,8 @@ A run needs `git`, `node`, and the [GitHub CLI](https://cli.github.com/) on PATH
 | `/bottega:domain-modeling` | Build and sharpen the project's domain model, its terminology and its decision records |
 | `/bottega:setup` | Set up the repo's issue tracker, triage label vocabulary, branch claim, and domain doc layout |
 | `/bottega:to-tickets` | Break a plan, spec, or conversation into tickets with blocking edges, published to the tracker |
+| `/bottega:triage` | Move issues and external PRs through the triage roles, verify their claims, and write agent-ready briefs |
+| `/bottega:wayfinder <loose idea or map>` | Chart work too big for one session as a map of decision tickets, then resolve them one at a time |
 | `/bottega:bro` | Talk and write like one human to another, technical content in Simplified Technical English |
 
 A run uses further methods that have no command of their own: open, spec, implement, qa, close, and use-codex. The run reaches them itself.

@@ -68,7 +68,10 @@ describe("portable worker doctrine", () => {
           !path.startsWith("skills/prototype/") &&
           !path.startsWith("skills/domain-modeling/") &&
           !path.startsWith("skills/setup/") &&
-          !path.startsWith("skills/to-tickets/"),
+          !path.startsWith("skills/to-tickets/") &&
+          !path.startsWith("skills/improve-codebase-architecture/") &&
+          !path.startsWith("skills/triage/") &&
+          !path.startsWith("skills/wayfinder/"),
       ),
       ...filesUnder("skills-internal", ".md"),
     ];
@@ -346,9 +349,9 @@ describe("portable worker doctrine", () => {
       .map((entry) => entry.name);
 
     for (const name of skillDirectories) {
-      // The prototype skill is synced vendored prose (THIRD_PARTY.md), kept as
-      // its author wrote it, opening included.
-      if (name === "prototype") continue;
+      // Synced vendored prose (THIRD_PARTY.md) is kept as its author wrote
+      // it, opening included.
+      if (name === "prototype" || name === "wayfinder") continue;
       const body = read(`skills/${name}/SKILL.md`).replace(
         /^---\r?\n[\s\S]*?\r?\n---\r?\n/,
         "",
