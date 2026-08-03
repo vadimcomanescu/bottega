@@ -10,7 +10,7 @@ Find the refactors that turn shallow modules into deep ones, so the codebase get
 
 ## 1. Read
 
-Start with the canonical agent map when one exists, then its domain owner. When either route is absent, locate the smallest existing map and domain material by what they govern. Treat genuinely absent domain material as absent, not as a setup requirement. Read only what the scan needs: the vocabulary you find, the relevant contexts and decisions covering the code you will touch, and the doc the repository names as its documentation authority. A missing context map, glossary, or ADR is not a gap. Surface a relevant ADR conflict before proposing a change.
+Start with the canonical agent map when one exists, then its domain owner. When either route is absent, locate the existing map and domain material by what they govern. Treat genuinely absent domain material as absent, not as a setup requirement. Read only what the scan needs: the vocabulary you find, the relevant contexts and decisions covering the code you will touch, and the doc the repository names as its documentation authority. A missing context map, glossary, or ADR is not a gap. Surface a relevant ADR conflict before proposing a change.
 
 ## 2. Scope
 
