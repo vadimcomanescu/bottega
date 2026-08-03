@@ -4,4 +4,4 @@ What happened: in a 2026-07-27 guru run on nadia-core, discovery's interview ask
 
 The rule: every interview question stands on an explanation given in the same message, in the product's own words with a concrete example (what exists today, what each answer would change, what it would cost), and a term the run coined while exploring is explained before it is used. "I don't understand" means explain fuller and ask again, never shorter. The user's stated starting point, asked for at Explore, sets how much each question must explain.
 
-Enforced: skills/discover/SKILL.md (the Interviews step and the Explore step's starting-point question).
+Enforced: skills/interview-and-capture/SKILL.md (the explanation rule and the starting-point question).

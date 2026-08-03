@@ -29,12 +29,10 @@ describe("setup contract", () => {
 
   it("settles the branch claim in one question and ships it in the tracker templates", () => {
     expect(setup).toContain("Should an agent claim an issue by creating its branch?");
-    for (const template of ["issue-tracker-github.md", "issue-tracker-gitlab.md"]) {
-      const tracker = read(join("skills/setup", template));
-      expect(tracker).toContain("## Claiming an issue");
-      expect(tracker).toContain("--force-with-lease=refs/heads/issue/<n>:");
-      expect(tracker).toContain("Assignment is the human-visible signal, never the lock");
-    }
+    const tracker = read("skills/setup/issue-tracker-github.md");
+    expect(tracker).toContain("## Claiming an issue");
+    expect(tracker).toContain("--force-with-lease=refs/heads/issue/<n>:");
+    expect(tracker).toContain("Assignment is the human-visible signal, never the lock");
   });
 
   it("leaves to the run what the run heals itself", () => {

@@ -2,7 +2,7 @@
 
 Bottega is a Claude Code plugin that takes a piece of work from a request to a pull request that is designed, built, reviewed, and verified, without a person driving each step.
 
-`/bottega:maestro` runs the whole thing: it settles the unknowns with you, owns the design, builds through worker agents, has the integrated result reviewed and repaired, drives QA over every product surface the work touched, and opens the PR. Eight other commands run one piece of that on its own.
+`/bottega:maestro` runs the whole thing: it settles the unknowns with you, owns the design, builds through worker agents, has the integrated result reviewed and repaired, drives QA over every product surface the work touched, and opens the PR. The other commands each run one piece of that on its own.
 
 ## Install
 
@@ -22,6 +22,7 @@ A run needs `git`, `node`, and the [GitHub CLI](https://cli.github.com/) on PATH
 | `/bottega:maestro <task, or issue URL>` | Take a task, bug, or issue to a reviewed, evidence-backed PR ready to merge |
 | `/bottega:improve [area or direction]` | Scan the codebase for deepening opportunities, verify the strongest one, then take it through a run |
 | `/bottega:discover <request or issue>` | Understand what the request means in the repository, then find its unknowns and settle them with you |
+| `/bottega:interview-and-capture` | Interview you one question at a time about a plan or decision, capturing terms and decisions as they settle |
 | `/bottega:spec` | Turn the settled conversation into a spec and publish it on the run's tracker issue |
 | `/bottega:autoreview <PR, ref range, or worktree>` | Review a diff through the vendored review engine and fix what it finds, looping to a converged head |
 | `/bottega:panel <the decision>` | Put one costly decision to blinded independent drafts from different companies' models, with a judge that only compares them |
@@ -84,7 +85,7 @@ Edit any of them upstream, not here. Bringing in a newer version means copying i
 - The restraint the skills are written with (few constraints, the orchestrator trusted with judgment) is calibrated to Anthropic's [Prompting Claude Fable 5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5).
 - The design vocabulary is John Ousterhout's deep modules.
 - The builder's reuse-before-build order and root-cause repair rule come from [Ponytail](https://github.com/DietrichGebert/ponytail).
-- The deep-module vocabulary in `skills/codebase-design` (module, interface, depth, seam, adapter, leverage, locality) started from [Matt Pocock's engineering skills](https://github.com/mattpocock/skills), as do interface-level TDD, the mocking doctrine, the grilling interview absorbed into discovery, and the spec's tracker-issue shape.
+- The deep-module vocabulary in `skills/codebase-design` (module, interface, depth, seam, adapter, leverage, locality) started from [Matt Pocock's engineering skills](https://github.com/mattpocock/skills), as do interface-level TDD, the mocking doctrine, the grilling interview (now `skills/interview-and-capture`), and the spec's tracker-issue shape.
 - Selective technology-skill loading and the repair's reproduce-first test draw from [Addy Osmani's agent skills](https://github.com/addyosmani/agent-skills).
 - The exact-plan-to-implementer-to-reviewer handoff is reinforced by [Superpowers](https://github.com/obra/superpowers).
 - The brief discipline a codex dispatch follows, the whole brief handed over as written text with every input by absolute path rather than squeezed through shell quoting, draws from [Peter Steinberger's agent scripts](https://github.com/steipete/agent-scripts).
