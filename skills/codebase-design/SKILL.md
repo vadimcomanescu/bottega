@@ -45,4 +45,6 @@ Use these terms exactly. Never substitute "component," "service," "API," or "bou
 - A testable interface takes its dependencies and returns its results, through few operations with few parameters.
 
 ## Going deeper
-If you think its needed, `bottega:architect` carries two methods: how the kind of dependency decides the way you test across a seam, and how to design a consequential interface several radically different ways at once and pick between them.
+If you think its needed:
+- deepen a cluster given its dependencies using [references/deepening.md](references/deepening.md): dependency categories and replace-don't-layer testing.
+- explore alternative interfaces using [references/design-it-twice.md](references/design-it-twice.md): parallel workers design the interface several radically different ways, then compare on depth, locality, and seam placement.

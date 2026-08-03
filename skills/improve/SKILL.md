@@ -18,7 +18,7 @@ Scope to the direction I named, which wins over anything you would pick yourself
 
 ## 3. Scan
 
-Read the scoped code and note where you hit friction, in the vocabulary of `bottega:architect`:
+Read the scoped code and note where you hit friction, in the vocabulary of `bottega:codebase-design`:
 
 - understanding one concept requires bouncing between many small modules
 - a module's interface is nearly as complex as its implementation. Apply the deletion test: would deleting it concentrate the complexity, or just move it?
@@ -38,7 +38,7 @@ Check open issues and PRs before proposing. An improvement already tracked or al
 
 ## 5. Pick and verify
 
-Rank the candidates per `bottega:architect`, each a coherent unit: the files, the problem with its proof from the code, the change in product terms (interface design belongs to the run), and the gain in leverage and locality. Take the strongest and verify it on the real code before spending a run on it: apply the deletion test and say what complexity concentrates where, name a test the current interface makes hard to write, and check the change against the ADRs covering the area. When a candidate fails verification, take the next one, and record the failure as an ADR when a future scan would rediscover the same dead end. When every candidate fails, report what the scan found and stop.
+Rank the candidates on the leverage and locality they gain, per `bottega:codebase-design`, each a coherent unit: the files, the problem with its proof from the code, the change in product terms (interface design belongs to the run), and the gain in leverage and locality. Take the strongest and verify it on the real code before spending a run on it: apply the deletion test and say what complexity concentrates where, name a test the current interface makes hard to write, and check the change against the ADRs covering the area. When a candidate fails verification, take the next one, and record the failure as an ADR when a future scan would rediscover the same dead end. When every candidate fails, report what the scan found and stop.
 
 ## 6. Run it
 
