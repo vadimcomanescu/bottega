@@ -60,6 +60,6 @@ Do NOT propose interfaces yet. After the file is written, ask the user: "Which o
 
 ### 3. Grilling loop
 
-Once the user picks a candidate, walk the decision tree with them one question at a time, your recommended answer first — constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
+Once the user picks a candidate, walk the decision tree with them round by round, each round asking every question whose prerequisites are settled, numbered and with your recommended answer beside it: constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
 
 Side effects happen inline as decisions crystallize — run the `bottega:domain-modeling` skill to keep the domain model current as you go. Want to explore alternative interfaces for the deepened module? Run the `bottega:codebase-design` skill and use its design-it-twice parallel sub-agent pattern.

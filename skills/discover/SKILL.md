@@ -19,7 +19,7 @@ If not, fan out Opus workers on medium, decide how many:
 - what do local agents skills relevant to this task and technology teach? 
 - any other question your reading has raised so far.
 
-When unknowns remain, do a blind spot pass, find the unknown unknowns. Then run `bottega:interview-and-capture` on what is left — the relentless one-question-at-a-time interview, prototyping the design questions, capturing terms and decisions as they settle.
+When unknowns remain, do a blind spot pass, find the unknown unknowns. Then run `bottega:interview-and-capture` on what is left, the relentless round-by-round interview, prototyping the design questions, capturing terms and decisions as they settle.
 
 Do not act on it until I confirm we have reached a shared understanding. If you think it's worth it, and see we struggle, ask me for external references, something I was inspired by or saw in the past. 
 
