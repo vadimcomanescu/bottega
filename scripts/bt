@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# bt — launch Claude Code on one of several accounts, session-wide.
+#
+#   bt <n> [claude args...]   launch on account n; n=1 is the default ~/.claude
+#   bt                        show per-account last use and suggest a run seat
+#
+# Accounts 2..N are Claude Code config dirs at ~/.claude-accounts/<n>
+# (CLAUDE_CONFIG_DIR is the mechanism Claude Code documents for this). Each
+# dir needs one browser /login the first time; symlink CLAUDE.md and
+# settings.json to the ~/.claude copies so every account behaves the same.
+# Account 1 stays the interactive seat; the no-arg call suggests the
+# least-recently-used other account for a run.
+#
+# Install: symlink this file onto PATH, e.g.
+#   ln -s "$(pwd)/scripts/bt" ~/.local/bin/bt
+#
+# Optional config at ~/.claude-accounts/bt.conf, one directive per line:
+#   accounts <N>                  highest account number (default 4)
+#   beads <path-prefix> <dir>     export BEADS_DIR=<dir> when the session
+#                                 starts under <path-prefix>, so satellite
+#                                 repos share one work graph
+set -euo pipefail
+
+ACCOUNTS_DIR="$HOME/.claude-accounts"
+LOG="$ACCOUNTS_DIR/usage.log"
+CONF="$ACCOUNTS_DIR/bt.conf"
+MAX_ACCOUNT=4
+
+read_conf() {
+  [ -f "$CONF" ] || return 0
+  while read -r key a b; do
+    case "$key" in
+      accounts) MAX_ACCOUNT=$a ;;
+      beads)
+        case "$PWD" in
+          "${a/#\~/$HOME}"*) export BEADS_DIR="${b/#\~/$HOME}" ;;
+        esac ;;
+    esac
+  done < "$CONF"
+}
+
+last_used_epoch() {
+  local stamp
+  stamp=$(grep "^account=$1 " "$LOG" 2>/dev/null | tail -1 | awk '{print $2}')
+  [ -n "${stamp:-}" ] || { echo 0; return; }
+  date -j -f '%Y-%m-%dT%H:%M:%S' "$stamp" +%s 2>/dev/null \
+    || date -d "$stamp" +%s 2>/dev/null || echo 0
+}
+
+suggest() {
+  echo "bt — account launcher"
+  echo
+  printf '%-9s %s\n' "account" "last used"
+  local n
+  for n in $(seq 1 "$MAX_ACCOUNT"); do
+    local last
+    last=$(grep "^account=$n " "$LOG" 2>/dev/null | tail -1 | sed 's/^account=[0-9]* //')
+    printf '%-9s %s\n' "$n" "${last:-never}"
+  done
+  echo
+  local best=2 best_ts=9999999999 ts
+  for n in $(seq 2 "$MAX_ACCOUNT"); do
+    ts=$(last_used_epoch "$n")
+    if [ "$ts" -lt "$best_ts" ]; then best=$n; best_ts=$ts; fi
+  done
+  echo "suggestion: interactive work on 1; start this run on $best (least recently used)"
+  exit 0
+}
+
+read_conf
+[ $# -eq 0 ] && suggest
+
+n=$1; shift
+if ! [ "$n" -ge 1 ] 2>/dev/null || [ "$n" -gt "$MAX_ACCOUNT" ]; then
+  echo "usage: bt <1..$MAX_ACCOUNT> [claude args...]" >&2
+  exit 2
+fi
+
+mkdir -p "$ACCOUNTS_DIR"
+printf 'account=%s %s cwd=%s\n' "$n" "$(date +%Y-%m-%dT%H:%M:%S)" "$PWD" >> "$LOG"
+
+if [ "$n" = "1" ]; then
+  exec claude "$@"
+fi
+export CLAUDE_CONFIG_DIR="$ACCOUNTS_DIR/$n"
+exec claude "$@"
