@@ -12,7 +12,7 @@ The brief: report, per file or hunk where relevant, every place the diff violate
 
 ## Spec
 
-Source: the spec the invoker handed in (an issue, a PRD, a spec file). When none came, report "no spec available" and stop.
+Source: the spec the invoker handed in (an issue, a spec file). When none came, report "no spec available" and stop.
 
 The brief: report what the spec asked for that is missing or partial, what the diff does that nobody asked for, and what looks implemented but wrong, each finding quoting the spec line it judges against. Under 400 words.
 
