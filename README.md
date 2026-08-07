@@ -1,6 +1,6 @@
 # bottega
 
-Bottega is a Claude Code plugin that takes a piece of work from a request to a pull request that is designed, built, reviewed, and verified, without a person driving each step.
+Bottega is a Claude Code plugin that takes a piece of work from a request to a pull request that is designed, built, reviewed, and verified.
 
 `/bottega:maestro` runs the whole thing: it settles the unknowns with you, owns the design, builds through worker agents, has the integrated result reviewed and repaired, drives QA over every product surface the work touched, and opens the PR. The other commands each run one piece of that on its own.
 
