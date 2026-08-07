@@ -41,7 +41,7 @@ A project command whose green result a change must hold: format, lint, typecheck
 The sentence a check, gate, or validator ships with, naming the class of input it answers for (accidental states, adversarial input, untrusted data) and what it deliberately does not catch. The review judges each finding's reachability against it: a finding whose failure scenario needs an actor outside the model is real but not work.
 
 **Plan**:
-The run's design written down per the architect doctrine: what a builder must not decide, the interfaces the tests cross, any threat model, and the vertical slices. Posted as one comment on the run's issue, beside the spec, before any builder starts. A run with no tracker issue keeps it in the conversation.
+The run's design written down per the architect doctrine: what a builder must not decide, the interfaces the tests cross, any threat model, and the vertical slices. Posted as one comment on the run's bead, whose design field holds the spec, before any builder starts.
 _Avoid_: execution plan, design (design stays the activity, plan is the artifact)
 
 **Second opinion**:
@@ -66,17 +66,17 @@ The project's own answer to what lands a pull request: the brake that holds one 
 _Avoid_: merge contract, landing rules
 
 **Followup**:
-A real finding or deferred item filed as one tracker issue before the PR opens, so the PR body links it.
+A real finding or deferred item filed as one bead before the PR opens, so the PR body names it.
 
 **Lesson**:
 A failure record in docs/lessons: what happened, the rule, and where the rule is enforced; its rule lands where the repository enforces it best.
 
 **Spec**:
-The synthesis of a closed discovery, published on the run's tracker issue: the problem, the announcement, user stories, implementation decisions, testing direction, acceptance criteria, out of scope. The issue that carries it anchors the run.
+The synthesis of a closed discovery, published on the run's bead: the problem, the announcement, user stories, implementation decisions, testing direction, acceptance criteria, out of scope. The bead that carries it anchors the run.
 _Avoid_: PRD, plan
 
 **Discovery artifacts**:
-What discovery produces and the run keeps close while it builds: the prototypes, their screenshots, the settled decisions, the references. Briefs point at them and QA judges against them. Each validated decision lands in the spec, each prototype is captured to a throwaway branch off main with its pointer and verdict on the run's issue, and main keeps only the validated decisions.
+What discovery produces and the run keeps close while it builds: the prototypes, their screenshots, the settled decisions, the references. Briefs point at them and QA judges against them. Each validated decision lands in the spec, each prototype is captured to a throwaway branch off main with its pointer and verdict on the run's bead, and main keeps only the validated decisions.
 
 **Harness**:
 The runtime a session runs in: Claude Code. The project is the repository a run works on; the two are never the same word.

@@ -398,7 +398,7 @@ describe("portable worker doctrine", () => {
 
     const close = read("skills/close/SKILL.md");
     expect(close).toContain("put the rule where the repository enforces it best");
-    expect(close).toContain("fix the ones in the run's scope and file one issue for the rest");
+    expect(close).toContain("fix the ones in the run's scope and file one bead for the rest");
     expect(close, "the run never merges by hand").toContain(
       "Never merge a PR by hand and never approve one",
     );

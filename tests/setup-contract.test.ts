@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -8,47 +8,39 @@ function read(path: string): string {
   return readFileSync(join(ROOT, path), "utf8");
 }
 
+const LIFECYCLE = [
+  "skills/setup/SKILL.md",
+  "skills/setup/issue-tracker-beads.md",
+  "skills/open/SKILL.md",
+  "skills/close/SKILL.md",
+  "skills/spec/SKILL.md",
+];
+
 describe("setup contract", () => {
-  const setup = read("skills/setup/SKILL.md");
-
-  it("carries the vendored sections and the five triage roles", () => {
-    expect(setup).toContain("name: setup");
-    expect(setup).toContain(
-      "Skip this section entirely if neither the `triage` nor the `to-tickets` skill is installed",
-    );
-    expect(setup).toContain(
-      "`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`",
-    );
+  it("ships the beads tracker template", () => {
+    expect(existsSync(join(ROOT, "skills/setup/issue-tracker-beads.md"))).toBe(true);
   });
 
-  it("creates the labels on the remote instead of only naming them", () => {
-    expect(setup).toContain("create every label named in `docs/agents/triage-labels.md`");
-    expect(setup).toContain("gh label create <label>");
-    expect(setup).toContain("Existing labels stay exactly as they are.");
+  it("keeps the run lifecycle off GitHub issues, which carry delivery only", () => {
+    for (const path of LIFECYCLE) {
+      expect(read(path), `${path} still drives work through gh issue`).not.toMatch(/gh issue /);
+    }
   });
 
-  it("settles the branch claim in one question and ships it in the tracker templates", () => {
-    expect(setup).toContain("Should an agent claim an issue by creating its branch?");
-    const tracker = read("skills/setup/issue-tracker-github.md");
-    expect(tracker).toContain("## Claiming an issue");
-    expect(tracker).toContain("--force-with-lease=refs/heads/issue/<n>:");
-    expect(tracker).toContain("Assignment is the human-visible signal, never the lock");
+  it("closes the bead from the agent watching the merge", () => {
+    expect(read("skills/close/SKILL.md")).toContain(
+      'bd close <bead-id> --reason "PR #<n> merged"',
+    );
+    expect(read("skills/open/SKILL.md")).toContain("run `bd close` on its bead");
   });
 
-  it("leaves to the run what the run heals itself", () => {
-    const open = read("skills/open/SKILL.md");
-    expect(open).toContain("Follow its claim procedure without changing my checkout.");
-    expect(open).toContain(
-      "When no map or command owner exists, discover the commands from the repository",
-    );
-    // What lands a PR is read where the commands are read, so close delivers
-    // under the project's own procedure instead of one repository's defaults
-    // (docs/lessons/what-lands-a-pr-is-the-projects-fact.md).
-    expect(open, "the run reads what lands a PR beside the commands").toContain(
-      "The landing procedure is one of those facts",
-    );
-    expect(open, "the three facts close needs are named where they are read").toContain(
-      "what arms a PR to land (the opener arms it, a merge queue takes every non-draft PR, or nothing does)",
-    );
+  it("links only templates that exist", () => {
+    const targets = [...read("skills/setup/SKILL.md").matchAll(/]\(\.\/([^)]+)\)/g)]
+      .map(([, target]) => target)
+      .filter((target): target is string => target !== undefined);
+    expect(targets.length).toBeGreaterThan(0);
+    for (const target of targets) {
+      expect(existsSync(join(ROOT, "skills/setup", target)), `missing ${target}`).toBe(true);
+    }
   });
 });
