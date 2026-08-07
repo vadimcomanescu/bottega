@@ -1,6 +1,6 @@
 # bottega
 
-Autonomous issue-to-PR runs, orchestrated from Claude Code with Claude workers and GPT cross-reads of finished work: `/bottega:maestro` takes a task or issue to a reviewed, evidence-backed PR ready to merge, and autoreview, auto-improve, improve-codebase-architecture, discover, interview-and-capture, panel, prototype, domain-modeling, setup, triage, wayfinder, and bro are also available on their own. Read `README.md` for the model. This file is the map: where each thing lives, and when to read it.
+Autonomous issue-to-PR runs: `/bottega:maestro` takes a task or issue to a reviewed, evidence-backed PR ready to merge, and autoreview, auto-improve, improve-codebase-architecture, discover, interview-and-capture, panel, prototype, domain-modeling, setup, triage, wayfinder, and bro are also available on their own. Read `README.md` for the model. This file is the map: where each thing lives, and when to read it.
 
 ## Map
 
