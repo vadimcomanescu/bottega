@@ -74,8 +74,48 @@ The triage skill `/bottega:triage` runs whole: move issues and external PRs thro
 The wayfinder skill `/bottega:wayfinder` runs whole: chart work too big for one session as a shared map of decision tickets on the tracker, then resolve them one at a time until the way is clear.
 
 - Upstream: `mattpocock/skills`, under `skills/engineering/wayfinder`. Pinned at `84fdeff`, with upstream's `LICENSE` (MIT, Matt Pocock) beside it. Upstream's `agents/` registration file is not taken.
-- Local edits: the setup pointer reads `bottega:setup`, the grilling-plus-domain-modeling routes read `bottega:interview-and-capture`, the prototype route reads `bottega:prototype`, and the research-ticket routes read plain "a research subagent" because this plugin ships no research skill.
+- Local edits: the setup pointer reads `bottega:setup`, the grilling-plus-domain-modeling routes read `bottega:interview-and-capture`, the prototype route reads `bottega:prototype`, and the research-ticket routes read plain "a research subagent", because wayfinder captures findings on a throwaway branch with a pointer from the ticket, and `bottega:research` keeps findings out of the repository.
 - Sync: re-copy the file and the license whole, reapply the edits above, and read the diff.
+
+## `skills/research/SKILL.md`
+
+The research skill `/bottega:research` runs whole: a background agent investigates a question against primary sources while the caller keeps working, then reports back.
+
+- Upstream: `mattpocock/skills`, under `skills/engineering/research`. Pinned at `84fdeff`, with upstream's `LICENSE` (MIT, Matt Pocock) beside it. Upstream's `agents/` registration file is not taken.
+- Local edits: the findings report to the conversation with a URL for every claim and an UNVERIFIED mark on what the agent could not verify, and they land in the session scratchpad, never in the repository, where upstream saves a Markdown file among the repo's notes. Research is working material: the decision it produces becomes an ADR that cites its sources, and a committed research file would be a second home for the same facts.
+- Sync: re-copy the file and the license whole, reapply the edits above, and read the diff.
+
+## `skills/diagnosing-bugs/` (`SKILL.md`, `scripts/hitl-loop.template.sh`)
+
+The diagnosis method `/bottega:diagnosing-bugs` runs whole: build a feedback loop that goes red on the bug before any hypothesis, minimise the repro, test ranked falsifiable hypotheses one variable at a time, and land the fix with a regression test.
+
+- Upstream: `mattpocock/skills`, under `skills/engineering/diagnosing-bugs`. Pinned at `84fdeff`, with upstream's `LICENSE` (MIT, Matt Pocock) beside them. Upstream's `agents/` registration file is not taken.
+- Local edits: the post-mortem's architecture handoff reads `bottega:improve-codebase-architecture`.
+- Sync: re-copy the files and the license whole, reapply the edit above, and read the diff.
+
+## `skills/handoff/SKILL.md`
+
+The handoff skill `/bottega:handoff` runs whole: compact the current conversation into a document a fresh agent continues from, saved in the OS temporary directory.
+
+- Upstream: `mattpocock/skills`, under `skills/productivity/handoff`. Pinned at `84fdeff`, with upstream's `LICENSE` (MIT, Matt Pocock) beside it. Upstream's `agents/` registration file is not taken.
+- Local edits: none.
+- Sync: re-copy the file and the license whole, then read the diff.
+
+## `skills/teach/` (`SKILL.md`, the format files)
+
+The teaching skill `/bottega:teach` runs whole: a stateful teaching workspace in the current directory, holding the mission, resources, lessons, reference documents, and learning records.
+
+- Upstream: `mattpocock/skills`, under `skills/productivity/teach`. Pinned at `84fdeff`, with upstream's `LICENSE` (MIT, Matt Pocock) beside them. Upstream's `agents/` registration file is not taken.
+- Local edits: none.
+- Sync: re-copy the files and the license whole, then read the diff.
+
+## `skills/writing-for-agents/` (`SKILL.md`, `SKILL-MECHANICS.md`)
+
+The reference for writing documents agents consume, served to the repositories the plugin installs into. Bottega's own prose keeps its stricter doctrine in `skills-internal/write-bottega-skills`, which never ships.
+
+- Upstream: `mattpocock/skills`, under `skills/productivity/writing-for-agents`. Pinned at `84fdeff`, with upstream's `LICENSE` (MIT, Matt Pocock) beside them. Upstream's `agents/` registration file is not taken.
+- Local edits: none.
+- Sync: re-copy the files and the license whole, then read the diff.
 
 ## `vendor/codex/`, the codex agent and the companion runtime
 
