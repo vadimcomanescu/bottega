@@ -36,6 +36,11 @@ Running sessions across several Claude accounts, `scripts/bt` is the launcher: `
 | `/bottega:triage` | Work the GitHub mailbox — CI alarms and external PRs — through the triage roles, and turn what is accepted into a bead |
 | `/bottega:wayfinder <loose idea or map>` | Chart work too big for one session as a map of decision tickets, then resolve them one at a time |
 | `/bottega:bro` | Talk and write like one human to another, technical content in Simplified Technical English |
+| `/bottega:research <question>` | Send a background agent to investigate a question against primary sources and report back with a URL for every claim |
+| `/bottega:diagnosing-bugs <the bug>` | Diagnose a hard bug through a feedback loop that goes red on it, then fix it with a regression test |
+| `/bottega:handoff [next session's focus]` | Compact the current conversation into a handoff document for another agent to pick up |
+| `/bottega:teach <topic>` | Teach you a skill or concept over multiple sessions, in a teaching workspace in the current directory |
+| `/bottega:writing-for-agents` | Load the reference for writing documents agents consume: skills, agent maps, and docs reached by pointers |
 
 A run uses further methods that have no command of their own: open, spec, implement, qa, close, and use-codex. The run reaches them itself.
 
