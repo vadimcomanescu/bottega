@@ -11,7 +11,7 @@ Repo-specific facts — the bead prefix, where CI files its alarms, any label co
 - **List work**: `bd list` for open beads, `bd ready` for open beads with no unclosed blocker — the only list an agent picks work from. `bd ready --parent=<epic-id>` narrows it to one epic's children.
 - **Comment**: `bd comment <id> "..."`. Long-form design goes in the design field instead: `bd update <id> --design-file -`.
 - **Dependencies**: `bd dep add <blocked> <blocker>` — the blocked bead first, the bead it waits on second. At creation time, `bd create ... --deps blocks:<id>` reads the other way round (the new bead blocks `<id>`), and `--deps discovered-from:<id>` records where a finding came from.
-- **Close**: `bd close <id>`. In the normal flow nobody runs this by hand, since the merge closes the bead through the commit trailer below.
+- **Close**: `bd close <id> --reason "..."`. The agent that watched the work land runs it, per "Closing a bead" below.
 
 ## Claiming a bead
 
@@ -49,55 +49,30 @@ Check the age and the PR before deleting anything (`git log -1 --format=%ci orig
 
 ## Closing a bead
 
-The branch's final commit message ends with the trailer `Closes: <bead-id>` on a line of its own.
+The agent that watches a PR to its merge closes the bead. When the merge lands, it runs:
 
-This repo squash-merges with the branch's commit messages as the squash body, so the trailer lands in the commit on the default branch. The post-merge hook below reads it out of the merged range and runs `bd close`. The PR body never reaches the default branch, so it names the bead only for the person reading the PR — it closes nothing. Nobody closes a bead by hand.
+```bash
+bd close <bead-id> --reason "PR #<n> merged"
+```
 
-A hand-written merge commit (a sync or an upstream merge) carries the same trailer when the work has a bead.
+A bottega run does this in its close step.
+
+When a session ends with its PR still open, the bead stays open until the PR lands, and the session's report says so. The next run's opening step sweeps merged runs, and it closes a swept run's bead when it is still open.
+
+The PR body names the bead for the person reading the PR, and closes nothing. No commit message and no git hook closes a bead.
 
 ## Sync
 
-Sync rides two git hooks, and nothing else syncs the graph, so there is no separate sync step to run. Neither hook ever blocks git: a missing `bd`, a missing `.beads`, or a failing `bd` warns and exits 0.
+`bd init` installs bd's own git hooks and manages them from then on. Leave them exactly as bd manages them, and write no hook body of your own.
 
-### Install the hooks
+`bd init` sets `core.hooksPath` to `.beads/hooks` and installs `pre-commit`, `post-merge`, `pre-push`, `post-checkout`, and `prepare-commit-msg` there. `bd hooks list` reports the state of each one, and `bd hooks install` puts back any that are missing. Each installed file is a thin shim that runs `bd hooks run <name>`, so upgrading `bd` changes what the hooks do without rewriting them, and content outside bd's own markers survives an install. The four lifecycle hooks run bd's own housekeeping and any hook chained to them. `prepare-commit-msg` records the agent's identity on the commit for forensics. None of them closes a bead.
 
-Find where this repo's hooks actually live before writing anything: `git config core.hooksPath` names the directory, and the directory is `.git/hooks` only when it names none. `bd init` sets `core.hooksPath` to `.beads/hooks` and installs its own hooks there — marked "managed by beads", dispatching `bd hooks run <name>` — so a repo initialised by `bd` already has a `post-merge` and a `pre-push` that do real work, and writing the bodies below over them silently destroys that dispatch.
+The graph lives in a local Dolt database. `bd dolt push` sends the local Dolt commits to the configured Dolt remote, and `bd dolt pull` brings that remote's commits into the local database. `bd dolt remote add <name> <url>` configures the remote. Without one the graph stays on the machine that wrote it, and `.beads/issues.jsonl` is an export rather than the source of truth.
 
-So install by appending, never by overwriting. Where a hook of either name already exists — the bd-managed ones above, or any other — append the body's lines to the end of the existing file, dropping the duplicate `#!/bin/sh`, or leave the existing hook untouched and have it call a second script carrying the body. Only an absent hook is written whole. Make every hook executable. Where the hooks directory is not `.git/hooks` and this repo wants its hooks shared and version-controlled, point git at that directory once with `git config core.hooksPath <dir>`.
-
-`post-merge` — refresh the graph, then close every bead the merged commits name. Setup fills this repo's bead prefix into the `prefix` line; copied by hand, replace `CHANGEME` before the hook runs:
-
-```bash
-#!/bin/sh
-prefix="CHANGEME"   # this repo's bead prefix, e.g. "acme"
-command -v bd >/dev/null 2>&1 || exit 0
-[ -d .beads ] || exit 0
-bd dolt pull || echo "post-merge: bd dolt pull failed" >&2
-git rev-parse --verify --quiet ORIG_HEAD >/dev/null 2>&1 || exit 0
-beads=$(git log ORIG_HEAD..HEAD --format=%B \
-  | grep -oE "^Closes: $prefix-[a-z0-9]+([.][0-9]+)*$" \
-  | awk '{print $2}' \
-  | sort -u)
-for id in $beads; do
-  bd close "$id" --reason "merged" || echo "post-merge: bd close $id failed" >&2
-done
-exit 0
-```
-
-Without an `ORIG_HEAD` there is no merged range to scan, so the hook stops there and closes nothing. A `bd close` that fails warns and the loop carries on to the next bead.
-
-`pre-push` — publish the graph:
-
-```bash
-#!/bin/sh
-command -v bd >/dev/null 2>&1 || exit 0
-[ -d .beads ] || exit 0
-bd dolt push || echo "pre-push: bd dolt push failed" >&2
-exit 0
-```
+`bd doctor` and `bd orphans` are bd's own health reports for a person who wants to check the graph.
 
 ## CI alarms
 
-CI files GitHub issues when a scheduled or nightly job fails. Those issues are an alarm mailbox, not tracked work — the work graph does not contain them until a person or an agent takes one. Taking an alarm means: create the bead, put the GitHub issue URL on it (`bd create ... --external-ref <url>`), and work the bead. The delivering PR answers both, each on its own surface: `Closes #<n>` in the PR body for the GitHub issue, and the `Closes: <bead-id>` commit trailer for the bead.
+CI files GitHub issues when a scheduled or nightly job fails. Those issues are an alarm mailbox, not tracked work — the work graph does not contain them until a person or an agent takes one. Taking an alarm means: create the bead, put the GitHub issue URL on it (`bd create ... --external-ref <url>`), and work the bead. The delivering PR answers both, each on its own surface: `Closes #<n>` in the PR body closes the GitHub issue, and the run closes the bead when the merge lands.
 
 _Which CI jobs file alarms, and where, is a fact of this repo: record it here._

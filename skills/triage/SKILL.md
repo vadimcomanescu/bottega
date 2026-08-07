@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Triage
 
-Triage works the GitHub mailbox, not the work graph. Tracked work lives in beads; GitHub holds two inbound surfaces triage answers — the issues CI files as **alarms** (a failing scheduled suite, a ratchet regression) and **external pull requests**. Neither is tracked work until a human accepts it, and accepting one means creating the bead: `bd create`, with the GitHub URL on the bead (`--external-ref`), and the state label applied to the GitHub issue so the mailbox shows it answered. From that point the bead is the work, the GitHub issue is only its notification, and the PR that lands the fix answers both — `Closes #N` in the PR body for the issue, the `Closes: <bead-id>` commit trailer for the bead.
+Triage works the GitHub mailbox, not the work graph. Tracked work lives in beads; GitHub holds two inbound surfaces triage answers — the issues CI files as **alarms** (a failing scheduled suite, a ratchet regression) and **external pull requests**. Neither is tracked work until a human accepts it, and accepting one means creating the bead: `bd create`, with the GitHub URL on the bead (`--external-ref`), and the state label applied to the GitHub issue so the mailbox shows it answered. From that point the bead is the work, the GitHub issue is only its notification, and the PR that lands the fix answers both — `Closes #N` in the PR body clears the GitHub issue when the PR merges, and the run closes the bead when it watches the merge land.
 
 So the state machine below moves a GitHub item to a decision, and its terminal move — `ready-for-agent` or `ready-for-human` — is a bead created and the issue labelled, never a plan left sitting in a GitHub comment.
 

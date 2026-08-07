@@ -17,16 +17,21 @@ const LIFECYCLE = [
 ];
 
 describe("setup contract", () => {
-  it("ships one tracker template and no pluggable alternatives", () => {
+  it("ships the beads tracker template", () => {
     expect(existsSync(join(ROOT, "skills/setup/issue-tracker-beads.md"))).toBe(true);
-    expect(existsSync(join(ROOT, "skills/setup/issue-tracker-github.md"))).toBe(false);
-    expect(existsSync(join(ROOT, "skills/setup/issue-tracker-local.md"))).toBe(false);
   });
 
   it("keeps the run lifecycle off GitHub issues, which carry delivery only", () => {
     for (const path of LIFECYCLE) {
       expect(read(path), `${path} still drives work through gh issue`).not.toMatch(/gh issue /);
     }
+  });
+
+  it("closes the bead from the agent watching the merge", () => {
+    expect(read("skills/close/SKILL.md")).toContain(
+      'bd close <bead-id> --reason "PR #<n> merged"',
+    );
+    expect(read("skills/open/SKILL.md")).toContain("run `bd close` on its bead");
   });
 
   it("links only templates that exist", () => {

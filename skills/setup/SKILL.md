@@ -21,7 +21,7 @@ This is a prompt-driven skill, not a deterministic script. Explore, present what
 Look at the current repo to understand its starting state. Read whatever exists; don't assume:
 
 - `command -v bd` and `.beads/` at the repo root — is the tracker installed and initialised here? `bd status` if both are there
-- `git config core.hooksPath` and the hooks directory it names (`.git/hooks` when it names none) — is there a `post-merge` or a `pre-push` hook, and does it run `bd`?
+- `bd hooks list` — are bd's own git hooks installed here?
 - `git remote -v` and `.git/config` — is this a GitHub repo? Which one? (PRs and the merge land there; the work graph does not)
 - `AGENTS.md` and `CLAUDE.md` at the repo root — does either exist? Is there already an `## Agent skills` section in either?
 - `CONTEXT.md` and `CONTEXT-MAP.md` at the repo root
@@ -44,13 +44,10 @@ Report what exploration found and act on it:
 - `bd` on PATH, no `.beads/` — tell the user this repo has no bead database yet and that `bd init` creates one, then let them run it or say go. Don't init a repo behind the user's back.
 - No `bd` — stop this section, tell the user bd must be installed first, and say the rest of setup still runs.
 
-Then settle the two git hooks the graph syncs and closes through, since nothing else installs them. The bodies are in [issue-tracker-beads.md](./issue-tracker-beads.md) under "Install the hooks": `post-merge` runs `bd dolt pull` and closes every bead named by a `Closes: <bead-id>` trailer in the merged range, `pre-push` runs `bd dolt push`, and neither ever blocks git. Report what exploration found and act on it:
+Then verify bd's own git hooks are installed, since the graph syncs through them. `bd init` installs and manages them, and setup writes no hook body of its own. Report what `bd hooks list` says and act on it:
 
-- Both hooks present and running `bd` — say so and move on.
-- Missing or partial — show the user the bodies with this repo's bead prefix filled in, and write them into the hooks directory on their go, executable. A repo that shares its hooks from a version-controlled directory gets them there, with `git config core.hooksPath` set to it.
-- An existing hook of that name doing other work — don't overwrite it. Show the user the lines to add and let them place them.
-
-Then check the one repository setting the close depends on, and only report it: `gh api repos/<owner>/<repo> --jq .squash_merge_commit_message` must read `COMMIT_MESSAGES`, since that is what lands the `Closes: <bead-id>` trailer on the default branch. Anything else and the trailer never arrives — tell the user the close degrades to a bead left open on merged work (ADR 0046 records the trade-off) and leave the setting as it is; setup never changes a repo's merge configuration.
+- Every hook installed — say so and move on.
+- Any hook missing — tell the user `bd hooks install` puts it back, then run it on their go.
 
 The bead prefix, where CI files its alarms, and any label convention are facts of this repo, not of bottega: they live in `docs/agents/issue-tracker.md`, which the repo's agent map routes to.
 
