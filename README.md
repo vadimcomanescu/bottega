@@ -29,7 +29,7 @@ Running sessions across several Claude accounts, `scripts/bt` is the launcher: `
 | `/bottega:spec` | Turn the settled conversation into a spec and publish it on the run's tracker issue |
 | `/bottega:autoreview <PR, ref range, or worktree>` | Review a diff through the vendored review engine and fix what it finds, looping to a converged head |
 | `/bottega:panel <the decision>` | Put one costly decision to blinded independent drafts from different companies' models, with a judge that only compares them |
-| `/bottega:prototype <the question>` | Build a throwaway prototype that answers one design question, in a terminal app or as UI variants on one route |
+| `/bottega:prototype <the question>` | Build a throwaway prototype that answers one design question, as a shareable HTML demo of the logic or as UI variants on one route |
 | `/bottega:domain-modeling` | Build and sharpen the project's domain model, its terminology and its decision records |
 | `/bottega:setup` | Set up the repo's issue tracker, triage label vocabulary, branch claim, and domain doc layout |
 | `/bottega:to-tickets` | Break a plan, spec, or conversation into tickets with blocking edges, published to the tracker |

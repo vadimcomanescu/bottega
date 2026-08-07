@@ -24,7 +24,7 @@ The review engine every review runs on. `SKILL.md` is the modified upstream docu
 
 The prototype method a run's discovery brainstorms with.
 
-- Upstream: `mattpocock/skills`, under `skills/engineering/prototype`. Pinned at `2ab9580`, with upstream's `LICENSE` (MIT, Matt Pocock) beside them.
+- Upstream: `mattpocock/skills`, under `skills/engineering/prototype`. Pinned at `84fdeff`, with upstream's `LICENSE` (MIT, Matt Pocock) beside them.
 - Local edits: `UI.md`'s "Hold each one to" list carries one added bullet pointing variants at the repo's design doc when one exists. `SKILL.md` and `LOGIC.md` are upstream's bytes.
 - Sync: re-copy the files and the license whole, reapply the edits above, and read the diff.
 
@@ -32,7 +32,7 @@ The prototype method a run's discovery brainstorms with.
 
 The domain modeling method a run's design and discovery keep the glossary and decision records current with, and the shapes a new `CONTEXT.md` entry or ADR follows when a file does not already set its own.
 
-- Upstream: `mattpocock/skills`, under `skills/engineering/domain-modeling`. Pinned at `2ab9580`, every file upstream's bytes, with upstream's `LICENSE` (MIT, Matt Pocock) beside them. Upstream's `agents/` registration file is not taken.
+- Upstream: `mattpocock/skills`, under `skills/engineering/domain-modeling`. Pinned at `84fdeff`, every file upstream's bytes, with upstream's `LICENSE` (MIT, Matt Pocock) beside them. Upstream's `agents/` registration file is not taken.
 - Local edits: none. The grilling interview (upstream `skills/productivity/grilling`) is absorbed into `skills/interview-and-capture/SKILL.md`, and the spec skill's shape follows upstream `skills/engineering/to-spec`. That adapted prose takes a sync as a re-read of upstream's diff, applied by hand where it still fits.
 - Sync: re-copy the files and the license whole, then read the diff.
 
@@ -40,16 +40,16 @@ The domain modeling method a run's design and discovery keep the glossary and de
 
 The setup skill `/bottega:setup` runs whole: the repo's issue tracker, triage label vocabulary, and domain doc layout, configured once per repository.
 
-- Upstream: `mattpocock/skills`, under `skills/engineering/setup-matt-pocock-skills`. Pinned at `2ab9580`, with upstream's `LICENSE` (MIT, Matt Pocock) beside them.
+- Upstream: `mattpocock/skills`, under `skills/engineering/setup-matt-pocock-skills`. Pinned at `84fdeff`, with upstream's `LICENSE` (MIT, Matt Pocock) beside them.
 - Not taken: upstream's `agents/` registration file, and `issue-tracker-gitlab.md`, because bottega-managed repos track on GitHub or in local markdown, never GitLab.
-- Local edits, as rules. In `SKILL.md`: bottega's frontmatter and H1, the skill-family references read this plugin's skills, one bullet and Section D carry the branch claim, step 4 creates every named label on the remote (get-or-create, read the list back), Section B's gate runs when `triage` or `to-tickets` is installed, the triage-labels write conditions key on Section B having run, the tracker explainer names `spec`, and GitLab is stripped from the tracker offer, the template list, and the label-creation step. In `issue-tracker-github.md`: the "Claiming an issue" section (the atomic branch-push claim, assignment as the human-visible signal), and the wayfinder route reads `bottega:wayfinder`. In `issue-tracker-local.md`: the same wayfinder route. In `triage-labels.md`: the first column header reads "Canonical role" where upstream names its own repo. In `domain.md`: the routes read `bottega:domain-modeling`, `bottega:interview-and-capture`, and `bottega:improve-codebase-architecture`.
+- Local edits, as rules. In `SKILL.md`: bottega's frontmatter and H1, the skill-family references read this plugin's skills, one bullet and Section D carry the branch claim, step 4 creates every named label on the remote (get-or-create, read the list back), Section B's gate runs when `triage` or `to-tickets` is installed, the triage-labels write conditions key on Section B having run, the tracker explainer names `spec` and keeps `qa` (upstream dropped its own qa skill, bottega ships one), and GitLab is stripped from the tracker offer, the template list, and the label-creation step. In `issue-tracker-github.md`: the "Claiming an issue" section (the atomic branch-push claim, assignment as the human-visible signal), and the wayfinder route reads `bottega:wayfinder`. In `issue-tracker-local.md`: the same wayfinder route. In `triage-labels.md`: the first column header reads "Canonical role" where upstream names its own repo. In `domain.md`: the routes read `bottega:domain-modeling`, `bottega:interview-and-capture`, and `bottega:improve-codebase-architecture`.
 - Sync: re-copy the files and the license whole (`issue-tracker-gitlab.md` stays untaken), reapply the edits above, and read the diff.
 
 ## `skills/to-tickets/SKILL.md`
 
 The tickets skill `/bottega:to-tickets` runs whole: break a plan, spec, or conversation into tracer-bullet tickets, each declaring its blocking edges, published to the configured tracker. A ticket it publishes is launchable as its own bottega run, with the tracker owner's claim procedure covering collisions between sessions. Working the frontier and closing the parent issue stay the user's acts, as upstream designs them.
 
-- Upstream: `mattpocock/skills`, under `skills/engineering/to-tickets`. Pinned at `2ab9580`, with upstream's `LICENSE` (MIT, Matt Pocock) beside it. Upstream's `agents/` registration file is not taken.
+- Upstream: `mattpocock/skills`, under `skills/engineering/to-tickets`. Pinned at `84fdeff`, with upstream's `LICENSE` (MIT, Matt Pocock) beside it. Upstream's `agents/` registration file is not taken.
 - Local edits: the setup pointers read `bottega:setup` where upstream names its own setup skill.
 - Sync: re-copy the file and the license whole, reapply the edits above, and read the diff.
 
@@ -57,7 +57,7 @@ The tickets skill `/bottega:to-tickets` runs whole: break a plan, spec, or conve
 
 The interactive architecture review: scan for deepening candidates, render them as a visual HTML report, then walk the picked one through its decisions. `bottega:auto-improve` runs it headless and takes the strongest candidate through a run.
 
-- Upstream: `mattpocock/skills`, under `skills/engineering/improve-codebase-architecture`. Pinned at `2ab9580`, with upstream's `LICENSE` (MIT, Matt Pocock) beside them. Upstream's `agents/` registration file is not taken.
+- Upstream: `mattpocock/skills`, under `skills/engineering/improve-codebase-architecture`. Pinned at `84fdeff`, with upstream's `LICENSE` (MIT, Matt Pocock) beside them. Upstream's `agents/` registration file is not taken.
 - Local edits, as rules. In `SKILL.md`: the frontmatter drops `disable-model-invocation` and the description gains the reach clause, so `bottega:auto-improve` can invoke it, the routes read this plugin's names (`bottega:codebase-design`, `bottega:domain-modeling`), the grilling route is inlined as the round-by-round interview, and a passage restating a routed skill's contents is cut where the route already stands: the vocabulary and principles parentheticals, the domain-modeling side-effect bullets, and the platform enumeration for writing and opening the report. In `HTML-REPORT.md`: the codebase-design routes read `bottega:codebase-design`, and the use-exactly and never-substitute lists are cut because that skill's glossary carries them.
 - Sync: re-copy both files and the license whole, reapply the edits above, and read the diff.
 
@@ -65,7 +65,7 @@ The interactive architecture review: scan for deepening candidates, render them 
 
 The triage skill `/bottega:triage` runs whole: move issues and external PRs through the five-role state machine, verify claims, and write agent-ready briefs.
 
-- Upstream: `mattpocock/skills`, under `skills/engineering/triage`. Pinned at `2ab9580`, with upstream's `LICENSE` (MIT, Matt Pocock) beside them. Upstream's `agents/` registration file is not taken.
+- Upstream: `mattpocock/skills`, under `skills/engineering/triage`. Pinned at `84fdeff`, with upstream's `LICENSE` (MIT, Matt Pocock) beside them. Upstream's `agents/` registration file is not taken.
 - Local edits, in `SKILL.md` only: the setup pointer reads `bottega:setup`, and the grilling route reads `bottega:interview-and-capture`, which carries the grilling-plus-domain-modeling composition upstream names as two skills. `AGENT-BRIEF.md` and `OUT-OF-SCOPE.md` are upstream's bytes.
 - Sync: re-copy the files and the license whole, reapply the edits above, and read the diff.
 
@@ -73,7 +73,7 @@ The triage skill `/bottega:triage` runs whole: move issues and external PRs thro
 
 The wayfinder skill `/bottega:wayfinder` runs whole: chart work too big for one session as a shared map of decision tickets on the tracker, then resolve them one at a time until the way is clear.
 
-- Upstream: `mattpocock/skills`, under `skills/engineering/wayfinder`. Pinned at `2ab9580`, with upstream's `LICENSE` (MIT, Matt Pocock) beside it. Upstream's `agents/` registration file is not taken.
+- Upstream: `mattpocock/skills`, under `skills/engineering/wayfinder`. Pinned at `84fdeff`, with upstream's `LICENSE` (MIT, Matt Pocock) beside it. Upstream's `agents/` registration file is not taken.
 - Local edits: the setup pointer reads `bottega:setup`, the grilling-plus-domain-modeling routes read `bottega:interview-and-capture`, the prototype route reads `bottega:prototype`, and the research-ticket routes read plain "a research subagent" because this plugin ships no research skill.
 - Sync: re-copy the file and the license whole, reapply the edits above, and read the diff.
 
