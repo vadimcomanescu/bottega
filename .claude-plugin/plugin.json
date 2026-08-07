@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "bottega",
   "displayName": "Bottega",
-  "version": "0.195.0",
-  "description": "Autonomous issue-to-PR runs, orchestrated from Claude Code with Claude workers and GPT cross-reads of finished work.",
+  "version": "0.196.0",
+  "description": "Autonomous issue-to-PR runs: a task or issue taken to a pull request that is designed, built, reviewed, and verified, without a person driving each step.",
   "author": {
     "name": "Vadim Comanescu"
   },
