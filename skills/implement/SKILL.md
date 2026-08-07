@@ -16,4 +16,6 @@ Work test-first in vertical slices: one failing test you watch fail, the minimum
 
 Update the docs your change makes wrong, in the surfaces the project already has, and add a new one only when nothing existing fits. Mutate your diff before your closing checks, per [references/mutation.md](references/mutation.md). Run the checks your brief names and watch them pass. Redirect test output to a file and check the exit code, never pipe it. When a step would touch real users, real money, a deploy, or shared or production data, report what it needs instead of running it.
 
+Your commit covers the files you own and carries no bead trailer. The run's close step puts `Closes: <bead-id>` on the branch's final commit message, which is what the squash merge lands on the default branch and what closes the bead.
+
 Report what you built, the red and green evidence, the gate results, any test you changed and why, your commit (owned files only), what the brief or the map should have told you and did not, and anything unresolved.

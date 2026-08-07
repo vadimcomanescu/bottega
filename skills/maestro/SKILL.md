@@ -1,7 +1,7 @@
 ---
 name: maestro
-description: Take a task, bug, or issue to a reviewed, evidence-backed PR ready to merge. Use bottega:maestro, or when the user asks bottega for work in their own words. Never use proactively. A run costs hours of autonomous agent work.
-argument-hint: "<task, or issue URL>"
+description: Take a task, bug, or bead to a reviewed, evidence-backed PR ready to merge. Use bottega:maestro, or when the user asks bottega for work in their own words. Never use proactively. A run costs hours of autonomous agent work.
+argument-hint: "<task, bead id, or alarm issue URL>"
 ---
 
 # Maestro
@@ -9,11 +9,11 @@ Take the request all the way: decide it, build it, prove it, and hand me a PR th
 
 ## How we work
 
-Ask me first whether to hold it or let it merge. Check you are running on fable-5, if not say and continue only on my OK. Talking and write docs per `bottega:bro` during this session. Four things happen in every run: the worktree and branch, the gates green, the whole diff reviewed for bugs and read against the spec, and the PR. Start the work with `bottega:open`. If codex is not available, replace them with Opus workers same reasoning level. Codex is used through `bottega:use-codex`. The run's state is the worktree, its commits, and the PR, so a later session picks it up from those. If I say stop, stop the workers, commit what they finished.
+Ask me first whether to hold it or let it merge. Check you are running on fable-5, if not say and continue only on my OK. Talking and write docs per `bottega:bro` during this session. Four things happen in every run: the worktree and branch, the gates green, the whole diff reviewed for bugs and read against the spec, and the PR. Start the work with `bottega:open`. If codex is not available, replace them with Opus workers same reasoning level. Codex is used through `bottega:use-codex`. The run's state is the worktree, its commits, the PR, and the bead, so a later session picks it up from those. If I say stop, stop the workers, commit what they finished.
 
 # Discover
 
-Run discovery with me, per `bottega:discover`. If there wasn't too much to discover, and it's a trivial task then just go and start building following the process to the end. If it's a considerable task then `bottega:spec` and lets make sure we have captured everything, we might not finish in one session. Tickets updated, throwaway branches with the prototypes, everything settled.
+Run discovery with me, per `bottega:discover`. If there wasn't too much to discover, and it's a trivial task then just go and start building following the process to the end. If it's a considerable task then `bottega:spec` and lets make sure we have captured everything, we might not finish in one session. Beads updated, throwaway branches with the prototypes, everything settled.
 
 # Plan the work
 

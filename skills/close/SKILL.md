@@ -10,13 +10,19 @@ Take the accepted head to a PR a reviewer could merge the moment they open it: r
 
 The launch decided the release. Read the run's recorded answer, `.bottega/run/<slug>/release`, for whether the PR lands on green or holds for me. Read the project's landing procedure beside it, from the agent map where `bottega:open` settled it, since it decides how this PR is braked, armed, and landed. Never merge a PR by hand and never approve one. Arm auto-merge only where that procedure makes arming the opener's act, and let the repository's required checks and its brake decide whether an armed PR lands. Review feedback that arrives after the PR opens goes through `bottega:autoreview`.
 
-Everything you write for someone outside the run (the PR body, each followup issue) obeys one rule:
+Everything you write for someone outside the run (the PR body, each followup bead) obeys one rule:
 
 > Write simply and concisely, for a reader who was not in the run. Define every non-standard term where it is used, or link the file, record, or issue that defines it. State what the diff cannot show, and cut what the diff already shows.
 
 ## Confirm the head
 
-The head the run accepted, the head QA verified, and the head the PR publishes are one SHA. Confirm the three are one commit before you go further. Change no tracked file yourself. Send a mismatch back to the run, never patch it here.
+The head the run accepted, the head QA verified, and the head the PR publishes carry one tree. Confirm the three are one commit before you go further. Change no tracked file yourself. Send a mismatch back to the run, never patch it here. The trailer below is the one change close makes to the head, and it rewrites the message alone.
+
+## Carry the bead on the final commit
+
+The branch's final commit message ends with the trailer `Closes: <bead-id>` on a line of its own. Add it by amending the accepted head's message and nothing else, `git commit --amend --no-edit --trailer "Closes: <bead-id>"`, which leaves the tree identical, and treat the amended commit as the head you push, mark, and publish from here. Do not reach for a bare `git commit --amend`: with no terminal to open an editor in it exits 0 having changed nothing, so the trailer never lands and the merge closes nothing while every step after it reports success.
+
+The trailer is what closes the bead. A squash merge builds the commit on the default branch from the branch's commit messages, so the trailer lands there, and the repository's post-merge hook reads it out of the merged range and runs `bd close`. The PR body never reaches the default branch, so nothing written there closes anything. Nobody closes the bead by hand.
 
 ## Publish
 
@@ -24,7 +30,13 @@ Push the branch. Post the `bottega/review` success status on the accepted head, 
 
 ## File the followups
 
-Turn each real finding the run deferred into one tracker issue before the PR opens. Each issue stands on its own for a reader who was not in the run: what is wrong, where, why it was deferred, and the evidence. A failure the run diagnosed and fixed that a future run could repeat gets a record in the repository's `docs/lessons/`, and you put the rule where the repository enforces it best. The record's rule fits in one sentence, or it is not a lesson. A record covering the same failure is updated in place, never duplicated. A deterministic invariant becomes a check in the project's tooling. Contextual judgment becomes a rule in the repository's review doctrine. With neither home, the followup issue carries it. A new rule usually has existing violations in the tree: fix the ones in the run's scope and file one issue for the rest. Open the PR only once every deferred item has its issue.
+Turn each real finding the run deferred into one bead before the PR opens, `bd create`, with a `discovered-from` edge back to the run's bead so the graph says where it came from:
+
+```
+bd create "<what is wrong>" --body-file - --deps discovered-from:<run-bead-id>
+```
+
+Each bead stands on its own for a reader who was not in the run: what is wrong, where, why it was deferred, and the evidence. One bead per finding, never one bead carrying several. A failure the run diagnosed and fixed that a future run could repeat gets a record in the repository's `docs/lessons/`, and you put the rule where the repository enforces it best. The record's rule fits in one sentence, or it is not a lesson. A record covering the same failure is updated in place, never duplicated. A deterministic invariant becomes a check in the project's tooling. Contextual judgment becomes a rule in the repository's review doctrine. With neither home, the followup bead carries it. A new rule usually has existing violations in the tree: fix the ones in the run's scope and file one bead for the rest. Open the PR only once every deferred item has its bead.
 
 ## Open the PR
 
@@ -32,7 +44,9 @@ Read the release answer from `.bottega/run/<slug>/release` itself, never from me
 
 When the answer is hold, apply the brake the landing procedure names on the create call, so the PR opens already carrying it. With no procedure to name one, make `hold` exist first (`gh label create hold --description "Blocks the merge until a person removes it" || true`) and open with `--label hold`. Then confirm the repository enforces the brake on this PR in whichever shape it uses: a merge queue that refuses the PR while the label is present, named in the queue's own summary on the PR with the checks still green, a required check that is red because the label is present, or a draft PR, which the platform itself refuses to merge. When none is there, stop the run here and report it to me, because the PR would say it is held while it is still free to merge.
 
-Compose the body to a file and open with `gh pr create -F <file>`. A run with a tracker issue, the one it started from or the one its spec opened, closes it through a closing keyword. The body tells the story plainly for that outside reader: what changed and why, every decision made on my behalf with the one most likely to draw a different answer first, who built and who reviewed with their verdicts, and the QA evidence with its limits (what returned NOT VERIFIED, what no evidence covers). A Followups section links the issues just filed and nothing else. Keep tool, model, and company attribution badges and footers out.
+Compose the body to a file and open with `gh pr create -F <file>`. The body names the run's bead ID on its own line for the person reading the PR, and it closes nothing: the commit trailer does that. When the run started from a CI alarm issue, the body also carries `Closes #<n>` for that GitHub issue, which GitHub itself clears when the PR merges, so the merge answers the alarm and the trailer answers the bead. That is the only case a PR body carries a GitHub closing keyword.
+
+The body tells the story plainly for that outside reader: what changed and why, every decision made on my behalf with the one most likely to draw a different answer first, who built and who reviewed with their verdicts, and the QA evidence with its limits (what returned NOT VERIFIED, what no evidence covers). A Followups section lists the bead IDs just filed and nothing else. Keep tool, model, and company attribution badges and footers out.
 
 Then arm it with the same credentials that opened it, where the landing procedure makes arming the opener's act and where no procedure exists to say otherwise: `gh pr merge --auto --squash <PR-URL>` right after the create call. Arm on both release answers, since an armed held PR blocks on the brake enforcement you just confirmed. Where a merge queue owns the merge, opening the PR non-draft is the whole arming act: arm nothing, because an armed PR lands on green beside the queue and skips the test against the base the queue exists to run. Where the repository arms its own, arm nothing either, and say so in the report. Leave this step with the PR open, braked when held, and armed or its arming accounted for.
 

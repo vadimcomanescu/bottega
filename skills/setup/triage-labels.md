@@ -1,6 +1,6 @@
 # Triage Labels
 
-The skills speak in terms of five canonical triage roles. This file maps those roles to the actual label strings used in this repo's issue tracker.
+The skills speak in terms of five canonical triage roles. This file maps those roles to the actual label strings used here — on the GitHub mailbox, where CI files its alarm issues and external PRs arrive, and on the beads those turn into.
 
 | Canonical role | Label in our tracker | Meaning                                  |
 | -------------------------- | -------------------- | ---------------------------------------- |

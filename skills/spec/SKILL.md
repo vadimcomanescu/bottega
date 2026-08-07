@@ -1,6 +1,6 @@
 ---
 name: spec
-description: Turn the current conversation into a spec and publish it on the run's tracker issue. No interview, just synthesis of what is already settled. Use bottega:spec, or when a run's discovery ends having settled more than the request says.
+description: Turn the current conversation into a spec and publish it on the run's bead. No interview, just synthesis of what is already settled. Use bottega:spec, or when a run's discovery ends having settled more than the request says.
 ---
 
 # Spec
@@ -15,7 +15,13 @@ Turn the current conversation and your understanding of the codebase into a spec
 
 Check with me that these seams match my expectations. On an autonomous run, choose them from the repo's precedent and record the choice in the spec.
 
-3. Write the spec in the sections below, then publish it on the run's tracker issue. A run that started from an issue posts the spec as a comment there. A run that started from my message opens the issue with the spec as its body.
+3. Write the spec in the sections below, then publish it on a bead — one bead carries the run and its spec.
+
+Inside a run, the run already has its bead: `bottega:open` created or took one before discovery started, so always write the spec into that bead's design field, `bd update <bead-id> --design-file -`, leaving the body as the request and the design as what discovery settled. Never create a second bead for the spec.
+
+Invoked on its own, outside a run, there is no bead yet, so create one with the spec as its description, `bd create "<title>" --body-file -`, and give me its id — a later run starts from that bead.
+
+Either way, write the spec to a file first and pipe it in, never pasting a multi-line body on the command line.
 
 The spec works backwards from the launch: it announces a finished product, then supports the announcement. This is Amazon's working-backwards press release, and its purpose is the job this shape serves: writing the announcement first surfaces the edge cases and forces the prioritization. 
 

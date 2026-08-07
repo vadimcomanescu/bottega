@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Configure this repo — set up its issue tracker, triage label vocabulary, branch claim, and domain doc layout. Run once per repository.
+description: Configure this repo — check its beads tracker, triage label vocabulary, and domain doc layout. Run once per repository.
 disable-model-invocation: true
 ---
 
@@ -8,10 +8,9 @@ disable-model-invocation: true
 
 Scaffold the per-repo configuration that the skills that read and write this repo's tracker and domain docs assume:
 
-- **Issue tracker** — where issues live (GitHub by default; local markdown is also supported out of the box)
+- **The tracker** — beads (`bd`), always. Setup checks it works here and writes the repo's tracker doc if it has none
 - **Triage labels** — the strings used for the five canonical triage roles, created on the remote
 - **Domain docs** — where `CONTEXT.md` and ADRs live, and the consumer rules for reading them
-- **The branch claim** — how two sessions taking work from the same tracker avoid taking the same issue
 
 This is a prompt-driven skill, not a deterministic script. Explore, present what you found, confirm with the user, then write.
 
@@ -21,13 +20,14 @@ This is a prompt-driven skill, not a deterministic script. Explore, present what
 
 Look at the current repo to understand its starting state. Read whatever exists; don't assume:
 
-- `git remote -v` and `.git/config` — is this a GitHub repo? Which one?
+- `command -v bd` and `.beads/` at the repo root — is the tracker installed and initialised here? `bd status` if both are there
+- `git config core.hooksPath` and the hooks directory it names (`.git/hooks` when it names none) — is there a `post-merge` or a `pre-push` hook, and does it run `bd`?
+- `git remote -v` and `.git/config` — is this a GitHub repo? Which one? (PRs and the merge land there; the work graph does not)
 - `AGENTS.md` and `CLAUDE.md` at the repo root — does either exist? Is there already an `## Agent skills` section in either?
 - `CONTEXT.md` and `CONTEXT-MAP.md` at the repo root
 - `docs/adr/` and any `src/*/docs/adr/` directories
 - `docs/agents/` — does this skill's prior output already exist?
-- `.scratch/` — sign that a local-markdown issue tracker convention is already in use
-- Is the `triage` or `to-tickets` skill installed? (a skill folder alongside this one, or either name in your available skills.) This decides whether Section B runs at all.
+- Is the `triage` skill installed? (a skill folder alongside this one, or that name in your available skills.) It is the only skill that applies these labels, so this decides whether Section B runs at all.
 - Monorepo signals — a `pnpm-workspace.yaml`, a `workspaces` field in `package.json`, or a populated `packages/*` with its own `src/`. Present only in a genuinely large multi-package repo; their absence means single-context, which is almost every repo.
 
 ### 2. Present findings and ask
@@ -36,19 +36,25 @@ Summarise what's present and what's missing. Then take the sections in order —
 
 Lead each section with the recommended answer so the user can accept it in a word. Give a one-line explainer only when the choice genuinely branches; skip the section entirely when exploration already settled it (Section B when `triage` isn't installed, Section C when there's no monorepo).
 
-**Section A — Issue tracker.**
+**Section A — The tracker.** Nothing to ask: the tracker is beads (`bd`). Every skill that reads or writes work reads and writes the bead graph, and GitHub carries delivery only — PRs, the merge, and the branch that claims a bead.
 
-> Explainer: The "issue tracker" is where issues live for this repo. Skills like `to-tickets`, `triage`, `spec`, and `qa` read from and write to it — they need to know whether to call `gh issue create`, write a markdown file under `.scratch/`, or follow some other workflow you describe. Pick the place you actually track work for this repo.
+Report what exploration found and act on it:
 
-Default posture: these skills were designed for GitHub. If a `git remote` points at GitHub, propose that. Otherwise (or if the user prefers), offer:
+- `bd` on PATH and a `.beads/` here — say so and move on.
+- `bd` on PATH, no `.beads/` — tell the user this repo has no bead database yet and that `bd init` creates one, then let them run it or say go. Don't init a repo behind the user's back.
+- No `bd` — stop this section, tell the user bd must be installed first, and say the rest of setup still runs.
 
-- **GitHub** — issues live in the repo's GitHub Issues (uses the `gh` CLI)
-- **Local markdown** — issues live as files under `.scratch/<feature>/` in this repo (good for solo projects or repos without a remote)
-- **Other** (Jira, Linear, etc.) — ask the user to describe the workflow in one paragraph; the skill will record it as freeform prose
+Then settle the two git hooks the graph syncs and closes through, since nothing else installs them. The bodies are in [issue-tracker-beads.md](./issue-tracker-beads.md) under "Install the hooks": `post-merge` runs `bd dolt pull` and closes every bead named by a `Closes: <bead-id>` trailer in the merged range, `pre-push` runs `bd dolt push`, and neither ever blocks git. Report what exploration found and act on it:
 
-Record the choice in `docs/agents/issue-tracker.md`. The GitHub template carries a "PRs as a request surface" flag, defaulted **off** — leave it off and don't raise it; a user who wants external PRs in the triage queue can flip the flag in the file later.
+- Both hooks present and running `bd` — say so and move on.
+- Missing or partial — show the user the bodies with this repo's bead prefix filled in, and write them into the hooks directory on their go, executable. A repo that shares its hooks from a version-controlled directory gets them there, with `git config core.hooksPath` set to it.
+- An existing hook of that name doing other work — don't overwrite it. Show the user the lines to add and let them place them.
 
-**Section B — Triage label vocabulary.** Skip this section entirely if neither the `triage` nor the `to-tickets` skill is installed (exploration told you) — an uninstalled skill needs no labels.
+Then check the one repository setting the close depends on, and only report it: `gh api repos/<owner>/<repo> --jq .squash_merge_commit_message` must read `COMMIT_MESSAGES`, since that is what lands the `Closes: <bead-id>` trailer on the default branch. Anything else and the trailer never arrives — tell the user the close degrades to a bead left open on merged work (ADR 0046 records the trade-off) and leave the setting as it is; setup never changes a repo's merge configuration.
+
+The bead prefix, where CI files its alarms, and any label convention are facts of this repo, not of bottega: they live in `docs/agents/issue-tracker.md`, which the repo's agent map routes to.
+
+**Section B — Triage label vocabulary.** Skip this section entirely if the `triage` skill isn't installed (exploration told you) — nothing else applies a triage label, and an uninstalled skill needs no vocabulary.
 
 If it is installed, ask exactly one question:
 
@@ -60,11 +66,7 @@ The defaults are the five canonical roles, each label string equal to its name: 
 
 Offer **multi-context** — a root `CONTEXT-MAP.md` pointing to per-context `CONTEXT.md` files — only when exploration found monorepo signals. Then confirm which layout they want.
 
-**Section D — The branch claim.** Skip this section on a local-markdown tracker. Otherwise ask exactly one question:
-
-> Should an agent claim an issue by creating its branch? (recommended: **yes**)
-
-On **yes**, the tracker template's "Claiming an issue" section ships as-is. On **no**, remove that section when writing the file, and claiming falls back to assignment.
+There is no section for the branch claim. Claiming a bead is the create-only push of `issue/<bead-id>` on origin, and it is not configurable — the tracker doc's "Claiming a bead" section ships as-is.
 
 ### 3. Confirm and edit
 
@@ -94,7 +96,7 @@ The block:
 
 ### Issue tracker
 
-[one-line summary of where issues are tracked]. See `docs/agents/issue-tracker.md`.
+Work is tracked in beads (`bd`); GitHub carries the PR and the merge. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
@@ -109,14 +111,11 @@ Include the `### Triage labels` sub-block, and write `docs/agents/triage-labels.
 
 Then write the docs files using the seed templates in this skill folder as a starting point:
 
-- [issue-tracker-github.md](./issue-tracker-github.md) — GitHub issue tracker
-- [issue-tracker-local.md](./issue-tracker-local.md) — local-markdown issue tracker
+- [issue-tracker-beads.md](./issue-tracker-beads.md) — the bd command set, the claim, the close, and sync (only when the repo has no tracker doc of its own; a repo that already documents its bead conventions keeps its own, and this skill points at it instead of restating it)
 - [triage-labels.md](./triage-labels.md) — label mapping (only if Section B ran)
 - [domain.md](./domain.md) — domain doc consumer rules + layout
 
-For "other" issue trackers, write `docs/agents/issue-tracker.md` from scratch using the user's description.
-
-Then, when Section B ran on a remote tracker, create every label named in `docs/agents/triage-labels.md`, get-or-create, and read the list back to confirm. Existing labels stay exactly as they are.
+Then, when Section B ran, create every label named in `docs/agents/triage-labels.md`, get-or-create, and read the list back to confirm. Existing labels stay exactly as they are.
 
 ```bash
 gh label list --json name --jq '.[].name'
@@ -125,4 +124,4 @@ gh label create <label> --description "<meaning>" || true
 
 ### 5. Done
 
-Tell the user the setup is complete and which skills will now read from these files. Mention they can edit `docs/agents/*.md` directly later — re-running this skill is only necessary if they want to switch issue trackers or restart from scratch.
+Tell the user the setup is complete and which skills will now read from these files. Mention they can edit `docs/agents/*.md` directly later — re-running this skill is only necessary to restart from scratch.
