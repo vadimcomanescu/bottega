@@ -9,12 +9,12 @@ One piece of work taken from request to a PR ready to merge, owned by one orches
 _Avoid_: commission, pipeline, job
 
 **Launch**:
-The moment the user hands work to a run, carrying the release answer: land on green, or hold. A request that says neither gets one plain question from maestro before any PR exists.
+The moment the user hands work to a run, carrying the release answer: land on green, or hold. A request that says neither gets one plain question from artigiano before any PR exists.
 _Avoid_: kickoff, start (say launch when the release answer is meant)
 
 **Orchestrator**:
-The session running the maestro method: it keeps design and arbitration in its own turns and dispatches everything else.
-_Avoid_: maestro (the skill's name, not the actor's), coordinator
+The session running the artigiano method: it keeps design and arbitration in its own turns and dispatches everything else.
+_Avoid_: artigiano (the skill's name, not the actor's), coordinator
 
 **Worker**:
 A fresh context given one dispatched job and returning one report: a builder, a reviewer, the QA driver, a panel seat, the closeout seat, the codex second opinion.
@@ -30,6 +30,19 @@ _Avoid_: building (collided with the Build phase; renamed 0.86.0)
 
 **Dispatch**:
 One worker start: a fresh context, one task, a finished answer read by the dispatcher; workers never coordinate with each other.
+
+**Conductor**:
+The session running the maestro method: it holds one epic, assigns the epic's ready beads to worker sessions, wires what they file back into the graph, and republishes the workbench. It writes no code and claims no bead.
+_Avoid_: maestro (the skill's name, not the actor's)
+
+**Worker session**:
+A whole session running the play method under a conductor: it announces itself, takes one assigned bead, claims it, lands it, and reports back. A worker is one dispatched context inside a run; a worker session is a session that can run a whole run.
+
+**Lane**:
+One worker session and the files the bead it holds owns. Two lanes never share a file, which is what lets a conductor run them at the same time.
+
+**Workbench**:
+The private artifact page the conductor republishes at one URL after every state change: the lanes as columns, every bead's state, which worker session holds which bead, the last ten messages, and the frontier count.
 
 **Slice**:
 One vertical unit of the work with named owned files, buildable and gated on its own before it merges to the run branch.

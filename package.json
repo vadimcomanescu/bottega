@@ -1,6 +1,6 @@
 {
   "name": "bottega",
-  "version": "0.210.0",
+  "version": "0.211.0",
   "description": "An autonomous long-running agent system built for Fable to orchestrate.",
   "type": "module",
   "scripts": {

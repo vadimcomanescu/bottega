@@ -1,36 +1,68 @@
 ---
 name: maestro
-description: Take a task, bug, or bead to a reviewed, evidence-backed PR ready to merge. Use maestro, or when the user asks bottega for work in their own words. Never use proactively. A run costs hours of autonomous agent work.
-argument-hint: "<task, bead id, or alarm issue URL>"
+description: Conduct one bead epic across parallel worker sessions, assigning its ready beads, keeping the lanes apart, and keeping the workbench current. Use maestro with an epic bead id. Never use proactively. It drives hours of autonomous work in other sessions.
+argument-hint: "<epic bead id>"
 ---
 
 # Maestro
-Take the request all the way: decide it, build it, prove it, and hand me a PR that can merge.
 
-## How we work
+Conduct one epic to done: hand every ready bead to a worker session, keep the lanes apart, and keep the workbench in front of me.
 
-Ask me first whether to hold it or let it merge. Check you are running on fable-5, if not say and continue only on my OK. Talking and write docs per `bro` during this session. Four things happen in every run: the worktree and branch, the gates green, the whole diff reviewed for bugs and read against the spec, and the PR. Start the work with `open`. If codex is not available, replace them with Opus workers same reasoning level. Codex is used through `use-codex`. The run's state is the worktree, its commits, the PR, and the bead, so a later session picks it up from those. If I say stop, stop the workers, commit what they finished.
+Conducting is your whole job. The code is written in the worker sessions, the claims are theirs to take, and a held PR stays held until I lift it myself. What you produce is assignments, graph edits, and the workbench.
 
-# Discover
+## Take the epic
 
-Run discovery with me, per `discover`. If there wasn't too much to discover, and it's a trivial task then just go and start building following the process to the end. If it's a considerable task then `spec` and lets make sure we have captured everything, we might not finish in one session. Beads updated, throwaway branches with the prototypes, everything settled.
+Take the epic bead id from my message, and ask me for it when my message carries none. Read the epic and its open children, `bd show <epic-id>` and `bd list --parent=<epic-id>`, until you can say in one sentence what each open child delivers and which files it owns. Write a reading the graph is missing back onto the bead, `bd update <bead-id> --description`, so the next loop keeps it. You are through this step once every open child has that sentence.
 
-# Plan the work
+## Read the frontier
 
-Use `codebase-design` to design the code. Split the work in vertical slices. Try to make the slices cut a narrow but complete path through every layer (schema, API, UI, tests). In any case judgement is yours, adjust to the situation. Try to make slices fit smaller context windows. Give each slice its blocking edges — the slices that must finish before it can start. Needless to say, any prefactoring should be done first, making the change easy, then make the easy change. At this point, as you might have blind spots, ask Codex, gpt-5.6 sol xhigh, giving him the spec, artifacts created along the way and your design and plan and ask him: "Would a strong maintainer, after seeing both the current plan and your proposed change, clearly agree that your revision is necessary to satisfy the user or materially better for durable engineering reasons? If yes, revise. If no, the plan is ready." That question is the whole dispatch, sent verbatim. Don't take his feedback blindly, check yourself, apply the revisions you agree with. The spec we decided is frozen. When you find something that shows the spec really needs to change — extraordinary, not routine — stop, commit what is finished, and tell me what you found. The work waits for my answer. You own the run.
+The frontier is `bd ready --parent=<epic-id>`: the epic's open children with no blocker left and no claim on them. Read it fresh at the top of every loop, since a bead that lands unblocks its dependents. Its count is one of the numbers the workbench shows.
 
-When I'm in the run, publish an artifact with the spec and plan together. The spec is already written, on the plan side lead with the decisions I'm most likely to tweak: data model changes, new type interfaces, anything user-facing. Bury the mechanical work at the bottom, I trust you on that part. The build waits for my go. Keep a link to the artifact in the PR body.
+## Find the workers
 
-# Build it
-Ultracode the build through the Workflow tool: as many slices in flight as their files and dependencies allow, each in its own worktree, flowing through its builder, its reviewer, and its fixes. Builders pin to Opus 5 medium, following `implement`. Each brief carries the single-test run and the checks for the slice's files. Each one hands you its slice with those checks green. The reviewer is a fresh Codex sol medium over what its builder built, architecture and code quality included, and the same builder, still holding its context, fixes the findings, verifying each finding is true and applying its own judgement, not blindly, and reports its checks green again. When there is only one slice, dispatch its builder directly and skip the reviewer: the review of the whole diff comes minutes later and looks at exactly the same code. You integrate the slices yourself. Then run the checks the map names for the integrated diff, and route what fails back to the builder that owns it.
+A worker session is a whole session running `play`. List them with ListAgents and address them by the names it prints. Each one sends you `READY <its name>` when it starts and again whenever it finishes a bead, so a `READY` line is what puts a worker back in your pool. With no worker listed, tell me and wait, because starting sessions is mine to do.
 
-A worker that hits a question only you can settle asks mid-run: its brief names an answer file, the worker sends the question to the main conversation, and you answer by writing that file.
+## Assign
 
-# Final review
-On the final diff, dispatch the closeout seat: one fresh Opus 5 high reviewer that runs `autoreview` whole over the integrated diff. Hand off the frozen base and all the other artifacts/info required by the review of course. Autoreview supports a single or 2 model panel - decide yourself when you dispatch the reviewer based on the scope and what this work touches - like auth, financials, permissions, destructive operations, you know what i mean.
+Send one bead per message with SendMessage, in one line:
 
-# QA
-Ultracode through the Workflow tool Opus 5 medium sub agents using `qa` to go through every visible product surface the work touched the way a user would, judged against the work we had to do (if spec was written, info is there). They should have Codex 5.6 medium counterparts that fix their findings, and they rerun only the affected contract clauses plus any nearby regression probes, focused. They iterate max 2 rounds and if they keep failing they should come back to you for help as we might miss something important - and its your job to be pro-active and steer it in the right direction.
+```
+ASSIGN <bead-id>: <one-line context>
+```
 
-# Close
-Then close the work with `close`.
+The context line says what the bead delivers and which files it owns, in your own words, so the worker starts from the same reading you have.
+
+Two rules decide what runs at once:
+
+- Lanes stay file-disjoint. A lane is one worker and the files the bead it holds owns. A bead whose files another in-flight bead owns waits until that lane reports back, whatever the frontier says.
+- Two heavy beads run at once, a heavy bead being one a worker takes through `artigiano`. Small beads run beside them while the lanes stay apart. Change that cap when I say so.
+
+## Receive
+
+Every report moves the graph before it frees a lane:
+
+- `LANDED <bead-id> <pr or commit>`. Confirm the bead is closed, `bd close <bead-id>` when the worker left it open, and read the frontier again, since the landing may have unblocked more work.
+- `BLOCKED <bead-id> <reason>`. Record the reason on the bead, free the lane, and put the blocker in front of me when only I can clear it. When another bead clears it, add the edge, `bd dep add <blocked-id> <blocker-id>`, and let the graph hold it back.
+- `FILED <new-bead-id> <why>`. Wire the new bead into the epic: parent it under the epic when it belongs to this work, `bd update <new-bead-id> --parent <epic-id>`, and give it the edges that say what it waits on and what it blocks. A bead with no edges never reaches the frontier query, so it leaves this step with them.
+
+Then assign the freed lane its next bead.
+
+## Keep the workbench
+
+The workbench is one private artifact page I read while you work. Publish it with the Artifact tool, writing the same file path every republish so its URL never moves, and give me that URL the first time you publish it. Regenerate it after every state change: an assignment sent, a report received, an edge added. Build each version from the graph you just read.
+
+One screen carries all of it:
+
+- one column per lane, the worker's name at its head
+- every bead in the epic with its state, one of ready, claimed, in flight, landed, blocked
+- which worker holds which bead
+- the last ten messages, newest first
+- the frontier count
+
+## Stop
+
+Stop when the frontier is empty and no lane holds a bead. Report what landed with its PR or commit, what is blocked and on what, what you filed into the epic, and the workbench URL.
+
+## Resume after a crash
+
+The graph is the source of truth, so a lost session costs a re-read and nothing else. On restart, read the epic and its children again, take the in-flight beads from their claims, ask the worker holding each one where it stands, republish the workbench from that reading, and carry on.

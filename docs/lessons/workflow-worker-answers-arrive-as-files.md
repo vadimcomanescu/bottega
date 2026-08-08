@@ -4,4 +4,4 @@ What happened: probing the workflow ask channel (2026-08-01), a workflow worker 
 
 The rule: the orchestrator answers a workflow worker by writing the answer file the worker's brief names. A send to a workflow worker's id is a failed answer, not a slow one.
 
-Enforced: skills/maestro/SKILL.md (the answer-file sentence).
+Enforced: skills/artigiano/SKILL.md (the answer-file sentence).
