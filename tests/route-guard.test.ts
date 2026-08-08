@@ -79,12 +79,6 @@ describe("route guard ownership rule", () => {
     expect(run(ownedEvent({ subagent_type: "general-purpose", model: "claude-opus-5" }))).toBe("");
   });
 
-  it("allows an owner-session codex forwarder dispatch without a model", () => {
-    expect(
-      run(ownedEvent({ subagent_type: "bottega:codex", prompt: "task --model gpt-5.6-sol ..." })),
-    ).toBe("");
-  });
-
   it("allows a non-owner session regardless of model", () => {
     const cwd = repoWithRun(OWNER);
     for (const tool_input of [
@@ -138,19 +132,19 @@ describe("route guard codex dispatch rule", () => {
     }
   });
 
-  it("denies an owner-session companion task without a model", () => {
+  it("denies an owner-session codex-task task without a model", () => {
     const reason = claudeDenial(
-      run(ownedEvent({ command: 'node "/plugin/vendor/codex/scripts/codex-companion.mjs" task --background "review the diff"' }, "Bash")),
+      run(ownedEvent({ command: 'node "/repo/.claude/skills/use-codex/scripts/codex-task" task --background "review the diff"' }, "Bash")),
     );
     expect(reason).toMatch(/codex dispatch names no model/i);
     expect(reason).toMatch(/opus-5/);
   });
 
-  it("denies an owner-session companion task routed to fable", () => {
+  it("denies an owner-session codex-task task routed to fable", () => {
     const reason = claudeDenial(
       run(
         ownedEvent(
-          { command: 'node "/plugin/vendor/codex/scripts/codex-companion.mjs" task --model claude-fable-5 "review the diff"' },
+          { command: 'node "/repo/.claude/skills/use-codex/scripts/codex-task" task --model claude-fable-5 "review the diff"' },
           "Bash",
         ),
       ),
@@ -158,33 +152,33 @@ describe("route guard codex dispatch rule", () => {
     expect(reason).toMatch(/fable/i);
   });
 
-  it("allows an owner-session companion task naming a model, resume included", () => {
+  it("allows an owner-session codex-task task naming a model, resume included", () => {
     for (const command of [
-      'node "/plugin/vendor/codex/scripts/codex-companion.mjs" task --model gpt-5.6-sol --effort xhigh --background "review the diff"',
-      'node "/plugin/vendor/codex/scripts/codex-companion.mjs" task --resume-last --model gpt-5.6-sol --write "fix the finding"',
+      'node "/repo/.claude/skills/use-codex/scripts/codex-task" task --model gpt-5.6-sol --effort xhigh --background "review the diff"',
+      'node "/repo/.claude/skills/use-codex/scripts/codex-task" task --resume-last --model gpt-5.6-sol --read-only "fix the finding"',
     ]) {
       expect(run(ownedEvent({ command }, "Bash"))).toBe("");
     }
   });
 
-  it("ignores companion subcommands other than task in an owner session", () => {
+  it("ignores codex-task subcommands other than task in an owner session", () => {
     for (const command of [
-      'node "/plugin/vendor/codex/scripts/codex-companion.mjs" status job-7 --wait --timeout-ms 900000',
-      'node "/plugin/vendor/codex/scripts/codex-companion.mjs" result job-7',
-      'node "/plugin/vendor/codex/scripts/codex-companion.mjs" cancel job-7',
-      'node "/plugin/vendor/codex/scripts/codex-companion.mjs" task-resume-candidate --json',
+      'node "/repo/.claude/skills/use-codex/scripts/codex-task" status job-7 --wait --timeout-ms 900000',
+      'node "/repo/.claude/skills/use-codex/scripts/codex-task" result job-7',
+      'node "/repo/.claude/skills/use-codex/scripts/codex-task" cancel job-7',
+      'node "/repo/.claude/skills/use-codex/scripts/codex-task" task-resume-candidate --json',
     ]) {
       expect(run(ownedEvent({ command }, "Bash"))).toBe("");
     }
   });
 
-  it("allows a companion task from a non-owner session", () => {
+  it("allows a codex-task task from a non-owner session", () => {
     expect(
       run({
         cwd: repoWithRun(OWNER),
         session_id: "bystander-session",
         tool_name: "Bash",
-        tool_input: { command: 'node "/plugin/vendor/codex/scripts/codex-companion.mjs" task "review the diff"' },
+        tool_input: { command: 'node "/repo/.claude/skills/use-codex/scripts/codex-task" task "review the diff"' },
       }),
     ).toBe("");
   });

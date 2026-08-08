@@ -6,9 +6,9 @@ import { isAbsolute, join } from "node:path";
 const FABLE = /fable/i;
 const MODEL_LITERAL = /\bmodel\s*:\s*(['"])([^'"]*)\1/;
 const MODEL_FLAG = /(?:^|\s)(?:-m|--model)[=\s]+(\S+)/;
-// The companion runtime takes its subcommand first, so only "task" starts a run.
-// "task-worker" and "task-resume-candidate" are other subcommands and pass.
-const COMPANION_TASK = /codex-companion\.mjs["']?\s+task(?![\w-])/;
+// The wrapper takes its subcommand first, so only "task" starts a run.
+// A longer word starting with "task" is another subcommand and passes.
+const CODEX_TASK = /codex-task["']?\s+task(?![\w-])/;
 
 const NAME_IT = "Name the worker's model (Claude workers run on opus-5) and retry.";
 const DIRECT_UNPINNED = `This live run dispatch names no model. ${NAME_IT}`;
@@ -148,7 +148,7 @@ if (!ownsLiveRun(cwd, session)) process.exit(0);
 if (event.tool_name === "Bash") {
   const command = typeof input.command === "string" ? input.command : "";
   const exec = /\bcodex\s+exec\b/.test(command) && !command.includes("--help");
-  if (!exec && !COMPANION_TASK.test(command)) process.exit(0);
+  if (!exec && !CODEX_TASK.test(command)) process.exit(0);
   const model = command.match(MODEL_FLAG)?.[1] ?? "";
   if (!model) {
     deny(CODEX_UNPINNED);
@@ -178,10 +178,6 @@ if (event.tool_name === "Workflow") {
 }
 
 if (event.tool_name !== "Agent" && event.tool_name !== "Task") process.exit(0);
-// The codex forwarder dispatch carries no model parameter: the forwarder's own
-// model is pinned in its agent file, and the codex model rides in the brief,
-// checked above when the forwarder runs the companion task command.
-if (input.subagent_type === "bottega:codex") process.exit(0);
 const model = typeof input.model === "string" ? input.model.trim() : "";
 if (!model) {
   deny(DIRECT_UNPINNED);
