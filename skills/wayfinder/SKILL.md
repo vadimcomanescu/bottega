@@ -75,8 +75,8 @@ The answer isn't part of the description — it's recorded on resolution (see [W
 Every ticket is either **HITL** — human in the loop, worked _with_ a human who speaks for themselves — or **AFK**, driven by the agent alone. A HITL ticket only resolves through that live exchange; the agent never stands in for the human's side of it (a grilling agent that answers its own questions has broken this).
 
 - **Research** (AFK): Reading documentation, third-party APIs, or local resources like knowledge bases to surface a fact a decision waits on. Resolved by a research **subagent**. Use when knowledge outside the current working directory is required.
-- **Prototype** (HITL): Raise the fidelity of the discussion by making a cheap, rough, concrete artifact to react to — an outline, a rough take, a stub, or UI/logic code via the `bottega:prototype` skill. Links the prototype as an asset. Use when "how should it look" or "how should it behave" is the key question.
-- **Grilling** (HITL): Conversation. The default case. Always invoke the `bottega:interview-and-capture` skill.
+- **Prototype** (HITL): Raise the fidelity of the discussion by making a cheap, rough, concrete artifact to react to — an outline, a rough take, a stub, or UI/logic code via the `prototype` skill. Links the prototype as an asset. Use when "how should it look" or "how should it behave" is the key question.
+- **Grilling** (HITL): Conversation. The default case. Always invoke the `interview-and-capture` skill.
 - **Task** (HITL or AFK): Manual work that must happen before a _decision_ can be made — nothing to decide, prototype, or research, but the discussion is blocked until it's done. Signing up for a service so its API can be judged, provisioning access, moving data so its shape can be seen. This is the one type that _does_ rather than decides — and it earns its place by unblocking a decision, not by delivering the destination. The agent drives it alone where it can (AFK); otherwise it hands the human a precise checklist (HITL). Resolved when the work is done; the answer records what was done and any resulting facts (credentials location, new URLs, row counts) later tickets depend on.
 
 ## Fog of war
@@ -108,7 +108,7 @@ Two modes. Either way, **never resolve more than one ticket per session** — wi
 
 User invokes with a loose idea.
 
-1. **Name the destination.** Run a `bottega:interview-and-capture` session to pin down what this map is finding its way to — the spec, decision, or change. The destination fixes the scope, so it's settled first.
+1. **Name the destination.** Run an `interview-and-capture` session to pin down what this map is finding its way to — the spec, decision, or change. The destination fixes the scope, so it's settled first.
 2. **Map the frontier.** Grill again, **breadth-first** this time: fan out across the whole space rather than deep on any one thread, surfacing the open decisions and the first steps takeable now. **If this surfaces no fog** — the way to the destination is already clear, the whole journey small enough for one session — you don't need a map. Stop and ask the user how they'd like to proceed.
 3. **Create the map** as an epic bead (label `wayfinder:map`): Destination and Notes filled in, Decisions-so-far empty, the fog sketched into **Not yet specified**.
 4. **Create the tickets you can specify now** as child beads of the map — then wire blocking edges with `bd dep add` in a **second pass** (beads need ids before they can reference each other). Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog — the **Not yet specified** section.
@@ -121,7 +121,7 @@ User invokes with a map (its bead id). A ticket is **optional** — without one,
 
 1. Load the **map** — `bd show <map-id>`, the low-res view, not every ticket body.
 2. Choose the ticket. If the user named one, use it. Otherwise take the first ticket `bd ready --parent=<map-id>` returns. **Claim it**: `bd update <id> --claim` before any work.
-3. Resolve it — **zoom as needed**: `bd show` any related or closed ticket on demand; invoke the skills the `## Notes` block names. If in doubt, use `bottega:interview-and-capture`.
+3. Resolve it — **zoom as needed**: `bd show` any related or closed ticket on demand; invoke the skills the `## Notes` block names. If in doubt, use `interview-and-capture`.
 4. Record the resolution: post the answer as a **resolution comment** (`bd comment <id>`), **close** the bead (`bd close <id>`), and **append a context pointer** to the map's Decisions-so-far.
 5. Add newly-surfaced tickets (create-then-wire); graduate any fog the answer has made specifiable, clearing each graduated patch from **Not yet specified** so it lives only as its new ticket. If the answer reveals a ticket — this one or another — sits beyond the destination, **rule it out of scope** rather than resolving it on the route. If the decision invalidates other parts of the map, update or delete those tickets.
 

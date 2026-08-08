@@ -1,6 +1,6 @@
 ---
 name: autoreview
-description: Review a diff through the vendored review engine and fix what it finds, looping to a converged head. Use bottega:autoreview on a PR, ref range, or working diff. A run's Review phase dispatches a fresh seat to run it whole.
+description: Review a diff through the vendored review engine and fix what it finds, looping to a converged head. Use autoreview on a PR, ref range, or working diff. A run's Review phase dispatches a fresh seat to run it whole.
 argument-hint: "<PR, ref range, or worktree>"
 ---
 
@@ -95,7 +95,7 @@ Set the skill script paths once, then use `"$AUTOREVIEW"` and `"$AUTOREVIEW_HARN
 Choose one:
 
 ```bash
-# Claude Code plugin install, the shape bottega:setup produces:
+# Claude Code plugin install, the shape setup produces:
 export AUTOREVIEW="${CLAUDE_PLUGIN_ROOT}/skills/autoreview/scripts/autoreview"
 export AUTOREVIEW_HARNESS="${CLAUDE_PLUGIN_ROOT}/skills/autoreview/scripts/test-review-harness"
 ```
@@ -174,7 +174,7 @@ with `--base`.
 
 ## Lenses
 
-Beside the engine passes, run two lens reads in parallel over the same frozen diff, per [references/lenses.md](references/lenses.md), and report each axis apart so one cannot mask the other. Each lens is a fresh read in its own context: a subagent where the runtime dispatches them, one isolated CLI call where it does not. The Standards lens runs on opus-5, given the repository's documented conventions and the smell baseline ([references/smell-baseline.md](references/smell-baseline.md)). The Spec lens is a read-only codex dispatch on gpt-5.6-sol at high effort, per `bottega:use-codex` where the codex CLI is logged in, and a fresh opus-5 read where it cannot serve, given the spec the invoker handed in; when no spec came, it reports that and stops. Lens findings enter the same verification and classification as engine findings. A lens judgment call classifies like any finding, and in scope for it means the fix serves what the diff already promises; otherwise it is a follow-up. The lenses read the frozen baseline diff once; the engine's reruns cover what fixes change. A clean head means the engine exits 0 and every accepted lens finding is fixed or rejected with its reason.
+Beside the engine passes, run two lens reads in parallel over the same frozen diff, per [references/lenses.md](references/lenses.md), and report each axis apart so one cannot mask the other. Each lens is a fresh read in its own context: a subagent where the runtime dispatches them, one isolated CLI call where it does not. The Standards lens runs on opus-5, given the repository's documented conventions and the smell baseline ([references/smell-baseline.md](references/smell-baseline.md)). The Spec lens is a read-only codex dispatch on gpt-5.6-sol at high effort, per `use-codex` where the codex CLI is logged in, and a fresh opus-5 read where it cannot serve, given the spec the invoker handed in; when no spec came, it reports that and stops. Lens findings enter the same verification and classification as engine findings. A lens judgment call classifies like any finding, and in scope for it means the fix serves what the diff already promises; otherwise it is a follow-up. The lenses read the frozen baseline diff once; the engine's reruns cover what fixes change. A clean head means the engine exits 0 and every accepted lens finding is fixed or rejected with its reason.
 
 ## Oversized Bundles
 

@@ -1,6 +1,6 @@
 ---
 name: interview-and-capture
-description: A relentless interview that works a plan or decision round by round to a shared understanding, capturing terms and decisions as they settle. Use bottega:interview-and-capture when the user wants to be interviewed or grilled about a plan, or when another skill needs the interview.
+description: A relentless interview that works a plan or decision round by round to a shared understanding, capturing terms and decisions as they settle. Use interview-and-capture when the user wants to be interviewed or grilled about a plan, or when another skill needs the interview.
 ---
 
 # Interview and capture
@@ -23,9 +23,9 @@ Every question stands on an explanation given in the same message, in the produc
 
 Finding facts is your job, never mine. When a frontier question needs a fact from the environment, dispatch a subagent to find it rather than asking me. A running exploration is an unsettled prerequisite, so only the questions downstream of it wait for the report, and the rest of the frontier goes out now. The decisions are mine, so put each one to me and wait.
 
-When a question is about design, architecture or visual design, use `bottega:prototype`: an image is worth a thousand words, and it gets us to a common understanding faster.
+When a question is about design, architecture or visual design, use `prototype`: an image is worth a thousand words, and it gets us to a common understanding faster.
 
-Capture with `bottega:domain-modeling` as decisions settle: a sharpened term lands in the glossary, and a settled decision gets the ADR offer under that skill's bar.
+Capture with `domain-modeling` as decisions settle: a sharpened term lands in the glossary, and a settled decision gets the ADR offer under that skill's bar.
 
 The interview is done when the frontier is empty, every branch of the tree visited and nothing left silently assumed. Do not act on the result until I confirm we have reached a shared understanding.
 

@@ -1,6 +1,6 @@
 ---
 name: improve-codebase-architecture
-description: Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick. Use bottega:improve-codebase-architecture, or when bottega:auto-improve runs its scan.
+description: Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick. Use improve-codebase-architecture, or when auto-improve runs its scan.
 ---
 
 # Improve Codebase Architecture
@@ -9,7 +9,7 @@ Surface architectural friction and propose **deepening opportunities** — refac
 
 This command is _informed_ by the project's domain model and built on a shared design vocabulary:
 
-- Run the `bottega:codebase-design` skill for the architecture vocabulary and its principles. Use these terms exactly in every suggestion.
+- Run the `codebase-design` skill for the architecture vocabulary and its principles. Use these terms exactly in every suggestion.
 - The domain language in `CONTEXT.md` gives names to good seams; ADRs in `docs/adr/` record decisions this command should not re-litigate.
 
 ## Process
@@ -50,7 +50,7 @@ For each candidate, render a card with:
 
 End the report with a **Top recommendation** section: which candidate you'd tackle first and why.
 
-**Use CONTEXT.md vocabulary for the domain, and the `bottega:codebase-design` vocabulary for the architecture.**
+**Use CONTEXT.md vocabulary for the domain, and the `codebase-design` vocabulary for the architecture.**
 
 **ADR conflicts**: if a candidate contradicts an existing ADR, only surface it when the friction is real enough to warrant revisiting the ADR. Mark it clearly in the card (e.g. a warning callout: _"contradicts ADR-0007 — but worth reopening because…"_). Don't list every theoretical refactor an ADR forbids.
 
@@ -62,4 +62,4 @@ Do NOT propose interfaces yet. After the file is written, ask the user: "Which o
 
 Once the user picks a candidate, walk the decision tree with them round by round, each round asking every question whose prerequisites are settled, numbered and with your recommended answer beside it: constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
 
-Side effects happen inline as decisions crystallize — run the `bottega:domain-modeling` skill to keep the domain model current as you go. Want to explore alternative interfaces for the deepened module? Run the `bottega:codebase-design` skill and use its design-it-twice parallel sub-agent pattern.
+Side effects happen inline as decisions crystallize — run the `domain-modeling` skill to keep the domain model current as you go. Want to explore alternative interfaces for the deepened module? Run the `codebase-design` skill and use its design-it-twice parallel sub-agent pattern.
