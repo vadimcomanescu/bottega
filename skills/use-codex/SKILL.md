@@ -17,8 +17,7 @@ Send the work out as one subagent whose only job is one Bash call. Give it these
 On a harness without subagents, make the call yourself. Your dispatch is the brief plus the controls it forwards:
 
 - `--model <model> --effort <effort>`, in every dispatch. The wrapper refuses a dispatch missing either, because an unpinned run falls back to the machine's defaults. The runtime accepts efforts up to `ultra`, but the API serving the pinned model may accept fewer, and a rejected effort fails the job at start, so pin an effort the model serves.
-- `--read-only` when the run must not write. A dispatch without it comes back able to edit the tree.
-- `--full-access` when the job includes git writes (fetch, branch, commit, worktree). The default write sandbox keeps every `.git` read-only and blocks the network, so a worker told to commit dies at its first git command. Full access removes the sandbox whole, filesystem and network.
+- `--read-only` when the run must not write, the contract a review seat carries: a read-only job provably left the tree untouched. Every other job runs unsandboxed, filesystem, git, and network included.
 - `--background` for anything longer than a routine command. The call returns in seconds with a receipt naming the job id, and you watch the job yourself. A subagent asked to hold a long call backgrounds it and ends with a waiting stub, whatever its brief says.
 - `--cwd <worktree>` when the work belongs in a run's worktree. Jobs are stored per workspace, so make your status, result, and cancel calls with the same `--cwd`, or from that directory.
 

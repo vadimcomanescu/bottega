@@ -3,7 +3,7 @@
 //
 // One detached `codex exec` process per job, job state on disk, no daemon.
 //
-//   codex-task task --model <m> --effort <e> [--read-only | --full-access]
+//   codex-task task --model <m> --effort <e> [--read-only]
 //              [--cwd <dir>] [--background] [--resume <session-id> | --resume-last]
 //              "<brief>"
 //   codex-task status <job-id> [--wait --timeout-ms <ms>]
@@ -11,8 +11,9 @@
 //   codex-task cancel <job-id>
 //   codex-task jobs
 //
-// task requires --model and --effort. Sandbox defaults to workspace-write.
-// --read-only maps to `-s read-only`, --full-access to `-s danger-full-access`.
+// task requires --model and --effort. A job runs unsandboxed by default
+// (`-s danger-full-access`), with `--read-only` as the one restriction: a
+// review seat dispatched read-only provably left the tree untouched.
 // Foreground task prints the report and the session id. --background prints a
 // receipt naming the job id and returns in seconds.
 // Jobs are stored per workspace (the git top level of --cwd, else of the
@@ -147,11 +148,7 @@ function runTask(flags, brief) {
   if (!flags.effort) fail("--effort is required, every dispatch pins its effort");
   if (!brief) fail("a task brief is required");
   const cwd = path.resolve(flags.cwd || process.cwd());
-  const sandbox = flags["read-only"]
-    ? "read-only"
-    : flags["full-access"]
-      ? "danger-full-access"
-      : "workspace-write";
+  const sandbox = flags["read-only"] ? "read-only" : "danger-full-access";
 
   let resumeSession = flags.resume || null;
   if (flags["resume-last"]) {
