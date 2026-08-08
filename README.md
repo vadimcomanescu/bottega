@@ -15,7 +15,7 @@ Then start a run with `/bottega:maestro <task, bead id, or issue URL>`.
 
 A run needs `git`, `node`, the [GitHub CLI](https://cli.github.com/), and `bd` ([beads](https://github.com/gastownhall/beads), the tracker bottega is built on) on PATH, plus `trufflehog`, which the review's secret scan requires and never installs itself. It needs the codex CLI logged in for the reads that go to a GPT model. Without that CLI, fresh Claude workers take those reads and the PR says so. A run reports anything else missing at the moment it reaches for it. A run also checks at launch that the session is on the orchestrator model the maestro skill names, and tells you when it is not. Nothing else is assumed about the project.
 
-Running sessions across several Claude accounts, `scripts/bt` is the launcher: `bt <n>` starts Claude Code on account `n` (a config dir under `~/.claude-accounts/`, one browser `/login` each the first time), and bare `bt` shows per-account last use and suggests the least-recently-used run seat. Its header states the contract and the install line; it is a checkout script on PATH, not part of the plugin install.
+Running sessions across several Claude accounts, `scripts/bt` is the launcher: `bt <n>` starts Claude Code on account `n` (a config dir under `~/.claude-accounts/`, one browser `/login` each the first time), and bare `bt` shows each account's email, login status, and last use, and suggests the least-recently-used logged-in run seat. Its header states the contract and the install line; it is a checkout script on PATH, not part of the plugin install.
 
 ## Commands
 
