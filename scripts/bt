@@ -2,8 +2,8 @@
 # bt — launch Claude Code on one of several accounts, session-wide.
 #
 #   bt <n> [claude args...]   launch on account n; n=1 is the default ~/.claude
-#   bt                        show each account's email, login status, and last
-#                             use, then suggest a run seat
+#   bt                        show each account's email, login status, weekly
+#                             usage, and last use, then suggest a run seat
 #
 # Accounts 2..N are Claude Code config dirs at ~/.claude-accounts/<n>
 # (CLAUDE_CONFIG_DIR is the mechanism Claude Code documents for this). Each
@@ -62,19 +62,33 @@ account_email() {
   grep -o '"emailAddress" *: *"[^"]*"' "$f" | head -1 | cut -d'"' -f4 || true
 }
 
+# The /usage numbers each session caches into the account's .claude.json:
+# the seven-day window's percent used and when it resets. As stale as the
+# account's last session; the reset date says whether the window has rolled.
+weekly_usage() {
+  local f block pct reset; f=$(account_json "$1")
+  [ -f "$f" ] || return 0
+  block=$(grep -A2 '"seven_day" *: *{' "$f" | head -3 || true)
+  pct=$(printf '%s' "$block" | grep -o '"utilization" *: *[0-9.]*' | grep -o '[0-9.]*$' | head -1 || true)
+  reset=$(printf '%s' "$block" | grep -o '"resets_at" *: *"[^"]*"' | cut -d'"' -f4 | cut -dT -f1 || true)
+  [ -n "$pct" ] || return 0
+  printf '%s%% used%s' "${pct%%.*}" "${reset:+, resets $reset}"
+}
+
 suggest() {
   echo "bt — launch Claude Code on one of $MAX_ACCOUNT accounts: bt <1..$MAX_ACCOUNT> [claude args...]"
   echo
-  printf '%-8s %-36s %-12s %s\n' "account" "email" "status" "last used"
-  local n email status ts last cwd
+  printf '%-8s %-36s %-12s %-28s %s\n' "account" "email" "status" "weekly" "last used"
+  local n email status weekly ts last cwd
   for n in $(seq 1 "$MAX_ACCOUNT"); do
     email=$(account_email "$n")
     if [ -n "$email" ]; then status="logged in"; else email="-"; status="needs login"; fi
+    weekly=$(weekly_usage "$n"); [ -n "$weekly" ] || weekly="-"
     ts=$(last_used_epoch "$n")
     if [ "$ts" -gt 0 ]; then last=$(date -r "$ts" '+%Y-%m-%dT%H:%M:%S'); else last=never; fi
     cwd=$(grep "^account=$n " "$LOG" 2>/dev/null | tail -1 \
       | sed -e 's/.* cwd=//' -e "s|^$HOME|~|" || true)
-    printf '%-8s %-36s %-12s %s%s\n' "$n" "$email" "$status" "$last" "${cwd:+  $cwd}"
+    printf '%-8s %-36s %-12s %-28s %s%s\n' "$n" "$email" "$status" "$weekly" "$last" "${cwd:+  $cwd}"
   done
   echo
   local best= best_ts=9999999999 ts
