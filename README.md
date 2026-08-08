@@ -86,13 +86,13 @@ These files are other people's work. Each copy carries its upstream license file
 
 - the vendored autoreview engine in `skills/autoreview/` (`SKILL.md`, `scripts/`, `tests/`) from [openclaw/agent-skills](https://github.com/openclaw/agent-skills), under `skills/autoreview/LICENSE` (MIT, Copyright (c) 2026 openclaw).
 - `skills/prototype/` (`SKILL.md`, `UI.md`, `LOGIC.md`) and the whole of `skills/domain-modeling/`, both from [mattpocock/skills](https://github.com/mattpocock/skills), each set under its directory's `LICENSE` (MIT, Copyright (c) 2026 Matt Pocock).
-- the codex agent and the companion runtime every codex dispatch runs on, from OpenAI's [codex plugin for Claude Code](https://github.com/openai/codex-plugin-cc) (Apache 2.0, with upstream's NOTICE): the whole of `vendor/codex/`, under `vendor/codex/LICENSE` and `NOTICE`.
 
 Edit any of them upstream, not here. Bringing in a newer version means copying it again and reading the diff.
 
 ### Drawn on, not copied
 
 - The discovery method (interviewing for unknowns) follows Thariq Shihipar's unknowns framework, published as [A field guide to Claude Fable 5: finding your unknowns](https://claude.com/blog/a-field-guide-to-claude-fable-finding-your-unknowns).
+- The codex dispatch shape (background jobs with receipts, a status watch, pinned resume) follows OpenAI's [codex plugin for Claude Code](https://github.com/openai/codex-plugin-cc). Bottega's own `skills/use-codex/scripts/codex-task` reimplements that shape as a thin wrapper over the codex CLI's `exec`, with none of upstream's code.
 - The run's context shape (each dispatch a fresh context returning one finished answer, supporting material loaded only in the phase that needs it) follows Shihipar's [The new rules of context engineering for Claude 5 generation models](https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models).
 - The restraint the skills are written with (few constraints, the orchestrator trusted with judgment) is calibrated to Anthropic's [Prompting Claude Fable 5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5).
 - The design vocabulary is John Ousterhout's deep modules.

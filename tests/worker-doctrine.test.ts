@@ -187,7 +187,7 @@ describe("portable worker doctrine", () => {
     expect(review).toContain("--model codex=gpt-5.6-sol");
     expect(review).toContain("--model claude=claude-fable-5");
     expect(review, "the Spec lens names its model and its fallback").toContain(
-      "gpt-5.6-sol at high effort, per `bottega:use-codex` where that runtime is installed",
+      "gpt-5.6-sol at high effort, per `bottega:use-codex` where the codex CLI is logged in",
     );
   });
 

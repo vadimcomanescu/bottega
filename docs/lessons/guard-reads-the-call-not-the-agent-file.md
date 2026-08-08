@@ -4,4 +4,4 @@ What happened: from 0.154.0 a codex dispatch went out as the `bottega:codex` sub
 
 The rule: a worker whose model is pinned in its own agent file is dispatched with no model parameter, and the guard passes it by subagent type, because the file's pin is outside what the guard can read. A deny message is an instruction the orchestrator obeys, so it must not name a model for a dispatch whose model lives elsewhere.
 
-Enforced: `hooks/route-guard.mjs` (the `bottega:codex` pass), `tests/route-guard.test.ts` ("allows an owner-session codex forwarder dispatch without a model").
+Enforced: by removal. skills/use-codex/SKILL.md replaced the file-pinned forwarder with a dispatch that names its subagent's model inline, so every live-run dispatch carries its model where hooks/route-guard.mjs reads it. The rule stands for any future agent file that pins its own model.

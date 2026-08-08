@@ -10,9 +10,9 @@ Run the given task through codex: dispatch it, watch it to the end, and read its
 
 ## Dispatch
 
-Send the work out as one subagent whose only job is one Bash call. Give it these instructions, with your values filled in:
+Send the work out as one subagent pinned to sonnet, its only job one Bash call. Give it these instructions, with your values filled in:
 
-> Make exactly one Bash call: `node "<this skill's directory>/scripts/codex-task" task <controls> "<brief>"`. Return the stdout of the command exactly as-is as your final message. If the call fails, return its error output as-is. Do nothing else.
+> Make exactly one Bash call: `node "<this skill's directory>/scripts/codex-task" task <controls> "<brief>"`. Return the stdout of the command exactly as-is as your final message, and nothing else: a `--background` call prints a one-line receipt, and that one line is your whole answer. If the call fails, return its error output as-is. Make no other tool call of any kind.
 
 On a harness without subagents, make the call yourself. Your dispatch is the brief plus the controls it forwards:
 
