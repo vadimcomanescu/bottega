@@ -1,6 +1,6 @@
 ---
 name: spec
-description: Turn the current conversation into a spec and publish it on the run's bead. No interview, just synthesis of what is already settled. Use bottega:spec, or when a run's discovery ends having settled more than the request says.
+description: Turn the current conversation into a spec and publish it on the run's bead. No interview, just synthesis of what is already settled. Use spec, or when a run's discovery ends having settled more than the request says.
 ---
 
 # Spec
@@ -17,7 +17,7 @@ Check with me that these seams match my expectations. On an autonomous run, choo
 
 3. Write the spec in the sections below, then publish it on a bead — one bead carries the run and its spec.
 
-Inside a run, the run already has its bead: `bottega:open` created or took one before discovery started, so always write the spec into that bead's design field, `bd update <bead-id> --design-file -`, leaving the body as the request and the design as what discovery settled. Never create a second bead for the spec.
+Inside a run, the run already has its bead: `open` created or took one before discovery started, so always write the spec into that bead's design field, `bd update <bead-id> --design-file -`, leaving the body as the request and the design as what discovery settled. Never create a second bead for the spec.
 
 Invoked on its own, outside a run, there is no bead yet, so create one with the spec as its description, `bd create "<title>" --body-file -`, and give me its id — a later run starts from that bead.
 

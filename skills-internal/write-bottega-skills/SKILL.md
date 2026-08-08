@@ -99,7 +99,7 @@ Use these to diagnose issues the user may be having with the skill.
 
 These rules govern every file's prose in this repo, code comments, UI strings, and hook messages included, not only skills.
 
-- Write every sentence to the standard `bottega:bro` states: short sentences in simple tenses, one idea each, active voice, the subject and the articles kept, the same word for the same thing. Standard engineering terms only: no metaphors, no invented vocabulary, no theatrical naming. An adjective must choose among alternatives that exist, and a colon introduces a list or an example, never replaces "is" or "means".
+- Write every sentence to the standard `bro` states: short sentences in simple tenses, one idea each, active voice, the subject and the articles kept, the same word for the same thing. Standard engineering terms only: no metaphors, no invented vocabulary, no theatrical naming. An adjective must choose among alternatives that exist, and a colon introduces a list or an example, never replaces "is" or "means".
 - Banned tic-words, no exceptions: "bearing" (e.g. "judgment-bearing"), "bears on" (e.g. "the skills that bear on the task"), "ledger". Say the plain thing: "makes judgment calls", "the skills this work needs", "the log". The register binds bottega's own prose, so text vendored under a sync contract is synced as its author wrote it, never reworded to it.
 - A claim about harness behavior (frontmatter keys, hooks, dispatch mechanics, model resolution) is read from the harness documentation at claim time, never from memory or another skill's prose.
 - Skills are packaged per the Agent Skills open standard: one directory per capability, `SKILL.md` on top, supporting material inside it loaded on demand. An engine or reference a skill wraps lives inside that skill's directory, never as a sibling skill. The authoring and packaging contract is the harness documentation (https://code.claude.com/docs/en/skills) and the standard (https://agentskills.io), read at claim time. A skill references only its own directory, another skill, or a component the plugin ships. This repository's record under `docs/` and the root doctrine files never appear in a skill, because they do not install with it. A rule a skill states stands on its own sentences, with the decision record behind it left in the repository.
@@ -113,7 +113,7 @@ Every skill in this repo shares one outer shape:
 
 - Frontmatter stays universal, the open standard's fields: `name` equal to the directory name, and `description`. A harness-specific key is an exception, justified only by a harness need and kept to the minimum that need requires.
 - An H1 in sentence case naming the skill, then one imperative sentence stating the outcome the skill delivers. A "You are" opening belongs only to an agent definition, whose body is a system prompt.
-- A file loaded on demand is a markdown link (`[references/x.md](references/x.md)`). A skill that gets invoked is a backticked name (`bottega:panel`). Never a bare unlinked path.
+- A file loaded on demand is a markdown link (`[references/x.md](references/x.md)`). A skill that gets invoked is a backticked name (`panel`). Never a bare unlinked path.
 - The body stays under 500 lines, references one level deep.
 
 Write the body to the agent that will do the work, the way one person briefs a capable colleague:

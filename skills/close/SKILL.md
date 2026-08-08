@@ -8,7 +8,7 @@ user-invocable: false
 
 Take the accepted head to a PR a reviewer could merge the moment they open it: readable, checks green, deferred work filed.
 
-The launch decided the release. Read the run's recorded answer, `.bottega/run/<slug>/release`, for whether the PR lands on green or holds for me. Read the project's landing procedure beside it, from the agent map where `bottega:open` settled it, since it decides how this PR is braked, armed, and landed. Never merge a PR by hand and never approve one. Arm auto-merge only where that procedure makes arming the opener's act, and let the repository's required checks and its brake decide whether an armed PR lands. Review feedback that arrives after the PR opens goes through `bottega:autoreview`.
+The launch decided the release. Read the run's recorded answer, `.bottega/run/<slug>/release`, for whether the PR lands on green or holds for me. Read the project's landing procedure beside it, from the agent map where `open` settled it, since it decides how this PR is braked, armed, and landed. Never merge a PR by hand and never approve one. Arm auto-merge only where that procedure makes arming the opener's act, and let the repository's required checks and its brake decide whether an armed PR lands. Review feedback that arrives after the PR opens goes through `autoreview`.
 
 Everything you write for someone outside the run (the PR body, each followup bead) obeys one rule:
 
@@ -58,4 +58,4 @@ Report only once every check has completed and each red is routed or reported.
 
 Name the PR, the head SHA, and the evidence links in every report. Merged (`state` is `MERGED`): close the bead, `bd close <bead-id> --reason "PR #<n> merged"`, report the merge and that close, and sweep the run's working state (the run directory, the worktree, the branch) from the project's main checkout, never from inside the worktree. Ready (checks green, merge state `CLEAN`): report it and say what lands it, taking that from the landing procedure and confirming an arm you made with `gh pr view <PR> --json autoMergeRequest` rather than guessing. A null where you armed it means the arm did not take, so re-arm, and a null where the queue owns the merge is what that procedure expects. Held: report that the PR lands when I lift its brake, which only I do. Waiting on a person: report the action needed and leave the PR open. Leaving the PR unmerged in any of those three, say in the report that the bead stays open until the PR lands and that the next run's sweep closes it.
 
-An open PR's working state stands until the merge. `bottega:open` sweeps the state of any run whose PR has merged.
+An open PR's working state stands until the merge. `open` sweeps the state of any run whose PR has merged.

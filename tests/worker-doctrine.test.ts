@@ -133,7 +133,7 @@ describe("portable worker doctrine", () => {
     expect(
       read("skills-internal/write-bottega-skills/SKILL.md"),
       "the skill doctrine names the register",
-    ).toContain("the standard `bottega:bro` states");
+    ).toContain("the standard `bro` states");
   });
 
   it("names worker models where the dispatch happens and nowhere else", () => {
@@ -187,7 +187,7 @@ describe("portable worker doctrine", () => {
     expect(review).toContain("--model codex=gpt-5.6-sol");
     expect(review).toContain("--model claude=claude-fable-5");
     expect(review, "the Spec lens names its model and its fallback").toContain(
-      "gpt-5.6-sol at high effort, per `bottega:use-codex` where the codex CLI is logged in",
+      "gpt-5.6-sol at high effort, per `use-codex` where the codex CLI is logged in",
     );
   });
 
@@ -383,7 +383,7 @@ describe("portable worker doctrine", () => {
 
   it("pins the review interlock and its quantifiers", () => {
     const maestro = read("skills/maestro/SKILL.md");
-    expect(maestro).toContain("bottega:autoreview");
+    expect(maestro).toContain("runs `autoreview` whole");
     expect(
       read("skills/autoreview/SKILL.md"),
       "every finding is verified against the real code before the head is accepted",
