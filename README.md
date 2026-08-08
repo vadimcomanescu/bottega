@@ -24,7 +24,7 @@ Running sessions across several Claude accounts, `scripts/bt` is the launcher: `
 | Command | What it does |
 | --- | --- |
 | `/bottega:artigiano <task, bead id, or issue URL>` | Take a task, bug, or bead to a reviewed, evidence-backed PR ready to merge |
-| `/bottega:maestro <epic bead id>` | Conduct one bead epic across parallel worker sessions, keeping the lanes apart and the workbench current |
+| `/bottega:maestro <epic bead id>` | Conduct one bead epic across parallel worker sessions, sending the heavy beads to the freshest account and keeping the lanes apart and the workbench current |
 | `/bottega:play [maestro session name]` | Join a maestro's lanes as one worker session: claim the assigned bead, land it, and report back |
 | `/bottega:improve-codebase-architecture` | Scan the codebase for deepening opportunities and render them as a visual HTML report to explore with you |
 | `/bottega:auto-improve [area or direction]` | Run the improvement scan, verify the strongest candidate on the code, then take it through a run |

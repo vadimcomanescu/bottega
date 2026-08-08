@@ -41,8 +41,11 @@ A whole session running the play method under a conductor: it announces itself, 
 **Lane**:
 One worker session and the files the bead it holds owns. Two lanes never share a file, which is what lets a conductor run them at the same time.
 
+**Account**:
+One Claude subscription a session runs on, numbered the way `bt` numbers it: account 1 is `~/.claude`, and account n is `~/.claude-accounts/<n>`. Each account has its own usage windows, so it is the pool a lane spends from and the number a worker session announces.
+
 **Workbench**:
-The private artifact page the conductor republishes at one URL after every state change: the lanes as columns, every bead's state, which worker session holds which bead, the last ten messages, and the frontier count.
+The private artifact page the conductor republishes at one URL after every state change: the lanes as columns with each worker session's account and its usage, every bead's state, which worker session holds which bead, the last ten messages, and the frontier count.
 
 **Slice**:
 One vertical unit of the work with named owned files, buildable and gated on its own before it merges to the run branch.

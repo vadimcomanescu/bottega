@@ -10,7 +10,9 @@ Join a maestro's lanes as one worker: take the bead it assigns, claim it, land i
 
 ## Announce yourself
 
-Take the maestro's session name from your invocation when it carries one, otherwise find it with ListAgents. Send it `READY <your session name>` with SendMessage, and wait. That line is how you ask for work, at the start and after every bead you finish.
+Take the maestro's session name from your invocation when it carries one, otherwise find it with ListAgents. Send it `READY <your session name> account <n>` with SendMessage, and wait. That line is how you ask for work, at the start and after every bead you finish.
+
+Your account number is the last part of `CLAUDE_CONFIG_DIR` when the variable is set, so `~/.claude-accounts/3` makes you account 3, and an unset variable makes you account 1. Read it once at the start and carry it in every `READY` line, because the maestro maps you to a usage pool by that number.
 
 ## Take one assignment
 
@@ -50,4 +52,4 @@ Send one line to the maestro the moment the bead leaves your hands:
 - `BLOCKED <bead-id> <reason>` when something outside your lane holds the work.
 - `FILED <new-bead-id> <why>` for each bead you created and left for someone else, filed with `bd create` first so the id is real.
 
-Then send `READY <your session name>` again and wait for the next assignment.
+Then send `READY <your session name> account <n>` again and wait for the next assignment.

@@ -20,7 +20,13 @@ The frontier is `bd ready --parent=<epic-id>`: the epic's open children with no 
 
 ## Find the workers
 
-A worker session is a whole session running `play`. List them with ListAgents and address them by the names it prints. Each one sends you `READY <its name>` when it starts and again whenever it finishes a bead, so a `READY` line is what puts a worker back in your pool. With no worker listed, tell me and wait, because starting sessions is mine to do.
+A worker session is a whole session running `play`. List them with ListAgents and address them by the names it prints. Each one sends you `READY <its name> account <n>` when it starts and again whenever it finishes a bead, so a `READY` line is what puts a worker back in your pool and says which Claude account pays for its work. With no worker listed, tell me and wait, because starting sessions is mine to do.
+
+## Read the accounts
+
+Run `bt`. It prints one row per account: its weekly usage, its usage in the model-scoped window, when each window resets, and which account it suggests for a run. Match those rows to the account numbers your workers announced, and you know what each lane has left to spend.
+
+Read it before your first assignment and again every few assignments. Between those reads, work from the numbers you already have, because a fresh `bt` on every message costs a call and tells you the same thing. Where `bt` is missing from PATH, say so once and assign on the lane rules alone.
 
 ## Assign
 
@@ -32,10 +38,11 @@ ASSIGN <bead-id>: <one-line context>
 
 The context line says what the bead delivers and which files it owns, in your own words, so the worker starts from the same reading you have.
 
-Two rules decide what runs at once:
+Three rules decide what runs where:
 
 - Lanes stay file-disjoint. A lane is one worker and the files the bead it holds owns. A bead whose files another in-flight bead owns waits until that lane reports back, whatever the frontier says.
 - Two heavy beads run at once, a heavy bead being one a worker takes through `artigiano`. Small beads run beside them while the lanes stay apart. Change that cap when I say so.
+- Weight follows the usage. The heavy bead goes to the worker on the freshest account, and the loaded accounts take the small beads. A worker whose account sits past 90% in either window takes nothing more until that window resets, and the workbench says which worker is paused and on which account, so I can log in another one.
 
 ## Receive
 
@@ -53,7 +60,7 @@ The workbench is one private artifact page I read while you work. Publish it wit
 
 One screen carries all of it:
 
-- one column per lane, the worker's name at its head
+- one column per lane, the worker's name at its head with its account number, that account's weekly usage from your last `bt` read, and the word paused when the usage rule stopped assigning to it
 - every bead in the epic with its state, one of ready, claimed, in flight, landed, blocked
 - which worker holds which bead
 - the last ten messages, newest first
