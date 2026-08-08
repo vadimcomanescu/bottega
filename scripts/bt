@@ -16,10 +16,14 @@ bt add creates the dir and symlinks CLAUDE.md and settings.json to the
 it needs one browser /login. Account 1 stays the interactive seat; the
 dashboard suggests the least-recently-used other account for a run.
 
-Usage numbers are the /usage data each session caches into the account's
-.claude.json — read locally, no network call. A window whose reset time
-has already passed shows 0%: no session ran after the cache was written,
-so nothing was spent since the reset.
+Usage numbers are fetched live per account from the endpoint /usage
+itself uses, authenticated with the account's own stored OAuth token
+(macOS Keychain, or .credentials.json in the config dir elsewhere).
+When a fetch fails — offline, expired token — the dashboard falls back
+to the numbers the account's last session cached, marked with ~ so
+stale data never reads as current. A cached window whose reset time has
+passed shows 0%: no session ran after the cache was written, so nothing
+was spent since the reset.
 
 Install (the repo is private, so the download authenticates through the
 GitHub CLI, which every bottega machine already has logged in):
@@ -35,11 +39,16 @@ Optional config at ~/.claude-accounts/bt.conf, one directive per line
                                 repos share one work graph
 """
 
+import concurrent.futures
+import getpass
+import hashlib
 import json
 import os
 import shutil
+import subprocess
 import sys
 import time
+import urllib.request
 from datetime import datetime
 
 HOME = os.path.expanduser("~")
@@ -91,25 +100,77 @@ def account_json(n):
     return os.path.join(ACCOUNTS_DIR, str(n), ".claude.json")
 
 
-def load_account(n):
-    """Everything the dashboard shows for one account, from its .claude.json.
+def config_dir(n):
+    if n == 1:
+        return os.path.join(HOME, ".claude")
+    return os.path.join(ACCOUNTS_DIR, str(n))
 
-    Claude Code rewrites that file during any session, so its mtime is real
-    last activity — bt's own log only sees bt launches."""
-    info = {"n": n, "email": None, "mtime": 0, "weekly": None, "scoped": None}
-    path = account_json(n)
+
+USAGE_URL = "https://api.anthropic.com/api/oauth/usage"
+
+
+def access_token(n):
+    """The account's OAuth access token, from wherever Claude Code keeps it,
+    or None when it is missing or already expired.
+
+    macOS: a Keychain entry whose service name carries the first 8 hex chars
+    of the config dir's sha256 (none for the default ~/.claude, whose service
+    name is shared with an MCP-tokens entry — the username qualifier picks
+    the right one). Elsewhere: .credentials.json inside the config dir."""
+    creds = None
+    if sys.platform == "darwin":
+        service = "Claude Code-credentials"
+        if n != 1:
+            digest = hashlib.sha256(config_dir(n).encode()).hexdigest()
+            service += "-" + digest[:8]
+        for cmd in (["security", "find-generic-password", "-s", service,
+                     "-a", getpass.getuser(), "-w"],
+                    ["security", "find-generic-password", "-s", service, "-w"]):
+            try:
+                out = subprocess.run(cmd, capture_output=True, text=True,
+                                     timeout=5)
+                if out.returncode == 0:
+                    found = json.loads(out.stdout).get("claudeAiOauth")
+                    if found and found.get("accessToken"):
+                        creds = found
+                        break
+            except (OSError, ValueError, subprocess.TimeoutExpired):
+                pass
+    else:
+        try:
+            with open(os.path.join(config_dir(n), ".credentials.json")) as f:
+                creds = json.load(f).get("claudeAiOauth")
+        except (OSError, ValueError):
+            pass
+    if not creds or not creds.get("accessToken"):
+        return None
+    expires_ms = creds.get("expiresAt") or 0
+    if expires_ms and expires_ms / 1000 < time.time() + 60:
+        return None
+    return creds["accessToken"]
+
+
+def fetch_usage(n):
+    """Live /usage data for one account, or None when it can't be had."""
+    token = access_token(n)
+    if not token:
+        return None
+    req = urllib.request.Request(USAGE_URL, headers={
+        "Authorization": f"Bearer {token}",
+        "anthropic-beta": "oauth-2025-04-20",
+    })
     try:
-        with open(path) as f:
-            raw = json.load(f)
+        with urllib.request.urlopen(req, timeout=4) as r:
+            return json.load(r)
     except (OSError, ValueError):
-        return info
-    info["mtime"] = os.path.getmtime(path)
-    info["email"] = (raw.get("oauthAccount") or {}).get("emailAddress")
+        return None
 
-    limits = ((raw.get("cachedUsageUtilization") or {})
-              .get("utilization") or {}).get("limits") or []
+
+def parse_limits(limits):
+    """(weekly, scoped) windows out of a /usage limits list, cached or live."""
+    weekly = scoped = None
     now = datetime.now().astimezone()
-    for lim in limits:
+    for lim in limits or []:
         resets = None
         if lim.get("resets_at"):
             try:
@@ -123,11 +184,33 @@ def load_account(n):
             "rolled": rolled,
         }
         if lim.get("kind") == "weekly_all":
-            info["weekly"] = window
-        elif lim.get("kind") == "weekly_scoped" and not info["scoped"]:
+            weekly = window
+        elif lim.get("kind") == "weekly_scoped" and not scoped:
             model = ((lim.get("scope") or {}).get("model") or {})
             window["label"] = (model.get("display_name") or "scoped").lower()
-            info["scoped"] = window
+            scoped = window
+    return weekly, scoped
+
+
+def load_account(n):
+    """Everything the dashboard shows for one account, from its .claude.json.
+
+    Claude Code rewrites that file during any session, so its mtime is real
+    last activity — bt's own log only sees bt launches. Usage windows here
+    are the cached fallback; the dashboard overlays live data on top."""
+    info = {"n": n, "email": None, "mtime": 0, "weekly": None, "scoped": None,
+            "live": False}
+    path = account_json(n)
+    try:
+        with open(path) as f:
+            raw = json.load(f)
+    except (OSError, ValueError):
+        return info
+    info["mtime"] = os.path.getmtime(path)
+    info["email"] = (raw.get("oauthAccount") or {}).get("emailAddress")
+    limits = ((raw.get("cachedUsageUtilization") or {})
+              .get("utilization") or {}).get("limits")
+    info["weekly"], info["scoped"] = parse_limits(limits)
     return info
 
 
@@ -176,6 +259,17 @@ def bar(pct):
 def dashboard():
     numbers = discover_accounts()
     accounts = [load_account(n) for n in numbers]
+
+    logged_in = [a for a in accounts if a["email"]]
+    with concurrent.futures.ThreadPoolExecutor(len(logged_in) or 1) as pool:
+        live = dict(zip((a["n"] for a in logged_in),
+                        pool.map(fetch_usage, (a["n"] for a in logged_in))))
+    for a in accounts:
+        data = live.get(a["n"])
+        if data:
+            a["weekly"], a["scoped"] = parse_limits(data.get("limits"))
+            a["live"] = True
+
     scoped_label = next(
         (a["scoped"]["label"] for a in accounts if a["scoped"]), "scoped")
 
@@ -184,12 +278,14 @@ def dashboard():
     def cell(text, code=None):
         return (text, c(code, text) if code else text)
 
-    def usage(window):
+    def usage(window, stale):
         if not window:
             return cell("—", DIM)
         plain_bar, colored_bar = bar(window["pct"])
-        pct = f"  {window['pct']:>3}%"
-        return (plain_bar + pct, colored_bar + pct)
+        mark = "~" if stale else " "
+        pct = f"{window['pct']:>3}%"
+        return (f"{plain_bar} {mark}{pct}",
+                f"{colored_bar} {c(DIM, mark)}{pct}")
 
     def resets(a):
         window = a["weekly"] or a["scoped"]
@@ -204,9 +300,10 @@ def dashboard():
             email = a["email"]
             if len(email) > EMAIL_MAX:
                 email = email[:EMAIL_MAX - 1] + "…"
-            row = [cell(str(a["n"]), BOLD), cell(email), usage(a["weekly"]),
-                   usage(a["scoped"]), resets(a),
-                   cell(rel_time(a["mtime"]), DIM)]
+            stale = not a["live"]
+            row = [cell(str(a["n"]), BOLD), cell(email),
+                   usage(a["weekly"], stale), usage(a["scoped"], stale),
+                   resets(a), cell(rel_time(a["mtime"]), DIM)]
         else:
             row = [cell(str(a["n"]), BOLD), cell("not logged in", DIM)] + \
                   [cell("—", DIM)] * 3 + [cell(rel_time(a["mtime"]), DIM)]
@@ -234,6 +331,12 @@ def dashboard():
     for row in rows:
         emit(row)
     print()
+    if any(a["email"] and not a["live"] and (a["weekly"] or a["scoped"])
+           for a in accounts):
+        note = ("~ cached from that account's last session "
+                "(token expired or offline; a session on it refreshes)")
+        print(f"  {c(DIM, note)}")
+        print()
 
     candidates = [a for a in accounts if a["n"] > 1 and a["email"]]
     if candidates:
