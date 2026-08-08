@@ -1,0 +1,289 @@
+#!/usr/bin/env node
+// codex-task: bottega's codex dispatch wrapper around `codex exec`.
+//
+// One detached `codex exec` process per job, job state on disk, no daemon.
+//
+//   codex-task task --model <m> --effort <e> [--read-only | --full-access]
+//              [--cwd <dir>] [--background] [--resume <session-id> | --resume-last]
+//              "<brief>"
+//   codex-task status <job-id> [--wait --timeout-ms <ms>]
+//   codex-task result <job-id>
+//   codex-task cancel <job-id>
+//   codex-task jobs
+//
+// task requires --model and --effort. Sandbox defaults to workspace-write.
+// --read-only maps to `-s read-only`, --full-access to `-s danger-full-access`.
+// Foreground task prints the report and the session id. --background prints a
+// receipt naming the job id and returns in seconds.
+// Jobs are stored per workspace (the git top level of --cwd, else of the
+// working directory) under ~/.local/state/bottega-codex/. status, result,
+// cancel, and jobs resolve the workspace the same way, so call them with the
+// same --cwd or from the same directory.
+// resume replays the stored model, effort, and sandbox of the resumed job, so
+// a resumed run never falls back to the machine's defaults.
+// Exit code: task/status/result/cancel exit 0 on success, 1 on a failed or
+// missing job, 2 on a usage error.
+
+import { execFileSync, spawn } from "node:child_process";
+import crypto from "node:crypto";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import process from "node:process";
+
+function fail(message, code = 2) {
+  process.stderr.write(`codex-task: ${message}\n`);
+  process.exit(code);
+}
+
+function parseArgs(argv) {
+  const flags = {};
+  const positional = [];
+  for (let i = 0; i < argv.length; i += 1) {
+    const arg = argv[i];
+    if (!arg.startsWith("--")) {
+      positional.push(arg);
+      continue;
+    }
+    const name = arg.slice(2);
+    const takesValue = ["model", "effort", "cwd", "timeout-ms", "resume"].includes(name);
+    if (takesValue) {
+      const value = argv[i + 1];
+      if (value === undefined) fail(`--${name} needs a value`);
+      flags[name] = value;
+      i += 1;
+    } else {
+      flags[name] = true;
+    }
+  }
+  return { flags, positional };
+}
+
+function workspaceRoot(cwd) {
+  try {
+    return execFileSync("git", ["rev-parse", "--show-toplevel"], {
+      cwd,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"]
+    }).trim();
+  } catch {
+    return path.resolve(cwd);
+  }
+}
+
+function stateDir(cwd) {
+  const root = workspaceRoot(cwd);
+  const hash = crypto.createHash("sha256").update(root).digest("hex").slice(0, 12);
+  const base = process.env.XDG_STATE_HOME || path.join(os.homedir(), ".local", "state");
+  return path.join(base, "bottega-codex", `${path.basename(root)}-${hash}`);
+}
+
+function jobDir(cwd, jobId) {
+  return path.join(stateDir(cwd), "jobs", jobId);
+}
+
+function readJob(dir) {
+  return JSON.parse(fs.readFileSync(path.join(dir, "job.json"), "utf8"));
+}
+
+function jobState(dir) {
+  const exitFile = path.join(dir, "exit-code");
+  if (fs.existsSync(path.join(dir, "cancelled"))) return { state: "cancelled" };
+  if (fs.existsSync(exitFile)) {
+    const code = Number(fs.readFileSync(exitFile, "utf8").trim());
+    return { state: code === 0 ? "done" : "failed", exitCode: code };
+  }
+  const job = readJob(dir);
+  try {
+    process.kill(job.pid, 0);
+    return { state: "running" };
+  } catch {
+    return { state: "failed", exitCode: null };
+  }
+}
+
+function sessionIdFrom(dir) {
+  const job = readJob(dir);
+  if (job.sessionId) return job.sessionId;
+  try {
+    const log = fs.readFileSync(path.join(dir, "log"), "utf8");
+    const match = log.match(/session id:\s*([0-9a-f-]{36})/i);
+    return match ? match[1] : null;
+  } catch {
+    return null;
+  }
+}
+
+function codexArgs(job, brief) {
+  const shared = [
+    "--model", job.model,
+    "--config", `model_reasoning_effort="${job.effort}"`,
+    "--skip-git-repo-check",
+    "--output-last-message", path.join(job.dir, "last-message.txt")
+  ];
+  if (job.resumeSession) {
+    // `codex exec resume` has no --sandbox, --cd, or --color flag. The sandbox
+    // goes through a config override, and the working directory is the spawn
+    // directory, which runTask sets to the job's cwd either way.
+    return [
+      "exec", "resume", job.resumeSession,
+      ...shared,
+      "--config", `sandbox_mode="${job.sandbox}"`,
+      brief
+    ];
+  }
+  return [
+    "exec",
+    ...shared,
+    "--sandbox", job.sandbox,
+    "--cd", job.cwd,
+    "--color", "never",
+    brief
+  ];
+}
+
+function runTask(flags, brief) {
+  if (!flags.model) fail("--model is required, every dispatch pins its model");
+  if (!flags.effort) fail("--effort is required, every dispatch pins its effort");
+  if (!brief) fail("a task brief is required");
+  const cwd = path.resolve(flags.cwd || process.cwd());
+  const sandbox = flags["read-only"]
+    ? "read-only"
+    : flags["full-access"]
+      ? "danger-full-access"
+      : "workspace-write";
+
+  let resumeSession = flags.resume || null;
+  if (flags["resume-last"]) {
+    resumeSession = latestSession(cwd);
+    if (!resumeSession) fail("no finished job with a session id to resume in this workspace", 1);
+  }
+
+  const jobId = `task-${Date.now().toString(36)}-${crypto.randomBytes(3).toString("hex")}`;
+  const dir = jobDir(cwd, jobId);
+  fs.mkdirSync(dir, { recursive: true });
+  const job = {
+    id: jobId, dir, cwd, sandbox,
+    model: flags.model, effort: flags.effort,
+    resumeSession, brief,
+    started: new Date().toISOString()
+  };
+
+  const logFd = fs.openSync(path.join(dir, "log"), "a");
+  const shellLine = `codex ${codexArgs(job, brief).map((a) => `'${a.replace(/'/g, `'\\''`)}'`).join(" ")}; echo $? > '${path.join(dir, "exit-code")}'`;
+  const child = spawn("sh", ["-c", shellLine], {
+    cwd,
+    detached: true,
+    stdio: ["ignore", logFd, logFd]
+  });
+  job.pid = child.pid;
+  fs.writeFileSync(path.join(dir, "job.json"), JSON.stringify(job, null, 2));
+  fs.closeSync(logFd);
+
+  if (flags.background) {
+    child.unref();
+    process.stdout.write(`${jobId} started in the background. Watch it with: codex-task status ${jobId} --wait --timeout-ms <ms>\n`);
+    return;
+  }
+
+  child.on("exit", () => {
+    const state = jobState(dir);
+    const report = readResult(dir);
+    process.stdout.write(report ? `${report}\n` : "");
+    const sid = sessionIdFrom(dir);
+    if (sid) process.stdout.write(`\nCodex session id: ${sid} (resume with --resume ${sid})\n`);
+    process.exit(state.state === "done" ? 0 : 1);
+  });
+}
+
+function latestSession(cwd) {
+  const jobsRoot = path.join(stateDir(cwd), "jobs");
+  if (!fs.existsSync(jobsRoot)) return null;
+  const entries = fs.readdirSync(jobsRoot)
+    .map((id) => path.join(jobsRoot, id))
+    .filter((dir) => fs.existsSync(path.join(dir, "job.json")))
+    .sort((a, b) => readJob(b).started.localeCompare(readJob(a).started));
+  for (const dir of entries) {
+    const sid = sessionIdFrom(dir);
+    if (sid) return sid;
+  }
+  return null;
+}
+
+function readResult(dir) {
+  const file = path.join(dir, "last-message.txt");
+  return fs.existsSync(file) ? fs.readFileSync(file, "utf8").trim() : null;
+}
+
+function printStatus(dir, job) {
+  const state = jobState(dir);
+  const seconds = Math.round((Date.now() - Date.parse(job.started)) / 1000);
+  process.stdout.write(
+    `${job.id} | ${state.state}${state.exitCode != null ? ` (exit ${state.exitCode})` : ""} | ${seconds}s\n` +
+    `  Brief: ${job.brief.slice(0, 120)}\n` +
+    `  Log: ${path.join(dir, "log")}\n`
+  );
+  const sid = sessionIdFrom(dir);
+  if (sid) process.stdout.write(`  Codex session id: ${sid}\n`);
+  return state;
+}
+
+async function runStatus(flags, jobId) {
+  const dir = jobDir(flags.cwd || process.cwd(), jobId);
+  if (!fs.existsSync(dir)) fail(`no job ${jobId} in this workspace`, 1);
+  const job = readJob(dir);
+  if (flags.wait) {
+    const timeoutMs = Number(flags["timeout-ms"] || 600000);
+    const deadline = Date.now() + timeoutMs;
+    while (jobState(dir).state === "running" && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+  }
+  const state = printStatus(dir, job);
+  process.exit(state.state === "failed" ? 1 : 0);
+}
+
+function runResult(flags, jobId) {
+  const dir = jobDir(flags.cwd || process.cwd(), jobId);
+  if (!fs.existsSync(dir)) fail(`no job ${jobId} in this workspace`, 1);
+  const report = readResult(dir);
+  if (report == null) fail(`job ${jobId} has no report yet, check status first`, 1);
+  process.stdout.write(`${report}\n`);
+  const sid = sessionIdFrom(dir);
+  if (sid) process.stdout.write(`\nCodex session id: ${sid} (resume with --resume ${sid})\n`);
+}
+
+function runCancel(flags, jobId) {
+  const dir = jobDir(flags.cwd || process.cwd(), jobId);
+  if (!fs.existsSync(dir)) fail(`no job ${jobId} in this workspace`, 1);
+  const job = readJob(dir);
+  try {
+    process.kill(-job.pid, "SIGTERM");
+  } catch {
+    // Already gone.
+  }
+  fs.writeFileSync(path.join(dir, "cancelled"), "");
+  process.stdout.write(`${job.id} cancelled\n`);
+}
+
+function runJobs(flags) {
+  const jobsRoot = path.join(stateDir(flags.cwd || process.cwd()), "jobs");
+  if (!fs.existsSync(jobsRoot)) {
+    process.stdout.write("no jobs in this workspace\n");
+    return;
+  }
+  for (const id of fs.readdirSync(jobsRoot).sort()) {
+    const dir = path.join(jobsRoot, id);
+    if (fs.existsSync(path.join(dir, "job.json"))) printStatus(dir, readJob(dir));
+  }
+}
+
+const { flags, positional } = parseArgs(process.argv.slice(2));
+const [command, ...rest] = positional;
+
+if (command === "task") runTask(flags, rest.join(" "));
+else if (command === "status") runStatus(flags, rest[0] ?? fail("status needs a job id"));
+else if (command === "result") runResult(flags, rest[0] ?? fail("result needs a job id"));
+else if (command === "cancel") runCancel(flags, rest[0] ?? fail("cancel needs a job id"));
+else if (command === "jobs") runJobs(flags);
+else fail("subcommand must be task, status, result, cancel, or jobs");

@@ -16,8 +16,5 @@
     "autoreview",
     "qa"
   ],
-  "skills": "./skills/",
-  "agents": [
-    "./vendor/codex/agents/codex.md"
-  ]
+  "skills": "./skills/"
 }
