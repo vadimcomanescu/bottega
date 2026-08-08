@@ -7,14 +7,23 @@
   bt <n> [claude ...]   launch Claude Code on account n; 1 is ~/.claude
   bt add                create the next account dir, ready for /login
   bt rm <n> [-y]        delete an account dir; -y skips the confirmation
+  bt mesh               point existing accounts at the shared sessions dir
 
 Account 1 is ~/.claude; every other account is a Claude Code config dir
 at ~/.claude-accounts/<n> (CLAUDE_CONFIG_DIR is the mechanism Claude Code
 documents for this), and the account list is whatever dirs exist there.
-bt add creates the dir and symlinks CLAUDE.md and settings.json to the
-~/.claude copies so every account behaves the same; the first session on
-it needs one browser /login. Account 1 stays the interactive seat; the
-dashboard suggests the least-recently-used other account for a run.
+bt add creates the dir and symlinks CLAUDE.md, settings.json, and
+sessions to the ~/.claude copies so every account behaves the same; the
+first session on it needs one browser /login. Account 1 stays the
+interactive seat; the dashboard suggests the least-recently-used other
+account for a run.
+
+The sessions symlink is what lets sessions on different accounts see
+each other: session records all land in ~/.claude/sessions, so one
+account's session can discover and message another's. bt mesh migrates
+accounts created before that symlink existed — per account, it moves any
+*.json out of a real sessions dir into ~/.claude/sessions, replaces the
+dir with the symlink, prints what it did, and is safe to re-run.
 
 Usage numbers are fetched live per account from the endpoint /usage
 itself uses, authenticated with the account's own stored OAuth token
@@ -55,6 +64,7 @@ HOME = os.path.expanduser("~")
 ACCOUNTS_DIR = os.path.join(HOME, ".claude-accounts")
 LOG = os.path.join(ACCOUNTS_DIR, "usage.log")
 CONF = os.path.join(ACCOUNTS_DIR, "bt.conf")
+SESSIONS_DIR = os.path.join(HOME, ".claude", "sessions")
 
 EMAIL_MAX = 34
 BAR_WIDTH = 10
@@ -346,8 +356,26 @@ def dashboard():
     else:
         print(f"  {c(ACCENT, '➜')} no other account is logged in yet — "
               f"bt add, then /login inside its session")
-    print(f"    {c(DIM, 'bt <n> [claude args…] launches · bt add · bt rm <n> · bt --help')}")
+    print(f"    {c(DIM, 'bt <n> [claude args…] launches · bt add · bt rm <n> · bt mesh · bt --help')}")
     print()
+
+
+def link_shared(path):
+    """Point one account dir at the ~/.claude copies every account shares.
+
+    CLAUDE.md and settings.json make the account behave like account 1.
+    sessions is the cross-account one: every session record lands in the
+    one directory, so a session on any account can discover and message
+    a session on any other."""
+    for name in ("CLAUDE.md", "settings.json"):
+        src = os.path.join(HOME, ".claude", name)
+        link = os.path.join(path, name)
+        if os.path.exists(src) and not os.path.lexists(link):
+            os.symlink(src, link)
+    os.makedirs(SESSIONS_DIR, exist_ok=True)
+    link = os.path.join(path, "sessions")
+    if not os.path.lexists(link):
+        os.symlink(SESSIONS_DIR, link)
 
 
 def add_account():
@@ -355,11 +383,45 @@ def add_account():
     n = next(i for i in range(2, max(numbers) + 2) if i not in numbers)
     path = os.path.join(ACCOUNTS_DIR, str(n))
     os.makedirs(path)
-    for name in ("CLAUDE.md", "settings.json"):
-        src = os.path.join(HOME, ".claude", name)
-        if os.path.exists(src):
-            os.symlink(src, os.path.join(path, name))
+    link_shared(path)
     print(f"account {n} created — run: bt {n}, then /login inside the session")
+
+
+def mesh_accounts():
+    """Give every existing account the shared sessions dir. Re-runnable."""
+    os.makedirs(SESSIONS_DIR, exist_ok=True)
+    for n in discover_accounts():
+        if n == 1:
+            continue
+        path = os.path.join(config_dir(n), "sessions")
+        if os.path.islink(path):
+            print(f"account {n}: already meshed")
+            continue
+        if os.path.isfile(path):
+            print(f"bt: account {n}: {path} is a file, left alone",
+                  file=sys.stderr)
+            continue
+        moved = 0
+        if os.path.isdir(path):
+            for name in sorted(os.listdir(path)):
+                if not name.endswith(".json"):
+                    continue
+                target = os.path.join(SESSIONS_DIR, name)
+                if os.path.exists(target):
+                    stem, ext = os.path.splitext(name)
+                    target = os.path.join(SESSIONS_DIR, f"{stem}-acct{n}{ext}")
+                shutil.move(os.path.join(path, name), target)
+                moved += 1
+            kept = os.listdir(path)
+            if kept:
+                print(f"bt: account {n}: moved {moved} session files, kept "
+                      f"{path} because {len(kept)} other entries are in it",
+                      file=sys.stderr)
+                continue
+            os.rmdir(path)
+        os.symlink(SESSIONS_DIR, path)
+        carried = f"moved {moved} session files, " if moved else ""
+        print(f"account {n}: {carried}sessions now links to {SESSIONS_DIR}")
 
 
 def remove_account(n, force):
@@ -399,7 +461,7 @@ def launch(n, args):
 
 def usage_error():
     numbers = " ".join(str(n) for n in discover_accounts())
-    print(f"usage: bt [<n> [claude args...] | add | rm <n> [-y]]\n"
+    print(f"usage: bt [<n> [claude args...] | add | rm <n> [-y] | mesh]\n"
           f"accounts: {numbers} (bt add creates one)", file=sys.stderr)
     sys.exit(2)
 
@@ -415,6 +477,9 @@ def main():
         return
     if args[0] == "add":
         add_account()
+        return
+    if args[0] == "mesh":
+        mesh_accounts()
         return
     if args[0] in ("rm", "remove"):
         rest = [a for a in args[1:] if a not in ("-y", "--yes")]

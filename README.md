@@ -2,7 +2,9 @@
 
 Bottega is a Claude Code plugin that takes a piece of work from a request to a pull request that is designed, built, reviewed, and verified.
 
-`/bottega:maestro` runs the whole thing: it settles the unknowns with you, owns the design, builds through worker agents, has the integrated result reviewed and repaired, drives QA over every product surface the work touched, and opens the PR. The other commands each run one piece of that on its own.
+`/bottega:artigiano` runs the whole thing: it settles the unknowns with you, owns the design, builds through worker agents, has the integrated result reviewed and repaired, drives QA over every product surface the work touched, and opens the PR. `/bottega:maestro` sits one level above it: it holds a bead epic and conducts parallel `/bottega:play` worker sessions through it. The other commands each run one piece of that on its own.
+
+`/bottega:artigiano` was called `/bottega:maestro` up to 0.210.0. The run method is unchanged and the name `maestro` now belongs to the conductor.
 
 ## Install
 
@@ -11,17 +13,19 @@ Bottega is a Claude Code plugin that takes a piece of work from a request to a p
 /plugin install bottega@bottega
 ```
 
-Then start a run with `/bottega:maestro <task, bead id, or issue URL>`.
+Then start a run with `/bottega:artigiano <task, bead id, or issue URL>`.
 
-A run needs `git`, `node`, the [GitHub CLI](https://cli.github.com/), and `bd` ([beads](https://github.com/gastownhall/beads), the tracker bottega is built on) on PATH, plus `trufflehog`, which the review's secret scan requires and never installs itself. It needs the codex CLI logged in for the reads that go to a GPT model. Without that CLI, fresh Claude workers take those reads and the PR says so. A run reports anything else missing at the moment it reaches for it. A run also checks at launch that the session is on the orchestrator model the maestro skill names, and tells you when it is not. Nothing else is assumed about the project.
+A run needs `git`, `node`, the [GitHub CLI](https://cli.github.com/), and `bd` ([beads](https://github.com/gastownhall/beads), the tracker bottega is built on) on PATH, plus `trufflehog`, which the review's secret scan requires and never installs itself. It needs the codex CLI logged in for the reads that go to a GPT model. Without that CLI, fresh Claude workers take those reads and the PR says so. A run reports anything else missing at the moment it reaches for it. A run also checks at launch that the session is on the orchestrator model the artigiano skill names, and tells you when it is not. Nothing else is assumed about the project.
 
-Running sessions across several Claude accounts, `scripts/bt` is the launcher: `bt <n>` starts Claude Code on account `n` (a config dir under `~/.claude-accounts/`, one browser `/login` each the first time), `bt add`/`bt rm <n>` create and delete the account dirs the tool discovers its list from, and bare `bt` is the dashboard: each account's login state, weekly and model-scoped usage fetched live with the account's own OAuth token (falling back to the last session's cache, marked `~`, when the token is expired or the machine offline), and last activity, with the least-recently-used logged-in account suggested as the run seat. Its header states the contract and the install line — a `gh api` download onto PATH, updated by re-running it; it is not part of the plugin install.
+Running sessions across several Claude accounts, `scripts/bt` is the launcher: `bt <n>` starts Claude Code on account `n` (a config dir under `~/.claude-accounts/`, one browser `/login` each the first time), `bt add`/`bt rm <n>` create and delete the account dirs the tool discovers its list from, `bt mesh` points accounts made before that at the shared `~/.claude/sessions` directory so a session on one account can discover and message a session on another, and bare `bt` is the dashboard: each account's login state, weekly and model-scoped usage fetched live with the account's own OAuth token (falling back to the last session's cache, marked `~`, when the token is expired or the machine offline), and last activity, with the least-recently-used logged-in account suggested as the run seat. Its header states the contract and the install line — a `gh api` download onto PATH, updated by re-running it; it is not part of the plugin install.
 
 ## Commands
 
 | Command | What it does |
 | --- | --- |
-| `/bottega:maestro <task, bead id, or issue URL>` | Take a task, bug, or bead to a reviewed, evidence-backed PR ready to merge |
+| `/bottega:artigiano <task, bead id, or issue URL>` | Take a task, bug, or bead to a reviewed, evidence-backed PR ready to merge |
+| `/bottega:maestro <epic bead id>` | Conduct one bead epic across parallel worker sessions, sending the heavy beads to the freshest account and keeping the lanes apart and the workbench current |
+| `/bottega:play [maestro session name]` | Join a maestro's lanes as one worker session: claim the assigned bead, land it, and report back |
 | `/bottega:improve-codebase-architecture` | Scan the codebase for deepening opportunities and render them as a visual HTML report to explore with you |
 | `/bottega:auto-improve [area or direction]` | Run the improvement scan, verify the strongest candidate on the code, then take it through a run |
 | `/bottega:discover <request or issue>` | Understand what the request means in the repository, then find its unknowns and settle them with you |
@@ -46,7 +50,7 @@ A run uses further methods that have no command of their own: open, spec, implem
 
 ## How a run works
 
-`/bottega:maestro` turns the session into the run's orchestrator. It designs, decides, and rules on what comes back, and dispatches everything else to fresh workers.
+`/bottega:artigiano` turns the session into the run's orchestrator. It designs, decides, and rules on what comes back, and dispatches everything else to fresh workers.
 
 1. **Launch.** It asks the one question the request does not answer: does the PR land itself on green, or hold for you. Then it claims the work, opens its own worktree and branch so your checkout is untouched, records the release answer, and reads the project's commands and landing procedure from the repository's agent map ([`skills/open`](skills/open/SKILL.md)).
 2. **Discover.** It reads the code the request touches until it can say what the request means in this repository's terms, sends one worker per question that reading left open, and then works the unknowns with you: naming what you have not thought to ask, laying out options and prototypes to react to, and interviewing you round by round, each round asking every question the settled answers unblock. Discovery sizes itself, so a small fix comes back fast and a serious feature takes the whole method ([`skills/discover`](skills/discover/SKILL.md)).
@@ -70,7 +74,7 @@ What survives a run beyond the code: enforceable acceptance criteria as tests, d
 
 **Claude does the work, and codex cross-reads finished work.** Every worker in a run is a Claude subagent. Codex sits at four places: the second opinion on the settled plan, the review engine, the review's Spec lens, and one seat on a panel, where drafts from different companies' models are the whole point. A builder cannot certify the design it implemented, and the orchestrator should not be the only verifier of the design it authored.
 
-**Every dispatch names its worker's model.** The models are named in the sentences that dispatch the workers, in [`skills/maestro`](skills/maestro/SKILL.md), [`skills/panel`](skills/panel/SKILL.md), and the vendored review engine document, and nowhere else. A hook rejects a live run's subagent, workflow, or codex dispatch that names no model, and rejects the orchestrator's own model as a worker, because an omitted model silently inherits the orchestrator's, the most expensive one. The one dispatch that passes without a model parameter is the codex forwarder subagent: its own model is pinned in its agent file, and the codex model it forwards is checked on the companion task command.
+**Every dispatch names its worker's model.** The models are named in the sentences that dispatch the workers, in [`skills/artigiano`](skills/artigiano/SKILL.md), [`skills/panel`](skills/panel/SKILL.md), and the vendored review engine document, and nowhere else. A hook rejects a live run's subagent, workflow, or codex dispatch that names no model, and rejects the orchestrator's own model as a worker, because an omitted model silently inherits the orchestrator's, the most expensive one. The one dispatch that passes without a model parameter is the codex forwarder subagent: its own model is pinned in its agent file, and the codex model it forwards is checked on the companion task command.
 
 **The PR is the only path to trunk, and you decide the release.** Every run builds on its own branch in its own worktree, and its PR reaches ready only once the review, QA, and the project's checks are green on the exact head being delivered. The run verifies, and you authorize the release at launch: land on green, or hold. A held PR carries the brake the project's landing procedure names, or the `hold` label where it names none, and waits for you to lift it. The run never merges a PR by hand and never approves one. Anything only a person can clear, such as a required review, is reported with the PR left open.
 

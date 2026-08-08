@@ -114,11 +114,11 @@ describe("portable worker doctrine", () => {
     // The builder iterates on the single-test run and closes on the brief's
     // checks. The integrated diff gets the checks the map names. The mutation
     // method lives in one reference the implement doctrine routes to.
-    const maestro = read("skills/maestro/SKILL.md");
-    expect(maestro, "briefs carry the single-test run").toContain(
+    const artigiano = read("skills/artigiano/SKILL.md");
+    expect(artigiano, "briefs carry the single-test run").toContain(
       "Each brief carries the single-test run",
     );
-    expect(maestro, "the integrated diff gets its checks").toContain(
+    expect(artigiano, "the integrated diff gets its checks").toContain(
       "checks the map names for the integrated diff",
     );
     const openSkill = read("skills/open/SKILL.md");
@@ -137,25 +137,25 @@ describe("portable worker doctrine", () => {
   });
 
   it("names worker models where the dispatch happens and nowhere else", () => {
-    // Three files own model names: maestro states the orchestrator's model and
+    // Three files own model names: artigiano states the orchestrator's model and
     // its workers' models in the sentences that dispatch them, the panel names
     // its seats, and the vendored engine names its engines. Every other skill
     // file stays model-free, the references included, since a reference is
     // where a restated pin would go unnoticed and drift.
-    const maestro = read("skills/maestro/SKILL.md");
-    expect(maestro, "the orchestrator model is named").toContain("running on fable-5");
-    expect(maestro, "the builders name their model at the dispatch").toContain(
+    const artigiano = read("skills/artigiano/SKILL.md");
+    expect(artigiano, "the orchestrator model is named").toContain("running on fable-5");
+    expect(artigiano, "the builders name their model at the dispatch").toContain(
       "Builders pin to Opus 5 medium",
     );
-    expect(maestro, "the slice reviewer names its model").toContain("fresh Codex sol medium");
-    expect(maestro, "the closeout seat names its model").toContain("one fresh Opus 5 high reviewer");
-    expect(maestro, "QA names its model").toContain("Opus 5 medium sub agents");
-    expect(maestro, "the second opinion names its model and effort").toContain(
+    expect(artigiano, "the slice reviewer names its model").toContain("fresh Codex sol medium");
+    expect(artigiano, "the closeout seat names its model").toContain("one fresh Opus 5 high reviewer");
+    expect(artigiano, "QA names its model").toContain("Opus 5 medium sub agents");
+    expect(artigiano, "the second opinion names its model and effort").toContain(
       "gpt-5.6 sol xhigh",
     );
 
     const owned = new Set([
-      "skills/maestro/SKILL.md",
+      "skills/artigiano/SKILL.md",
       "skills/panel/SKILL.md",
       "skills/autoreview/SKILL.md",
     ]);
@@ -382,8 +382,8 @@ describe("portable worker doctrine", () => {
   });
 
   it("pins the review interlock and its quantifiers", () => {
-    const maestro = read("skills/maestro/SKILL.md");
-    expect(maestro).toContain("runs `autoreview` whole");
+    const artigiano = read("skills/artigiano/SKILL.md");
+    expect(artigiano).toContain("runs `autoreview` whole");
     expect(
       read("skills/autoreview/SKILL.md"),
       "every finding is verified against the real code before the head is accepted",
@@ -393,8 +393,8 @@ describe("portable worker doctrine", () => {
       "a finding with a runnable check is settled by running it",
     ).toContain("running the check that settles it when one exists");
     // The word alone routes nowhere from skill prose: the sentence names the tool.
-    expect(maestro).toContain("Ultracode the build through the Workflow tool");
-    expect(maestro).toContain("Ultracode through the Workflow tool");
+    expect(artigiano).toContain("Ultracode the build through the Workflow tool");
+    expect(artigiano).toContain("Ultracode through the Workflow tool");
 
     const close = read("skills/close/SKILL.md");
     expect(close).toContain("put the rule where the repository enforces it best");
@@ -437,9 +437,9 @@ describe("portable worker doctrine", () => {
     expect(autoreview).toContain("report each axis apart so one cannot mask the other");
     expect(autoreview).toContain("A panel set at invocation stays the panel on every rerun");
     expect(autoreview).toContain("repeated until the helper exits clean at the accepted head");
-    // The run's closeout seat: the seat runs the loop whole, the maestro rules
+    // The run's closeout seat: the seat runs the loop whole, the artigiano run rules
     // on its report and never edits.
-    expect(maestro).toContain("dispatch the closeout seat");
+    expect(artigiano).toContain("dispatch the closeout seat");
 
   });
 
