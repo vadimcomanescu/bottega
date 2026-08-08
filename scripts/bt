@@ -12,8 +12,12 @@
 # Account 1 stays the interactive seat; the no-arg call suggests the
 # least-recently-used other account for a run.
 #
-# Install: symlink this file onto PATH, e.g.
-#   ln -s "$(pwd)/scripts/bt" ~/.local/bin/bt
+# Install (the repo is private, so the download authenticates through the
+# GitHub CLI, which every bottega machine already has logged in):
+#   gh api -H "Accept: application/vnd.github.raw" \
+#     "repos/vadimcomanescu/bottega/contents/scripts/bt?ref=main" \
+#     > ~/.local/bin/bt && chmod +x ~/.local/bin/bt
+# Update by re-running the same line.
 #
 # Optional config at ~/.claude-accounts/bt.conf, one directive per line:
 #   accounts <N>                  highest account number (default 4)
