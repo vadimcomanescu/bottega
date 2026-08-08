@@ -36,15 +36,15 @@ import json
 import os
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import datetime
 
 HOME = os.path.expanduser("~")
 ACCOUNTS_DIR = os.path.join(HOME, ".claude-accounts")
 LOG = os.path.join(ACCOUNTS_DIR, "usage.log")
 CONF = os.path.join(ACCOUNTS_DIR, "bt.conf")
 
-EMAIL_COL = 34
-BAR_WIDTH = 16
+EMAIL_MAX = 34
+BAR_WIDTH = 10
 
 COLOR = sys.stdout.isatty() and "NO_COLOR" not in os.environ
 
@@ -82,7 +82,7 @@ def load_account(n):
 
     Claude Code rewrites that file during any session, so its mtime is real
     last activity — bt's own log only sees bt launches."""
-    info = {"n": n, "email": None, "mtime": 0, "windows": None}
+    info = {"n": n, "email": None, "mtime": 0, "weekly": None, "scoped": None}
     path = account_json(n)
     try:
         with open(path) as f:
@@ -94,31 +94,26 @@ def load_account(n):
 
     limits = ((raw.get("cachedUsageUtilization") or {})
               .get("utilization") or {}).get("limits") or []
-    now = datetime.now(timezone.utc)
-    windows = []
+    now = datetime.now().astimezone()
     for lim in limits:
-        kind = lim.get("kind")
-        if kind == "weekly_all":
-            label = "weekly"
-        elif kind == "weekly_scoped":
-            model = ((lim.get("scope") or {}).get("model") or {})
-            label = (model.get("display_name") or "scoped").lower()
-        else:
-            continue
         resets = None
         if lim.get("resets_at"):
             try:
                 resets = datetime.fromisoformat(lim["resets_at"]).astimezone()
             except ValueError:
                 pass
-        rolled = resets is not None and resets < now.astimezone()
-        windows.append({
-            "label": label,
+        rolled = resets is not None and resets < now
+        window = {
             "pct": 0 if rolled else round(lim.get("percent") or 0),
             "resets": resets,
             "rolled": rolled,
-        })
-    info["windows"] = windows or None
+        }
+        if lim.get("kind") == "weekly_all":
+            info["weekly"] = window
+        elif lim.get("kind") == "weekly_scoped" and not info["scoped"]:
+            model = ((lim.get("scope") or {}).get("model") or {})
+            window["label"] = (model.get("display_name") or "scoped").lower()
+            info["scoped"] = window
     return info
 
 
@@ -157,45 +152,73 @@ def day(dt):
 
 
 def bar(pct):
+    """(plain, colored) rendering of one usage bar."""
     filled = round(min(max(pct, 0), 100) * BAR_WIDTH / 100)
     tone = GREEN if pct < 50 else YELLOW if pct < 80 else RED
-    return c(tone, "█" * filled) + c(DIM, "░" * (BAR_WIDTH - filled))
+    plain = "█" * filled + "░" * (BAR_WIDTH - filled)
+    return plain, c(tone, "█" * filled) + c(DIM, "░" * (BAR_WIDTH - filled))
 
 
 def dashboard(max_account):
     accounts = [load_account(n) for n in range(1, max_account + 1)]
+    scoped_label = next(
+        (a["scoped"]["label"] for a in accounts if a["scoped"]), "scoped")
+
+    # Each cell is (plain, colored): widths come from the plain text so
+    # ANSI codes never skew the alignment.
+    def cell(text, code=None):
+        return (text, c(code, text) if code else text)
+
+    def usage(window):
+        if not window:
+            return cell("—", DIM)
+        plain_bar, colored_bar = bar(window["pct"])
+        pct = f"  {window['pct']:>3}%"
+        return (plain_bar + pct, colored_bar + pct)
+
+    def resets(a):
+        window = a["weekly"] or a["scoped"]
+        if not window or not window["resets"]:
+            return cell("—", DIM)
+        d = day(window["resets"])
+        return cell(f"reset {d}" if window["rolled"] else d, DIM)
+
+    rows = []
+    for a in accounts:
+        if a["email"]:
+            email = a["email"]
+            if len(email) > EMAIL_MAX:
+                email = email[:EMAIL_MAX - 1] + "…"
+            row = [cell(str(a["n"]), BOLD), cell(email), usage(a["weekly"]),
+                   usage(a["scoped"]), resets(a),
+                   cell(rel_time(a["mtime"]), DIM)]
+        else:
+            row = [cell(str(a["n"]), BOLD), cell("not logged in", DIM)] + \
+                  [cell("—", DIM)] * 3 + [cell(rel_time(a["mtime"]), DIM)]
+        cwd = last_cwd(a["n"])
+        row.append(cell(cwd, DIM) if cwd else cell(""))
+        rows.append(row)
+
+    header = [cell(h, DIM) for h in
+              ("#", "account", "weekly", scoped_label, "resets", "last used")]
+    widths = [max([len(header[i][0])] + [len(r[i][0]) for r in rows])
+              for i in range(6)]
+
+    def emit(row):
+        out = "  " + "  ".join(
+            row[i][1] + " " * (widths[i] - len(row[i][0])) for i in range(6))
+        if len(row) > 6 and row[6][0]:
+            out += "  " + row[6][1]
+        print(out.rstrip())
 
     print()
     print(f"  {c(ACCENT, '✻')} {c(BOLD, 'bt')} — Claude Code accounts")
     print()
-    for a in accounts:
-        n = a["n"]
-        if not a["email"]:
-            hint = f"not logged in — bt {n}, then /login inside the session"
-            print(f"  {c(BOLD, n)}  {c(DIM, hint)}")
-            print()
-            continue
-        email = a["email"]
-        if len(email) > EMAIL_COL:
-            email = email[:EMAIL_COL - 1] + "…"
-        meta = rel_time(a["mtime"])
-        cwd = last_cwd(n)
-        if cwd:
-            meta += f" · {cwd}"
-        print(f"  {c(BOLD, n)}  {email:<{EMAIL_COL}} {c(DIM, meta)}")
-        if a["windows"]:
-            for w in a["windows"]:
-                if w["rolled"]:
-                    note = f" · window reset {day(w['resets'])}"
-                elif w["resets"]:
-                    note = f" · resets {day(w['resets'])}"
-                else:
-                    note = ""
-                print(f"     {w['label']:<7} {bar(w['pct'])} "
-                      f"{w['pct']:>3}%{c(DIM, note)}")
-        else:
-            print(f"     {c(DIM, 'no usage data yet')}")
-        print()
+    emit(header)
+    print("  " + "  ".join(c(DIM, "─" * widths[i]) for i in range(6)))
+    for row in rows:
+        emit(row)
+    print()
 
     candidates = [a for a in accounts if a["n"] > 1 and a["email"]]
     if candidates:
