@@ -2,7 +2,8 @@
 # bt — launch Claude Code on one of several accounts, session-wide.
 #
 #   bt <n> [claude args...]   launch on account n; n=1 is the default ~/.claude
-#   bt                        show per-account last use and suggest a run seat
+#   bt                        show each account's email, login status, and last
+#                             use, then suggest a run seat
 #
 # Accounts 2..N are Claude Code config dirs at ~/.claude-accounts/<n>
 # (CLAUDE_CONFIG_DIR is the mechanism Claude Code documents for this). Each
@@ -41,29 +42,43 @@ read_conf() {
 
 last_used_epoch() {
   local stamp
-  stamp=$(grep "^account=$1 " "$LOG" 2>/dev/null | tail -1 | awk '{print $2}')
+  stamp=$(grep "^account=$1 " "$LOG" 2>/dev/null | tail -1 | awk '{print $2}' || true)
   [ -n "${stamp:-}" ] || { echo 0; return; }
   date -j -f '%Y-%m-%dT%H:%M:%S' "$stamp" +%s 2>/dev/null \
     || date -d "$stamp" +%s 2>/dev/null || echo 0
 }
 
+account_email() {
+  local f
+  if [ "$1" = 1 ]; then f="$HOME/.claude.json"; else f="$ACCOUNTS_DIR/$1/.claude.json"; fi
+  [ -f "$f" ] || return 0
+  grep -o '"emailAddress" *: *"[^"]*"' "$f" | head -1 | cut -d'"' -f4 || true
+}
+
 suggest() {
-  echo "bt — account launcher"
+  echo "bt — launch Claude Code on one of $MAX_ACCOUNT accounts: bt <1..$MAX_ACCOUNT> [claude args...]"
   echo
-  printf '%-9s %s\n' "account" "last used"
-  local n
+  printf '%-8s %-36s %-12s %s\n' "account" "email" "status" "last used"
+  local n email status last
   for n in $(seq 1 "$MAX_ACCOUNT"); do
-    local last
-    last=$(grep "^account=$n " "$LOG" 2>/dev/null | tail -1 | sed 's/^account=[0-9]* //')
-    printf '%-9s %s\n' "$n" "${last:-never}"
+    email=$(account_email "$n")
+    if [ -n "$email" ]; then status="logged in"; else email="-"; status="needs login"; fi
+    last=$(grep "^account=$n " "$LOG" 2>/dev/null | tail -1 \
+      | sed -e 's/^account=[0-9]* //' -e "s| cwd=$HOME| cwd=~|" || true)
+    printf '%-8s %-36s %-12s %s\n' "$n" "$email" "$status" "${last:-never}"
   done
   echo
-  local best=2 best_ts=9999999999 ts
+  local best= best_ts=9999999999 ts
   for n in $(seq 2 "$MAX_ACCOUNT"); do
+    [ -n "$(account_email "$n")" ] || continue
     ts=$(last_used_epoch "$n")
     if [ "$ts" -lt "$best_ts" ]; then best=$n; best_ts=$ts; fi
   done
-  echo "suggestion: interactive work on 1; start this run on $best (least recently used)"
+  if [ -n "$best" ]; then
+    echo "suggestion: interactive work on 1; start this run on $best (least recently used logged-in account)"
+  else
+    echo "no other account is logged in yet: run bt <n>, then /login inside the session"
+  fi
   exit 0
 }
 
