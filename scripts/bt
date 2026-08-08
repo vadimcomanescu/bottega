@@ -1,124 +1,246 @@
-#!/usr/bin/env bash
-# bt — launch Claude Code on one of several accounts, session-wide.
-#
-#   bt <n> [claude args...]   launch on account n; n=1 is the default ~/.claude
-#   bt                        show each account's email, login status, weekly
-#                             usage, and last use, then suggest a run seat
-#
-# Accounts 2..N are Claude Code config dirs at ~/.claude-accounts/<n>
-# (CLAUDE_CONFIG_DIR is the mechanism Claude Code documents for this). Each
-# dir needs one browser /login the first time; symlink CLAUDE.md and
-# settings.json to the ~/.claude copies so every account behaves the same.
-# Account 1 stays the interactive seat; the no-arg call suggests the
-# least-recently-used other account for a run.
-#
-# Install (the repo is private, so the download authenticates through the
-# GitHub CLI, which every bottega machine already has logged in):
-#   gh api -H "Accept: application/vnd.github.raw" \
-#     "repos/vadimcomanescu/bottega/contents/scripts/bt?ref=main" \
-#     > ~/.local/bin/bt && chmod +x ~/.local/bin/bt
-# Update by re-running the same line.
-#
-# Optional config at ~/.claude-accounts/bt.conf, one directive per line:
-#   accounts <N>                  highest account number (default 4)
-#   beads <path-prefix> <dir>     export BEADS_DIR=<dir> when the session
-#                                 starts under <path-prefix>, so satellite
-#                                 repos share one work graph
-set -euo pipefail
+#!/usr/bin/env python3
+"""bt — launch Claude Code on one of several accounts, session-wide.
 
-ACCOUNTS_DIR="$HOME/.claude-accounts"
-LOG="$ACCOUNTS_DIR/usage.log"
-CONF="$ACCOUNTS_DIR/bt.conf"
-MAX_ACCOUNT=4
+  bt                    dashboard: every account's login state, weekly and
+                        model-scoped usage, last activity, and a suggested
+                        run seat
+  bt <n> [claude ...]   launch Claude Code on account n; 1 is ~/.claude
 
-read_conf() {
-  [ -f "$CONF" ] || return 0
-  while read -r key a b; do
-    case "$key" in
-      accounts) MAX_ACCOUNT=$a ;;
-      beads)
-        case "$PWD" in
-          "${a/#\~/$HOME}"*) export BEADS_DIR="${b/#\~/$HOME}" ;;
-        esac ;;
-    esac
-  done < "$CONF"
-}
+Accounts 2..N are Claude Code config dirs at ~/.claude-accounts/<n>
+(CLAUDE_CONFIG_DIR is the mechanism Claude Code documents for this). Each
+dir needs one browser /login the first time; symlink CLAUDE.md and
+settings.json to the ~/.claude copies so every account behaves the same.
+Account 1 stays the interactive seat; the dashboard suggests the
+least-recently-used other account for a run.
 
-account_json() {
-  if [ "$1" = 1 ]; then echo "$HOME/.claude.json"; else echo "$ACCOUNTS_DIR/$1/.claude.json"; fi
-}
+Usage numbers are the /usage data each session caches into the account's
+.claude.json — read locally, no network call. A window whose reset time
+has already passed shows 0%: no session ran after the cache was written,
+so nothing was spent since the reset.
 
-# Claude Code rewrites the account's .claude.json during any session, so its
-# mtime is real last activity — bt's own log only sees bt launches.
-last_used_epoch() {
-  local f; f=$(account_json "$1")
-  [ -f "$f" ] || { echo 0; return; }
-  stat -f %m "$f" 2>/dev/null || stat -c %Y "$f" 2>/dev/null || echo 0
-}
+Install (the repo is private, so the download authenticates through the
+GitHub CLI, which every bottega machine already has logged in):
+  gh api -H "Accept: application/vnd.github.raw" \
+    "repos/vadimcomanescu/bottega/contents/scripts/bt?ref=main" \
+    > ~/.local/bin/bt && chmod +x ~/.local/bin/bt
+Update by re-running the same line. Needs python3 on PATH.
 
-account_email() {
-  local f; f=$(account_json "$1")
-  [ -f "$f" ] || return 0
-  grep -o '"emailAddress" *: *"[^"]*"' "$f" | head -1 | cut -d'"' -f4 || true
-}
+Optional config at ~/.claude-accounts/bt.conf, one directive per line:
+  accounts <N>                  highest account number (default 4)
+  beads <path-prefix> <dir>     export BEADS_DIR=<dir> when the session
+                                starts under <path-prefix>, so satellite
+                                repos share one work graph
+"""
 
-# The /usage numbers each session caches into the account's .claude.json:
-# the seven-day window's percent used and when it resets. As stale as the
-# account's last session; the reset date says whether the window has rolled.
-weekly_usage() {
-  local f block pct reset; f=$(account_json "$1")
-  [ -f "$f" ] || return 0
-  block=$(grep -A2 '"seven_day" *: *{' "$f" | head -3 || true)
-  pct=$(printf '%s' "$block" | grep -o '"utilization" *: *[0-9.]*' | grep -o '[0-9.]*$' | head -1 || true)
-  reset=$(printf '%s' "$block" | grep -o '"resets_at" *: *"[^"]*"' | cut -d'"' -f4 | cut -dT -f1 || true)
-  [ -n "$pct" ] || return 0
-  printf '%s%% used%s' "${pct%%.*}" "${reset:+, resets $reset}"
-}
+import json
+import os
+import sys
+import time
+from datetime import datetime, timezone
 
-suggest() {
-  echo "bt — launch Claude Code on one of $MAX_ACCOUNT accounts: bt <1..$MAX_ACCOUNT> [claude args...]"
-  echo
-  printf '%-8s %-36s %-12s %-28s %s\n' "account" "email" "status" "weekly" "last used"
-  local n email status weekly ts last cwd
-  for n in $(seq 1 "$MAX_ACCOUNT"); do
-    email=$(account_email "$n")
-    if [ -n "$email" ]; then status="logged in"; else email="-"; status="needs login"; fi
-    weekly=$(weekly_usage "$n"); [ -n "$weekly" ] || weekly="-"
-    ts=$(last_used_epoch "$n")
-    if [ "$ts" -gt 0 ]; then last=$(date -r "$ts" '+%Y-%m-%dT%H:%M:%S'); else last=never; fi
-    cwd=$(grep "^account=$n " "$LOG" 2>/dev/null | tail -1 \
-      | sed -e 's/.* cwd=//' -e "s|^$HOME|~|" || true)
-    printf '%-8s %-36s %-12s %-28s %s%s\n' "$n" "$email" "$status" "$weekly" "$last" "${cwd:+  $cwd}"
-  done
-  echo
-  local best= best_ts=9999999999 ts
-  for n in $(seq 2 "$MAX_ACCOUNT"); do
-    [ -n "$(account_email "$n")" ] || continue
-    ts=$(last_used_epoch "$n")
-    if [ "$ts" -lt "$best_ts" ]; then best=$n; best_ts=$ts; fi
-  done
-  if [ -n "$best" ]; then
-    echo "suggestion: interactive work on 1; start this run on $best (least recently used logged-in account)"
-  else
-    echo "no other account is logged in yet: run bt <n>, then /login inside the session"
-  fi
-  exit 0
-}
+HOME = os.path.expanduser("~")
+ACCOUNTS_DIR = os.path.join(HOME, ".claude-accounts")
+LOG = os.path.join(ACCOUNTS_DIR, "usage.log")
+CONF = os.path.join(ACCOUNTS_DIR, "bt.conf")
 
-read_conf
-[ $# -eq 0 ] && suggest
+EMAIL_COL = 34
+BAR_WIDTH = 16
 
-n=$1; shift
-if ! [ "$n" -ge 1 ] 2>/dev/null || [ "$n" -gt "$MAX_ACCOUNT" ]; then
-  echo "usage: bt <1..$MAX_ACCOUNT> [claude args...]" >&2
-  exit 2
-fi
+COLOR = sys.stdout.isatty() and "NO_COLOR" not in os.environ
 
-mkdir -p "$ACCOUNTS_DIR"
-printf 'account=%s %s cwd=%s\n' "$n" "$(date +%Y-%m-%dT%H:%M:%S)" "$PWD" >> "$LOG"
+ACCENT, BOLD, DIM = "38;5;173", "1", "38;5;245"
+GREEN, YELLOW, RED = "38;5;71", "38;5;179", "38;5;167"
 
-if [ "$n" = "1" ]; then
-  exec claude "$@"
-fi
-export CLAUDE_CONFIG_DIR="$ACCOUNTS_DIR/$n"
-exec claude "$@"
+
+def c(code, s):
+    return f"\x1b[{code}m{s}\x1b[0m" if COLOR else s
+
+
+def read_conf():
+    max_account = 4
+    if os.path.isfile(CONF):
+        with open(CONF) as f:
+            for line in f:
+                parts = line.split()
+                if len(parts) >= 2 and parts[0] == "accounts":
+                    max_account = int(parts[1])
+                elif len(parts) >= 3 and parts[0] == "beads":
+                    prefix = os.path.expanduser(parts[1])
+                    if os.getcwd().startswith(prefix):
+                        os.environ["BEADS_DIR"] = os.path.expanduser(parts[2])
+    return max_account
+
+
+def account_json(n):
+    if n == 1:
+        return os.path.join(HOME, ".claude.json")
+    return os.path.join(ACCOUNTS_DIR, str(n), ".claude.json")
+
+
+def load_account(n):
+    """Everything the dashboard shows for one account, from its .claude.json.
+
+    Claude Code rewrites that file during any session, so its mtime is real
+    last activity — bt's own log only sees bt launches."""
+    info = {"n": n, "email": None, "mtime": 0, "windows": None}
+    path = account_json(n)
+    try:
+        with open(path) as f:
+            raw = json.load(f)
+    except (OSError, ValueError):
+        return info
+    info["mtime"] = os.path.getmtime(path)
+    info["email"] = (raw.get("oauthAccount") or {}).get("emailAddress")
+
+    limits = ((raw.get("cachedUsageUtilization") or {})
+              .get("utilization") or {}).get("limits") or []
+    now = datetime.now(timezone.utc)
+    windows = []
+    for lim in limits:
+        kind = lim.get("kind")
+        if kind == "weekly_all":
+            label = "weekly"
+        elif kind == "weekly_scoped":
+            model = ((lim.get("scope") or {}).get("model") or {})
+            label = (model.get("display_name") or "scoped").lower()
+        else:
+            continue
+        resets = None
+        if lim.get("resets_at"):
+            try:
+                resets = datetime.fromisoformat(lim["resets_at"]).astimezone()
+            except ValueError:
+                pass
+        rolled = resets is not None and resets < now.astimezone()
+        windows.append({
+            "label": label,
+            "pct": 0 if rolled else round(lim.get("percent") or 0),
+            "resets": resets,
+            "rolled": rolled,
+        })
+    info["windows"] = windows or None
+    return info
+
+
+def last_cwd(n):
+    try:
+        with open(LOG) as f:
+            lines = [l for l in f if l.startswith(f"account={n} ")]
+    except OSError:
+        return None
+    if not lines or " cwd=" not in lines[-1]:
+        return None
+    cwd = lines[-1].rsplit(" cwd=", 1)[1].strip()
+    return cwd.replace(HOME, "~", 1)
+
+
+def rel_time(ts):
+    if not ts:
+        return "never"
+    s = time.time() - ts
+    if s < 90:
+        return "just now"
+    if s < 3600:
+        return f"{int(s // 60)} min ago"
+    if s < 86400:
+        return f"{int(s // 3600)} h ago"
+    if s < 172800:
+        return "yesterday"
+    if s < 604800:
+        return f"{int(s // 86400)} days ago"
+    d = datetime.fromtimestamp(ts)
+    return f"{d:%b} {d.day}"
+
+
+def day(dt):
+    return f"{dt:%a} {dt:%b} {dt.day}"
+
+
+def bar(pct):
+    filled = round(min(max(pct, 0), 100) * BAR_WIDTH / 100)
+    tone = GREEN if pct < 50 else YELLOW if pct < 80 else RED
+    return c(tone, "█" * filled) + c(DIM, "░" * (BAR_WIDTH - filled))
+
+
+def dashboard(max_account):
+    accounts = [load_account(n) for n in range(1, max_account + 1)]
+
+    print()
+    print(f"  {c(ACCENT, '✻')} {c(BOLD, 'bt')} — Claude Code accounts")
+    print()
+    for a in accounts:
+        n = a["n"]
+        if not a["email"]:
+            hint = f"not logged in — bt {n}, then /login inside the session"
+            print(f"  {c(BOLD, n)}  {c(DIM, hint)}")
+            print()
+            continue
+        email = a["email"]
+        if len(email) > EMAIL_COL:
+            email = email[:EMAIL_COL - 1] + "…"
+        meta = rel_time(a["mtime"])
+        cwd = last_cwd(n)
+        if cwd:
+            meta += f" · {cwd}"
+        print(f"  {c(BOLD, n)}  {email:<{EMAIL_COL}} {c(DIM, meta)}")
+        if a["windows"]:
+            for w in a["windows"]:
+                if w["rolled"]:
+                    note = f" · window reset {day(w['resets'])}"
+                elif w["resets"]:
+                    note = f" · resets {day(w['resets'])}"
+                else:
+                    note = ""
+                print(f"     {w['label']:<7} {bar(w['pct'])} "
+                      f"{w['pct']:>3}%{c(DIM, note)}")
+        else:
+            print(f"     {c(DIM, 'no usage data yet')}")
+        print()
+
+    candidates = [a for a in accounts if a["n"] > 1 and a["email"]]
+    if candidates:
+        best = min(candidates, key=lambda a: a["mtime"])["n"]
+        print(f"  {c(ACCENT, '➜')} interactive work on 1 · start runs on "
+              f"{c(BOLD, best)} {c(DIM, '(least recently used)')}")
+    else:
+        print(f"  {c(ACCENT, '➜')} no other account is logged in yet — "
+              f"run bt <n>, then /login inside the session")
+    print(f"    {c(DIM, f'bt <1..{max_account}> [claude args…] launches · bt --help')}")
+    print()
+
+
+def launch(n, args):
+    os.makedirs(ACCOUNTS_DIR, exist_ok=True)
+    with open(LOG, "a") as f:
+        stamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+        f.write(f"account={n} {stamp} cwd={os.getcwd()}\n")
+    if n != 1:
+        os.environ["CLAUDE_CONFIG_DIR"] = os.path.join(ACCOUNTS_DIR, str(n))
+    try:
+        os.execvp("claude", ["claude"] + args)
+    except FileNotFoundError:
+        print("bt: claude not found on PATH", file=sys.stderr)
+        sys.exit(127)
+
+
+def main():
+    max_account = read_conf()
+    args = sys.argv[1:]
+    if not args:
+        dashboard(max_account)
+        return
+    if args[0] in ("-h", "--help"):
+        print(__doc__.strip())
+        return
+    try:
+        n = int(args[0])
+        if not 1 <= n <= max_account:
+            raise ValueError
+    except ValueError:
+        print(f"usage: bt <1..{max_account}> [claude args...]", file=sys.stderr)
+        sys.exit(2)
+    launch(n, args[1:])
+
+
+if __name__ == "__main__":
+    main()
